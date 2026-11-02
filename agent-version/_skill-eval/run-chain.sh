@@ -32,7 +32,9 @@ case "$PROBE" in
   loop-twice) FIXTURE=LOOP-TWICE ;;
   nb-chain-3) FIXTURE=NB-CHAIN-3 ;;
   nb-chain-spor) FIXTURE=NB-CHAIN-SPOR ;;
-  *) echo "неизвестная цепочка: '$PROBE'"; echo "есть: loop-chain loop-twice nb-chain-3 nb-chain-spor"; exit 1 ;;
+  real-apollo) FIXTURE=REAL-APOLLO ;;
+  real-apollo-ts) FIXTURE=REAL-APOLLO-TS ;;
+  *) echo "неизвестная цепочка: '$PROBE'"; echo "есть: loop-chain loop-twice nb-chain-3 nb-chain-spor real-apollo real-apollo-ts"; exit 1 ;;
 esac
 [ -n "$ROUND" ] || { echo "usage: ./run-chain.sh <проба> <папка-раунда> <N> [параллельность]"; exit 1; }
 

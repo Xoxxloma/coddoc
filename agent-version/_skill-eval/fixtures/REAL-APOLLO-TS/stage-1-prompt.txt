@@ -1,0 +1,1 @@
+Напиши техническую спецификацию по БТ coddoc/APL-2099/business_requirements.md
