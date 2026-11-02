@@ -196,6 +196,9 @@
 | `td-gate` | `task-decomposition-doc` | `TD-PATH` (засев `seed-paste/`) | **единственное различающее плечо пробы:** эпик вставлен ТЕКСТОМ и на диске отсутствует; законный исход — отказ и просьба записать файлом | `grade-td-path.mjs <плечо> gate` |
 | `td-alias` | `task-decomposition-doc` | `TD-PATH` (засев `seed-alias/`) | раскладка с живой работы: ключ эпика `T-T-M-1.2` regex не проходит, у детей ключи настоящие; два законных исхода — запись внутрь или отказ по гейту | `grade-td-path.mjs <плечо> alias` |
 | `td-ru-w` | `task-decomposition-doc` | `TD-RU` (засев `seed/`) | `td-path-w` на словах 5.35 (эпик и реплика — «части»): §4.5 ребёнка «не применимо: это часть эпика», старых слов нет. Оркестратор на том же — `GS-CUT2` (`run-gui.sh`, `grade-gui.mjs`) | `grade-td-path.mjs` + `grade-terms.mjs --case=td` |
+| `real-apollo` | `business-requirements-doc` → `technical-spec-doc` | `REAL-APOLLO` | **настоящая задача (`run-chain.sh`):** двойник отвечает словами обсуждения Apollo #2099, карточки сняты с кода до правки, эталон — влитые PR | сверка глазами по `expected.md` |
+| `real-apollo-ts` | `technical-spec-doc` | `REAL-APOLLO-TS` | только спека той же задачи на замороженном БТ (`run-chain.sh`): разброс спеки без разброса БТ | сверка глазами по `REAL-APOLLO/expected.md` |
+| `meet-eth204` / `meet-eth150` | `meeting-intake` | `MEET-ETH204`, `MEET-ETH150` | **настоящие созвоны:** расшифровка Ethereum в построчном переводе, эталон — опубликованная таблица решений | сверка глазами по `expected.md` |
 
 ## Пара `rt-menu` / `rt-nokey` — порядок на входе в маршрут
 
