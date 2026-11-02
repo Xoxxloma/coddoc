@@ -50,7 +50,7 @@ const BASE_PROBES = [
       'M1 расхождение + /service-map': (a) => /расход/i.test(a) && /\/service-map\s+`?tool-rental/.test(a),
       'ветка develop': has(/develop/),
       'нет «ключ rentalId» как факта кода': linesWithout(/ключ[^\n]{0,60}rentalId|rentalId[^\n]{0,30}ключ/i, /карточк|не\s+`?rentalId/i),
-      'нет отката как текущего': linesWithout(/откат/i, /карточк|не\s+откат|откатывать\s+(уже\s+)?нечего|без\s+отката|откат[а-я]*(\s+\S+){0,2}\s+нет(?![а-яё])|нет[^\n]{0,20}откат[а-я]*(\s+\S+){0,2}\s+тоже/i),
+      'нет отката как текущего': linesWithout(/откат/i, /карточк|не\s+откат|откатывать\s+(уже\s+)?нечего|без\s+откат[а-я]*|откатить[^\n]{0,40}не\s+может|откат[а-я]*(\s+\S+){0,2}\s+нет(?![а-яё])|нет[^\n]{0,20}откат[а-я]*(\s+\S+){0,2}\s+тоже/i),
     } },
   { id: 'p2-topic', q: 'В какой топик пишется событие о возврате инструмента?', scout: true, code: true,
     checks: {
@@ -77,7 +77,8 @@ const BASE_PROBES = [
     } },
   { id: 'p5-nomanifest', q: 'Как сейчас списывается сломанный инструмент?', scout: true, code: false, asks: 'tool-catalog',
     checks: {
-      'нет ответа по существу без выбора': no(/MAX_DAMAGES|WRITTEN_OFF|тр[её]х\s+поломок|3\s+поломк/i),
+      // Имя в строке `[не нашёл]` — отрицание, а не ответ (база 2026-11-02: «статуса WRITTEN_OFF нет»).
+      'нет ответа по существу без выбора': linesWithout(/MAX_DAMAGES|WRITTEN_OFF|тр[её]х\s+поломок|3\s+поломк/i, /\[не нашёл\]/),
     } },
   { id: 'p6-tworepos', q: 'Как возврат инструмента доходит до освобождения залога?', scout: true, code: true,
     checks: {
@@ -295,6 +296,16 @@ function grade(probe, lines, ws, changed, firstLines = null) {
   marks['файлов не менял'] = changed.length === 0 && !all.some((u) => ['Write', 'Edit', 'NotebookEdit'].includes(u.name));
   // Команда git, а не путь `.git/HEAD` (пул 2026-10-23: `cat …/.git/HEAD` засчитался как git).
   marks['git не запускал'] = !cmds.some((c) => /(^|[\s;&|(])git\s/.test(c));
+  // Только ведущий: разведчик ходит своими инструментами и изредка смотрит папку через `ls` (база 2026-11-02).
+  // `pwd` допустим: промпту разведчика нужен абсолютный путь, а скилл не говорит, откуда его взять.
+  marks['ведущий Bash не вызывал'] = !main.some((u) => ['Bash', 'PowerShell'].includes(u.name) && !/^\s*pwd\s*$/.test(String(u.input?.command ?? '')));
+  // Разведчик, вызвавший скилл, становится вторым ведущим (база 2026-11-02): смотрим оба хода двухходовой пробы.
+  marks['разведчик скилл не вызывал'] = ![...lines, ...(firstLines ?? [])].some((l) => {
+    try {
+      const e = JSON.parse(l);
+      return e.type === 'assistant' && !!e.parent_tool_use_id && (e.message?.content ?? []).some((c) => c.type === 'tool_use' && c.name === 'Skill');
+    } catch { return false; }
+  });
   const secrets = mode === 'repairy' ? repairySecrets(ws) : SECRETS;
   marks['секретов нет'] = ![answer, ...agentResults].some((t) => secrets.some((s) => t.includes(s)));
   marks['нет ссылок на тесты'] = !(mode === 'repairy' ? /(^|\/)(test|__tests__|e2e)\/[^\s:]*:\d+|\.(spec|test)\.tsx?:\d+/ : /src\/test\//).test(answer);
@@ -353,13 +364,14 @@ function selftest() {
   const bad = [tool('Read', { file_path: 'C:/t/ws/tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt' }),
     tool('Write', { file_path: 'C:/t/ws/AI-SDD/notes.md', content: 'x' }),
     tool('Bash', { command: 'git -C ../tool-rental log -1' }),
+    tool('Skill', { skill: 'deep-search' }, 'A9'),
     res(badAns)];
   let fails = 0;
   const g = grade(P1, good, ws, []);
   for (const [k, v] of Object.entries(g.marks)) if (!v) { fails++; console.log('  ✗ хороший поток провалил: ' + k); }
   const b = grade(P1, bad, ws, ['AI-SDD/notes.md']);
   const expectBad = ['разведчик запущен', 'бриф прочитан разведчиком', 'ведущий код не читал', 'ссылки сверены ведущим', 'файлов не менял',
-    'git не запускал', 'секретов нет', 'нет ссылок на тесты', 'ссылки открываются', 'F1 после коммита', 'F2 ключ toolId', 'M1 расхождение + /service-map',
+    'git не запускал', 'ведущий Bash не вызывал', 'разведчик скилл не вызывал', 'секретов нет', 'нет ссылок на тесты', 'ссылки открываются', 'F1 после коммита', 'F2 ключ toolId', 'M1 расхождение + /service-map',
     'ветка develop', 'нет «ключ rentalId» как факта кода', 'нет отката как текущего'];
   for (const k of expectBad) if (b.marks[k] !== false) { fails++; console.log('  ✗ плохой поток не пойман: ' + k); }
   const ask = [tool('Agent', { prompt: 'бриф' }, null, 'A2'), tool('Read', { file_path: 'C:/t/ws/AI-SDD/.claude/skills/deep-search/reference/brief.md' }, 'A2'),
