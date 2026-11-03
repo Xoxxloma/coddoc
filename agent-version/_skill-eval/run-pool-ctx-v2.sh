@@ -112,7 +112,10 @@ DONE_RE="${RT_DONE_RE:-}"
 # не проверяется). Для проб, у которых файл результата создаётся в начале диалога и дописывается по ходу
 # (`rec-*`): по пути конец не опознать.
 DONE_GREP="${RT_DONE_GREP:-}"
-is_done() { { [ -n "$DONE_RE" ] && find "$1" -type f 2>/dev/null | grep -qE "$DONE_RE"; } || { [ -n "$DONE_GREP" ] && grep -rqE "$DONE_GREP" "$1/coddoc" "$1/notes" 2>/dev/null; }; }
+# `RT_DONE_ANSWER` — регулярка по ответам агента `answer-*.md`: нашлась — диалог кончен (пусто → не проверяется). Для проб,
+# у которых результат — сообщение в чате, а не файл (`reh-*`).
+DONE_ANSWER="${RT_DONE_ANSWER:-}"
+is_done() { { [ -n "$DONE_RE" ] && find "$1" -type f 2>/dev/null | grep -qE "$DONE_RE"; } || { [ -n "$DONE_GREP" ] && grep -rqE "$DONE_GREP" "$1/coddoc" "$1/notes" 2>/dev/null; } || { [ -n "$DONE_ANSWER" ] && cat "$1"/answer-*.md 2>/dev/null | grep -qE "$DONE_ANSWER"; }; }
 # `RT_TWIN` — карточка памяти двойника аналитика, `RT_TWIN_PROMPT` — общий промпт двойника (пусто → цикл
 # побайтно прежний). Задана — реплику хода пишет не файл, а двойник: отдельный `claude -p` без инструментов,
 # вне песочницы, получает промпт, карточку и весь диалог и отвечает за аналитика. Для опросов, где ответ
@@ -198,7 +201,16 @@ extract_answer() {
     // `find` брал первый, и прогоны выглядели пустой работой при готовых отчётах в потоке.
     const results = parsed.filter((x) => x.type === "result" && typeof x.result === "string")
     const res = results.length ? results[results.length - 1] : null
-    fs.writeFileSync(process.argv[2], res ? res.result : "")
+    // `RT_ANSWER_ALL_TEXT=1` (пробы `reh-*`): ответ хода — все реплики ведущего, как их видит пользователь. Вопрос,
+    // напечатанный до вызова инструмента, в `result` не попадает, и двойник отвечал на «Жду ответа на вопрос 3/6».
+    const texts = []
+    if (process.env.RT_ANSWER_ALL_TEXT === "1") {
+      for (const x of parsed) {
+        if (x.type !== "assistant" || x.parent_tool_use_id || !x.message || !Array.isArray(x.message.content)) continue
+        for (const c of x.message.content) if (c.type === "text" && String(c.text).trim()) texts.push(String(c.text))
+      }
+    }
+    fs.writeFileSync(process.argv[2], texts.length ? texts.join("\n\n") : (res ? res.result : ""))
   ' "$stream" "$out" 2>>"$err" || cp /dev/null "$out"
 }
 
