@@ -1,0 +1,1 @@
+Прорепетируй со мной встречу по спеке coddoc/SHT-410/technical_specification.md. Роль — архитектор.
