@@ -373,9 +373,6 @@ case "$PROBE" in
   sb-blue-cr)  FIXTURE=SB-BLUE; PROMPT_FILE=cr-prompt.txt;  SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   sb-blue-new) FIXTURE=SB-BLUE; PROMPT_FILE=new-prompt.txt; SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   sb-blue-na)  FIXTURE=SB-BLUE; PROMPT_FILE=na-prompt.txt;  SKILL=stage-breakdown-doc ;;
-  # ── `spec-readiness`: достаточно ли спеки, чтобы писать код ────────────────────────────────
-  # Как и приёмка, ничего не пишет на диск: артефакт — `answer.md` из stdout. Парное плечо без
-  # скилла гоняется отдельным `run-ctl.sh` на той же фикстуре — оно и есть знаменатель.
   # SCX — маршрут мелкой правки после 5.74–5.81: Р9 у запроса на правку, вопросы без порога, стык «по документу сверху»,
   # чужой сервис — потребление; приёмка и разрез на выходе. README фикстур SCX-*; грейдеры grade-scx-cr|ts|down.mjs.
   scx-cr-nob)   FIXTURE=SCX-CR;   PROMPT_FILE=nob-w-prompt.txt;    SKILL=change-request-doc ;;
@@ -390,22 +387,8 @@ case "$PROBE" in
   scx-rv-dirty) FIXTURE=SCX-DOWN; PROMPT_FILE=rv-dirty-prompt.txt; SKILL=spec-review ;;
   scx-sb-doc)   FIXTURE=SCX-DOWN; PROMPT_FILE=sb-doc-prompt.txt;   SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   scx-sb-dep)   FIXTURE=SCX-DOWN; PROMPT_FILE=sb-dep-prompt.txt;   SKILL=stage-breakdown-doc ;;
-  sr-gap)    FIXTURE=SR-GAP;    PROMPT_FILE=sr-prompt.txt;   SKILL=spec-readiness ;;
-  # шаг 4 п.2б PLAN-FROM-POCOCK: готовность после 2б — изменение существующего наше, строка «Существующий стык» чужая. grade-sr-blue.mjs
-  sr-blue-yes) FIXTURE=SR-BLUE; PROMPT_FILE=yes-prompt.txt; SKILL=spec-readiness ;;
-  sr-blue-idk) FIXTURE=SR-BLUE; PROMPT_FILE=idk-prompt.txt; SKILL=spec-readiness ;;
-  sr-blue-cr)  FIXTURE=SR-BLUE; PROMPT_FILE=cr-prompt.txt;  SKILL=spec-readiness ;;
-  # Свод и сверка без субагентов: роли поданы готовыми в `roles-output.md`. Мерит Шаги 3–4 на
-  # замороженном входе — см. `fixtures/SR-VERIFY/README.md`. Ключ `KEY.md` в песочницу не едет.
-  sr-verify) FIXTURE=SR-VERIFY; PROMPT_FILE=sr-verify-prompt.txt; SKILL=spec-readiness ;;
-  # Сторож ложного срабатывания: спека реализуема, законный исход — «блокеров: 0».
-  sr-clean)  FIXTURE=SR-CLEAN;  PROMPT_FILE=sr-prompt.txt;   SKILL=spec-readiness ;;
-  # Ловушка: `services/itsm.md` набита конкретикой, которой в спеке нет. Ни один её литерал не
-  # имеет права попасть в отчёт, и ни одна 🟡-карточка — в блокеры.
-  sr-yellow) FIXTURE=SR-YELLOW; PROMPT_FILE=sr-prompt.txt;   SKILL=spec-readiness ;;
-  # Спека РЕАЛЬНОГО багфикса: маленькая, вопросов мало. На ней у человека проявился хвост
-  # после отчёта — замечание про §8 и перечень закрытых вопросов, которых в форме нет.
-  sr-bugfix) FIXTURE=SR-BUGFIX; PROMPT_FILE=sr-prompt.txt;   SKILL=spec-readiness ;;
+  # Пробы `sr-*` сняты в 5.89 вместе со `spec-readiness`: проверку делает `rehearse … проверка`, пробы `chk-*` ниже.
+  # Фикстуры `SR-*` живут для `chk-*` и `reh-ex-*`.
   # Дифференцирующий тест фикстуры, а не скилла: `SR-GAP` обязана быть чистой ПО ФОРМЕ. Приёмка
   # нашла нарушение — значит фикстура мерит форму, а не реализуемость, и чинить надо её.
   rv-srgap)  FIXTURE=SR-GAP;    PROMPT_FILE=rv-prompt.txt;   SKILL=spec-review ;;
@@ -593,7 +576,7 @@ case "$PROBE" in
   # УЗЕЛ «ЧТО ДАЛЬШЕ?» (`analyst-workspace` 2.0.0): после спеки один вопрос из четырёх вариантов.
   # `NODE_FILE` — реплика аналитика на узел (раннер подставляет её, опознав узел в ответе прошлого
   # хода); остальные ходы — прежняя нейтральная реплика. Плечи выше идут по ветке «Разбить на этапы».
-  # `rt-check` — ветка «Проверить спеку»: `spec-readiness` вызван на путь спеки, узел задан снова тем
+  # `rt-check` — ветка «Проверить спеку»: `rehearse … проверка` вызван на путь спеки, узел задан снова тем
   # же ходом, этапы не тронуты. Заменяет `rt-nosplit`: двоичного вопроса про этапы больше нет.
   rt-check)    FIXTURE=RT-BUG; PROMPT_FILE=bug-prompt.txt;     SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=bug-turn2.txt NODE_FILE=node-check-turn2.txt ;;
   # `rt-fix` — ветка «Доработать спеку»: спека запущена второй раз, после неё приёмка, затем узел снова.
@@ -605,18 +588,18 @@ case "$PROBE" in
   # обязан совпасть с `rt-bug` (в 3.2 первый вариант развилки выбирался по статусу). Грейд `--probe=bug`.
   rt-open)     FIXTURE=RT-OPEN; PROMPT_FILE=bug-prompt.txt;    SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=bug-turn2.txt NODE_FILE=node-split-turn2.txt ;;
   # `rt-epic` — «Продолжить начатое» на эпике с готовыми спеками (#0 + три ребёнка): узел первым ходом,
-  # затем «Проверить спеку» — `spec-readiness` на каждую спеку уровня, #0 первой, и узел снова.
+  # затем «Проверить спеку» — `rehearse … проверка` на каждую спеку уровня, #0 первой, и узел снова.
   rt-epic)     FIXTURE=RT-EPIC; PROMPT_FILE=epic-prompt.txt;   SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=epic-turn2.txt NODE_FILE=node-check-turn2.txt ;;
-  # `rt-srgap` — ЖИВОЙ `spec-readiness` в треде оркестратора: готовый БТ PSS-2210 → спека (заглушка
-  # печатает спеку `SR-GAP` целиком, как живой автор) → узел → «Проверить спеку». Меряется, держит ли
-  # проверка свои правила в загрязнённом треде: роли подняты, ведущий спеку не читал. Грейд —
-  # `grade-rt-srgap.mjs`. Дорого: четыре субагента на прогон.
+  # `rt-srgap` — ЖИВОЙ `rehearse … проверка` в треде оркестратора (до 5.89 — `spec-readiness`): готовый БТ
+  # PSS-2210 → спека (заглушка печатает спеку `SR-GAP` целиком, как живой автор) → узел → «Проверить спеку».
+  # Меряется, держит ли проверка свои правила в загрязнённом треде: роли подняты, ведущий спеку не читал.
+  # Грейд — `grade-rt-srgap.mjs`. Дорого: четыре субагента на прогон.
   # `rt-e2e` — СКВОЗНОЙ стык «проверка → доработка», оба под-скилла ЖИВЫЕ: готовая спека PSS-2210 (спека `SR-GAP`)
-  # подхвачена «Продолжить начатое» → узел → «Проверить спеку» (живой `spec-readiness`) → узел → «Доработать
+  # подхвачена «Продолжить начатое» → узел → «Проверить спеку» (живой `rehearse … проверка`) → узел → «Доработать
   # спеку по пунктам 1–3» (живой `technical-spec-doc`, проход доработки) → вопросы гипотезой → ответ
   # «1, 2 — да; 3 — не знаю» → запись → приёмка (заглушка) → узел. Грейд — `grade-rt-e2e.mjs` + дифф глазами.
-  rt-e2e)      FIXTURE=RT-E2E; PROMPT_FILE=e2e-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=e2e-turn2.txt NODE_FILE=node-check-turn2.txt NODE2_FILE=node-fix13-turn2.txt REAL_SUBS="spec-readiness technical-spec-doc" TURNS_CAP=10 ;;
-  rt-srgap)    FIXTURE=RT-SRGAP; PROMPT_FILE=srgap-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=srgap-turn2.txt NODE_FILE=node-check-turn2.txt REAL_SUBS=spec-readiness ;;
+  rt-e2e)      FIXTURE=RT-E2E; PROMPT_FILE=e2e-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=e2e-turn2.txt NODE_FILE=node-check-turn2.txt NODE2_FILE=node-fix13-turn2.txt REAL_SUBS="rehearse technical-spec-doc" TURNS_CAP=10 ;;
+  rt-srgap)    FIXTURE=RT-SRGAP; PROMPT_FILE=srgap-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=srgap-turn2.txt NODE_FILE=node-check-turn2.txt REAL_SUBS=rehearse ;;
   # Ветка «Продолжить начатое»: на диске лежит ТОЛЬКО баг-репорт, спеки под него нет. Проверяется,
   # опознан ли он сводкой состояния (глоб ветки его раньше не видел вовсе) и уходит ли маршрут в
   # спеку с флагом багфикса, а не по кругу в `bug-report-doc`. Рядом чужая `ARS-102` с полным
@@ -758,7 +741,24 @@ case "$PROBE" in
   reh-sec)  FIXTURE=REH-SHT; PROMPT_FILE=sec-prompt.txt;  SKILL=rehearse; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=16; IDLE_MAX=16; DONE_ANSWER='Задано вопросов'; ANSWER_ALL=1; TWIN_CARD=twin-sec.md;  TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
   reh-cust) FIXTURE=REH-SHT; PROMPT_FILE=cust-prompt.txt; SKILL=rehearse; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=16; IDLE_MAX=16; DONE_ANSWER='Задано вопросов'; ANSWER_ALL=1; TWIN_CARD=twin-cust.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
   reh-stop) FIXTURE=REH-SHT; PROMPT_FILE=arch-prompt.txt; SKILL=rehearse; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=8;  IDLE_MAX=8;  DONE_ANSWER='Задано вопросов'; ANSWER_ALL=1; TWIN_CARD=twin-stop.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
-  *) echo "неизвестная проба: '$PROBE'"; echo "есть: bfg-scroll bfg-role ts-live ts-conv ts-conv2 ts-gaps ts-gaps-q ts-vac ts-vac-q ts-vac-lim ts-blue-yes ts-blue-idk ts-acc ts-acc-q id-mmd id-puml id-ask ring-mmd ring-puml dir-mmd dir-puml rep-mmd rep-puml chain-mmd chain-puml det-mmd det-puml rep-det-mmd chain-q-mmd chain-q-idk ring-q-one ring-q-two rep-q-mmd det-q-mmd det-q-puml det-q-alt id-q-mmd id-blue det-short-mmd det-o-one det-o-two det-t-short det-s-mmd det-s-puml det-s-alt det-s-idk det-y-short det-y-scen rep-s-mmd chb-s-mmd chb-s-idk bt-uf-mmd bt-uf-puml bt-uf-idk bt-uf-y pt-sh-mmd pt-sh-idk pt-sh-no pt-uf-puml pt-uf-idk pt-raw pt-nb tx-sh-mmd tx-sh-idk tx-uf-puml pt-junk pt-prose ts-ctx ts-fix ts-nodesc ts-noctx br-ctx br-real br-rework br-rework-q sb-ctx sb-ctx2 sb-blue-yes sb-blue-idk sb-blue-cr sb-blue-new sb-blue-na fnd-zero fnd-kid fnd-rv-kid fnd-rv-dirty fnd-rv-zero fnd-sb-kid fnd-resume sm-graph2 rv-conv rv-clean rv-bt-clean rv-bt-dirty rv-lim-clean rv-lim-dirty rv-crlim-clean rv-crlim-dirty rv-blue-yes rv-blue-idk rv-blue-dirty rv-blue-was rv-blue-cr rv-stage-blue-idk rv-stage-blue-cr rv-fe rv-tpl-clean rv-tpl-dirty rv-tpl-count rv-stage-na rv-bt-empty rv-bt-no43 br-roles-w br-roles-q br-var br-half br-nocrit br-yes br-lim-q br-lim-w br-cut br-data-obj br-data-dlt0 br-data-dlt1 br-asis-card br-data-none br-asis-new br-data-file br-deps-yes br-deps-no td-ru-w cdoc-xlsx cdoc-txt cdoc-txt-q cdoc-docx cdoc-fix cdoc-dup scx-cr-nob scx-cr-own scx-cr-api-q scx-cr-ver-q scx-ts-doc scx-ts-dep scx-ts-fld scx-rv-doc scx-rv-dep scx-rv-dirty scx-sb-doc scx-sb-dep sr-gap sr-blue-yes sr-blue-idk sr-blue-cr sr-verify rv-bug-clean rv-bug-dirty rv-bug-spec rv-bug-src bf-spec bfx-doc bfx-card rv-bfx-clean rv-bfx-nomark rv-bfx-was rv-bfx-nosrc sb-bfx rt-bug rt-feature rt-menu rt-nokey rt-noreview rt-check rt-count-bt rt-count-cr rt-fix rt-other rt-open rt-epic rt-srgap rt-cont bg-flick-w bg-flick-q bg-form-w bg-role-w bg-data-q bg-notbug-q cr-btn-w cr-btn-q cr-api-w cr-notsmall-q cr-idea-q cr-bug-q cr-lim-q cr-lim-w sq-audit meet-vac meet-acc meet-long meet-new meet-rew meet-chg meet-cr jm-br-vac jm-br-long jm-br-new jm-ts-acc jm-ts-rew rec-new rec-chg rec-inline nb-new nb-thought nb-contra nb-noauth nb-file nb-view-api nb-view-chat nb-dispute nb-answer nb-ask nb-long nb-view-part meet-out meet-eth204 meet-eth150 ni-vacni-acc ni-new ni-chg ni-cr ni-rew ni-mr-new ni-mr-chg ni-nb-in ni-nb-ans ni-nb-pick nb-pts-in nb-pts-new nb-pts-rec nb-export nb-export-since nb-route nb-desc-one nb-desc-two nb-auto nb-ans-repl nb-stale nb-prefix nb-reingest nb-handedit nb-chain-export nb-chain-ask nb-huge-export nb-fix-author nb-fix-drop nb-fix-wrong nb-fix-inplace nb-fix-noref nb-pts-plain nb-pts-spor nb-spor-side nb-same-stem nb-fact-upd nb-ans-subj nb-scope nb-pts-roles nb-late-event nb-no-goal reh-arch reh-sec reh-cust reh-stop"; exit 1 ;;
+  # ── `rehearse`, роль «исполнитель» вместо `spec-readiness` (PLAN-REHEARSE-EXEC.md, 2026-11-04): фикстуры и промпты `sr-*`
+  # без изменений — база и новая форма получают один вход. Двойник на всё «Не знаю, уточню.» (`REH-SHT/twin-idk.md`): мерим
+  # вопросы. Конец — итог или «Вопросов у … нет». Оценщик — grade-reh-ex.mjs.
+  reh-ex-gap) FIXTURE=SR-GAP; PROMPT_FILE=reh-ex-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  reh-ex-clean) FIXTURE=SR-CLEAN; PROMPT_FILE=sr-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  reh-ex-yellow) FIXTURE=SR-YELLOW; PROMPT_FILE=sr-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  reh-ex-blue-yes) FIXTURE=SR-BLUE; PROMPT_FILE=yes-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  reh-ex-blue-idk) FIXTURE=SR-BLUE; PROMPT_FILE=idk-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  reh-ex-blue-cr) FIXTURE=SR-BLUE; PROMPT_FILE=cr-prompt.txt; SKILL=rehearse; TURN2_FILE=../REH-SHT/w-turn2.txt; TURNS_CAP=12; IDLE_MAX=12; DONE_ANSWER='Задано вопросов|Вопросов у [^ ]+ нет'; ANSWER_ALL=1; TWIN_CARD=../REH-SHT/twin-idk.md; TWIN_PROMPT=twin-rehearse.md; MEET_ENV=1 ;;
+  # Режим «проверка» rehearse (PLAN-REHEARSE-CHECK.md): исполнитель, архитектор, безопасник параллельно, сводящий,
+  # список критичных одним сообщением. Один ход, спека подаётся скиллу напрямую, без оркестратора. grade-chk.mjs
+  chk-gap) FIXTURE=SR-GAP; PROMPT_FILE=sr-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  chk-clean) FIXTURE=SR-CLEAN; PROMPT_FILE=sr-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  chk-yellow) FIXTURE=SR-YELLOW; PROMPT_FILE=sr-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  chk-blue-yes) FIXTURE=SR-BLUE; PROMPT_FILE=yes-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  chk-blue-idk) FIXTURE=SR-BLUE; PROMPT_FILE=idk-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  chk-blue-cr) FIXTURE=SR-BLUE; PROMPT_FILE=cr-prompt.txt; SKILL=rehearse; ANSWER_ALL=1; MEET_ENV=1 ;;
+  *) echo "неизвестная проба: '$PROBE'"; echo "есть: bfg-scroll bfg-role ts-live ts-conv ts-conv2 ts-gaps ts-gaps-q ts-vac ts-vac-q ts-vac-lim ts-blue-yes ts-blue-idk ts-acc ts-acc-q id-mmd id-puml id-ask ring-mmd ring-puml dir-mmd dir-puml rep-mmd rep-puml chain-mmd chain-puml det-mmd det-puml rep-det-mmd chain-q-mmd chain-q-idk ring-q-one ring-q-two rep-q-mmd det-q-mmd det-q-puml det-q-alt id-q-mmd id-blue det-short-mmd det-o-one det-o-two det-t-short det-s-mmd det-s-puml det-s-alt det-s-idk det-y-short det-y-scen rep-s-mmd chb-s-mmd chb-s-idk bt-uf-mmd bt-uf-puml bt-uf-idk bt-uf-y pt-sh-mmd pt-sh-idk pt-sh-no pt-uf-puml pt-uf-idk pt-raw pt-nb tx-sh-mmd tx-sh-idk tx-uf-puml pt-junk pt-prose ts-ctx ts-fix ts-nodesc ts-noctx br-ctx br-real br-rework br-rework-q sb-ctx sb-ctx2 sb-blue-yes sb-blue-idk sb-blue-cr sb-blue-new sb-blue-na fnd-zero fnd-kid fnd-rv-kid fnd-rv-dirty fnd-rv-zero fnd-sb-kid fnd-resume sm-graph2 rv-conv rv-clean rv-bt-clean rv-bt-dirty rv-lim-clean rv-lim-dirty rv-crlim-clean rv-crlim-dirty rv-blue-yes rv-blue-idk rv-blue-dirty rv-blue-was rv-blue-cr rv-stage-blue-idk rv-stage-blue-cr rv-fe rv-tpl-clean rv-tpl-dirty rv-tpl-count rv-stage-na rv-bt-empty rv-bt-no43 br-roles-w br-roles-q br-var br-half br-nocrit br-yes br-lim-q br-lim-w br-cut br-data-obj br-data-dlt0 br-data-dlt1 br-asis-card br-data-none br-asis-new br-data-file br-deps-yes br-deps-no td-ru-w cdoc-xlsx cdoc-txt cdoc-txt-q cdoc-docx cdoc-fix cdoc-dup scx-cr-nob scx-cr-own scx-cr-api-q scx-cr-ver-q scx-ts-doc scx-ts-dep scx-ts-fld scx-rv-doc scx-rv-dep scx-rv-dirty scx-sb-doc scx-sb-dep rv-bug-clean rv-bug-dirty rv-bug-spec rv-bug-src bf-spec bfx-doc bfx-card rv-bfx-clean rv-bfx-nomark rv-bfx-was rv-bfx-nosrc sb-bfx rt-bug rt-feature rt-menu rt-nokey rt-noreview rt-check rt-count-bt rt-count-cr rt-fix rt-other rt-open rt-epic rt-srgap rt-cont bg-flick-w bg-flick-q bg-form-w bg-role-w bg-data-q bg-notbug-q cr-btn-w cr-btn-q cr-api-w cr-notsmall-q cr-idea-q cr-bug-q cr-lim-q cr-lim-w sq-audit meet-vac meet-acc meet-long meet-new meet-rew meet-chg meet-cr jm-br-vac jm-br-long jm-br-new jm-ts-acc jm-ts-rew rec-new rec-chg rec-inline nb-new nb-thought nb-contra nb-noauth nb-file nb-view-api nb-view-chat nb-dispute nb-answer nb-ask nb-long nb-view-part meet-out meet-eth204 meet-eth150 ni-vacni-acc ni-new ni-chg ni-cr ni-rew ni-mr-new ni-mr-chg ni-nb-in ni-nb-ans ni-nb-pick nb-pts-in nb-pts-new nb-pts-rec nb-export nb-export-since nb-route nb-desc-one nb-desc-two nb-auto nb-ans-repl nb-stale nb-prefix nb-reingest nb-handedit nb-chain-export nb-chain-ask nb-huge-export nb-fix-author nb-fix-drop nb-fix-wrong nb-fix-inplace nb-fix-noref nb-pts-plain nb-pts-spor nb-spor-side nb-same-stem nb-fact-upd nb-ans-subj nb-scope nb-pts-roles nb-late-event nb-no-goal reh-arch reh-sec reh-cust reh-stop reh-ex-gap reh-ex-clean reh-ex-yellow reh-ex-blue-yes reh-ex-blue-idk reh-ex-blue-cr chk-gap chk-clean chk-yellow chk-blue-yes chk-blue-idk chk-blue-cr"; exit 1 ;;
 esac
 
 SKILL_DIR="${SKILL_DIR:-$HERE/../$SKILL}"
@@ -904,7 +904,7 @@ if [ -n "$STUBS_SUB" ]; then
   echo "заглушки: $STUBS_SUB → .claude/skills/ песочницы"
 fi
 # ЖИВЫЕ ПОД-СКИЛЛЫ ПОВЕРХ ЗАГЛУШЕК (`REAL_SUBS`, пусто → как было). Нужно пробе, которая меряет живой
-# под-скилл в треде оркестратора (`rt-srgap`: `spec-readiness`). Набор собирается один раз на раунд в
+# под-скилл в треде оркестратора (`rt-srgap`: `rehearse`). Набор собирается один раз на раунд в
 # его папке: заглушки фикстуры плюс снимок скилла из репозитория вместе с `reference/`; снимок остаётся
 # в раунде для журнала, и повторный запуск раунда читает его, а не живой текст.
 if [ -n "${REAL_SUBS:-}" ] && [ -n "$STUBS_DIR" ]; then

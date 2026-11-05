@@ -84,10 +84,13 @@ function parseOporas(text) {
 function oporaOk(sb, o) {
   const lines = read(join(sb, o.path)).split('\n')
   if (!lines.length || (lines.length === 1 && !lines[0])) return false
-  const q = norm(o.quote)
+  // SKILL.md Шаг 3 (1.1.0): слова цитаты подряд; кавычки и знаки препинания не в счёт
+  const bare = s => norm(s).replace(/[.,;:!?…«»"'„“”()—–-]+/g, ' ').replace(/\s+/g, ' ').trim()
+  const q = bare(o.quote)
   if (!q) return false
+  // «есть в показанных строках» (Шаг 3): цитата может перейти на соседнюю строку окна
   for (let i = Math.max(0, o.line - 3); i <= Math.min(lines.length - 1, o.line + 1); i++) {
-    if (norm(lines[i]).includes(q)) return true
+    if (bare(lines[i]).includes(q) || (i + 1 < lines.length && bare(lines[i] + ' ' + lines[i + 1]).includes(q))) return true
   }
   return false
 }
@@ -99,7 +102,8 @@ function parseHeaders(text) {
   const lines = text.split('\n')
   for (let i = 0; i < lines.length; i++) {
     // точка после номера обязательна: «2/6 принят → следующий» — не вопрос
-    const m = lines[i].match(/^\s*[*_]*(\d+)\s*\/\s*(\d+)\s*[.)][*_]*\s+(.*)$/)
+    // отклик ведущего перед номером в той же строке («Записал. 4/6. …») — тоже заголовок вопроса
+    const m = lines[i].match(/^\s*(?:[А-ЯЁа-яё]+[.!]\s+)?[*_]*(\d+)\s*\/\s*(\d+)\s*[.)][*_]*\s+(.*)$/)
     if (!m) continue
     const body = [m[3]]
     for (let k = i + 1; k < lines.length; k++) {
@@ -144,7 +148,10 @@ function twinClass(reply) {
     const other = r.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 25 && !R_RE.test(s) && !/не обсуждали|не скажу/i.test(s))
     return other.length || hasS ? 'MIX' : 'R'
   }
-  if (hasS || /^Нет,/.test(r)) return 'S'
+  if (hasS) return 'S'
+  // «Нет, …» — по таблице Шага 4 это неверная посылка (снято) или ответ по существу (вписать) смотря по вопросу, а
+  // двойник раздел выбирает по словам и отвечает иногда не на тот вопрос: обе группы законны (как у MIX).
+  if (/^Нет,/.test(r)) return 'MIX'
   if (r.includes('как-нибудь') || r.includes('разберёмся')) return 'E'
   return 'V'
 }
@@ -282,7 +289,8 @@ function gradeRun(sb, probe) {
     else timeline.push({ t: a.t, kind: 'intro' })
   }
   multi ? fail('по одному вопросу на сообщение', `сообщений с несколькими вопросами: ${multi}`) : ok('по одному вопросу на сообщение')
-  total != null && total >= 5 && total <= 7 ? ok(`вопросов ${total}`) : fail('вопросов от 5 до 7', `N=${total ?? 'нет заголовков'}`)
+  // `brief.md` 1.1.0: «не больше семи, можно ни одного» (было «от пяти до семи»)
+  total != null && total >= 1 && total <= 7 ? ok(`вопросов ${total}`) : fail('вопросов от 1 до 7', `N=${total ?? 'нет заголовков'}`)
 
   // опоры показанных вопросов
   const shown = asked.flatMap(q => q.oporas)

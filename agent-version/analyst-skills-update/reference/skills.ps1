@@ -76,6 +76,13 @@ try {
     $count++
   }
   if ($count -eq 0) { Write-Output "в $(Split-Path -Leaf $skills)/ не нашлось ни одной папки со SKILL.md"; exit 1 }
+  # Снятые из набора скиллы — как в skills.sh.
+  foreach ($name in @('spec-readiness')) {
+    $target = Join-Path $Dest $name
+    if (-not (Test-Path -LiteralPath $target -PathType Container)) { continue }
+    try { Remove-Item -LiteralPath $target -Recurse -Force; Write-Output ('  {0,-28} {1}' -f $name, 'снят из набора, удалён') }
+    catch { Write-Output ('  {0,-28} {1}' -f $name, "снят из набора, удалить не вышло — удалите папку $target") }
+  }
   Write-Output "установлено в ${Dest}: $count скиллов; точка входа — analyst-workspace"
 } finally {
   Remove-Item -LiteralPath $src -Recurse -Force -ErrorAction SilentlyContinue
