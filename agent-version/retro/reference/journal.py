@@ -175,6 +175,12 @@ def parse_chat(path):
                 continue
             if any(isinstance(part.get("text"), str) and part["text"].lstrip().startswith(SKILL_INJECT) for part in parts):
                 injects += 1
+                # За слэш-вызовом скилла идёт подставленный текст скилла, за встроенной командой (/clear, /model) — нет.
+                for event in reversed(events):
+                    if event["kind"] == "slash":
+                        event["skill"] = True
+                    if event["kind"] in ("slash", "user", "agent", "call", "result"):
+                        break
                 continue
             text, attached = user_text(parts)
             if text or attached:
