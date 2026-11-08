@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // grade-rt-e2e.mjs — проба rt-e2e: СКВОЗНОЙ стык «проверка → доработка», оба под-скилла живые
 // (`analyst-workspace` 2.0.0, узел «Что дальше?»: «Проверить спеку», затем «Доработать спеку» по пунктам 1–3).
+// С 2.2.0 проверку делает `rehearse` в режиме «проверка», до того — `spec-readiness`.
 //
 //   node grade-rt-e2e.mjs <каталог с песочницами>
 //   node grade-rt-e2e.mjs --selftest
@@ -97,9 +98,9 @@ export function gradeRun (dir) {
 
   // 1. Проверка.
   r.rTurn = 0
-  for (let k = 1; k <= T; k++) if (launches(callsOf(dir, k), 'spec-readiness')) { r.rTurn = k; break }
+  for (let k = 1; k <= T; k++) if (launches(callsOf(dir, k), 'rehearse')) { r.rTurn = k; break }
   const rAns = r.rTurn ? answerOfTurn(dir, r.rTurn) : ''
-  r.report = /вопросов задано/i.test(rAns)
+  r.report = /Проверка:[^\n]*Критичных вопросов: \d+|Критичных вопросов нет|не прошли сверку опор/i.test(rAns)
   r.nodeAfterReport = r.rTurn > 0 && nodeIn(rAns).shown
   r.items = reportItems(rAns)
   r.rAgents = r.rTurn ? callsOf(dir, r.rTurn).filter((x) => x.name === 'Agent' || x.name === 'Task').length : 0
@@ -125,7 +126,7 @@ export function gradeRun (dir) {
   for (let k = r.wTurn || T + 1; k <= T; k++) {
     const c = callsOf(dir, k)
     if (!r.reviewTurn && launches(c, 'spec-review')) r.reviewTurn = k
-    if (launches(c, 'spec-readiness')) r.readinessAfterFix = true
+    if (launches(c, 'rehearse')) r.readinessAfterFix = true
   }
   r.nodeSameTurn = r.reviewTurn > 0 && nodeIn(answerOfTurn(dir, r.reviewTurn)).shown
   r.nodeAfterReview = r.nodeSameTurn || (r.reviewTurn > 0 && nodeIn(answerOfTurn(dir, r.reviewTurn + 1)).shown)
@@ -188,9 +189,9 @@ function selftest () {
   mkdirSync(join(sb, 'coddoc', 'PSS-2210'), { recursive: true })
   writeFileSync(join(sb, 'stream.jsonl'), ev('Glob', { pattern: 'coddoc/PSS-2210/*' }))
   writeFileSync(join(sb, 'answer-01.md'), 'Спека PSS-2210 готова.' + node)
-  writeFileSync(join(sb, 'stream-02.jsonl'), [ev('Skill', { skill: 'spec-readiness', args: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }),
-    ev('Agent', { prompt: 'probe-backend' }), ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }, 'toolu_r')].join('\n'))
-  writeFileSync(join(sb, 'answer-02.md'), 'спека: coddoc/PSS-2210/technical_specification.md\n1. повторная доставка\n2. проверки сервера\n3. справочник\n4. потолок\nвопросов задано: 4 · осталось: 4' + node)
+  writeFileSync(join(sb, 'stream-02.jsonl'), [ev('Skill', { skill: 'rehearse', args: 'C:/sb/coddoc/PSS-2210/technical_specification.md проверка' }),
+    ev('Agent', { prompt: 'role-executor.md' }), ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }, 'toolu_r')].join('\n'))
+  writeFileSync(join(sb, 'answer-02.md'), 'Проверка: coddoc/PSS-2210/technical_specification.md — исполнитель, архитектор, безопасник. Критичных вопросов: 4.\n\n1. повторная доставка\n   Чем грозит: дубль\n2. проверки сервера\n3. справочник\n4. потолок' + node)
   writeFileSync(join(sb, 'stream-03.jsonl'), [ev('Skill', { skill: 'technical-spec-doc', args: 'доработка, пункты 1–3' }), ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' })].join('\n'))
   writeFileSync(join(sb, 'answer-03.md'), 'Гипотезы по пунктам 1–3:\n1. …\n2. …\n3. …\nВерно?')
   writeFileSync(join(sb, 'stream-04.jsonl'), [ev('Edit', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }), ev('Skill', { skill: 'spec-review', args: 'coddoc/PSS-2210/technical_specification.md' })].join('\n'))
@@ -207,7 +208,7 @@ function selftest () {
   ck('узел тем же ходом', g.nodeSameTurn, true)
   ck('зачёт', g.pass, true)
   writeFileSync(join(sb, 'stream-03.jsonl'), [ev('Skill', { skill: 'technical-spec-doc' }), ev('Write', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' })].join('\n'))
-  writeFileSync(join(sb, 'stream-04.jsonl'), ev('Skill', { skill: 'spec-readiness', args: 'coddoc/PSS-2210/technical_specification.md' }))
+  writeFileSync(join(sb, 'stream-04.jsonl'), ev('Skill', { skill: 'rehearse', args: 'coddoc/PSS-2210/technical_specification.md проверка' }))
   const b = gradeRun(sb)
   ck('записал сразу — не спросил', b.askedFirst, false)
   ck('проверка вместо приёмки видна', b.readinessAfterFix, true)
@@ -237,7 +238,7 @@ for (const r of all.filter((x) => !x.measured)) console.log(`  НЕ ИЗМЕРЕ
 console.log('')
 console.log(`  ${pct(c((r) => !r.firstNode))}\tузла нет первым ходом (справка)`)
 console.log(`  ${pct(c((r) => !r.rTurn))}\tПРОВЕРКА НЕ ЗАПУЩЕНА  ← КРИТЕРИЙ`)
-console.log(`  ${pct(c((r) => r.rTurn && !r.report))}\tнет счётной строки «вопросов задано»  ← КРИТЕРИЙ`)
+console.log(`  ${pct(c((r) => r.rTurn && !r.report))}\tнет списка «Проверка: … Критичных вопросов»  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.rTurn && !r.nodeAfterReport))}\tПОСЛЕ ОТЧЁТА НЕТ УЗЛА тем же ходом  ← КРИТЕРИЙ`)
 console.log(`  субагентов у ведущего в ходе проверки: ${ok.map((r) => (r.rTurn ? r.rAgents : '—')).join(' ')}  (норма — 4)`)
 console.log(`  ${pct(c((r) => !r.fixLaunched))}\tДОРАБОТКА НЕ ЗАПУЩЕНА  ← КРИТЕРИЙ`)

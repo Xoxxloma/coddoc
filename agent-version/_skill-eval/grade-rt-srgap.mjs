@@ -1,18 +1,20 @@
 #!/usr/bin/env node
-// grade-rt-srgap.mjs — проба rt-srgap: ЖИВОЙ `spec-readiness` в треде оркестратора
-// (`analyst-workspace` 2.0.0, вариант узла «Проверить спеку»).
+// grade-rt-srgap.mjs — проба rt-srgap: ЖИВОЙ `rehearse` в режиме «проверка» в треде оркестратора
+// (`analyst-workspace` 2.2.0, вариант узла «Проверить спеку»). До 2.2.0 проверку делал `spec-readiness`.
 //
 //   node grade-rt-srgap.mjs <каталог с песочницами>
 //   node grade-rt-srgap.mjs --selftest
 //
 // Меряется МЕХАНИКА проверки в загрязнённом треде: ходом раньше заглушка спеки напечатала её целиком,
-// как живой автор. Правило проверки «спеку ты не открываешь, читают роли» держалось тем, что ведущий
-// текста не видел. Здесь видел. Зачёт — конъюнкция: проверка запущена, ведущий поднял ≥ 4 субагентов
-// (три роли и сверка), спеку сам не читал, файлов не писал, `services/` ролям не передал, и тем же ходом
-// после отчёта снова задал узел из четырёх вариантов.
+// как живой автор. Правило проверки «документ ты не читаешь, читают роли» держалось тем, что ведущий
+// текста не видел. Здесь видел. Зачёт — конъюнкция: `rehearse` вызван в режиме «проверка», ведущий поднял
+// ≥ 4 субагентов (три роли и сводящий), спеку целиком сам не читал (сверка опор — `Read` с `limit` ≤ 10 —
+// не в счёт), файлов не писал, `services/` в промпт роли не добавил, список «Проверка: …» есть, и тем же
+// ходом после списка снова задан узел из четырёх вариантов.
 //
-// Улов дыр — СПРАВКОЙ: ход проверки выносится в `<каталог>-extract/run-NN/` и грейдится
-// `grade-sr.mjs <каталог>-extract --probe=gap` рядом с отдельным запуском `sr-gap`.
+// Улов дыр — СПРАВКОЙ, глазами: ход проверки выносится в `<каталог>-extract/run-NN/`, ключ дыр —
+// `fixtures/SR-GAP/README.md`. `grade-chk.mjs` вынос не меряет: пути в потоке ведут в песочницу оркестратора,
+// и он считает их выходом за песочницу.
 //
 // СЧИТАЕТСЯ ПО ВЕДУЩЕМУ. События субагентов приходят в тот же поток с непустым `parent_tool_use_id`:
 // без фильтра их `Read` спеки — законная работа ролей — засчитывался бы ведущему.
@@ -65,8 +67,8 @@ export function readinessTurn (dir) {
     const p = streamOf(dir, k)
     if (!existsSync(p)) { if (k === 1) continue; break }
     const calls = leadCalls(readFileSync(p, 'utf8'))
-    if (calls.some((x) => (x.name === 'Skill' && (x.input.skill ?? '').includes('spec-readiness')) ||
-      (x.name === 'Read' && /spec-readiness[\\/]SKILL\.md/.test(x.input.file_path ?? '')))) return k
+    if (calls.some((x) => (x.name === 'Skill' && (x.input.skill ?? '').includes('rehearse')) ||
+      (x.name === 'Read' && /rehearse[\\/]SKILL\.md/.test(x.input.file_path ?? '')))) return k
   }
   return 0
 }
@@ -79,9 +81,12 @@ export function measureTurn (calls) {
   const prompts = agents.map((x) => String(x.input.prompt ?? ''))
   return {
     agents: agents.length,
-    specReads: calls.filter((x) => (x.name === 'Read' && RE_SPEC.test(x.input.file_path ?? '')) ||
+    // Сверка опор — `Read` строки ±2 (`limit` 5): не чтение документа.
+    specReads: calls.filter((x) => (x.name === 'Read' && RE_SPEC.test(x.input.file_path ?? '') && !(Number(x.input.limit) > 0 && Number(x.input.limit) <= 10)) ||
       (x.name === 'Bash' && RE_SPEC.test(x.input.command ?? '') && RE_READ_CMD.test(x.input.command ?? ''))).length,
-    writes: calls.filter((x) => x.name === 'Write' || x.name === 'Edit' || x.name === 'NotebookEdit').length,
+    // `_trace.log` — трасса заглушек стенда, на проде её нет: ведущий, дописавший туда строку по образцу заглушек,
+    // файлов проекта не трогал (05.11, база — 0 таких записей, перегрейжена).
+    writes: calls.filter((x) => (x.name === 'Write' || x.name === 'Edit' || x.name === 'NotebookEdit') && !/_trace\.log$/.test(x.input.file_path ?? '')).length,
     servicesLeak: prompts.filter((p) => /services[\\/]/.test(p)).length,
   }
 }
@@ -93,13 +98,15 @@ export function gradeRun (dir) {
   r.turn = readinessTurn(dir)
   r.launched = r.turn > 0
   if (!r.launched) { r.pass = false; return r }
-  Object.assign(r, measureTurn(leadCalls(readFileSync(streamOf(dir, r.turn), 'utf8'))))
+  const calls = leadCalls(readFileSync(streamOf(dir, r.turn), 'utf8'))
+  Object.assign(r, measureTurn(calls))
+  r.checkMode = calls.some((x) => x.name === 'Skill' && (x.input.skill ?? '').includes('rehearse') && /проверка/i.test(String(x.input.args ?? '')))
   r.answer = answerOfTurn(dir, r.turn)
-  r.report = /вопросов задано/i.test(r.answer)
+  r.report = /Проверка:[^\n]*Критичных вопросов: \d+|Критичных вопросов нет|не прошли сверку опор/i.test(r.answer)
   // Отчёт проверки — хендофф, а не конец хода проводника: узел — тем же ходом. Следующий ход — справкой.
   r.nodeAfter = nodeIn(r.answer).shown
   r.nodeNext = nodeIn(answerOfTurn(dir, r.turn + 1)).shown
-  r.pass = r.agents >= 4 && r.specReads === 0 && r.writes === 0 && r.servicesLeak === 0 && r.nodeAfter
+  r.pass = r.checkMode && r.agents >= 4 && r.specReads === 0 && r.writes === 0 && r.servicesLeak === 0 && r.report && r.nodeAfter
   return r
 }
 
@@ -108,11 +115,13 @@ function selftest () {
   const ck = (n, got, want) => { const ok = got === want; if (!ok) bad++; console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${n}: ${got} (ожидалось ${want})`) }
   const ev = (name, input, parent = null) => JSON.stringify({ type: 'assistant', parent_tool_use_id: parent, message: { content: [{ type: 'tool_use', name, input }] } })
   const lead = [
-    ev('Skill', { skill: 'spec-readiness', args: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }),
-    ev('Agent', { prompt: 'Прочитай таблицу следствий по пути C:/sb/.claude/skills/spec-readiness/reference/probe-backend.md и разбери по ней файл C:/sb/coddoc/PSS-2210/technical_specification.md.' }),
-    ev('Agent', { prompt: 'probe-frontend.md … technical_specification.md' }),
-    ev('Agent', { prompt: 'probe-contract.md … technical_specification.md' }),
-    ev('Agent', { prompt: 'probe-verify.md … technical_specification.md' }),
+    ev('Skill', { skill: 'rehearse', args: 'C:/sb/coddoc/PSS-2210/technical_specification.md проверка' }),
+    ev('Agent', { prompt: 'Прочитай задание C:/sb/.claude/skills/rehearse/reference/brief.md, поправку check-brief.md и карточку role-executor.md. Документ: C:/sb/coddoc/PSS-2210/technical_specification.md' }),
+    ev('Agent', { prompt: 'role-architect.md … technical_specification.md' }),
+    ev('Agent', { prompt: 'role-security.md … technical_specification.md' }),
+    ev('Agent', { prompt: 'merge.md … technical_specification.md' }),
+    // Сверка опоры ведущим — пять строк, не чтение документа.
+    ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md', offset: 40, limit: 5 }),
   ]
   // Чтение спеки ролью — работа роли, ведущему не засчитывается.
   const sub = ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }, 'toolu_role1')
@@ -125,6 +134,7 @@ function selftest () {
     ev('Read', { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' }),
     ev('Bash', { command: 'cat coddoc/PSS-2210/technical_specification.md' }),
     ev('Write', { file_path: 'C:/sb/readiness.md', content: 'x' }),
+    ev('Write', { file_path: 'C:/sb/_trace.log', content: 'rehearse x проверка' }),
     ev('Agent', { prompt: 'Сверь со services/auth.md и technical_specification.md' }),
   ].join('\n')))
   ck('ведущий читал спеку — оба способа', dirty.specReads, 2)
@@ -138,9 +148,11 @@ function selftest () {
   writeFileSync(join(sb, 'stream.jsonl'), ev('Skill', { skill: 'technical-spec-doc', args: 'coddoc/PSS-2210/business_requirements.md' }))
   writeFileSync(join(sb, 'answer-01.md'), 'Спека записана.\n1. Проверить спеку\n2. Доработать спеку\n3. Разбить на этапы\n4. Начать другую задачу')
   writeFileSync(join(sb, 'stream-02.jsonl'), lead.join('\n'))
-  writeFileSync(join(sb, 'answer-02.md'), 'спека: coddoc/PSS-2210/technical_specification.md\nвопросов задано: 9 · осталось: 5\n\nЧто дальше?\n1. Проверить спеку\n2. Доработать спеку\n3. Разбить на этапы\n4. Начать другую задачу')
+  writeFileSync(join(sb, 'answer-02.md'), 'Проверка: coddoc/PSS-2210/technical_specification.md — исполнитель, архитектор, безопасник. Критичных вопросов: 1.\n\n1. Кто отзывает доступ?\n\nЧто дальше?\n1. Проверить спеку\n2. Доработать спеку\n3. Разбить на этапы\n4. Начать другую задачу')
   const g = gradeRun(sb)
   ck('проверка в ходе 2', g.turn, 2)
+  ck('режим «проверка»', g.checkMode, true)
+  ck('список проверки есть', g.report, true)
   ck('узел после отчёта', g.nodeAfter, true)
   ck('зачёт', g.pass, true)
   console.log(bad === 0 ? '\nсамопроверка: ok' : `\nсамопроверка: ПРОВАЛОВ ${bad}`)
@@ -161,7 +173,7 @@ const N = ok.length
 const c = (f) => ok.filter(f).length
 const pct = (n) => `${String(n).padStart(2)}/${N}`
 
-// Ход проверки — в отдельный каталог для `grade-sr.mjs`: улов дыр рядом с отдельным `sr-gap`.
+// Ход проверки — в отдельный каталог: улов дыр глазами рядом с отдельным `chk-gap`.
 const ex = `${root.replace(/[\\/]+$/, '')}-extract`
 for (const r of ok.filter((x) => x.launched)) {
   const name = r.dir.split(/[\\/]/).pop()
@@ -180,9 +192,10 @@ console.log(`  субагентов у ведущего по прогонам: $
 console.log(`  ${pct(c((r) => r.launched && r.specReads > 0))}\tВЕДУЩИЙ ЧИТАЛ СПЕКУ сам  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.launched && r.writes > 0))}\tВЕДУЩИЙ ПИСАЛ ФАЙЛЫ в ходе проверки  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.launched && r.servicesLeak > 0))}\tSERVICES/ В ПРОМПТЕ РОЛИ  ← КРИТЕРИЙ`)
-console.log(`  ${pct(c((r) => r.launched && !r.report))}\tнет счётной строки «вопросов задано»`)
+console.log(`  ${pct(c((r) => r.launched && !r.checkMode))}\tREHEARSE ВЫЗВАН НЕ В РЕЖИМЕ «ПРОВЕРКА»  ← КРИТЕРИЙ`)
+console.log(`  ${pct(c((r) => r.launched && !r.report))}\tНЕТ СПИСКА «Проверка: … Критичных вопросов»  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.launched && !r.nodeAfter))}\tПОСЛЕ ОТЧЁТА НЕТ УЗЛА из четырёх тем же ходом  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.launched && !r.nodeAfter && r.nodeNext))}\t— из них узел пришёл следующим ходом (справка)`)
 console.log(`  ${pct(c((r) => r.pass))}\tзелёных`)
-console.log(`\n  улов дыр (справка): node grade-sr.mjs ${ex} --probe=gap`)
+console.log(`\n  улов дыр (справка, глазами): ${ex}/run-NN/answer.md, ключ — fixtures/SR-GAP/README.md`)
 console.log('')

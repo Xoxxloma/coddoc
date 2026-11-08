@@ -66,4 +66,11 @@ for dir in "$SKILLS"/*/; do
   count=$((count + 1))
 done
 [ "$count" -gt 0 ] || { echo "в $(basename "$SKILLS")/ не нашлось ни одной папки со SKILL.md"; exit 1; }
+# Снятые из набора скиллы: от прошлой установки их папка осталась бы и перехватывала вызовы того, кто их заменил.
+# Только эти имена — чужие папки не трогаем.
+for name in spec-readiness; do
+  [ -d "$DEST/$name" ] || continue
+  rm -rf "$DEST/$name"
+  printf '  %-28s %s\n' "$name" "снят из набора, удалён"
+done
 echo "установлено в $DEST: $count скиллов; точка входа — analyst-workspace"
