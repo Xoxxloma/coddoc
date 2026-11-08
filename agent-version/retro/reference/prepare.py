@@ -29,7 +29,8 @@ from textutil import clip, clip_middle, mask, one_line
 HERE = Path(__file__).resolve().parent
 PARAMS_PATH = HERE / "params.json"
 REQUIRED = ("limit", "min_user_turns", "loaded_context_share", "reading_speed", "decision_min_chars", "insert_limit",
-            "insert_preview", "agent_head", "agent_tail", "paths_per_tool", "journal_limit", "part_overlap", "weak_models")
+            "insert_preview", "agent_head", "agent_tail", "paths_per_tool", "journal_limit", "part_overlap", "weak_models",
+            "skill_share_min")
 MANIFEST = "retro.json"
 WORK_SUFFIXES = (".journal.txt", ".findings.txt")
 WORK_NAMES = (MANIFEST, "moments.json", "moments.md", "merge-log.txt")
@@ -152,9 +153,35 @@ def render(chat, p):
     events, cwd = chat["events"], chat["cwd"]
     lines, tools = [], []
     facts = {"models": Counter(), "skills": [], "commands": [], "loaded": [], "compressions": [], "suspected": [],
-             "fast": [], "pastes": [], "api_errors": 0, "tool_errors": 0}
+             "fast": [], "pastes": [], "api_errors": 0, "tool_errors": 0, "clears": [], "after_compression": [],
+             "loaded_work": [], "skill_replies": {"inside": 0, "total": 0, "outside_first": None}}
+    # degraded — после сжатия (записанного или похожего) до /clear; in_skill — идёт запуск скилла (до /clear). Где
+    # начинается новая стадия — по смыслу (кто её начал), это решает модель; скрипт отмечает загрузку на каждом вызове.
     state = {"share": None, "tokens": None, "window": None, "model": None, "unread": 0, "first": None,
-             "asked": {}, "compressed": False}
+             "asked": {}, "compressed": False, "degraded": False, "in_skill": False}
+
+    def enter(n):
+        """Вызов скилла или команда при окне выше порога или после сжатия — улика для «нового этапа на загруженном окне»."""
+        if state["share"] is not None and state["share"] > threshold:
+            facts["loaded"].append(n)
+        if state["degraded"]:
+            facts["after_compression"].append(n)
+
+    def counted(n):
+        """Реплика в счёт доли работы через скиллы: внутри запуска скилла или вне его."""
+        share = facts["skill_replies"]
+        share["total"] += 1
+        if state["in_skill"]:
+            share["inside"] += 1
+        elif share["outside_first"] is None:
+            share["outside_first"] = n
+
+    def reply(n):
+        """Реплика пользователя: в счёт доли скиллов; на загруженном окне — если окно выше порога или после сжатия."""
+        counted(n)
+        share = state["share"]
+        if state["degraded"] or (share is not None and share > threshold):
+            facts["loaded_work"].append({"n": n, "share": share, "after_compression": state["degraded"]})
 
     def line(n, text):
         flush_tools()  # вызовы инструментов до этой строки — одной строкой перед ней
@@ -226,6 +253,7 @@ def render(chat, p):
                 if previous and state["window"] and previous >= 0.5 * state["window"] and tokens < 0.5 * previous \
                         and not state["compressed"]:
                     facts["suspected"].append(n)
+                    state["degraded"] = True
                     line(n, f"ПОХОЖЕ НА СЖАТИЕ: контекст упал с {round(previous / state['window'] * 100)} % до "
                             f"{round(tokens / state['window'] * 100)} % окна")
                 state["tokens"], state["compressed"] = tokens, False
@@ -235,8 +263,8 @@ def render(chat, p):
                 state["unread"], state["first"] = len(one_line(event["text"])), journal.parse_ts(event["ts"])
         elif kind == "call" and event["name"] == "skill":
             facts["skills"].append({"n": n, "skill": event.get("skill"), "via": "agent", "share": state["share"]})
-            if state["share"] is not None and state["share"] > threshold:
-                facts["loaded"].append(n)
+            state["in_skill"] = True
+            enter(n)
             line(n, f"СКИЛЛ: {event.get('skill')} (вызов агентом)" + load_note())
         elif kind == "call":  # вопрос с вариантами
             state["asked"][event["id"]] = (journal.parse_ts(event["ts"]), event.get("questions") or [])
@@ -256,6 +284,8 @@ def render(chat, p):
             for item in event["answers"]["items"]:
                 line(n, f"ОТВЕТ: {item['header']}: {mask(clip(item['raw'], 300)) or '—'} ({answer_kind(item)})" + note)
                 note = ""
+            if any(item["raw"] for item in event["answers"]["items"]):
+                reply(n)
             read_all()
         elif kind == "user":
             text = mask(event["text"])
@@ -267,21 +297,26 @@ def render(chat, p):
             if event["attached"]:
                 shown = (shown + " " if shown else "") + "[+ приложены файлы]"
             line(n, "ПОЛЬЗОВАТЕЛЬ: " + shown + speed_note(n, event["ts"]))
+            reply(n)
             read_all()
         elif kind == "slash":
             command = event["command"]
             note = "" if command == CLEAR else load_note()
             if command != CLEAR:
                 facts["commands"].append({"n": n, "command": command, "share": state["share"]})
-                if state["share"] is not None and state["share"] > threshold:
-                    facts["loaded"].append(n)
+                enter(n)
+            if event.get("skill"):  # слэш-вызов скилла — первая реплика его запуска; встроенные команды не в счёт
+                state["in_skill"] = True
+                counted(n)
             line(n, f"КОМАНДА: {command} {mask(clip(event['args'], 200))}".rstrip() + note)
-            if command == CLEAR:  # контекст очищен: прежняя загрузка окна к следующим шагам не относится
+            if command == CLEAR:  # контекст очищен: прежняя загрузка окна, сжатие и запуск скилла позади
+                facts["clears"].append(n)
                 state["share"] = state["tokens"] = None
+                state["degraded"], state["in_skill"] = False, False
             read_all()
         elif kind == "compression":
             facts["compressions"].append(n)
-            state["compressed"] = True
+            state["compressed"] = state["degraded"] = True
             line(n, "СЖАТИЕ КОНТЕКСТА")
         elif kind == "api_error":
             facts["api_errors"] += 1
@@ -397,7 +432,8 @@ def main(argv=None):
     missing = [name for name, found in journal.EXPECTED if not found(inv)]
     manifest = {"project": project, "sessions_dir": root, "files": len(files), "skipped": dict(skipped),
                 "few": len(chosen) < 3, "missing_fields": missing,
-                "params": {key: p[key] for key in ("limit", "loaded_context_share", "reading_speed", "weak_models")},
+                "params": {key: p[key] for key in ("limit", "loaded_context_share", "reading_speed", "weak_models",
+                                                    "skill_share_min")},
                 "sessions": sessions, "tasks": tasks}
     (out / MANIFEST).write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 

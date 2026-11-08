@@ -10,7 +10,8 @@ sessions/ — журналы чата (retro_mocks), cwd в них — ws. Ве�
   - субагенты строго по одному, ведущий журналы сам не читал, рабочая папка убрана;
   - ответы субагентов, которые ведущий записал, сверяются заново (prepare + merge на тех же журналах): заложенные
     пары (признак, сторона) найдены, запрещённых нет, привычки в нужном числе сессий;
-  - отчёт в чат: есть «попробовать», названа слабая модель, нет баллов.
+  - отчёт в чат: есть «попробовать», названа слабая модель, нет баллов, нет номеров сессий; работа на загруженном
+    контексте и работа вне скиллов названы, если они в первых пяти «мешает».
 Стоимость — total_cost_usd.
 """
 
@@ -178,6 +179,14 @@ def grade(run_dir):
     low = report.casefold()
     checks = {"есть «попробовать»": "попробовать" in low, "названа слабая модель": "qwen-3.6b" in low,
               "нет баллов": not any(word in low for word in SCORE_WORDS)}
+    # «Что мешает» — первые пять групп «мешает» по K (порядок merge), без «чего нет в контексте» и «другого».
+    top = [group["sign"] for group in moments["groups"]
+           if group["side"] == "hurts" and group["sign"] not in ("context_gap", "other")][:5]
+    for sign, name, stem in (("loaded_work", "работа на загруженном контексте", "загруженн"),
+                             ("outside_skills", "работа вне скиллов", "вне скилл")):
+        if sign in top:
+            checks[f"названа {name}"] = stem in low
+    checks["нет номеров сессий"] = not re.search(r"сесси[яиюей]\s+p\d+\b", low)
     lines.append("отчёт: " + ", ".join(f"{name} — {'да' if ok else 'НЕТ'}" for name, ok in checks.items()))
     problems += [f"отчёт: {name} — нет" for name, ok in checks.items() if not ok]
     with open(os.path.join(run_dir, "report.md"), "w", encoding="utf-8") as handle:

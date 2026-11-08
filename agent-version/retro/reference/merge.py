@@ -5,7 +5,9 @@
 
 В --work лежат retro.json и журналы (их пишет prepare) и ответы субагентов <задание>.findings.txt — как есть, где
 <задание> — имя журнала без .journal.txt. Момент без дословной цитаты в журнале выпадает; одинаковые моменты из
-соседних частей журнала сливаются. Пишет:
+соседних частей журнала сливаются. У признаков, где пометка скрипта — часть определения («быстрее чтения», вставка,
+загруженное окно или сжатие на вызове скилла), момент без этой пометки у хода выпадает. «Работу на загруженном
+контексте» и «работу вне скиллов» собирает сам скрипт по фактам prepare — от модели эти признаки не принимаются. Пишет:
   moments.json  — проверенные моменты и счёт «в K из N сессий» по признаку и стороне;
   moments.md    — таблица для ведущего: факты скрипта, признаки по убыванию K, разобранные сессии;
   merge-log.txt — что отброшено и почему.
@@ -34,14 +36,26 @@ SIGNS = {
     "unknowns": "неизвестное",
     "correction_loop": "петля поправок",
     "context_hygiene": "чистый контекст между стадиями",
+    "loaded_work": "работа на загруженном контексте",
     "paste": "большие вставки",
     "acceptance": "приёмка",
     "order": "проверка спеки до разбиения",
+    "instruction": "установки агенту",
+    "outside_skills": "работа вне скиллов",
     "agent_slip": "сбой агента",
     "other": "другое",
 }
 SIDES = {"hurts": "мешает", "helps": "помогает", "agent": "сбой агента"}
 FIXED_SIDE = {"context_gap": "hurts", "agent_slip": "agent"}  # у этих признаков одна сторона
+SCRIPT_SIGNS = ("loaded_work", "outside_skills")  # эти группы собирает скрипт по фактам prepare
+# Пометка скрипта — часть определения признака: без неё у хода момент выпадает. Значение — (вид улики, причина в лог).
+PEGGED = {
+    ("hypotheses", "hurts"): ("fast", "у хода нет пометки «быстрее чтения»"),
+    ("paste", "hurts"): ("pastes", "у хода нет вставки"),
+    ("context_hygiene", "hurts"): ("entry", "дальше до /clear нет вызова скилла или команды на загруженном окне или после "
+                                            "сжатия"),
+}
+REPLY_PREFIXES = ("ПОЛЬЗОВАТЕЛЬ:", "ОТВЕТ:")
 OTHER_LIMIT = 2
 EXAMPLES = 5
 LINE_RE = re.compile(r"^\[(\d+)\] (.*)$")
@@ -96,7 +110,22 @@ def journal_lines(path):
     return turns
 
 
-def check(item, session, turns, log):
+def evidence_of(item):
+    """Улики скрипта по сессии: ход → есть ли у него пометка. Для «чистого контекста» — ход, после которого до /clear
+    есть вызов скилла или команда на загруженном окне или после сжатия: модель может сослаться и на сам вызов, и на
+    реплику перед ним. Новая ли это стадия, решает модель."""
+    fast = {entry["n"] for entry in item["fast"]}
+    pastes = {entry["n"] for entry in item["pastes"]}
+    entries = set(item["loaded"]) | set(item["after_compression"])
+    clears = item["clears"]
+
+    def entry(turn):
+        return any(at >= turn and not any(turn <= clear < at for clear in clears) for at in entries)
+
+    return {"fast": fast.__contains__, "pastes": pastes.__contains__, "entry": entry}
+
+
+def check(item, session, turns, log, evidence):
     """Момент из ответа модели → проверенный момент или None (причина — в лог)."""
     if not isinstance(item, dict):
         log(f"{session}: момент не объект — отброшен")
@@ -104,6 +133,9 @@ def check(item, session, turns, log):
     sign, side, turn, quote = item.get("sign"), item.get("side"), item.get("turn"), item.get("quote")
     if sign not in SIGNS:
         log(f"{session}: признак «{clip(str(sign), 40)}» не из списка — отброшен")
+        return None
+    if sign in SCRIPT_SIGNS:
+        log(f"{session}: {sign} — признак скрипта, от модели не принимается — отброшен")
         return None
     if sign in FIXED_SIDE and side != FIXED_SIDE[sign]:
         log(f"{session}: {sign} в ходе {turn} — сторона «{side}» исправлена на «{FIXED_SIDE[sign]}»")
@@ -116,6 +148,10 @@ def check(item, session, turns, log):
         return None
     if turn not in turns or not quote_in(quote, turns[turn]):
         log(f"{session}: {sign} в ходе {turn} — цитата не нашлась в журнале — отброшен")
+        return None
+    pegged = PEGGED.get((sign, side))
+    if pegged and not evidence[pegged[0]](turn):
+        log(f"{session}: {sign} в ходе {turn} — {pegged[1]} — отброшен")
         return None
     why = item.get("why") if isinstance(item.get("why"), str) else ""
     return {"session": session, "sign": sign, "side": side, "turn": turn, "quote": clip(quote, 200), "why": clip(why, 200)}
@@ -136,6 +172,7 @@ def read_answer(path):
 def collect(work, manifest, log):
     """→ (проверенные моменты, разобранные сессии, сессии без ответа)."""
     turns = {item["session"]: journal_lines(work / item["journal"]) for item in manifest["sessions"]}
+    evidence = {item["session"]: evidence_of(item) for item in manifest["sessions"]}
     moments, seen, answered, missing = [], set(), set(), []
     for task in manifest["tasks"]:
         session, name = task["session"], task["journal"]
@@ -153,7 +190,7 @@ def collect(work, manifest, log):
         answered.add(session)
         others = 0
         for item in items:
-            moment = check(item, session, turns[session], log)
+            moment = check(item, session, turns[session], log, evidence[session])
             if not moment:
                 continue
             if moment["sign"] == "other":
@@ -166,7 +203,56 @@ def collect(work, manifest, log):
                 continue  # тот же момент из перекрытия частей или повтор модели
             seen.add(key)
             moments.append(moment)
+    moments += loaded_moments(manifest, turns, answered, log)
+    moments += outside_moments(manifest, turns, answered, log)
     return moments, answered, missing
+
+
+def reply_quote(turns, turn):
+    """Цитата для группы скрипта — текст реплики пользователя на этом ходе, без метки строки."""
+    line = next((text for text in turns.get(turn, []) if text.startswith(REPLY_PREFIXES)), "")
+    return clip(line.split(": ", 1)[-1], 200)
+
+
+def skill_share(item):
+    replies = item["skill_replies"]
+    return replies["inside"] / replies["total"] if replies["total"] else None
+
+
+def loaded_moments(manifest, turns, answered, log):
+    """«Работа на загруженном контексте» по фактам prepare: момент на сессию — первая такая реплика. Группы скрипта —
+    только по разобранным сессиям, чтобы счёт шёл из того же N, что у остальных признаков."""
+    out = []
+    for item in manifest["sessions"]:
+        work = item["loaded_work"]
+        if item["session"] not in answered or not work:
+            continue
+        high = [entry["share"] for entry in work if not entry["after_compression"] and entry["share"] is not None]
+        after = len(work) - len(high)
+        parts = ([f"{len(high)} — при окне до {round(max(high) * 100)} %"] if high else []) \
+            + ([f"{after} — после сжатия"] if after else [])
+        out.append({"session": item["session"], "sign": "loaded_work", "side": "hurts", "turn": work[0]["n"],
+                    "quote": reply_quote(turns[item["session"]], work[0]["n"]),
+                    "why": f"реплик на загруженном окне в этой сессии: {len(work)} ({'; '.join(parts)})"})
+    if out:
+        log(f"работа на загруженном контексте — по фактам скрипта, сессий: {len(out)}")
+    return out
+
+
+def outside_moments(manifest, turns, answered, log):
+    """«Работа вне скиллов» по фактам prepare: доля реплик внутри запусков скиллов ниже порога. Момент на сессию —
+    первая реплика вне скилла."""
+    limit, out = manifest["params"]["skill_share_min"], []
+    for item in manifest["sessions"]:
+        share, replies = skill_share(item), item["skill_replies"]
+        if item["session"] not in answered or share is None or share >= limit or replies["outside_first"] is None:
+            continue
+        out.append({"session": item["session"], "sign": "outside_skills", "side": "hurts", "turn": replies["outside_first"],
+                    "quote": reply_quote(turns[item["session"]], replies["outside_first"]),
+                    "why": f"в скиллах {replies['inside']} из {replies['total']} реплик ({round(share * 100)} %)"})
+    if out:
+        log(f"работа вне скиллов — по фактам скрипта, сессий: {len(out)}")
+    return out
 
 
 def groups_of(moments, sessions):
@@ -239,7 +325,10 @@ def render(manifest, groups, facts, analysed, missing):
     lines += ["## Разобранные сессии", ""]
     for item in sessions:
         models = ", ".join(item["models"]) or "—"
-        lines.append(f"- {day(item['start'])} · {item['minutes']} мин · реплик {item['user_turns']} · {models} · сессия {item['session'][:8]}"
+        share = skill_share(item)
+        in_skills = f" · в скиллах {round(share * 100)} %" if share is not None else ""
+        lines.append(f"- {day(item['start'])} · {item['minutes']} мин · реплик {item['user_turns']}{in_skills} · {models} · "
+                     f"сессия {item['session'][:8]}"
                      + ("" if item["session"] in analysed else " — без ответа субагента, в счёт не вошла"))
     return "\n".join(lines) + "\n"
 

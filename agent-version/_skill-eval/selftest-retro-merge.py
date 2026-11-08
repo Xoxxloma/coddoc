@@ -5,7 +5,8 @@
 
 Три сессии проекта собираются синтетикой (sessionlib.Builder), prepare пишет журналы — s1 режется на части. Ответы
 субагентов заготовлены вручную: верные моменты, повтор из перекрытия частей, выдуманная цитата, чужой признак, не та
-сторона, лишнее «другое», ответ в обёртке ```; по s3 ответа нет.
+сторона, лишнее «другое», ответ в обёртке ```, признаки без пометки скрипта у хода, признак скрипта от модели; по s3
+ответа нет. В s2 и s3 последняя реплика — на загруженном окне: в счёт идёт только разобранная s2.
 """
 
 from __future__ import annotations
@@ -58,7 +59,7 @@ def build_plain(session_id, base, first):
             calls=[ask("q1", [{"header": "Гипотезы", "question": "Подтверждаешь?", "options": option("Да", "Нет")}])])
     b.result(2, "ask_user_question", "q1", output="User has provided the following answers:\n\n**Гипотезы**: Да")
     b.user(30, first)
-    b.agent(40, text="Принято.", tokens=41000)
+    b.agent(40, text="Принято.", tokens=190000)  # 72 % окна: «ок» — реплика на загруженном окне
     b.user(60, "ок")
     return b.lines
 
@@ -106,6 +107,8 @@ def main():
 
     yes1, ask1 = turn_of("s1", "ОТВЕТ: Гипотезы: Да"), turn_of("s1", "АГЕНТ: Кто согласует")
     slip, delegated = turn_of("s1", "АГЕНТ: Уточните, кто"), turn_of("s1", "сам реши")
+    plain = turn_of("s1", "ПОЛЬЗОВАТЕЛЬ: Согласует руководитель")
+    opening = turn_of("s1", "ПОЛЬЗОВАТЕЛЬ: Нужен БТ")
     first_part = part_with("ОТВЕТ: Гипотезы: Да")
     second_part = parts[1]
     answers = {
@@ -120,6 +123,12 @@ def main():
             {"sign": "other", "side": "hurts", "turn": ask1, "quote": "Кто согласует", "why": "два"},
             {"sign": "other", "side": "hurts", "turn": delegated, "quote": "сам реши", "why": "три — лишнее"},
             {"sign": "unknowns", "side": "helps", "turn": "7", "quote": "сам реши", "why": "ход строкой"},
+            {"sign": "hypotheses", "side": "hurts", "turn": plain, "quote": "Согласует руководитель", "why": "без пометки"},
+            {"sign": "paste", "side": "hurts", "turn": delegated, "quote": "сам реши", "why": "вставки нет"},
+            {"sign": "context_hygiene", "side": "hurts", "turn": delegated, "quote": "сам реши", "why": "стадий нет"},
+            {"sign": "loaded_work", "side": "hurts", "turn": plain, "quote": "Согласует руководитель", "why": "от модели"},
+            {"sign": "outside_skills", "side": "hurts", "turn": plain, "quote": "Согласует руководитель", "why": "от модели"},
+            {"sign": "instruction", "side": "hurts", "turn": opening, "quote": "Нужен БТ по выдаче справок", "why": "установка"},
         ]},
         second_part: {"moments": [
             {"sign": "decisions", "side": "hurts", "turn": delegated, "quote": "сам реши", "why": "повтор из перекрытия"},
@@ -161,8 +170,34 @@ def main():
            == sorted([group["side"] for group in data["groups"] if group["sign"] != "other"], key=["hurts", "helps", "agent"].index)
            and data["groups"][-1]["sign"] == "other", "порядок: мешает, помогает, сбой агента, другое в конце")
     for line in ("цитата не нашлась в журнале — отброшен", "признак «mood» не из списка", "сторона «helps» исправлена на «hurts»",
-                 "больше 2 на журнал", "нет хода или цитаты", "s3: нет ответа субагента"):
+                 "больше 2 на журнал", "нет хода или цитаты", "s3: нет ответа субагента",
+                 f"hypotheses в ходе {plain} — у хода нет пометки «быстрее чтения» — отброшен",
+                 f"paste в ходе {delegated} — у хода нет вставки — отброшен",
+                 f"context_hygiene в ходе {delegated} — дальше до /clear нет вызова скилла или команды",
+                 "loaded_work — признак скрипта, от модели не принимается — отброшен"):
         expect(line in log, f"в merge-log.txt нет «{line}»")
+    expect([moment["turn"] for moment in groups.get(("hypotheses", "hurts"), {}).get("moments", [])
+            if moment["session"] == "s1"] == [yes1] and ("paste", "hurts") not in groups
+           and ("context_hygiene", "hurts") not in groups, "без пометки скрипта у хода признак выпал, с пометкой — остался")
+    loaded = groups.get(("loaded_work", "hurts"), {})
+    ok_turn = turn_of("s2", "ПОЛЬЗОВАТЕЛЬ: ок")
+    expect(loaded.get("sessions") == 1 and [(m["session"], m["turn"], m["quote"]) for m in loaded.get("moments", [])]
+           == [("s2", ok_turn, "ок")]
+           and loaded["moments"][0]["why"].startswith("реплик на загруженном окне в этой сессии: 1 (1 — при окне до 7"),
+           f"работа на загруженном контексте — по фактам скрипта, только разобранные сессии (s3 без ответа): {loaded}")
+    expect("### работа на загруженном контексте — мешает — в 1 из 2" in table, "группа скрипта в таблице для ведущего")
+    outside = groups.get(("outside_skills", "hurts"), {})
+    expect(outside.get("sessions") == 2 and [(m["session"], m["turn"], m["quote"]) for m in outside.get("moments", [])][0]
+           == ("s1", opening, "Нужен БТ по выдаче справок") and outside["moments"][0]["why"].startswith("в скиллах 0 из ")
+           and "outside_skills — признак скрипта, от модели не принимается" in log,
+           f"работа вне скиллов — по фактам скрипта, разобранные s1 и s2, от модели не принимается: {outside}")
+    expect([m["turn"] for m in groups.get(("instruction", "hurts"), {}).get("moments", [])] == [opening],
+           "установка агенту — признак модели, принимается с цитатой")
+    expect(any(line.startswith("- 20.10 · ") and " · в скиллах 0 % · " in line for line in table.splitlines()),
+           "доля скиллов в списке разобранных сессий")
+    entry = merge.evidence_of({"fast": [], "pastes": [], "loaded": [11], "after_compression": [30], "clears": [20]})["entry"]
+    expect([entry(turn) for turn in (10, 11, 12, 20, 25, 30, 31)] == [True, True, False, False, True, True, False],
+           "«чистый контекст»: ход до вызова на загруженном окне — в счёт, если между ними нет /clear")
     expect("### гипотезы агента — мешает — в 2 из 2" in table and "Без ответа субагента: s3.journal.txt" in table
            and "- Ответ на длинный текст агента быстрее чтения: в 3 из 3 сессий" in table
            and "## Разобранные сессии" in table and "20.10 · " in table

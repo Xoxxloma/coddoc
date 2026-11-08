@@ -2,8 +2,8 @@
 
 build(chats, cwd) пишет журналы в папку chats и возвращает ожидания: по сессии — какие пары (признак, сторона) ретро
 обязано найти (must; список пар — годится любая из них) и каких быть не должно (must_not), и сколько сессий должно
-уйти в разбор. Восемь сессий проекта
-(p1…p8) идут по дням; рядом — вызов ретро, короткая сессия и чужой проект: их ретро пропускает.
+уйти в разбор. Десять сессий проекта
+(p1…p10) идут по дням — ровно лимит ретро; рядом — вызов ретро, короткая сессия и чужой проект: их ретро пропускает.
 """
 
 from __future__ import annotations
@@ -104,8 +104,10 @@ def p1():
     s.user("Не знаю, TBD — срок скажет юрист", wait=90)
     s.agent("БТ записан: coddoc/PAY-1/business_requirements.md. Дальше — спека; здесь можно `/clear`.")
     s.raw_slash("/clear", wait=30)
-    return s, {"must": [("entry", "helps"), ("hypotheses", "helps"), ("unknowns", "helps"), ("context_hygiene", "helps")],
-               "must_not": [("hypotheses", "hurts"), ("decisions", "hurts"), ("entry", "hurts")]}
+    # Вход через оркестратор и ключ в первой реплике — обычный маршрут, не «помогает».
+    return s, {"must": [("hypotheses", "helps"), ("unknowns", "helps"), ("context_hygiene", "helps")],
+               "must_not": [("hypotheses", "hurts"), ("decisions", "hurts"), ("entry", "hurts"), ("entry", "helps"),
+                            ("task_key", "helps")]}
 
 
 def p2():
@@ -156,21 +158,25 @@ def p4():
 
 
 def p5():
-    """Одно и то же поправлено трижды; «уточню позже» вместо честного «не знаю»."""
+    """Одно и то же поправлено трижды; «уточню позже» вместо честного «не знаю»; окно за порогом внутри стадии."""
     s = Session("p5", "24")
     s.start("PAY-5", "перевод по номеру телефона")
     s.skill("business-requirements-doc")
-    s.agent("Сделал поле суммы необязательным: клиент может отправить перевод без суммы.")
+    s.agent("Сделал поле суммы необязательным: клиент может отправить перевод без суммы.", tokens=120000)
     s.user("нет, сумма должна быть обязательной", wait=20)
-    s.agent("Понял. Оставил сумму необязательной, но добавил подсказку.")
+    s.agent("Понял. Оставил сумму необязательной, но добавил подсказку.", tokens=160000)
     s.user("нет же, сумма обязательна, без неё перевод не отправляется", wait=20)
-    s.agent("Сумма необязательна, при пустой сумме покажем предупреждение.")
+    s.agent("Сумма необязательна, при пустой сумме покажем предупреждение.", tokens=185000)
     s.user("я третий раз говорю: сумма обязательна", wait=20)
-    s.agent("Исправил: сумма обязательна. Какой лимит на один перевод?")
+    s.agent("Исправил: сумма обязательна. Какой лимит на один перевод?", tokens=195000)
     s.user("уточню позже", wait=15)
-    s.agent("Оставил лимит открытым пунктом. БТ записан: coddoc/PAY-5/business_requirements.md.")
+    s.agent("Оставил лимит открытым пунктом. БТ записан: coddoc/PAY-5/business_requirements.md.", tokens=200000)
+    s.skill("spec-review", tokens=200000)  # приёмку агент зовёт сам, без реплики пользователя, — та же стадия
+    s.agent("Приёмка business_requirements.md: нарушений нет. Стадия закрыта — здесь можно `/clear`.", tokens=205000)
+    s.user("ок", wait=20)
     # Агент дважды не учёл поправку — это и петля поправок, и сбой агента: годится любое из двух прочтений.
-    return s, {"must": [[("correction_loop", "hurts"), ("agent_slip", "agent")], ("unknowns", "hurts")], "must_not": []}
+    return s, {"must": [[("correction_loop", "hurts"), ("agent_slip", "agent")], ("unknowns", "hurts"), ("loaded_work", "hurts")],
+               "must_not": [("context_hygiene", "hurts")]}
 
 
 def p6():
@@ -189,9 +195,11 @@ def p6():
     s.raw_slash("/interaction-diagram coddoc/PAY-6/technical_spec.md", wait=40)  # ручной скилл — не обход оркестратора
     s.agent("Схема записана рядом со спекой.")
     s.raw_slash("/clear", wait=30)
-    return s, {"must": [("order", "helps")],
+    # Контроль: выбор кнопок на развилках — обычный маршрут, не «помогает»; ценность сессии — в запретах.
+    return s, {"must": [],
                "must_not": [("hypotheses", "hurts"), ("decisions", "hurts"), ("correction_loop", "hurts"),
-                            ("paste", "hurts"), ("entry", "hurts"), ("order", "hurts")]}
+                            ("paste", "hurts"), ("entry", "hurts"), ("order", "hurts"), ("order", "helps"),
+                            ("decisions", "helps")]}
 
 
 def p7():
@@ -211,15 +219,72 @@ def p7():
 
 
 def p8():
-    """Спека заказана словами, без /analyst-workspace: агент сам вызвал пишущий скилл."""
+    """Сначала вопросы без скиллов с установкой, как отвечать; потом спека заказана словами, без /analyst-workspace:
+    агент сам вызвал пишущий скилл. Реплик в скиллах меньше половины."""
     s = Session("p8", "27")
-    s.user("напиши спеку по задаче PAY-8, там надо добавить фильтр операций по дате", wait=5)
+    s.user("Пиши кратко, пунктами, без воды и без вводных фраз. Какие фильтры операций уже есть в "
+           "services/payments.md?", wait=5)
+    s.read("services/payments.md")
+    s.agent("- по сумме\n- по типу операции\n- по статусу")
+    s.user("А фильтр по дате где-нибудь упоминается?", wait=40)
+    s.agent("- нет: ни в карточке сервиса, ни в context/")
+    s.user("напиши спеку по задаче PAY-8, там надо добавить фильтр операций по дате", wait=30)
     s.skill("technical-spec-doc")
     s.agent("Спека записана: coddoc/PAY-8/technical_spec.md.")
     s.user("спасибо")
     s.agent("Пожалуйста.")
     s.user("ок")
-    return s, {"must": [("entry", "hurts")], "must_not": [("entry", "helps")]}
+    return s, {"must": [("entry", "hurts"), ("outside_skills", "hurts"), ("instruction", "hurts")],
+               "must_not": [("entry", "helps")]}
+
+
+PROPOSAL = (
+    "Файлы проекта по оплате ЖКХ и кешбэку прочитал. План интервью — четыре вопроса, по одному за раз: какие категории "
+    "платежей ЖКХ дают кешбэк и какие исключены; какой процент кешбэка и есть ли потолок в месяц; когда кешбэк "
+    "начисляется — сразу или после проведения платежа; кто получает кешбэк, если платит не владелец счёта. По ответам "
+    "запишу БТ. Если чего-то не знаете — отвечайте «не знаю», пункт ляжет в открытые вопросы и его можно будет закрыть "
+    "позже через «Доработать». Порядок вопросов можно поменять, а любой ответ — поправить в любой момент. Начинаем?"
+)
+
+
+def p9():
+    """Длинный план интервью от агента принят за секунды: это согласие с ходом работы, а не гипотезы. Дальше стадия
+    загружается изнутри: интервью БТ за порогом, сжатие посреди стадии."""
+    s = Session("p9", "28")
+    s.start("PAY-9", "кешбэк за оплату ЖКХ")
+    s.skill("business-requirements-doc", tokens=30000)
+    s.read("services/utilities.md", "services/cashback.md", "services/accounts.md", "context/loyalty-rules.md",
+           "context/glossary.md")
+    s.asked("План", "Начинаем интервью?", ["Начинаем", "Сначала добавлю материалы"], "Начинаем", wait=3, text=PROPOSAL)
+    s.agent("Какие категории платежей ЖКХ дают кешбэк?", tokens=120000)
+    s.user("Электричество, вода и газ; связь не входит", wait=60)
+    s.agent("Какой процент кешбэка и есть ли потолок в месяц?", tokens=185000)
+    s.user("Три процента, потолок пятьсот рублей в месяц", wait=50)
+    s.agent("Кешбэк начисляется сразу или после проведения платежа?", tokens=200000)
+    s.user("После проведения платежа, в течение трёх дней", wait=45)
+    s.b.compression(s.tick(10))
+    s.agent("Продолжаю после сжатия. Кто получает кешбэк, если платит не владелец счёта?", tokens=45000)
+    s.user("Тот, кто платит", wait=40)
+    s.agent("БТ записан: coddoc/PAY-9/business_requirements.md. Здесь можно `/clear`.", tokens=60000)
+    s.raw_slash("/clear", wait=30)
+    # Новой стадии после сжатия нет — «новая стадия на загруженном окне» здесь неверна.
+    return s, {"must": [("loaded_work", "hurts")],
+               "must_not": [("context_hygiene", "hurts"), ("hypotheses", "hurts"), ("decisions", "helps")]}
+
+
+def p10():
+    """Работа без скиллов: вопросы по карточкам сервисов, в начале — установка, как отвечать."""
+    s = Session("p10", "29")
+    s.user("Отвечай коротко, списком, без вступлений и без пересказа вопроса. Как в services/transfers.md описан "
+           "лимит на перевод?", wait=5)
+    s.read("services/transfers.md")
+    s.agent("- лимит на один перевод — 600 000 ₽\n- суточный — 1 000 000 ₽\n- проверка — в API, до списания")
+    s.user("А какие коды ошибок при превышении?", wait=40)
+    s.agent("- LIMIT_SINGLE — разовый\n- LIMIT_DAILY — суточный")
+    s.user("Где это видно клиенту?", wait=40)
+    s.agent("- экран подтверждения перевода: текст ошибки и остаток суточного лимита")
+    s.user("спасибо", wait=30)
+    return s, {"must": [("outside_skills", "hurts"), ("instruction", "hurts")], "must_not": []}
 
 
 def skipped():
@@ -239,7 +304,7 @@ def skipped():
     return [(retro, None), (short, None), (other, "/elsewhere/other-project")]
 
 
-BUILDERS = (p1, p2, p3, p4, p5, p6, p7, p8)
+BUILDERS = (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 
 
 def build(chats, cwd):
@@ -252,7 +317,8 @@ def build(chats, cwd):
     for session, own_cwd in skipped():
         write(chats, session, own_cwd or cwd)
     return {"sessions": expected, "analysed": len(BUILDERS), "weak_sessions": ["p3"],
-            "habits": {("hypotheses", "hurts"): 2, ("decisions", "hurts"): 2}}
+            "habits": {("hypotheses", "hurts"): 2, ("decisions", "hurts"): 2, ("loaded_work", "hurts"): 2,
+                       ("outside_skills", "hurts"): 2, ("instruction", "hurts"): 2}}
 
 
 def write(chats, session, cwd):

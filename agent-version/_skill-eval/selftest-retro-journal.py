@@ -120,7 +120,8 @@ def main():
     expect(one(1, "user").get("text") == "Делаем БТ по задаче PAY-1, пароль qwerty123" and one(1, "user").get("attached") is False,
            f"[1] реплика: {one(1, 'user')}")
     expect(one(2, "slash") == {"n": 2, "ts": "2026-10-20T09:00:05.000Z", "kind": "slash", "command": "/analyst-workspace",
-                               "args": "PAY-1"}, f"[2] слэш-команда: {one(2, 'slash')}")
+                               "args": "PAY-1", "skill": True},
+           f"[2] слэш-вызов скилла: за ним подставлен текст скилла — помечен как скилл: {one(2, 'slash')}")
     expect(3 not in by_n and chat["skill_texts"] == 1, f"[3] текст скилла после слэш-вызова — не реплика: {by_n.get(3)}")
     expect(one(4, "agent").get("tokens") == 50000 and one(4, "agent").get("window") == 262144
            and one(4, "agent").get("model") == "deepseek-v4-pro", f"[4] ответ агента: токены, окно, модель {one(4, 'agent')}")
@@ -142,7 +143,8 @@ def main():
     expect(one(18, "agent").get("model") == "qwen-3.6b" and chat["models"] == ["deepseek-v4-pro", "qwen-3.6b"],
            f"[18] модель у ответа: {one(18, 'agent')}, модели {chat['models']}")
     expect(one(20, "result").get("answers", {}).get("declined") is True, f"[20] отказ отвечать: {one(20, 'result')}")
-    expect(one(21, "slash").get("command") == "/clear", f"[21] /clear: {one(21, 'slash')}")
+    expect(one(21, "slash").get("command") == "/clear" and "skill" not in one(21, "slash"),
+           f"[21] /clear — встроенная команда, не скилл: {one(21, 'slash')}")
     expect(one(25, "agent").get("text") == "Видимый ответ.", f"[25] рассуждение модели (thought) — не текст агента: {one(25, 'agent')}")
     dumped = json.dumps(events, ensure_ascii=False)
     expect("секретный текст" not in dumped and "содержимое файла" not in dumped and "карточка сервиса" not in dumped,

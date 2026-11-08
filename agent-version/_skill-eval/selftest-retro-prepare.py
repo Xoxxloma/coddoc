@@ -186,6 +186,58 @@ def main():
            f"факты: сжатия {a['compressions']}, догадки {a['suspected']}, ошибки инструментов {a['tool_errors']}")
     expect(a["fast"] and a["fast"][0]["n"] == 5 and a["pastes"] == [{"n": 18, "chars": 4014, "attached": False}]
            and a["user_turns"] == 6 and a["minutes"] == 4, f"факты: быстрые {a['fast']}, вставки {a['pastes']}")
+    expect([item["n"] for item in a["loaded_work"]] == [18] and a["loaded_work"][0]["after_compression"] is True
+           and a["after_compression"] == [] and a["clears"] == [20],
+           f"реплика после сжатия — работа на загруженном; после /clear — нет: {a['loaded_work']}, "
+           f"вызовы после сжатия {a['after_compression']}, /clear {a['clears']}")
+    expect(a["skill_replies"] == {"inside": 3, "total": 5, "outside_first": 1},
+           f"доля скиллов: до слэш-вызова и после /clear — вне скилла, /clear не в счёт: {a['skill_replies']}")
+
+    def at(n, kind, **fields):
+        return dict({"n": n, "ts": f"2026-10-20T09:{n:02d}:00Z", "kind": kind}, **fields)
+
+    def agent_at(n, tokens, text="Вопрос?"):
+        return at(n, "agent", text=text, model="m", tokens=tokens, window=262144)
+
+    def user_at(n, text):
+        return at(n, "user", text=text, chars=len(text), attached=False)
+
+    inside = [
+        at(1, "slash", command="/analyst-workspace", args=""),
+        agent_at(2, 30000), user_at(3, "ответ один"),                       # 11 % окна — не в счёт
+        agent_at(4, 190000), user_at(5, "ответ два"),                       # 72 % — выше порога, стадия начата чисто
+        at(6, "call", name="ask_user_question", id="q1", questions=[{"header": "Срок", "question": "Какой?", "options": ["День"]}]),
+        at(7, "result", name="ask_user_question", id="q1",
+           answers={"declined": False, "items": [{"header": "Срок", "raw": "День", "selected": ["День"], "own": False}]}),
+        at(8, "compression"),
+        agent_at(9, 40000, "После сжатия."), user_at(10, "ответ три"),      # после сжатия
+        at(11, "call", name="skill", skill="technical-spec-doc", id="s1"),  # вызов скилла после сжатия
+        agent_at(12, 60000), user_at(13, "ответ четыре"),                   # всё ещё после сжатия
+        at(14, "slash", command="/clear", args=""),
+        agent_at(15, 30000), user_at(16, "ответ пять"),                     # после /clear окно чистое — не в счёт
+        agent_at(17, 200000), user_at(18, "ответ шесть")]                   # снова выше порога
+    inside_lines, inside_facts = prepare.render({"events": inside, "cwd": None}, prepare.load_params())
+    work = inside_facts["loaded_work"]
+    expect([item["n"] for item in work] == [5, 7, 10, 13, 18]
+           and [item["after_compression"] for item in work] == [False, False, True, True, False]
+           and work[0]["share"] == 0.725, f"реплики при окне выше порога и после сжатия до /clear: {work}")
+    expect(inside_facts["after_compression"] == [11] and inside_facts["loaded"] == [] and inside_facts["clears"] == [14],
+           f"вход после сжатия и /clear: {inside_facts['after_compression']}, {inside_facts['loaded']}, {inside_facts['clears']}")
+    expect("[5] ПОЛЬЗОВАТЕЛЬ: ответ два" in inside_lines and "[18] ПОЛЬЗОВАТЕЛЬ: ответ шесть" in inside_lines,
+           "у реплик в журнале нет пометок загрузки — их считает скрипт, не модель")
+
+    chained = [
+        at(1, "slash", command="/analyst-workspace", args="", skill=True),  # первая реплика запуска скилла
+        agent_at(2, 30000, "Что на руках?"),
+        user_at(3, "бизнес"),
+        at(4, "call", name="skill", skill="next-skill", id="s1"),           # агент зовёт скилл — запуск продолжается
+        user_at(5, "дальше"),
+        at(6, "slash", command="/clear", args=""),                          # /clear закрывает запуск, сам не в счёт
+        user_at(7, "вопрос вне скилла"),
+        user_at(8, "ещё вопрос")]
+    chained_facts = prepare.render({"events": chained, "cwd": None}, prepare.load_params())[1]
+    expect(chained_facts["skill_replies"] == {"inside": 3, "total": 5, "outside_first": 7},
+           f"доля скиллов: запуск открыт слэш-вызовом, закрыт /clear: {chained_facts['skill_replies']}")
 
     after_clear = [
         {"n": 1, "ts": "2026-10-20T09:00:00Z", "kind": "agent", "text": "Готово.", "model": "m", "tokens": 210000, "window": 262144},
