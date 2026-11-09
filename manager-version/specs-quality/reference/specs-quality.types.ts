@@ -1,5 +1,5 @@
 /**
- * Типизация выхода specs-quality: формат specs-quality/5.
+ * Типизация выхода specs-quality: формат specs-quality/6.
  * Итог: <имя документа>.quality.json рядом с документом — один документ, БТ или спека.
  * Источник правды — specs-quality.schema.json и contract.py; этот файл — их описание для чтения.
  *
@@ -11,7 +11,7 @@
 
 /** Корень выхода. */
 export interface SpecsQualityResult {
-  schema: "specs-quality/5";        // версия формата
+  schema: "specs-quality/6";        // версия формата
   generated_at: string;             // когда собран, ISO 8601 с поясом
   params: Params;                   // с какими порогами и весами считали — для вида этого документа
   document: Document;               // сам документ
@@ -21,10 +21,17 @@ export interface Params {
   below_pct: number;                // порог «низкий итог»: pct ниже — причина below_pct (сейчас 50)
   form_min_missing: number;         // с какого числа пропущенных разделов «не по форме» (сейчас у БТ 5, у спеки 6)
   weights: WeightsBt | WeightsSpec; // вес каждого критерия рубрики этого вида
+  form_weight: number;              // вес формы в итоге: form_score = доля разделов на месте × вес (сейчас 1)
 }
 
-export interface WeightsBt { goal: number; entities: number; functional: number; acceptance: number; roles: number }            // сейчас 0.5, 1, 1, 1, 1
-export interface WeightsSpec { source_logic: number; data_model: number; access: number; services: number; contracts: number } // сейчас все 1
+export interface WeightsBt {        // сейчас 0.5, 1, 1, 1, 1, 0.5, 1
+  goal: number; entities: number; functional: number; acceptance: number; roles: number;
+  scope: number; consistency: number;
+}
+export interface WeightsSpec {      // сейчас все 1
+  source_logic: number; data_model: number; access: number; services: number; contracts: number;
+  consistency: number;
+}
 
 /**
  * Документ — одно из трёх: оценка не состоялась; оценённые БТ; оценённая спека.
@@ -55,14 +62,15 @@ export interface SkippedDocument extends DocumentBase {
 /** Поля оценённого документа любого вида. */
 export interface ScoredCommon {
   scored: true;
-  pct: number | null;               // итог: sum / max × 100, целое; null — все критерии «н/п»
-  sum: number;                      // сумма баллов
-  max: number;                      // сумма весов критериев, кроме «н/п»
+  pct: number | null;               // итог: sum / max × 100, целое; null — все критерии «н/п» и форма не проверена
+  sum: number;                      // сумма баллов критериев плюс form_score
+  max: number;                      // сумма весов критериев, кроме «н/п», плюс вес формы, если форма проверена
   attention: AttentionReason[];     // почему документ требует внимания; пусто — не требует
   template: boolean;                // true — «заполнено шаблонно»: ни одного факта предметной области (у БТ)
                                     //   или конкретного имени (у спеки), только общие слова
   form_missing: number[] | null;    // номера разделов шаблона без своего заголовка (списки ниже); null — форму не проверили
   form_pct: number | null;          // доля разделов на месте: (всего − пропущено) / всего × 100; null — форму не проверили
+  form_score: number | null;        // балл формы в итоге: (всего − пропущено) / всего × params.form_weight, до сотых; null — не проверили
   findings: Finding[];              // по строке на каждый сниженный или «н/п» критерий, по порядку рубрики
 }
 
@@ -92,6 +100,8 @@ export interface CriteriaBt {
   functional: Score;                // «Функционал»: по каждой функции понятно, что она делает и для кого
   acceptance: Score;                // «Критерии приёмки»: у каждого FR проверяемый критерий — условие и наблюдаемый результат
   roles: Score;                     // «Роли и права»: у каждого действия понятно, кто его выполняет
+  scope: Score;                     // «Границы»: что входит и хотя бы одно, чего фича не делает (вес 0.5)
+  consistency: Score;               // «Непротиворечивость»: нет двух мест, которые нельзя выполнить вместе
 }
 
 export interface CriteriaSpec {
@@ -100,6 +110,7 @@ export interface CriteriaSpec {
   access: Score;                    // «Роли RBAC/ABAC»: кто вправе выполнить действие и что проверка стоит на сервере
   services: Score;                  // «Изменения и затронутые сервисы»: какие сервисы задеты и что в каждом меняется
   contracts: Score;                 // «Контракты»: у взаимодействий есть метод и путь (или событие), поля с типами, пример, ошибки
+  consistency: Score;               // «Непротиворечивость»: внутри спеки и против документа сверху
 }
 
 export type CriterionBt = keyof CriteriaBt;
@@ -107,7 +118,7 @@ export type CriterionSpec = keyof CriteriaSpec;
 
 export type AttentionReason =
   | "below_pct"   // итог pct ниже params.below_pct (50 %)
-  | "zero"        // хотя бы один критерий получил 0 — чего-то важного нет совсем
+  | "zero"        // хотя бы один критерий получил 0: чего-то нет совсем или противоречий два и больше
   | "template"    // заполнено шаблонно (template = true)
   | "off_form";   // не по шаблону: пропущено разделов не меньше params.form_min_missing (БТ — 5 из 16, спека — 6 из 23)
                   // «по коду» причиной подсветки не считается — это поле origin
@@ -135,7 +146,8 @@ export interface Finding {
   criterion: CriterionBt | CriterionSpec; // какой критерий снижен или «н/п»
   comment: string | null;           // что не так или почему «н/п»; где искали — в скобках: «(искал: Авторизация/доступ на бэке)»
   fix: string | null;               // что подняло бы балл; у «н/п» обычно null
-  quote: string | null;             // раздел и цитата: "§4.4: «кнопка видна согласующему»"; null — цитировать нечего («не найдено»)
+  quote: string | null;             // раздел и цитата: "§4.4: «кнопка видна согласующему»"; null — цитировать нечего («не найдено»);
+                                    //   у consistency — пара через « ↔ »
   quote_found?: false;              // есть, только если цитаты нет в тексте документа; балл от этого не меняется
 }
 

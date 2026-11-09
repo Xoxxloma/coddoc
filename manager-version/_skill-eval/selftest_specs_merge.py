@@ -108,43 +108,48 @@ def main_checks(base):
     bt, sp = "business_requirements.md", "technical_specification.md"
 
     # Ручной счёт по эталону.
-    put(data, "PSS-2212/" + bt, json.dumps(answer("bt", (0.5, 1, 0.5, 0.5, 1), q("PSS-2212/" + bt)), ensure_ascii=False))
-    put(data, "ARS-100/" + bt, json.dumps(answer("bt", (0.25, 0.5, 1, 0, 1), q("ARS-100/" + bt), missing=12), ensure_ascii=False))
-    put(data, "_foundation/" + sp, json.dumps(answer("spec", (NA, 0, 0, 0, 0), q("_foundation/" + sp), flag=True, missing=22, traces=(1,)), ensure_ascii=False))
-    put(data, "ARS-312/" + sp, json.dumps(answer("spec", (1, NA, NA, 1, NA), q("ARS-312/" + sp), missing=1, traces=(4, 5)), ensure_ascii=False))
-    put(data, "PSS-2215/" + sp, json.dumps(answer("spec", (0, 1, 0, 0.5, 0.5), q("PSS-2215/" + sp), missing=22, signs=(1, 2), traces=()), ensure_ascii=False))
-    edited = answer("spec", (1, 1, 0.5, 1, 1), q("PSS-2216/" + sp), missing=10)
+    # Баллы: у БТ goal … roles, scope, consistency; у спеки source_logic … contracts, consistency.
+    put(data, "PSS-2212/" + bt, json.dumps(answer("bt", (0.5, 1, 0.5, 0.5, 1, 1, 1), q("PSS-2212/" + bt)), ensure_ascii=False))
+    put(data, "ARS-100/" + bt, json.dumps(answer("bt", (0.25, 0.5, 1, 0, 1, 1, 1), q("ARS-100/" + bt), missing=12), ensure_ascii=False))
+    put(data, "_foundation/" + sp, json.dumps(answer("spec", (NA, 0, 0, 0, 0, 0), q("_foundation/" + sp), flag=True, missing=22, traces=(1,)),
+                                              ensure_ascii=False))
+    put(data, "ARS-312/" + sp, json.dumps(answer("spec", (1, NA, NA, 1, NA, 1), q("ARS-312/" + sp), missing=1, traces=(4, 5)), ensure_ascii=False))
+    put(data, "PSS-2215/" + sp, json.dumps(answer("spec", (0, 1, 0, 0.5, 0.5, 1), q("PSS-2215/" + sp), missing=22, signs=(1, 2), traces=()),
+                                           ensure_ascii=False))
+    edited = answer("spec", (1, 1, 0.5, 1, 1, 0.5), q("PSS-2216/" + sp), missing=10)
     edited["origin"]["code_signs"] = [{"n": 2, "quote": "src/PassService.java — этой строки в документе нет"}]
+    edited["criteria"][5]["evidence"] = [{"section": "§1", "quote": q("PSS-2216/" + sp)}, {"section": "источник", "quote": q("PSS-2216/" + bt)}]
     put(data, "PSS-2216/" + sp, json.dumps(edited, ensure_ascii=False))
 
     # Порча и допуски.
     put(data, "PSS-2210/" + bt, "Оценка готова, но JSON не пришёл.")
-    put(data, "PSS-2211/" + bt, json.dumps(answer("bt", (1, 1, 1, 1, 1), q("PSS-2211/" + bt)), ensure_ascii=False))
-    first = answer("bt", (0, 0, 0, 0, 0), q("PSS-2213/" + bt), flag=True)
-    second = answer("bt", (0, 0.5, 0.5, 0, 0), q("PSS-2213/" + bt), flag=True)
+    put(data, "PSS-2211/" + bt, json.dumps(answer("bt", (1, 1, 1, 1, 1, 1, 1), q("PSS-2211/" + bt)), ensure_ascii=False))
+    first = answer("bt", (0, 0, 0, 0, 0, 0, 0), q("PSS-2213/" + bt), flag=True)
+    second = answer("bt", (0, 0.5, 0.5, 0, 0, 0, 0), q("PSS-2213/" + bt), flag=True)
     put(data, "PSS-2213/" + bt, "Черновик:\n" + json.dumps(first, ensure_ascii=False) + "\nИсправляю:\n" + json.dumps(second, ensure_ascii=False))
-    invented = answer("bt", (0.5, 1, 1, 1, 1), q("PSS-2214/" + bt), missing=12)
+    invented = answer("bt", (0.5, 1, 1, 1, 1, 1, 1), q("PSS-2214/" + bt), missing=12)
     invented["criteria"][2].update(score=0.5, evidence=[{"section": "§4.1", "quote": "FR-9. Этой строки в документе нет"}], comment="дыра", fix="x")
     put(data, "PSS-2214/" + bt, json.dumps(invented, ensure_ascii=False))
-    spec14 = answer("spec", (1, 1, 0.5, 1, 1), q("PSS-2214/" + sp))
+    spec14 = answer("spec", (1, 1, 0.5, 1, 1, 1), q("PSS-2214/" + sp))
     spec14["criteria"][2]["evidence"] = [{"section": "шапка", "quote": "**Статус готовности:**\nГотово к разработке"},
                                          {"section": "шапка", "quote": "«Статус готовности» … «Задача: PSS-2214»"},
                                          {"section": "Авторизация/доступ на бэке", "quote": "Не найдено."}]
     put(data, "PSS-2214/" + sp, json.dumps(spec14, ensure_ascii=False))
-    extra = answer("spec", (1, 0.5, 0.5, 1, 1), q("PSS-2212/" + sp))
+    extra = answer("spec", (1, 0.5, 0.5, 1, 1, 0.5), q("PSS-2212/" + sp))
     extra["criteria"].append({"id": "template", "evidence": [], "searched": [], "comment": None, "fix": None, "score": 1})
+    extra["criteria"][5]["evidence"] = [{"section": "§1", "quote": q("PSS-2212/" + sp)}, {"section": "источник", "quote": "Этой строки нет нигде"}]
     put(data, "PSS-2212/" + sp, json.dumps(extra, ensure_ascii=False))
-    nested = answer("spec", (1, 1, 0.5, 1, 1), q("PSS-2210/" + sp))
+    nested = answer("spec", (1, 1, 0.5, 1, 1, 1), q("PSS-2210/" + sp))
     nested["form"]["origin"] = nested.pop("origin")
     put(data, "PSS-2210/" + sp, json.dumps(nested, ensure_ascii=False))
-    shuffled = answer("spec", (0, 0, 0, 0.5, 0), q("PSS-2213/" + sp), flag=True, traces=(1, 3))
+    shuffled = answer("spec", (0, 0, 0, 0.5, 0, 0), q("PSS-2213/" + sp), flag=True, traces=(1, 3))
     shuffled["criteria"].reverse()
     put(data, "PSS-2213/" + sp, json.dumps(shuffled, ensure_ascii=False))
-    twice = answer("bt", (NA, 0, 0, 0, 0), q("ARS-101/" + bt), flag=True, missing=15)
+    twice = answer("bt", (NA, 0, 0, 0, 0, 0, 0), q("ARS-101/" + bt), flag=True, missing=15)
     twice["criteria"][0]["comment"] = None  # «н/п» без причины своими словами
     twice["criteria"].append(dict(twice["criteria"][4], score=0.5, comment="дыра"))
     put(data, "ARS-101/" + bt, json.dumps(twice, ensure_ascii=False))
-    short = answer("spec", (0, 0, 0, 0, 0), q("ARS-101/" + sp), flag=True, missing=22, traces=())
+    short = answer("spec", (0, 0, 0, 0, 0, 0), q("ARS-101/" + sp), flag=True, missing=22, traces=())
     short["criteria"].pop(1)
     put(data, "ARS-101/" + sp, json.dumps(short, ensure_ascii=False))
     # У PSS-2216 БТ ответа нет вовсе.
@@ -166,26 +171,31 @@ def main_checks(base):
         return next((item for item in d["findings"] if item["criterion"] == criterion), None)
 
     d = by_path(doc, "PSS-2212/" + bt)
-    check("ручной счёт: БТ 3.5 из 4.5 (78%)", totals(d) == (3.5, 4.5, 78) and d["attention"] == [], totals(d))
+    check("ручной счёт: БТ 5 + форма 1 = 6 из 7 (86%)", totals(d) == (6, 7, 86) and d["form_score"] == 1 and d["attention"] == [],
+          totals(d))
     check("находки — только у сниженных, по порядку рубрики", [f["criterion"] for f in d["findings"]] == ["functional", "acceptance"], d["findings"])
     check("ключ и название — из строки collect", d["key"] == "PSS-2212" and d["feature"] == "заявка на разовый пропуск для посетителя",
           (d["key"], d["feature"]))
     d = by_path(doc, "ARS-100/" + bt)
-    check("ручной счёт: цель 0.25 → 2.75 из 4.5 (61%), ноль и форма", totals(d) == (2.75, 4.5, 61) and
+    check("ручной счёт: цель 0.25, форма 4 из 16 → 4.5 из 7 (64%), ноль и форма", totals(d) == (4.5, 7, 64) and d["form_score"] == 0.25 and
           contract.zero_ids(d["criteria"]) == ["acceptance"] and d["attention"] == ["zero", "off_form"], (totals(d), d["attention"]))
     d = by_path(doc, "_foundation/" + sp)
-    check("ручной счёт: фундамент 0 из 4, мимо фреймворка", totals(d) == (0, 4, 0) and d["origin"] == "outside" and d["source"] is None and
+    check("ручной счёт: фундамент 0 + форма 1 из 23 = 0.04 из 6 (1%), мимо фреймворка", totals(d) == (0.04, 6, 1) and d["origin"] == "outside" and
+          d["source"] is None and
           d["attention"] == ["below_pct", "zero", "template", "off_form"], (totals(d), d["origin"]))
     d = by_path(doc, "ARS-312/" + sp)
-    check("ручной счёт: багфикс 2 из 2 (100%), источник — баг-репорт", totals(d) == (2, 2, 100) and d["origin"] == "skill" and
+    check("ручной счёт: багфикс 3 + форма 0.96 из 4 (99%), источник — баг-репорт", totals(d) == (3.96, 4, 99) and d["origin"] == "skill" and
           d["source"] == "coddoc/ARS-312/bug_report.md", (totals(d), d["source"]))
     d = by_path(doc, "PSS-2215/" + sp)
-    check("ручной счёт: по коду, 2 из 5 (40%), «по коду» — не причина подсветки", d["pct"] == 40 and d["origin"] == "by_code" and
+    check("ручной счёт: по коду, 3 + форма 0.04 из 7 (43%), «по коду» — не причина подсветки", totals(d) == (3.04, 7, 43) and d["origin"] == "by_code" and
           d["attention"] == ["below_pct", "zero", "off_form"], d["attention"])
     check("признаки кода — своим полем, не в findings", [(s["n"], s["kind"]) for s in d["code_signs"]] == [(1, "сделано в коде"), (2, "путь к исходнику")]
           and not any("quote_found" in s for s in d["code_signs"]) and "origin" not in [f["criterion"] for f in d["findings"]], d["code_signs"])
     d = by_path(doc, "PSS-2216/" + sp)
     check("ручной счёт: правлена руками, не по форме", d["origin"] == "skill_edited" and d["attention"] == ["off_form"], d["origin"])
+    pair = line(d, "consistency")
+    check("противоречие — пара цитат, вторая из источника, обе найдены", pair and pair["quote"].count(" ↔ ") == 1 and
+          pair["quote"].startswith("§1: «") and "источник: «" in pair["quote"] and "quote_found" not in pair, pair)
     check("один признак — не «по коду», но в code_signs; выдуманная цитата — quote_found: false",
           d["code_signs"] == [{"n": 2, "kind": "путь к исходнику", "quote": "src/PassService.java — этой строки в документе нет", "quote_found": False}],
           d["code_signs"])
@@ -198,7 +208,7 @@ def main_checks(base):
     d = by_path(doc, "PSS-2211/" + bt)
     check("балл цели 1 — вне шкалы", not d["scored"] and "goal: балл 1 вне шкалы 0 / 0.25 / 0.5" in d["skip_reason"], d.get("skip_reason"))
     d = by_path(doc, "PSS-2213/" + bt)
-    check("два JSON — последний", d["scored"] and d["sum"] == 1, totals(d))
+    check("два JSON — последний", d["scored"] and d["sum"] == 2, totals(d))
     d = by_path(doc, "PSS-2214/" + bt)
     check("выдуманная цитата — quote_found: false, балл тот же", d["criteria"]["functional"] == 0.5 and
           line(d, "functional")["quote_found"] is False and "FR-9" in line(d, "functional")["quote"], d["findings"])
@@ -208,6 +218,8 @@ def main_checks(base):
     d = by_path(doc, "PSS-2212/" + sp)
     check("лишний элемент criteria — отброшен", d["scored"] and list(d["criteria"]) == list(params.CRITERIA["spec"]), d.get("skip_reason"))
     check("лишний элемент — в логе", any("PSS-2212/technical_specification.md: в criteria лишний элемент «template»" in entry for entry in log), log)
+    check("противоречие: одной цитаты из пары нет — quote_found: false, балл тот же", d["criteria"]["consistency"] == 0.5 and
+          line(d, "consistency")["quote_found"] is False, line(d, "consistency"))
     d = by_path(doc, "PSS-2210/" + sp)
     check("origin внутри form — поднят", d["scored"] and d["origin"] == "skill", d.get("skip_reason"))
     d = by_path(doc, "PSS-2213/" + sp)

@@ -181,6 +181,16 @@ def point_cases():
     named = ONE_ACTOR_BT.replace("<РОЛИ>", "Пользователь — метролог цеха; выполняет все действия.")
     bare = ONE_ACTOR_BT.replace("<РОЛИ>", "Пользователь.")
 
+    # Одно противоречие: требование разрешает отзыв до решения, критерий приёмки отзывает согласованную заявку.
+    contra_bt = sub(bt10, "- **[FR-3]** Дано: заявка со статусом «на согласовании». Когда: заявитель нажимает «отозвать».",
+                    "- **[FR-3]** Дано: заявка со статусом «согласована». Когда: заявитель нажимает «отозвать».")
+    # Одно противоречие с источником: спека разрешает отзыв согласованной заявки, БТ — только до решения.
+    contra_spec = sub(spec10, "Переходы статуса: `submitted` → `approved`, `submitted` → `rejected`, `submitted` → `withdrawn`.\n"
+                              "Из `approved`, `rejected` и `withdrawn` переходов нет — это конечные статусы.",
+                      "Переходы статуса: `submitted` → `approved`, `submitted` → `rejected`, `submitted` → `withdrawn`,\n"
+                      "`approved` → `withdrawn`. Из `rejected` и `withdrawn` переходов нет — это конечные статусы.")
+    caught = (0, 0.5)  # противоречие замечено: одно (0.5) или модель насчитала больше (0)
+
     return [
         case("A-negation", "spec", "coddoc/ARS-312/" + SPEC, negation, "coddoc/ARS-312/bug_report.md", bug,
              expect=[("data_model", NA), ("access", NA)]),
@@ -188,6 +198,9 @@ def point_cases():
              expect=[("origin", "skill"), ("code_signs", 0)]),
         case("D1-role-named", "bt", "coddoc/PSS-2290/" + BT, named, expect=[("roles", 1)]),
         case("D2-role-bare", "bt", "coddoc/PSS-2290/" + BT, bare, expect=[("roles", 0)]),
+        case("F1-contra-bt", "bt", "coddoc/PSS-2210/" + BT, contra_bt, expect=[("consistency", caught)]),
+        case("F2-contra-spec", "spec", "coddoc/PSS-2210/" + SPEC, contra_spec, "coddoc/PSS-2210/" + BT, bt10,
+             expect=[("consistency", caught)]),
     ]
 
 

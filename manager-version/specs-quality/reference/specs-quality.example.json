@@ -1,10 +1,10 @@
 {
- "schema": "specs-quality/5", "generated_at": "2026-10-28T15:00:00Z",
- "params": {"below_pct": 50, "form_min_missing": 6, "weights": {"source_logic": 1, "data_model": 1, "access": 1, "services": 1, "contracts": 1}},
+ "schema": "specs-quality/6", "generated_at": "2026-10-28T15:00:00Z",
+ "params": {"below_pct": 50, "form_min_missing": 6, "weights": {"source_logic": 1, "data_model": 1, "access": 1, "services": 1, "contracts": 1, "consistency": 1}, "form_weight": 1},
  "document": {"path": "coddoc/PRJ-105/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-105", "feature": "расчёт сметы", "author": null, "source": null,
-  "scored": true, "pct": 40, "sum": 2, "max": 5,
-  "criteria": {"source_logic": 0, "data_model": 0.5, "access": 0, "services": 1, "contracts": 0.5},
-  "attention": ["below_pct", "zero", "off_form"], "template": false, "form_missing": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "form_pct": 9, "origin": "by_code",
+  "scored": true, "pct": 44, "sum": 3.09, "max": 7,
+  "criteria": {"source_logic": 0, "data_model": 0.5, "access": 0, "services": 1, "contracts": 0.5, "consistency": 1},
+  "attention": ["below_pct", "zero", "off_form"], "template": false, "form_missing": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "form_pct": 9, "form_score": 0.09, "origin": "by_code",
   "code_signs": [
    {"n": 1, "kind": "сделано в коде", "quote": "Изменения: «вынесена логика расчёта в хелпер»"},
    {"n": 2, "kind": "путь к исходнику", "quote": "Изменения: «EstimateServiceImpl.java»"}

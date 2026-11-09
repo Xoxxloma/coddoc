@@ -20,8 +20,8 @@ DEFAULT_PATH = os.path.join(HERE, "params.json")
 KINDS = ("bt", "spec")
 # Критерии по порядку рубрик: состав задан рубриками, в params.json — только веса.
 CRITERIA = {
-    "bt": ("goal", "entities", "functional", "acceptance", "roles"),
-    "spec": ("source_logic", "data_model", "access", "services", "contracts"),
+    "bt": ("goal", "entities", "functional", "acceptance", "roles", "scope", "consistency"),
+    "spec": ("source_logic", "data_model", "access", "services", "contracts", "consistency"),
 }
 # Сколько разделов в списке «Форма» рубрики.
 FORM_SECTIONS = {"bt": 16, "spec": 23}
@@ -58,6 +58,14 @@ def check(data):
                 problems.append(f"criteria.{kind}.{criterion_id}.weight: нужно число больше нуля")
             if not isinstance(item, dict) or not isinstance(item.get("label"), str) or not item["label"]:
                 problems.append(f"criteria.{kind}.{criterion_id}.label: нужна строка")
+    form_weight = data.get("form_weight")
+    if not isinstance(form_weight, dict):
+        problems.append("form_weight: нужен раздел с bt и spec")
+    else:
+        for kind in KINDS:
+            value = form_weight.get(kind)
+            if not is_number(value) or value <= 0:
+                problems.append(f"form_weight.{kind}: нужно число больше нуля")
     below = attention.get("below_pct")
     if not is_number(below) or not 0 <= below <= 100:
         problems.append("attention.below_pct: нужно число от 0 до 100")
@@ -87,6 +95,10 @@ def load(path=None):
 
 def weights(data, kind):
     return {criterion_id: item["weight"] for criterion_id, item in data["criteria"][kind].items()}
+
+
+def form_weight(data, kind):
+    return data["form_weight"][kind]
 
 
 def label(data, kind, criterion_id):

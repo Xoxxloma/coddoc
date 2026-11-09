@@ -65,7 +65,8 @@ def read_stream(path):
 
 
 def content_checks(doc):
-    """Проверки grade-sq.mjs по документам выходов specs-quality/5 + случай E. doc — {"documents": [...]}. → {имя: True/False}."""
+    """Проверки grade-sq.mjs по документам выходов specs-quality/6 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
+    Пороги — в процентах: прежние суммы 4.0 из 4.5 и 4.5 из 5 — это 89 % и 90 %; разница 0.5 из 4.5 — 11 пунктов."""
     docs = {d["path"]: d for d in doc["documents"]}
 
     def d(folder, kind):
@@ -97,16 +98,16 @@ def content_checks(doc):
                  not d("PSS-2211", "spec") and not d("ARS-100", "spec"))
     ck["оценено всё"] = all(x["scored"] for x in doc["documents"])
     p10b, p10s = d("PSS-2210", "bt"), d("PSS-2210", "spec")
-    ck["хорошая"] = bool(p10b and p10s and p10b["scored"] and p10s["scored"] and p10b["sum"] >= 4.0 and p10s["sum"] >= 4.5)
+    ck["хорошая"] = pct(p10b) >= 89 and pct(p10s) >= 90
     p11 = d("PSS-2211", "bt")
-    ck["версия"] = bool(p11 and p10b and p11["scored"] and p10b["scored"] and p11["sum"] >= 4.0 and abs(p11["sum"] - p10b["sum"]) <= 0.5)
+    ck["версия"] = pct(p11) >= 89 and pct(p10b) >= 0 and abs(pct(p11) - pct(p10b)) <= 11
     p12b, p12s = d("PSS-2212", "bt"), d("PSS-2212", "spec")
     planted = p12s and any(score(p12s, i) is not None and score(p12s, i) <= 0.5 for i in (1, 2, 4))
     off_target = not p12s or any(score(p12s, i) is not None and score(p12s, i) < 1 for i in (0, 3))
     ck["частичная"] = bool(p12b and score(p12b, 3) is not None and score(p12b, 3) <= 0.5 and planted and not off_target and
                            pct(p12b) >= 50 and pct(p12s) >= 50)
     p13b, p13s = d("PSS-2213", "bt"), d("PSS-2213", "spec")
-    ck["протыкано"] = 0 <= pct(p13b) < 50 and 0 <= pct(p13s) < 50 and flag(p13b) and flag(p13s)
+    ck["протыкано"] = all(x and x["scored"] and {"template", "zero"} <= set(x["attention"]) for x in (p13b, p13s))
     ck["багфикс"] = bool(bug and pct(bug) >= 80 and sum(1 for i in (1, 2, 4) if score(bug, i) is None) >= 2)  # оценён, None — «н/п»
     ck["фундамент"] = bool(fnd and fnd["scored"] and score(fnd, 0) is None)
     ck["внимание"] = (all(attention(k) for k in ("PSS-2213", "PSS-2214", "PSS-2215", "PSS-2216")) and
@@ -116,7 +117,7 @@ def content_checks(doc):
     ck["форма"] = (off(d("PSS-2214", "bt")) and not off(d("PSS-2214", "spec")) and
                    not any(off(d(k, kind)) for k in IN_FORM for kind in ("bt", "spec")) and
                    off(d("PSS-2215", "spec")) and off(d("PSS-2216", "spec")) and not off(d("PSS-2216", "bt")))
-    ck["свободная"] = bool(d("PSS-2214", "bt") and d("PSS-2214", "bt")["scored"] and d("PSS-2214", "bt")["sum"] >= 4.0)
+    ck["свободная"] = pct(d("PSS-2214", "bt")) >= 89
     ck["по коду"] = origin(d("PSS-2215", "spec")) == "by_code" and not any(origin(d(k, "spec")) == "by_code" for k in BY_SKILL + ["PSS-2216"])
     ck["правлена"] = origin(d("PSS-2216", "spec")) == "skill_edited" and all(origin(d(k, "spec")) == "skill" for k in BY_SKILL)
     p15 = d("PSS-2215", "spec")
@@ -217,17 +218,19 @@ def selftest():
     import merge
     import selftest_specs_merge as sm
 
-    shape = {  # документ → (баллы, шаблонно, пропущено разделов, признаки кода, следы)
-        "PSS-2210/bt": ((0.5, 1, 1, 1, 1), False, 0, (), ()), "PSS-2210/spec": ((1, 1, 0.5, 1, 1), False, 0, (), (2, 3)),
-        "PSS-2211/bt": ((0.5, 1, 1, 1, 1), False, 0, (), ()), "PSS-2212/bt": ((0.5, 1, 0.5, 0.5, 1), False, 0, (), ()),
-        "PSS-2212/spec": ((1, 0.5, 0.5, 1, 1), False, 0, (), (2, 3)), "PSS-2213/bt": ((0, 0.5, 0.5, 0, 0), True, 0, (), ()),
-        "PSS-2213/spec": ((0, 0, 0, 0.5, 0), True, 0, (), (1, 3)), "PSS-2214/bt": ((0.5, 1, 1, 1, 1), False, 12, (), ()),
-        "PSS-2214/spec": ((1, 1, 0.5, 1, 1), False, 0, (), (2, 3)), "PSS-2215/spec": ((0, 1, 0, 0.5, 0.5), False, 22, (1, 2), ()),
-        "PSS-2216/bt": ((0.5, 1, 1, 1, 1), False, 0, (), ()), "PSS-2216/spec": ((1, 1, 0.5, 1, 1), False, 10, (), (2, 3)),
-        "ARS-312/spec": ((1, "н/п", "н/п", 1, "н/п"), False, 1, (), (4, 5)), "ARS-100/bt": ((0.25, 0.5, 1, 0, 1), False, 12, (), ()),
-        "ARS-100/_foundation/spec": (("н/п", 0, 0, 0, 0), True, 22, (), (1,)), "ARS-100/ARS-101/bt": ((0, 0, 0, 0, 0), True, 15, (), ()),
-        "ARS-100/ARS-101/spec": ((0, 0, 0, 0, 0), True, 22, (), ()), "PSS-2290/bt": ((0.5, 1, 1, 0, 1), False, 0, (), ()),
-        "PSS-2290/spec": ((1, 1, 0.5, 1, 1), False, 0, (), (2, 3)),
+    na = "н/п"
+    shape = {  # документ → (баллы, шаблонно, пропущено разделов, признаки кода, следы); БТ — 7 баллов, спека — 6
+        "PSS-2210/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2210/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)),
+        "PSS-2211/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2212/bt": ((0.5, 1, 0.5, 0.5, 1, 1, 1), False, 0, (), ()),
+        "PSS-2212/spec": ((1, 0.5, 0.5, 1, 1, 1), False, 0, (), (2, 3)), "PSS-2213/bt": ((0, 0.5, 0.5, 0, 0, 0, 0), True, 0, (), ()),
+        "PSS-2213/spec": ((0, 0, 0, 0.5, 0, 0), True, 0, (), (1, 3)), "PSS-2214/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 12, (), ()),
+        "PSS-2214/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)), "PSS-2215/spec": ((0, 1, 0, 0.5, 0.5, 1), False, 22, (1, 2), ()),
+        "PSS-2216/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2216/spec": ((1, 1, 0.5, 1, 1, 1), False, 10, (), (2, 3)),
+        "ARS-312/spec": ((1, na, na, 1, na, 1), False, 1, (), (4, 5)), "ARS-100/bt": ((0.25, 0.5, 1, 0, 1, 1, 1), False, 12, (), ()),
+        "ARS-100/_foundation/spec": ((na, 0, 0, 0, 0, 0), True, 22, (), (1,)),
+        "ARS-100/ARS-101/bt": ((0, 0, 0, 0, 0, 0, 0), True, 15, (), ()),
+        "ARS-100/ARS-101/spec": ((0, 0, 0, 0, 0, 0), True, 22, (), ()), "PSS-2290/bt": ((0.5, 1, 1, 0, 1, 1, 1), False, 0, (), ()),
+        "PSS-2290/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)),
     }
     base = tempfile.mkdtemp(prefix="specs-lead-")
     try:
