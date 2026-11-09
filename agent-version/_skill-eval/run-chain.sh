@@ -34,7 +34,8 @@ case "$PROBE" in
   nb-chain-spor) FIXTURE=NB-CHAIN-SPOR ;;
   real-apollo) FIXTURE=REAL-APOLLO ;;
   real-apollo-ts) FIXTURE=REAL-APOLLO-TS ;;
-  *) echo "неизвестная цепочка: '$PROBE'"; echo "есть: loop-chain loop-twice nb-chain-3 nb-chain-spor real-apollo real-apollo-ts"; exit 1 ;;
+  real-listmonk) FIXTURE=REAL-LISTMONK ;;
+  *) echo "неизвестная цепочка: '$PROBE'"; echo "есть: loop-chain loop-twice nb-chain-3 nb-chain-spor real-apollo real-apollo-ts real-listmonk"; exit 1 ;;
 esac
 [ -n "$ROUND" ] || { echo "usage: ./run-chain.sh <проба> <папка-раунда> <N> [параллельность]"; exit 1; }
 
