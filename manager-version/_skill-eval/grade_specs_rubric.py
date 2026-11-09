@@ -51,7 +51,7 @@ def normalize(text):
 
 
 def build_document(answer, kind, cfg):
-    """Ответ рубрики → поля документа specs-quality/2, нужные для подсветки, по формулам contract."""
+    """Ответ рубрики → поля документа, нужные для подсветки, по формулам contract."""
     weights = params.weights(cfg, kind)
     form_min = cfg["attention"]["form_min_missing"]
     criteria = {item["id"]: None if item["score"] == NA else round(item["score"] / RUBRIC_MAX.get(item["id"], 1) * weights[item["id"]], 4)
@@ -61,7 +61,9 @@ def build_document(answer, kind, cfg):
     origin = None
     if kind == "spec":
         origin = contract.origin_verdict(answer["origin"]["code_signs"], answer["origin"]["traces"], not off)
-    _, _, pct = contract.total(criteria, weights)
+    form_weight = params.form_weight(cfg, kind)
+    form_points = contract.form_score({"kind": kind, "form_missing": form_missing}, form_weight)
+    _, _, pct = contract.total(criteria, weights, form_points, form_weight)
     document = {"kind": kind, "pct": pct, "criteria": criteria, "template": answer["template"]["flag"],
                 "form_missing": form_missing, "off_form": off, "origin": origin}
     document["reasons"] = contract.attention_reasons(document, cfg["attention"]["below_pct"], form_min)
@@ -116,8 +118,8 @@ def grade_answer(case, result_text, cfg, schema):
             problems.append(f"не по форме {document['off_form']} (нет {len(document['form_missing'])}), в 1.4.0 {reference['off_form']}")
         if reference["origin"] and summary["origin"] != reference["origin"]:
             problems.append(f"происхождение {summary['origin']}, в 1.4.0 {reference['origin']}")
-        if parts not in reference["parts"]:
-            notes.append(f"баллы {parts}, в 1.4.0 {reference['parts']}")
+        if parts[:5] not in reference["parts"]:  # у 1.4.0 — пять критериев; новые сверяются только через подсветку
+            notes.append(f"баллы {parts[:5]}, в 1.4.0 {reference['parts']}")
     for field, expected in case.get("expect") or ():
         if field == "origin":
             got = summary["origin"]
@@ -125,8 +127,8 @@ def grade_answer(case, result_text, cfg, schema):
             got = len(answer["origin"]["code_signs"])
         else:
             got = dict(zip(ids, parts))[field]
-        if got != expected:
-            problems.append(f"{field}: {got}, ожидали {expected}")
+        if (got not in expected) if isinstance(expected, tuple) else (got != expected):  # кортеж — любое из значений
+            problems.append(f"{field}: {got}, ожидали {' или '.join(map(str, expected)) if isinstance(expected, tuple) else expected}")
     return problems, notes, summary
 
 
@@ -140,6 +142,7 @@ def grade_run(run_dir):
     schema = load_schema()
     cases = {item["name"]: item for item in specs_cases.all_cases()}
     lines, total, green, cost = [], 0, 0, 0.0
+    clean, false_contra = 0, []  # документы фикстуры без заложенных противоречий: сколько раз модель их нашла
     for path in sorted(glob.glob(os.path.join(run_dir, "responses", "*.json"))):
         name = re.sub(r"-r\d+$", "", os.path.basename(path)[:-5])
         with open(path, encoding="utf-8") as handle:
@@ -159,7 +162,14 @@ def grade_run(run_dir):
         tail = f"  {summary.get('parts')} {summary.get('pct')}% {summary.get('reasons')} {summary.get('origin') or ''}" if summary else ""
         lines.append(f"{mark:8} {os.path.basename(path)[:-5]}{tail}")
         lines += [f"         ✗ {p}" for p in problems] + [f"         · {n}" for n in notes]
+        if summary and not name.startswith("F"):
+            clean += 1
+            consistency = dict(zip(params.CRITERIA[cases[name]["kind"]], summary["parts"])).get("consistency")
+            if consistency not in (1, NA):
+                false_contra.append(os.path.basename(path)[:-5])
     lines.append(f"\nзелёных {green} из {total}; стоимость ${cost:.2f}")
+    lines.append(f"противоречие на документах без заложенного: {len(false_contra)} из {clean}"
+                 + (f" — {', '.join(false_contra)}" if false_contra else ""))
     return "\n".join(lines) + "\n"
 
 
@@ -171,6 +181,8 @@ def selftest():
     failures = []
 
     def answer_for(case, parts, flag, missing, signs=(), traces=("легенда", "карточки INT-N")):
+        if len(parts) == 5:  # баллы 1.4.0 + новые критерии полным баллом или «н/п»
+            parts = tuple(parts) + ((1, 1) if case["kind"] == "bt" else (1,))
         criteria = [{"id": cid, "evidence": [], "searched": [], "comment": None if p != NA else "не применимо",
                      "fix": None, "score": p} for cid, p in zip(params.CRITERIA[case["kind"]], parts)]
         result = {"criteria": criteria,
@@ -218,8 +230,15 @@ def selftest():
     check("A-negation", answer_for(cases["A-negation"], (1, 1, NA, 1, NA), False, 1), False, "data_model: 1, ожидали н/п")
     check("C-marker", answer_for(cases["C-marker"], (1, 1, 0.5, 1, 1), False, 0, signs=(6,)), False, "code_signs: 1, ожидали 0")
     check("D2-role-bare", answer_for(cases["D2-role-bare"], (0.5, 1, 1, 1, 0.5), False, 0), False, "roles: 0.5, ожидали 0")
+    check("PSS-2210-bt", answer_for(good, (0.5, 1, 1, 1, 1, 1, 0), False, 0), False, "подсветка True (zero)")  # противоречия — ноль
+    check("PSS-2210-bt", answer_for(good, (0.5, 1, 1, 1, 1, 1), False, 0), False, "схема")  # шесть баллов у БТ
+    contra = cases["F1-contra-bt"]
+    check("F1-contra-bt", answer_for(contra, (0.5, 1, 1, 1, 1, 1, 0.5), False, 0), True)  # противоречие замечено
+    check("F1-contra-bt", answer_for(contra, (0.5, 1, 1, 1, 1, 1, 0), False, 0), True)
+    check("F1-contra-bt", answer_for(contra, (0.5, 1, 1, 1, 1, 1, 1), False, 0), False, "consistency: 1, ожидали 0 или 0.5")
+    check("F2-contra-spec", answer_for(cases["F2-contra-spec"], (1, 1, 0.5, 1, 1, 1), False, 0), False, "consistency: 1, ожидали")
 
-    count = sum(1 for case in cases.values() if case["reference"]) + 13
+    count = sum(1 for case in cases.values() if case["reference"]) + 19
     if failures:
         print("\n".join(failures))
         print(f"selftest: провалов {len(failures)} из {count}")

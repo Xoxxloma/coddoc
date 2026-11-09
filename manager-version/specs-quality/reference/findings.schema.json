@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specs-quality/findings/1",
+  "$id": "specs-quality/findings/2",
   "title": "Ответ субагента по рубрике: один документ",
   "description": "Ответ на rubric-bt.md или rubric-spec.md. merge проверяет его по $defs/bt или $defs/spec, сверяет порядок критериев с рубрикой и ищет каждую цитату в тексте документа.",
   "oneOf": [{"$ref": "#/$defs/bt"}, {"$ref": "#/$defs/spec"}],
@@ -28,7 +28,8 @@
         "score": {"oneOf": [{"type": "number", "minimum": 0, "maximum": 1}, {"const": "н/п"}]}
       }
     },
-    "criteria": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/criterion"}},
+    "criteria_bt": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/criterion"}},
+    "criteria_spec": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/criterion"}},
     "template": {
       "type": "object",
       "additionalProperties": false,
@@ -84,13 +85,13 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["criteria", "template", "form"],
-      "properties": {"criteria": {"$ref": "#/$defs/criteria"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"}}
+      "properties": {"criteria": {"$ref": "#/$defs/criteria_bt"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"}}
     },
     "spec": {
       "type": "object",
       "additionalProperties": false,
       "required": ["criteria", "template", "form", "origin"],
-      "properties": {"criteria": {"$ref": "#/$defs/criteria"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"},
+      "properties": {"criteria": {"$ref": "#/$defs/criteria_spec"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"},
                      "origin": {"$ref": "#/$defs/origin"}}
     }
   }

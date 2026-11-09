@@ -1,21 +1,25 @@
 {
-  "_about": "Параметры оценки БТ и спек. Правь weight и пороги — скрипты берут их отсюда при каждом запуске. Свой файл на один прогон: --params <файл>. Состав критериев менять нельзя: он задан рубриками.",
+  "_about": "Параметры оценки БТ и спек. Правь weight, form_weight и пороги — скрипты берут их отсюда при каждом запуске. Свой файл на один прогон: --params <файл>. Состав критериев менять нельзя: он задан рубриками. form_weight — вес формы в итоге: балл формы = доля разделов шаблона на месте × вес.",
   "criteria": {
     "bt": {
       "goal": {"label": "Цель", "weight": 0.5},
       "entities": {"label": "Бизнес-сущности", "weight": 1},
       "functional": {"label": "Функционал", "weight": 1},
       "acceptance": {"label": "Критерии приёмки", "weight": 1},
-      "roles": {"label": "Роли и права", "weight": 1}
+      "roles": {"label": "Роли и права", "weight": 1},
+      "scope": {"label": "Границы", "weight": 0.5},
+      "consistency": {"label": "Непротиворечивость", "weight": 1}
     },
     "spec": {
       "source_logic": {"label": "Функционал из источника", "weight": 1},
       "data_model": {"label": "Модель данных и миграции", "weight": 1},
       "access": {"label": "Роли RBAC/ABAC", "weight": 1},
       "services": {"label": "Изменения и затронутые сервисы", "weight": 1},
-      "contracts": {"label": "Контракты", "weight": 1}
+      "contracts": {"label": "Контракты", "weight": 1},
+      "consistency": {"label": "Непротиворечивость", "weight": 1}
     }
   },
+  "form_weight": {"bt": 1, "spec": 1},
   "attention": {
     "below_pct": 50,
     "form_min_missing": {"bt": 5, "spec": 6}

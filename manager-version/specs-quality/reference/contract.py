@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Контракт выхода specs-quality/5: схема и правила, которые схемой не выразить.
+"""Контракт выхода specs-quality/6: схема и правила, которые схемой не выразить.
 
     python3 contract.py <документ>.quality.json   # «OK» или список нарушений, код выхода 1
     python3 contract.py --selftest                # пример и кейсы проходят, испорченные копии — нет
@@ -26,7 +26,7 @@ import params  # noqa: E402
 SCHEMA_PATH = os.path.join(HERE, "specs-quality.schema.json")
 EXAMPLE_PATH = os.path.join(HERE, "specs-quality.example.json")
 CASES_PATH = os.path.join(HERE, "specs-quality.cases.json")  # документы разных видов и случаев — для --selftest
-FORMAT = "specs-quality/5"
+FORMAT = "specs-quality/6"
 
 KNOWN_KEYWORDS = {
     "$schema", "$id", "title", "description", "$defs", "$ref", "type", "enum", "const",
@@ -58,11 +58,14 @@ def score_ok(score, weight):
     return any(close(score, weight * level) for level in (0, 0.5, 1))
 
 
-def total(criteria, weights):
-    """criteria — {критерий: балл с весом | None — «н/п»} → (sum, max, pct)."""
+def total(criteria, weights, form_points, form_weight):
+    """criteria — {критерий: балл с весом | None — «н/п»}, форма — её балл (None — не проверена) → (sum, max, pct)."""
     scored = {cid: score for cid, score in criteria.items() if score is not None}
     points = sum(scored.values())
     maximum = sum(weights[cid] for cid in scored)
+    if form_points is not None:
+        points += form_points
+        maximum += form_weight
     pct = round_half_up(100.0 * points / maximum) if maximum else None
     return round(points, 4), round(maximum, 4), pct
 
@@ -114,11 +117,21 @@ def form_pct(document):
     return round_half_up(100.0 * (sections - len(document["form_missing"])) / sections)
 
 
-def result(document, below_pct, form_min, weights, generated_at):
-    """Выход по одному документу; form_min и weights — по обоим видам, как в params.json, в выход — только его вида."""
+def form_score(document, weight):
+    """Балл формы в итоге: доля разделов на месте × вес, до сотых; форма не проверена — None."""
+    if document["form_missing"] is None:
+        return None
+    sections = params.FORM_SECTIONS[document["kind"]]
+    share = (sections - len(document["form_missing"])) / sections * weight
+    return num(math.floor(round(share * 100, 9) + 0.5) / 100)
+
+
+def result(document, below_pct, form_min, weights, form_weight, generated_at):
+    """Выход по одному документу; form_min, weights и form_weight — по обоим видам, как в params.json, в выход — только его вида."""
     kind = document["kind"]
     return {"schema": FORMAT, "generated_at": generated_at,
-            "params": {"below_pct": below_pct, "form_min_missing": form_min[kind], "weights": dict(weights[kind])},
+            "params": {"below_pct": below_pct, "form_min_missing": form_min[kind], "weights": dict(weights[kind]),
+                       "form_weight": form_weight[kind]},
             "document": document}
 
 
@@ -302,20 +315,23 @@ def check_document_rules(document, doc_params):
     for cid, score in criteria.items():
         if score is not None and not score_ok(score, weights[cid]):
             errors.append(f"{name}: {cid}: балл {score:g} не из шкалы 0 / {weights[cid] / 2:g} / {weights[cid]:g}")
-    points, maximum, pct = total(criteria, weights)
-    if not close(document["sum"], points):
-        errors.append(f"{name}: sum {document['sum']:g}, по критериям {points:g}")
-    if not close(document["max"], maximum):
-        errors.append(f"{name}: max {document['max']:g}, по весам без «н/п» {maximum:g}")
-    if document["pct"] != pct:
-        errors.append(f"{name}: pct {document['pct']}, по формуле {pct}")
-
     missing = document["form_missing"]
     if missing is not None and (missing != sorted(set(missing)) or any(n > params.FORM_SECTIONS[kind] for n in missing)):
         errors.append(f"{name}: form_missing — не по возрастанию, с повтором или вне списка 1–{params.FORM_SECTIONS[kind]}")
 
     if document["form_pct"] != form_pct(document):
         errors.append(f"{name}: form_pct {document['form_pct']}, по form_missing {form_pct(document)}")
+    form_points = form_score(document, doc_params["form_weight"])
+    if (document["form_score"] is None) != (form_points is None) or (form_points is not None and not close(document["form_score"], form_points)):
+        errors.append(f"{name}: form_score {document['form_score']}, по form_missing {form_points}")
+
+    points, maximum, pct = total(criteria, weights, form_points, doc_params["form_weight"])
+    if not close(document["sum"], points):
+        errors.append(f"{name}: sum {document['sum']:g}, по критериям и форме {points:g}")
+    if not close(document["max"], maximum):
+        errors.append(f"{name}: max {document['max']:g}, по весам без «н/п» с формой {maximum:g}")
+    if document["pct"] != pct:
+        errors.append(f"{name}: pct {document['pct']}, по формуле {pct}")
 
     expected = attention_reasons(document, doc_params["below_pct"], {kind: doc_params["form_min_missing"]})
     if document["attention"] != expected:
@@ -359,7 +375,15 @@ def selftest():
         """Выход по документу кейсов, чей путь кончается на tail."""
         document = next(item for item in cases["documents"] if item["path"].endswith(tail))
         return copy.deepcopy(result(document, case_params["below_pct"], case_params["form_min_missing"],
-                                    case_params["weights"], cases["generated_at"]))
+                                    case_params["weights"], case_params["form_weight"], cases["generated_at"]))
+
+    def recount(output):
+        """Верный вариант поменял баллы или форму — производные поля пересчитываются, проверяется другое правило."""
+        d, p = output["document"], output["params"]
+        d["form_pct"] = form_pct(d)
+        d["form_score"] = form_score(d, p["form_weight"])
+        points, maximum, pct = total(d["criteria"], p["weights"], d["form_score"], p["form_weight"])
+        d.update(sum=num(points), max=num(maximum), pct=pct)
 
     for item in cases["documents"]:
         problems += [f"кейс {item['path']}: {error}" for error in check_document(case(item["path"]), schema)]
@@ -368,7 +392,8 @@ def selftest():
     zero_bt, part_spec = "PRJ-102/business_requirements.md", "PRJ-102/technical_specification.md"
     bug_spec, epic_bt = "PRJ-103/technical_specification.md", "PRJ-104/business_requirements.md"
     fnd_spec, code_spec = "_foundation/technical_specification.md", "PRJ-105/technical_specification.md"
-    scored_fields = ("pct", "sum", "max", "criteria", "attention", "template", "form_missing", "form_pct", "origin", "code_signs", "findings")
+    scored_fields = ("pct", "sum", "max", "criteria", "attention", "template", "form_missing", "form_pct", "form_score", "origin",
+                     "code_signs", "findings")
 
     def swap_criteria(d):
         keys = list(d["document"]["criteria"])
@@ -380,18 +405,20 @@ def selftest():
             d["document"].pop(field)
         d["document"].update(scored=False, skip_reason="нет ответа модели")
 
-    def spec_exactly_half(d):  # 50% — не «ниже 50%»: подсвечивает только ноль
+    def spec_exactly_half(d):  # 50% — не «ниже 50%»: подсвечивает только ноль; 2.5 + форма 1 из 7
         item = d["document"]
-        item["criteria"] = dict(zip(params.CRITERIA["spec"], (1, 0.5, 0.5, 0.5, 0)))
-        item.update(sum=2.5, max=5, pct=50, attention=["zero"])
+        item["criteria"] = dict(zip(params.CRITERIA["spec"], (1, 0.5, 0.5, 0, 0, 0.5)))
+        item["attention"] = ["zero"]
         item["findings"].insert(2, {"criterion": "services", "comment": "дыра", "fix": "x", "quote": None})
 
     # Порча → ожидаемый кусок сообщения. Известный результат, а не «хоть какая-то ошибка».
     doc = lambda d: d["document"]  # noqa: E731
     broken = [
-        ("сумма частей", good_spec, lambda d: doc(d).update(sum=4), "sum 4, по критериям 4.5"),
-        ("максимум без вычета н/п", fnd_spec, lambda d: doc(d).update(max=5), "max 5, по весам без «н/п» 4"),
-        ("процент", zero_bt, lambda d: doc(d).update(pct=77), "pct 77, по формуле 78"),
+        ("сумма частей", good_spec, lambda d: doc(d).update(sum=4), "sum 4, по критериям и форме 6.46"),
+        ("максимум без вычета н/п", fnd_spec, lambda d: doc(d).update(max=7), "max 7, по весам без «н/п» с формой 6"),
+        ("процент", zero_bt, lambda d: doc(d).update(pct=77), "pct 77, по формуле 86"),
+        ("балл формы", good_spec, lambda d: doc(d).update(form_score=1), "form_score 1, по form_missing 0.96"),
+        ("вес формы не тот, каким считали", good_bt, lambda d: d["params"].update(form_weight=2), "form_score 1, по form_missing 2"),
         ("ноль без причины", zero_bt, lambda d: doc(d).update(attention=[]), "attention [], по правилам ['zero']"),
         ("не по форме без причины", epic_bt, lambda d: doc(d).update(attention=[]), "по правилам ['off_form']"),
         ("причина без повода", good_bt, lambda d: doc(d).update(attention=["zero"]), "attention ['zero'], по правилам []"),
@@ -399,14 +426,17 @@ def selftest():
         ("н/п не на своём месте", bug_spec, swap_criteria, "критерии source_logic, access, data_model"),
         ("балл не из шкалы", good_spec, lambda d: doc(d)["criteria"].update(access=0.7), "access: балл 0.7 не из шкалы 0 / 0.5 / 1"),
         ("балл цели по шкале критерия", good_bt, lambda d: doc(d)["criteria"].update(goal=1), "goal: балл 1 не из шкалы 0 / 0.25 / 0.5"),
-        ("вес в params не тот, каким считали", good_bt, lambda d: d["params"]["weights"].update(roles=2), "max 4.5, по весам без «н/п» 5.5"),
+        ("вес в params не тот, каким считали", good_bt, lambda d: d["params"]["weights"].update(roles=2),
+         "max 7, по весам без «н/п» с формой 8"),
         ("веса чужого вида", good_bt, lambda d: d["params"].update(weights=dict(case_params["weights"]["spec"])),
-         "params.weights: критерии source_logic, data_model, access, services, contracts, а у вида bt"),
+         "params.weights: критерии source_logic, data_model, access, services, contracts, consistency, а у вида bt"),
         ("порог формы больше разделов вида", good_bt, lambda d: d["params"].update(form_min_missing=20), "больше разделов шаблона вида bt (16)"),
-        ("нет находки у сниженного", part_spec, lambda d: doc(d)["findings"].pop(0), "нужны ровно по ['data_model', 'access', 'contracts']"),
+        ("нет находки у сниженного", part_spec, lambda d: doc(d)["findings"].pop(0),
+         "нужны ровно по ['data_model', 'access', 'contracts', 'consistency']"),
         ("находка у полного балла", good_bt, lambda d: doc(d)["findings"].append({"criterion": "roles", "comment": "x", "fix": None, "quote": None}),
          "findings по ['roles'], а нужны ровно по []"),
-        ("находки не по порядку", part_spec, lambda d: doc(d)["findings"].reverse(), "нужны ровно по ['data_model', 'access', 'contracts']"),
+        ("находки не по порядку", part_spec, lambda d: doc(d)["findings"].reverse(),
+         "нужны ровно по ['data_model', 'access', 'contracts', 'consistency']"),
         ("по коду без признака «уже сделано»", code_spec, lambda d: doc(d)["code_signs"][0].update(n=4, kind="рефакторинг или тесты"),
          "origin by_code, а по признакам [2, 4] «по коду» нет"),
         ("по коду на одном номере дважды", code_spec, lambda d: doc(d)["code_signs"].__setitem__(1, dict(doc(d)["code_signs"][0])),
@@ -432,7 +462,7 @@ def selftest():
         ("quote_found: true", part_spec, lambda d: doc(d)["findings"][0].update(quote_found=True), "ожидалось false"),
         ("н/п строкой с опечаткой", bug_spec, lambda d: doc(d)["criteria"].update(access="н.п"), "ожидался тип number"),
         ("поле старого формата", good_bt, lambda d: d.update(documents=[]), "лишнее поле «documents»"),
-        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/4"), 'ожидалось "specs-quality/5"'),
+        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/5"), 'ожидалось "specs-quality/6"'),
         ("нет repo", good_bt, lambda d: doc(d).pop("repo"), "нет поля «repo»"),
         ("form_pct документа", good_spec, lambda d: doc(d).update(form_pct=90), "form_pct 90, по form_missing 96"),
         ("время без пояса", good_bt, lambda d: d.update(generated_at="2026-10-28T15:00:00"), "часовым поясом"),
@@ -456,8 +486,8 @@ def selftest():
     for name, tail, change in valid:
         output = case(tail)
         change(output)
-        if output["document"]["scored"]:  # верный вариант меняет форму — долю пересчитываем, проверяется другое правило
-            output["document"]["form_pct"] = form_pct(output["document"])
+        if output["document"]["scored"]:
+            recount(output)
         errors = check_document(output, schema)
         if errors:
             problems.append(f"верный вариант «{name}» не прошёл: {errors}")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/5 по каждому документу.
+"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/6 по каждому документу.
 
     python3 merge.py --work <папка collect> [--keep-work]
     python3 merge.py --work <папка collect> --check   # какие ответы перезапустить: нет файла, не JSON, не по схеме
@@ -9,11 +9,11 @@
 Хоть один выход не прошёл contract — не пишется ни один, папка остаётся для разбора. На экран — что поправлено в
 ответах и список «Требуют внимания».
 
-Модель ничего не считает: итог, нули, форму, происхождение и подсветку считает contract.py по params.json. Ответ
+Модель ничего не считает: итог, нули, форму и её балл, происхождение и подсветку считает contract.py по params.json. Ответ
 разбирается терпимо: последний JSON в тексте; элемент criteria с чужим id отбрасывается, повтор id — берётся
 последний, порядок — по рубрике; origin внутри form поднимается. Критерия рубрики нет, балл вне шкалы, ответ не по
 схеме — документ «оценка не состоялась». В выход идут только сниженные и «н/п» критерии — по строке findings с одной
-цитатой; цитаты нет в тексте документа — у строки quote_found: false, балл тот же.
+цитатой (у противоречия — пара); цитаты нет в тексте документа — у строки quote_found: false, балл тот же.
 """
 
 from __future__ import annotations
@@ -35,6 +35,7 @@ import params  # noqa: E402
 FINDINGS_SCHEMA_PATH = os.path.join(HERE, "findings.schema.json")
 NA = "н/п"
 RUBRIC_MAX = {"goal": 0.5}  # шкала рубрики: у цели БТ — до 0.5, у остальных критериев — до 1
+PAIRED = {"consistency"}  # находка — пара цитат: два места, которые нельзя выполнить вместе
 LIMITS = {"text": 1000}
 NOISE_RE = re.compile(r"[`*_«»\"“”„'’~>|]")
 ELLIPSIS_RE = re.compile(r"\s*(?:…|\.\.\.)\s*")
@@ -160,9 +161,9 @@ def finding(criterion_id, item, haystack, log):
     result = {"criterion": criterion_id, "comment": cut(comment, LIMITS["text"], log, criterion_id),
               "fix": cut(item["fix"], LIMITS["text"], log, criterion_id), "quote": None}
     if found:
-        first = found[0]
-        result["quote"] = cut(f"{first['section']}: «{first['quote']}»", LIMITS["text"], log, criterion_id)
-        if not quote_found(first["quote"], haystack):
+        shown = found[:2] if criterion_id in PAIRED else found[:1]
+        result["quote"] = cut(" ↔ ".join(f"{e['section']}: «{e['quote']}»" for e in shown), LIMITS["text"], log, criterion_id)
+        if not all(quote_found(e["quote"], haystack) for e in shown):
             result["quote_found"] = False
     return result
 
@@ -204,11 +205,14 @@ def scored_document(meta, row, repo, answer, cfg, haystack, log):
                 item["quote_found"] = False
             code_signs.append(item)
 
-    points, maximum, pct = contract.total(criteria, weights)
-    document = {**head(meta, row, repo), "scored": True, "pct": pct, "sum": num(points), "max": num(maximum), "criteria": criteria,
-                "attention": [], "template": template["flag"], "form_missing": form_missing, "form_pct": None, "origin": origin,
-                "code_signs": code_signs, "findings": findings}
+    document = {**head(meta, row, repo), "scored": True, "pct": None, "sum": None, "max": None, "criteria": criteria,
+                "attention": [], "template": template["flag"], "form_missing": form_missing, "form_pct": None, "form_score": None,
+                "origin": origin, "code_signs": code_signs, "findings": findings}
+    form_weight = params.form_weight(cfg, kind)
     document["form_pct"] = contract.form_pct(document)
+    document["form_score"] = contract.form_score(document, form_weight)
+    points, maximum, pct = contract.total(criteria, weights, document["form_score"], form_weight)
+    document.update(pct=pct, sum=num(points), max=num(maximum))
     document["attention"] = contract.attention_reasons(document, cfg["attention"]["below_pct"], form_min)
     return document
 
@@ -235,13 +239,14 @@ def check_answers(work):
 
 
 def build(work, now=None):
-    """→ ([(строка документа collect, выход specs-quality/5)], лог поправок, collect)."""
+    """→ ([(строка документа collect, выход specs-quality/6)], лог поправок, collect)."""
     collected = json.loads(read(os.path.join(work, "collect.json")))
     cfg = params.load(collected["params"])
     schema = json.loads(read(FINDINGS_SCHEMA_PATH))
     root, repo = collected["root"], collected["repo"]
     stamp = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ")
     weights = {kind: params.weights(cfg, kind) for kind in params.KINDS}
+    form_weights = {kind: params.form_weight(cfg, kind) for kind in params.KINDS}
     row_of = {cell["document"]: row for row in collected["rows"] for cell in (row["bt"], row["spec"]) if "document" in cell}
     outputs, log = [], []
     for meta in collected["documents"]:
@@ -260,7 +265,7 @@ def build(work, now=None):
             document = failed_document(meta, row, repo, str(error))
             doc_log.append(f"оценка не состоялась: {error}")
         outputs.append((meta, contract.result(document, cfg["attention"]["below_pct"], cfg["attention"]["form_min_missing"],
-                                              weights, stamp)))
+                                              weights, form_weights, stamp)))
         log += [f"{meta['path']}: {line}" for line in doc_log]
     return outputs, log, collected
 
@@ -291,7 +296,7 @@ def dump(output):
     else:
         lines.append("  " + pairs(document, ("scored", "pct", "sum", "max")) + ",")
         lines.append("  " + pairs(document, ("criteria",)) + ",")
-        lines.append("  " + pairs(document, ("attention", "template", "form_missing", "form_pct", "origin")) + ",")
+        lines.append("  " + pairs(document, ("attention", "template", "form_missing", "form_pct", "form_score", "origin")) + ",")
         lines += listed("code_signs", document["code_signs"], False) if document["code_signs"] is not None \
             else ['  "code_signs": null,']
         lines += listed("findings", document["findings"], True)
