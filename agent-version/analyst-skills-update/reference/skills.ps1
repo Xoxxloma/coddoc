@@ -11,7 +11,8 @@
 #
 #   powershell -NoProfile -Command "Invoke-Expression (Get-Content -Raw -Encoding UTF8 .gigacode/skills/analyst-skills-update/reference/skills.ps1)"
 #
-# Что копируется и что печатается — как в skills.sh; правятся оба файла вместе. Нужен только git.
+# Что копируется и что печатается, список .analyst-skills и установка скриптом из клона — как в skills.sh;
+# правятся оба файла вместе. Нужен только git.
 # Пишется под Windows PowerShell 5.1 и ограниченный режим языка: только командлеты, без вызовов .NET.
 # Файл хранится в UTF-8 с BOM — без него 5.1 читает русские строки как cp1251.
 # Временная копия себя, как в skills.sh, не нужна: PowerShell читает скрипт целиком до запуска.
@@ -38,26 +39,41 @@ if (-not $env:GIT_SSH_COMMAND -and -not $env:GIT_SSH) {
   if ($LASTEXITCODE -ne 0) { $env:GIT_SSH_COMMAND = 'ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10' }
 }
 
-$src = Join-Path $env:TEMP ('sdd-skills.' + (Get-Random))
+# Папка клона, если нас запустила установленная версия (см. ниже). Клон убирает она.
+$from = $env:SDD_SKILLS_FROM
+$src = if ($from) { $from } else { Join-Path $env:TEMP ('sdd-skills.' + (Get-Random)) }
 try {
-  $cloneArgs = @('clone', '-q', '--depth', '1')
-  if ($ref) { $cloneArgs += @('--branch', $ref) }
-  $cloned = $false
-  foreach ($repo in $repos) {
-    if ($ref) { Write-Output "скиллы: $repo #$ref" } else { Write-Output "скиллы: $repo" }
-    # Предупреждения git в stderr не должны обрывать скрипт: решает только код возврата.
-    $ErrorActionPreference = 'Continue'
-    & git @cloneArgs $repo $src
-    $ErrorActionPreference = 'Stop'
-    if ($LASTEXITCODE -eq 0) { $cloned = $true; break }
+  if (-not $from) {
+    $cloneArgs = @('clone', '-q', '--depth', '1')
+    if ($ref) { $cloneArgs += @('--branch', $ref) }
+    $cloned = $false
+    foreach ($repo in $repos) {
+      if ($ref) { Write-Output "скиллы: $repo #$ref" } else { Write-Output "скиллы: $repo" }
+      # Предупреждения git в stderr не должны обрывать скрипт: решает только код возврата.
+      $ErrorActionPreference = 'Continue'
+      & git @cloneArgs $repo $src
+      $ErrorActionPreference = 'Stop'
+      if ($LASTEXITCODE -eq 0) { $cloned = $true; break }
+    }
+    if (-not $cloned) { Write-Output 'не удалось получить скиллы ни по одному адресу'; exit 1 }
   }
-  if (-not $cloned) { Write-Output 'не удалось получить скиллы ни по одному адресу'; exit 1 }
 
   $skills = Join-Path $src 'skills'
   if (-not (Test-Path -LiteralPath $skills -PathType Container)) { $skills = Join-Path $src '.gigacode' }
   if (-not (Test-Path -LiteralPath $skills -PathType Container)) { Write-Output 'в репозитории со скиллами нет папки skills/'; exit 1 }
 
+  # Ставит skills.ps1 из клона, а не этот — как в skills.sh. Текстом, а не `& $next`: запуск .ps1 бывает запрещён
+  # политикой, и тогда этот скрипт тоже читали как текст. В `& { }` — чтобы его переменные не затёрли наши.
+  $next = Join-Path $skills 'analyst-skills-update\reference\skills.ps1'
+  if (-not $from -and (Test-Path -LiteralPath $next -PathType Leaf)) {
+    $env:SDD_SKILLS_FROM = $src
+    Invoke-Expression ("& {`n" + (Get-Content -Raw -Encoding UTF8 -LiteralPath $next) + "`n} '" + ($Dest -replace "'", "''") + "'")
+    return
+  }
+
   New-Item -ItemType Directory -Force -Path $Dest | Out-Null
+  $list = Join-Path $Dest '.analyst-skills'
+  $installed = @()
   $count = 0
   foreach ($dir in Get-ChildItem -LiteralPath $skills -Directory | Sort-Object Name) {
     $name = $dir.Name
@@ -73,17 +89,28 @@ try {
     $found = Select-String -LiteralPath $skillMd -Pattern '^version:\s*(.*)$' -CaseSensitive | Select-Object -First 1
     if ($found -and $found.Matches[0].Groups[1].Value.Trim()) { $version = $found.Matches[0].Groups[1].Value.Trim() }
     Write-Output ('  {0,-28} {1}' -f $name, $version)
+    $installed += $name
     $count++
   }
   if ($count -eq 0) { Write-Output "в $(Split-Path -Leaf $skills)/ не нашлось ни одной папки со SKILL.md"; exit 1 }
-  # Снятые из набора скиллы — как в skills.sh.
-  foreach ($name in @('spec-readiness')) {
-    $target = Join-Path $Dest $name
-    if (-not (Test-Path -LiteralPath $target -PathType Container)) { continue }
-    try { Remove-Item -LiteralPath $target -Recurse -Force; Write-Output ('  {0,-28} {1}' -f $name, 'снят из набора, удалён') }
-    catch { Write-Output ('  {0,-28} {1}' -f $name, "снят из набора, удалить не вышло — удалите папку $target") }
+  # Скилл из прошлого списка, которого в наборе больше нет, снят — как в skills.sh.
+  if (Test-Path -LiteralPath $list -PathType Leaf) {
+    foreach ($line in @(Get-Content -LiteralPath $list)) {
+      $name = $line.Trim()
+      if (-not $name -or $name -like '.*' -or $name -like '_*' -or $name.Contains('/') -or $name.Contains('\')) { continue }
+      if ($installed -contains $name) { continue }
+      $target = Join-Path $Dest $name
+      if (-not (Test-Path -LiteralPath $target -PathType Container)) { continue }
+      try { Remove-Item -LiteralPath $target -Recurse -Force; Write-Output ('  {0,-28} {1}' -f $name, 'снят из набора, удалён') }
+      catch {
+        Write-Output ('  {0,-28} {1}' -f $name, "снят из набора, удалить не вышло — удалите папку $target")
+        $installed += $name
+      }
+    }
   }
+  Set-Content -LiteralPath $list -Value $installed -Encoding ASCII
   Write-Output "установлено в ${Dest}: $count скиллов; точка входа — analyst-workspace"
 } finally {
-  Remove-Item -LiteralPath $src -Recurse -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath Env:SDD_SKILLS_FROM -ErrorAction SilentlyContinue
+  if (-not $from) { Remove-Item -LiteralPath $src -Recurse -Force -ErrorAction SilentlyContinue }
 }
