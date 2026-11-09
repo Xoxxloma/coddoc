@@ -1,0 +1,5 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: listmonk
+    path: ../listmonk
+    type: backend
