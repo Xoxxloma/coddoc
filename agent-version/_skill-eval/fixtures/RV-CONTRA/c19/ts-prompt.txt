@@ -1,0 +1,1 @@
+Проверь спеку coddoc/ACS-208/technical_specification.md, источник рядом — coddoc/ACS-208/business_requirements.md. Можно отдавать в разработку?
