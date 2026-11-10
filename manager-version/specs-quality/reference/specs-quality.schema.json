@@ -30,7 +30,7 @@
         "form_min_missing": {"description": "С какого числа пропущенных разделов шаблона документ «не по форме»: у БТ из 16, у спеки из 23.",
                              "type": "integer", "minimum": 1, "maximum": 23},
         "weights": {"description": "Вес каждого критерия рубрики этого вида.", "oneOf": [{"$ref": "#/$defs/weights_bt"}, {"$ref": "#/$defs/weights_spec"}]},
-        "form_weight": {"description": "Вес формы в итоге: балл формы = доля разделов на месте × вес.", "$ref": "#/$defs/weight"}
+        "form_weight": {"description": "Вес «Полноты структуры» в итоге: form_score = доля разделов на месте × вес.", "$ref": "#/$defs/weight"}
       }
     },
     "weights_bt": {
@@ -88,8 +88,8 @@
         "template": {"description": "Заполнено шаблонно.", "type": "boolean"},
         "form_missing": {"description": "Номера разделов списка «Форма» рубрики без своего заголовка; null — модель форму не вернула.",
                          "oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "integer", "minimum": 1}}]},
-        "form_pct": {"description": "Доля разделов шаблона на месте; форма не проверена — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
-        "form_score": {"description": "Балл формы в итоге: доля разделов на месте × params.form_weight, до сотых; форма не проверена — null.",
+        "form_pct": {"description": "«Полнота структуры» в процентах: доля разделов шаблона на месте; форма не проверена — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
+        "form_score": {"description": "«Полнота структуры» в итоге: доля разделов на месте × params.form_weight, до сотых; форма не проверена — null.",
                        "type": ["number", "null"], "minimum": 0},
         "origin": {"description": "Только у спеки: by_code — по готовому коду (два разных признака кода, среди них «уже сделано»: 1, 3 или 6), skill — скиллом, skill_edited — скиллом и руками, outside — мимо фреймворка.",
                    "oneOf": [{"type": "null"}, {"enum": ["by_code", "skill", "skill_edited", "outside"]}]},
