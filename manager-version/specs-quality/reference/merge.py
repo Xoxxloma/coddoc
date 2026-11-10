@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/6 по каждому документу.
+"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/7 по каждому документу.
 
     python3 merge.py --work <папка collect> [--keep-work]
     python3 merge.py --work <папка collect> --check   # какие ответы перезапустить: нет файла, не JSON, не по схеме
@@ -9,7 +9,7 @@
 Хоть один выход не прошёл contract — не пишется ни один, папка остаётся для разбора. На экран — что поправлено в
 ответах и список «Требуют внимания».
 
-Модель ничего не считает: итог, нули, форму и её балл, происхождение и подсветку считает contract.py по params.json. Ответ
+Модель ничего не считает: итог, нули, полноту структуры и её балл, происхождение и подсветку считает contract.py по params.json. Ответ
 разбирается терпимо: последний JSON в тексте; элемент criteria с чужим id отбрасывается, повтор id — берётся
 последний, порядок — по рубрике; origin внутри form поднимается. Критерия рубрики нет, балл вне шкалы, ответ не по
 схеме — документ «оценка не состоялась». В выход идут только сниженные и «н/п» критерии — по строке findings с одной
@@ -34,13 +34,12 @@ import contract  # noqa: E402
 import params  # noqa: E402
 FINDINGS_SCHEMA_PATH = os.path.join(HERE, "findings.schema.json")
 NA = "н/п"
-RUBRIC_MAX = {"goal": 0.5}  # шкала рубрики: у цели БТ — до 0.5, у остальных критериев — до 1
 PAIRED = {"consistency"}  # находка — пара цитат: два места, которые нельзя выполнить вместе
 LIMITS = {"text": 1000}
 NOISE_RE = re.compile(r"[`*_«»\"“”„'’~>|]")
 ELLIPSIS_RE = re.compile(r"\s*(?:…|\.\.\.)\s*")
 NOT_FOUND = {"не найдено", "не найден", "не найдена", "не найдены", "нет", "отсутствует"}  # «цитата» об отсутствии — это searched
-REASON_NAMES = {"below_pct": None, "zero": "ноль", "template": "шаблонно: да", "off_form": "не по форме"}
+REASON_NAMES = {"below_pct": None, "zero": "ноль", "template": "шаблонно: да", "off_structure": "неполная структура"}
 KIND_NAMES = {"bt": "БТ", "spec": "спека"}
 
 
@@ -101,9 +100,8 @@ def parse_answer(text, kind, schema, log):
         raise Failed("ответ не по схеме: " + "; ".join(errors[:3]))
     for item in answer["criteria"]:
         score = item["score"]
-        top = RUBRIC_MAX.get(item["id"], 1)
-        if score != NA and not any(contract.close(score, top * level) for level in (0, 0.5, 1)):
-            raise Failed(f"{item['id']}: балл {score:g} вне шкалы 0 / {top / 2:g} / {top:g}")
+        if score != NA and not any(contract.close(score, level) for level in (0, 0.5, 1)):
+            raise Failed(f"{item['id']}: балл {score:g} вне шкалы 0 / 0.5 / 1")
     return answer
 
 
@@ -177,7 +175,7 @@ def scored_document(meta, row, repo, answer, cfg, haystack, log):
         if item["score"] == NA:
             criteria[criterion_id] = None  # «н/п» модели → null в выходе, причина — в findings
         else:
-            criteria[criterion_id] = num(round(item["score"] / RUBRIC_MAX.get(criterion_id, 1) * weights[criterion_id], 4))
+            criteria[criterion_id] = num(round(item["score"] * weights[criterion_id], 4))
         if criteria[criterion_id] is None or criteria[criterion_id] < weights[criterion_id] - 1e-9:
             findings.append(finding(criterion_id, item, haystack, log))
 
@@ -185,19 +183,19 @@ def scored_document(meta, row, repo, answer, cfg, haystack, log):
     if not template["flag"] and template["fact"] is None:
         log.append("«шаблонно: нет» без факта")
 
-    form_missing = []
+    structure_missing = []
     for item in answer["form"]["missing"]:
-        if item["n"] in form_missing or item["n"] > params.FORM_SECTIONS[kind]:
-            log.append(f"форма: раздел {item['n']} повтор или вне списка — отброшен")
+        if item["n"] in structure_missing or item["n"] > params.STRUCTURE_SECTIONS[kind]:
+            log.append(f"структура: раздел {item['n']} повтор или вне списка — отброшен")
             continue
-        form_missing.append(item["n"])
-    form_missing.sort()
-    form_min = cfg["attention"]["form_min_missing"]
+        structure_missing.append(item["n"])
+    structure_missing.sort()
+    structure_min = cfg["attention"]["structure_min_missing"]
 
     origin, code_signs = None, None
     if kind == "spec":
         signs, traces = answer["origin"]["code_signs"], answer["origin"]["traces"]
-        origin = contract.origin_verdict(signs, traces, not contract.off_form(len(form_missing), kind, form_min))
+        origin = contract.origin_verdict(signs, traces, not contract.off_structure(len(structure_missing), kind, structure_min))
         code_signs = []
         for sign in signs:  # все признаки, что выписал оценщик, — и когда до «по коду» не дотянули
             item = {"n": sign["n"], "kind": contract.SIGN_KINDS[sign["n"]], "quote": cut(sign["quote"], LIMITS["text"], log, "origin")}
@@ -206,14 +204,14 @@ def scored_document(meta, row, repo, answer, cfg, haystack, log):
             code_signs.append(item)
 
     document = {**head(meta, row, repo), "scored": True, "pct": None, "sum": None, "max": None, "criteria": criteria,
-                "attention": [], "template": template["flag"], "form_missing": form_missing, "form_pct": None, "form_score": None,
+                "attention": [], "template": template["flag"], "structure_missing": structure_missing, "structure_pct": None, "structure_score": None,
                 "origin": origin, "code_signs": code_signs, "findings": findings}
-    form_weight = params.form_weight(cfg, kind)
-    document["form_pct"] = contract.form_pct(document)
-    document["form_score"] = contract.form_score(document, form_weight)
-    points, maximum, pct = contract.total(criteria, weights, document["form_score"], form_weight)
+    structure_weight = params.structure_weight(cfg, kind)
+    document["structure_pct"] = contract.structure_pct(document)
+    document["structure_score"] = contract.structure_score(document, structure_weight)
+    points, maximum, pct = contract.total(criteria, weights, document["structure_score"], structure_weight)
     document.update(pct=pct, sum=num(points), max=num(maximum))
-    document["attention"] = contract.attention_reasons(document, cfg["attention"]["below_pct"], form_min)
+    document["attention"] = contract.attention_reasons(document, cfg["attention"]["below_pct"], structure_min)
     return document
 
 
@@ -239,14 +237,14 @@ def check_answers(work):
 
 
 def build(work, now=None):
-    """→ ([(строка документа collect, выход specs-quality/6)], лог поправок, collect)."""
+    """→ ([(строка документа collect, выход specs-quality/7)], лог поправок, collect)."""
     collected = json.loads(read(os.path.join(work, "collect.json")))
     cfg = params.load(collected["params"])
     schema = json.loads(read(FINDINGS_SCHEMA_PATH))
     root, repo = collected["root"], collected["repo"]
     stamp = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ")
     weights = {kind: params.weights(cfg, kind) for kind in params.KINDS}
-    form_weights = {kind: params.form_weight(cfg, kind) for kind in params.KINDS}
+    structure_weights = {kind: params.structure_weight(cfg, kind) for kind in params.KINDS}
     row_of = {cell["document"]: row for row in collected["rows"] for cell in (row["bt"], row["spec"]) if "document" in cell}
     outputs, log = [], []
     for meta in collected["documents"]:
@@ -264,8 +262,8 @@ def build(work, now=None):
         except Failed as error:
             document = failed_document(meta, row, repo, str(error))
             doc_log.append(f"оценка не состоялась: {error}")
-        outputs.append((meta, contract.result(document, cfg["attention"]["below_pct"], cfg["attention"]["form_min_missing"],
-                                              weights, form_weights, stamp)))
+        outputs.append((meta, contract.result(document, cfg["attention"]["below_pct"], cfg["attention"]["structure_min_missing"],
+                                              weights, structure_weights, stamp)))
         log += [f"{meta['path']}: {line}" for line in doc_log]
     return outputs, log, collected
 
@@ -296,7 +294,7 @@ def dump(output):
     else:
         lines.append("  " + pairs(document, ("scored", "pct", "sum", "max")) + ",")
         lines.append("  " + pairs(document, ("criteria",)) + ",")
-        lines.append("  " + pairs(document, ("attention", "template", "form_missing", "form_pct", "form_score", "origin")) + ",")
+        lines.append("  " + pairs(document, ("attention", "template", "structure_missing", "structure_pct", "structure_score", "origin")) + ",")
         lines += listed("code_signs", document["code_signs"], False) if document["code_signs"] is not None \
             else ['  "code_signs": null,']
         lines += listed("findings", document["findings"], True)
@@ -319,8 +317,8 @@ def attention_lines(documents, cfg_labels):
         for reason in document["attention"]:
             if reason == "zero":
                 parts.append("ноль: " + ", ".join(cfg_labels[kind][c] for c in contract.zero_ids(document["criteria"])))
-            elif reason == "off_form":
-                parts.append(f"не по форме: нет {len(document['form_missing'])} из {params.FORM_SECTIONS[kind]} разделов")
+            elif reason == "off_structure":
+                parts.append(f"неполная структура: нет {len(document['structure_missing'])} из {params.STRUCTURE_SECTIONS[kind]} разделов")
             elif REASON_NAMES[reason]:
                 parts.append(REASON_NAMES[reason])
         lines.append("- " + " · ".join(parts))

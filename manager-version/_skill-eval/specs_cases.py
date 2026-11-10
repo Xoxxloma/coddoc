@@ -34,8 +34,8 @@ def cut(text, start, end, replacement):
 
 
 # Эталон 1.4.0: баллы по шкале рубрики (как встречались), подсветка, шаблонно, не по форме, происхождение.
-def ref(parts, attention, template=False, off_form=False, origin=None):
-    return {"parts": [tuple(p) for p in parts], "attention": attention, "template": template, "off_form": off_form,
+def ref(parts, attention, template=False, off_structure=False, origin=None):
+    return {"parts": [tuple(p) for p in parts], "attention": attention, "template": template, "off_structure": off_structure,
             "origin": origin}
 
 
@@ -48,16 +48,16 @@ REFERENCE = {
     "PSS-2212/" + SPEC: ref([(1, 0.5, 0.5, 1, 1), (1, 0.5, 1, 1, 1)], False, origin="skill"),
     "PSS-2213/" + BT: ref([(0, 0, 0, 0, 0), (0, 0.5, 0.5, 0, 0)], True, template=True),
     "PSS-2213/" + SPEC: ref([(0, 0, 0, 0.5, 0)], True, template=True, origin="skill"),
-    "PSS-2214/" + BT: ref([(0.5, 1, 1, 1, 1)], True, off_form=True),
+    "PSS-2214/" + BT: ref([(0.5, 1, 1, 1, 1)], True, off_structure=True),
     "PSS-2214/" + SPEC: ref([(1, 1, 0.5, 1, 1)], False, origin="skill"),
-    "PSS-2215/" + SPEC: ref([(0, 1, 0, 0.5, 0.5), (0, 1, 0, 1, 0.5)], True, off_form=True, origin="by_code"),
+    "PSS-2215/" + SPEC: ref([(0, 1, 0, 0.5, 0.5), (0, 1, 0, 1, 0.5)], True, off_structure=True, origin="by_code"),
     "PSS-2216/" + BT: ref([(0.5, 1, 1, 1, 1)], False),
-    "PSS-2216/" + SPEC: ref([(1, 1, 0.5, 1, 1)], True, off_form=True, origin="skill_edited"),
+    "PSS-2216/" + SPEC: ref([(1, 1, 0.5, 1, 1)], True, off_structure=True, origin="skill_edited"),
     "ARS-312/" + SPEC: ref([(1, NA, NA, 1, NA)], False, origin="skill"),
-    "ARS-100/" + BT: ref([(0.25, 0.5, 1, 0, 1)], True, off_form=True),
-    "ARS-100/_foundation/" + SPEC: ref([(NA, 0, 0, 0, 0)], True, template=True, off_form=True, origin="outside"),
-    "ARS-100/ARS-101/" + BT: ref([(0, 0, 0, 0, 0)], True, template=True, off_form=True),
-    "ARS-100/ARS-101/" + SPEC: ref([(0, 0, 0, 0, 0)], True, template=True, off_form=True, origin="outside"),
+    "ARS-100/" + BT: ref([(0.25, 0.5, 1, 0, 1)], True, off_structure=True),
+    "ARS-100/_foundation/" + SPEC: ref([(NA, 0, 0, 0, 0)], True, template=True, off_structure=True, origin="outside"),
+    "ARS-100/ARS-101/" + BT: ref([(0, 0, 0, 0, 0)], True, template=True, off_structure=True),
+    "ARS-100/ARS-101/" + SPEC: ref([(0, 0, 0, 0, 0)], True, template=True, off_structure=True, origin="outside"),
 }
 
 # Источник спеки — как в таблице шага 1.
@@ -193,11 +193,11 @@ def point_cases():
 
     return [
         case("A-negation", "spec", "coddoc/ARS-312/" + SPEC, negation, "coddoc/ARS-312/bug_report.md", bug,
-             expect=[("data_model", NA), ("access", NA)]),
+             expect=[("data_model", NA), ("security", NA)]),
         case("C-marker", "spec", "coddoc/PSS-2210/" + SPEC, marked, "coddoc/PSS-2210/" + BT, bt10,
              expect=[("origin", "skill"), ("code_signs", 0)]),
-        case("D1-role-named", "bt", "coddoc/PSS-2290/" + BT, named, expect=[("roles", 1)]),
-        case("D2-role-bare", "bt", "coddoc/PSS-2290/" + BT, bare, expect=[("roles", 0)]),
+        case("D1-role-named", "bt", "coddoc/PSS-2290/" + BT, named, expect=[("actors", 1)]),
+        case("D2-role-bare", "bt", "coddoc/PSS-2290/" + BT, bare, expect=[("actors", 0)]),
         case("F1-contra-bt", "bt", "coddoc/PSS-2210/" + BT, contra_bt, expect=[("consistency", caught)]),
         case("F2-contra-spec", "spec", "coddoc/PSS-2210/" + SPEC, contra_spec, "coddoc/PSS-2210/" + BT, bt10,
              expect=[("consistency", caught)]),

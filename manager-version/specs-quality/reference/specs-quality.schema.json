@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specs-quality/6",
+  "$id": "specs-quality/7",
   "title": "Оценка качества одного документа: бизнес-требований или тех-спеки",
-  "description": "Один документ — один файл <имя документа>.quality.json рядом с ним. Баллы и находки с цитатами даёт модель по рубрике; балл формы, суммы, проценты, подсветку и происхождение считает скрипт merge. Правила, которые схемой не выразить (суммы, балл формы, шкала балла, причины подсветки, находки ровно у сниженных критериев, веса того же вида), проверяет contract.py. Сводку по автору собирает дашборд: Σ sum / Σ max, разделы формы — по form_missing.",
+  "description": "Один документ — один файл <имя документа>.quality.json рядом с ним. Баллы и находки с цитатами даёт модель по рубрике; балл полноты структуры, суммы, проценты, подсветку и происхождение считает скрипт merge. Правила, которые схемой не выразить (суммы, балл полноты структуры, шкала балла, причины подсветки, находки ровно у сниженных критериев, веса того же вида), проверяет contract.py. Сводку по автору собирает дашборд: Σ sum / Σ max, разделы структуры — по structure_missing.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema", "generated_at", "params", "document"],
   "properties": {
-    "schema": {"const": "specs-quality/6"},
+    "schema": {"const": "specs-quality/7"},
     "generated_at": {"type": "string", "format": "date-time"},
     "params": {"$ref": "#/$defs/params"},
     "document": {"$ref": "#/$defs/document"}
@@ -24,45 +24,45 @@
       "description": "Параметры, с которыми посчитан документ, — для его вида (из params.json или --params).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["below_pct", "form_min_missing", "weights", "form_weight"],
+      "required": ["below_pct", "structure_min_missing", "weights", "structure_weight"],
       "properties": {
         "below_pct": {"type": "number", "minimum": 0, "maximum": 100},
-        "form_min_missing": {"description": "С какого числа пропущенных разделов шаблона документ «не по форме»: у БТ из 16, у спеки из 23.",
+        "structure_min_missing": {"description": "С какого числа пропущенных разделов шаблона у документа «неполная структура»: у БТ из 16, у спеки из 23.",
                              "type": "integer", "minimum": 1, "maximum": 23},
         "weights": {"description": "Вес каждого критерия рубрики этого вида.", "oneOf": [{"$ref": "#/$defs/weights_bt"}, {"$ref": "#/$defs/weights_spec"}]},
-        "form_weight": {"description": "Вес «Полноты структуры» в итоге: form_score = доля разделов на месте × вес.", "$ref": "#/$defs/weight"}
+        "structure_weight": {"description": "Вес «Полноты структуры» в итоге: structure_score = доля разделов на месте × вес.", "$ref": "#/$defs/weight"}
       }
     },
     "weights_bt": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["goal", "entities", "functional", "acceptance", "roles", "scope", "consistency"],
-      "properties": {"goal": {"$ref": "#/$defs/weight"}, "entities": {"$ref": "#/$defs/weight"}, "functional": {"$ref": "#/$defs/weight"},
-                     "acceptance": {"$ref": "#/$defs/weight"}, "roles": {"$ref": "#/$defs/weight"}, "scope": {"$ref": "#/$defs/weight"},
+      "required": ["necessity", "entities", "unambiguity", "verifiability", "actors", "scope", "consistency"],
+      "properties": {"necessity": {"$ref": "#/$defs/weight"}, "entities": {"$ref": "#/$defs/weight"}, "unambiguity": {"$ref": "#/$defs/weight"},
+                     "verifiability": {"$ref": "#/$defs/weight"}, "actors": {"$ref": "#/$defs/weight"}, "scope": {"$ref": "#/$defs/weight"},
                      "consistency": {"$ref": "#/$defs/weight"}}
     },
     "weights_spec": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source_logic", "data_model", "access", "services", "contracts", "consistency"],
-      "properties": {"source_logic": {"$ref": "#/$defs/weight"}, "data_model": {"$ref": "#/$defs/weight"}, "access": {"$ref": "#/$defs/weight"},
-                     "services": {"$ref": "#/$defs/weight"}, "contracts": {"$ref": "#/$defs/weight"}, "consistency": {"$ref": "#/$defs/weight"}}
+      "required": ["traceability", "data_model", "security", "impact", "interfaces", "consistency"],
+      "properties": {"traceability": {"$ref": "#/$defs/weight"}, "data_model": {"$ref": "#/$defs/weight"}, "security": {"$ref": "#/$defs/weight"},
+                     "impact": {"$ref": "#/$defs/weight"}, "interfaces": {"$ref": "#/$defs/weight"}, "consistency": {"$ref": "#/$defs/weight"}}
     },
 
     "criteria_bt": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["goal", "entities", "functional", "acceptance", "roles", "scope", "consistency"],
-      "properties": {"goal": {"$ref": "#/$defs/score"}, "entities": {"$ref": "#/$defs/score"}, "functional": {"$ref": "#/$defs/score"},
-                     "acceptance": {"$ref": "#/$defs/score"}, "roles": {"$ref": "#/$defs/score"}, "scope": {"$ref": "#/$defs/score"},
+      "required": ["necessity", "entities", "unambiguity", "verifiability", "actors", "scope", "consistency"],
+      "properties": {"necessity": {"$ref": "#/$defs/score"}, "entities": {"$ref": "#/$defs/score"}, "unambiguity": {"$ref": "#/$defs/score"},
+                     "verifiability": {"$ref": "#/$defs/score"}, "actors": {"$ref": "#/$defs/score"}, "scope": {"$ref": "#/$defs/score"},
                      "consistency": {"$ref": "#/$defs/score"}}
     },
     "criteria_spec": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source_logic", "data_model", "access", "services", "contracts", "consistency"],
-      "properties": {"source_logic": {"$ref": "#/$defs/score"}, "data_model": {"$ref": "#/$defs/score"}, "access": {"$ref": "#/$defs/score"},
-                     "services": {"$ref": "#/$defs/score"}, "contracts": {"$ref": "#/$defs/score"}, "consistency": {"$ref": "#/$defs/score"}}
+      "required": ["traceability", "data_model", "security", "impact", "interfaces", "consistency"],
+      "properties": {"traceability": {"$ref": "#/$defs/score"}, "data_model": {"$ref": "#/$defs/score"}, "security": {"$ref": "#/$defs/score"},
+                     "impact": {"$ref": "#/$defs/score"}, "interfaces": {"$ref": "#/$defs/score"}, "consistency": {"$ref": "#/$defs/score"}}
     },
 
     "document": {
@@ -80,16 +80,16 @@
         "scored": {"description": "false — оценка не состоялась.", "type": "boolean"},
         "skip_reason": {"$ref": "#/$defs/text"},
         "pct": {"description": "sum / max × 100 с округлением до целого; max = 0 — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
-        "sum": {"description": "Баллы критериев плюс form_score.", "type": "number", "minimum": 0},
-        "max": {"description": "Сумма весов критериев без «н/п» плюс вес формы, если форма проверена.", "type": "number", "minimum": 0},
+        "sum": {"description": "Баллы критериев плюс structure_score.", "type": "number", "minimum": 0},
+        "max": {"description": "Сумма весов критериев без «н/п» плюс вес полноты структуры, если структура проверена.", "type": "number", "minimum": 0},
         "criteria": {"description": "Критерий → балл, по порядку рубрики.", "oneOf": [{"$ref": "#/$defs/criteria_bt"}, {"$ref": "#/$defs/criteria_spec"}]},
         "attention": {"description": "Причины «требует внимания»; пусто — не требует.", "type": "array",
-                      "items": {"enum": ["below_pct", "zero", "template", "off_form"]}},
+                      "items": {"enum": ["below_pct", "zero", "template", "off_structure"]}},
         "template": {"description": "Заполнено шаблонно.", "type": "boolean"},
-        "form_missing": {"description": "Номера разделов списка «Форма» рубрики без своего заголовка; null — модель форму не вернула.",
+        "structure_missing": {"description": "Номера разделов списка «Форма» рубрики без своего заголовка; null — модель не вернула блок «Форма».",
                          "oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "integer", "minimum": 1}}]},
-        "form_pct": {"description": "«Полнота структуры» в процентах: доля разделов шаблона на месте; форма не проверена — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
-        "form_score": {"description": "«Полнота структуры» в итоге: доля разделов на месте × params.form_weight, до сотых; форма не проверена — null.",
+        "structure_pct": {"description": "«Полнота структуры» в процентах: доля разделов шаблона на месте; структура не проверена — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
+        "structure_score": {"description": "«Полнота структуры» в итоге: доля разделов на месте × params.structure_weight, до сотых; структура не проверена — null.",
                        "type": ["number", "null"], "minimum": 0},
         "origin": {"description": "Только у спеки: by_code — по готовому коду (два разных признака кода, среди них «уже сделано»: 1, 3 или 6), skill — скиллом, skill_edited — скиллом и руками, outside — мимо фреймворка.",
                    "oneOf": [{"type": "null"}, {"enum": ["by_code", "skill", "skill_edited", "outside"]}]},
@@ -104,7 +104,7 @@
                   "allOf": [{"not": {"required": ["criteria"]}}, {"not": {"required": ["pct"]}}, {"not": {"required": ["findings"]}},
                             {"not": {"required": ["attention"]}}]}},
         {"if": {"properties": {"scored": {"const": true}}},
-         "then": {"required": ["pct", "sum", "max", "criteria", "attention", "template", "form_missing", "form_pct", "form_score", "origin",
+         "then": {"required": ["pct", "sum", "max", "criteria", "attention", "template", "structure_missing", "structure_pct", "structure_score", "origin",
                                "code_signs", "findings"],
                   "not": {"required": ["skip_reason"]}}}
       ]
