@@ -1,0 +1,1 @@
+Проверь спеку coddoc/SMSEC-420/technical_specification.md, источник рядом — coddoc/SMSEC-420/business_requirements.md. Можно отдавать в разработку?
