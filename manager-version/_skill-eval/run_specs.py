@@ -31,6 +31,7 @@ SKILL = os.path.normpath(os.path.join(HERE, "..", "specs-quality"))
 sys.path.insert(0, os.path.join(SKILL, "reference"))
 sys.path.insert(0, HERE)
 import contract  # noqa: E402
+import params  # noqa: E402
 import specs_cases  # noqa: E402
 from run_specs_rubric import claude_exe  # noqa: E402
 
@@ -65,8 +66,9 @@ def read_stream(path):
 
 
 def content_checks(doc):
-    """Проверки grade-sq.mjs по документам выходов specs-quality/6 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
-    Пороги — в процентах: прежние суммы 4.0 из 4.5 и 4.5 из 5 — это 89 % и 90 %; разница 0.5 из 4.5 — 11 пунктов."""
+    """Проверки grade-sq.mjs по документам выходов specs-quality/7 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
+    Хороший документ — по потере баллов критериев (вес − балл), а не по проценту: процент зависит от максимума и
+    округления, полнота структуры в потерю не входит."""
     docs = {d["path"]: d for d in doc["documents"]}
 
     def d(folder, kind):
@@ -74,6 +76,13 @@ def content_checks(doc):
 
     def pct(item):
         return item["pct"] if item and item["scored"] and item["pct"] is not None else -1
+
+    weights = {kind: params.weights(params.load(), kind) for kind in params.KINDS}
+
+    def loss(item):
+        if not item or not item["scored"]:
+            return float("inf")
+        return sum(weights[item["kind"]][k] - v for k, v in item["criteria"].items() if v is not None)
 
     def score(item, number):
         return list(item["criteria"].values())[number] if item and item["scored"] else None
@@ -85,7 +94,7 @@ def content_checks(doc):
         return bool(item and item["scored"] and item["template"])
 
     def off(item):
-        return bool(item and item["scored"] and "off_form" in item["attention"])
+        return bool(item and item["scored"] and "off_structure" in item["attention"])
 
     def origin(item):
         return item["origin"] if item and item["scored"] else None
@@ -98,9 +107,9 @@ def content_checks(doc):
                  not d("PSS-2211", "spec") and not d("ARS-100", "spec"))
     ck["оценено всё"] = all(x["scored"] for x in doc["documents"])
     p10b, p10s = d("PSS-2210", "bt"), d("PSS-2210", "spec")
-    ck["хорошая"] = pct(p10b) >= 89 and pct(p10s) >= 90
+    ck["хорошая"] = loss(p10b) <= 1 and loss(p10s) <= 0.5
     p11 = d("PSS-2211", "bt")
-    ck["версия"] = pct(p11) >= 89 and pct(p10b) >= 0 and abs(pct(p11) - pct(p10b)) <= 11
+    ck["версия"] = loss(p11) <= 1 and loss(p10b) <= 1 and abs(loss(p11) - loss(p10b)) <= 1
     p12b, p12s = d("PSS-2212", "bt"), d("PSS-2212", "spec")
     planted = p12s and any(score(p12s, i) is not None and score(p12s, i) <= 0.5 for i in (1, 2, 4))
     off_target = not p12s or any(score(p12s, i) is not None and score(p12s, i) < 1 for i in (0, 3))
@@ -117,7 +126,7 @@ def content_checks(doc):
     ck["форма"] = (off(d("PSS-2214", "bt")) and not off(d("PSS-2214", "spec")) and
                    not any(off(d(k, kind)) for k in IN_FORM for kind in ("bt", "spec")) and
                    off(d("PSS-2215", "spec")) and off(d("PSS-2216", "spec")) and not off(d("PSS-2216", "bt")))
-    ck["свободная"] = pct(d("PSS-2214", "bt")) >= 89
+    ck["свободная"] = loss(d("PSS-2214", "bt")) <= 0.5  # неполная структура задумана — в потерю не входит
     ck["по коду"] = origin(d("PSS-2215", "spec")) == "by_code" and not any(origin(d(k, "spec")) == "by_code" for k in BY_SKILL + ["PSS-2216"])
     ck["правлена"] = origin(d("PSS-2216", "spec")) == "skill_edited" and all(origin(d(k, "spec")) == "skill" for k in BY_SKILL)
     p15 = d("PSS-2215", "spec")
@@ -219,17 +228,17 @@ def selftest():
     import selftest_specs_merge as sm
 
     na = "н/п"
-    shape = {  # документ → (баллы, шаблонно, пропущено разделов, признаки кода, следы); БТ — 7 баллов, спека — 6
-        "PSS-2210/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2210/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)),
-        "PSS-2211/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2212/bt": ((0.5, 1, 0.5, 0.5, 1, 1, 1), False, 0, (), ()),
+    shape = {  # документ → (баллы 0 / 0.5 / 1, шаблонно, пропущено разделов, признаки кода, следы); БТ — 7 баллов, спека — 6
+        "PSS-2210/bt": ((1, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2210/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)),
+        "PSS-2211/bt": ((1, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2212/bt": ((1, 1, 0.5, 0.5, 1, 1, 1), False, 0, (), ()),
         "PSS-2212/spec": ((1, 0.5, 0.5, 1, 1, 1), False, 0, (), (2, 3)), "PSS-2213/bt": ((0, 0.5, 0.5, 0, 0, 0, 0), True, 0, (), ()),
-        "PSS-2213/spec": ((0, 0, 0, 0.5, 0, 0), True, 0, (), (1, 3)), "PSS-2214/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 12, (), ()),
+        "PSS-2213/spec": ((0, 0, 0, 0.5, 0, 0), True, 0, (), (1, 3)), "PSS-2214/bt": ((1, 1, 1, 1, 1, 1, 1), False, 12, (), ()),
         "PSS-2214/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)), "PSS-2215/spec": ((0, 1, 0, 0.5, 0.5, 1), False, 22, (1, 2), ()),
-        "PSS-2216/bt": ((0.5, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2216/spec": ((1, 1, 0.5, 1, 1, 1), False, 10, (), (2, 3)),
-        "ARS-312/spec": ((1, na, na, 1, na, 1), False, 1, (), (4, 5)), "ARS-100/bt": ((0.25, 0.5, 1, 0, 1, 1, 1), False, 12, (), ()),
+        "PSS-2216/bt": ((1, 1, 1, 1, 1, 1, 1), False, 0, (), ()), "PSS-2216/spec": ((1, 1, 0.5, 1, 1, 1), False, 10, (), (2, 3)),
+        "ARS-312/spec": ((1, na, na, 1, na, 1), False, 1, (), (4, 5)), "ARS-100/bt": ((0.5, 0.5, 1, 0, 1, 1, 1), False, 12, (), ()),
         "ARS-100/_foundation/spec": ((na, 0, 0, 0, 0, 0), True, 22, (), (1,)),
         "ARS-100/ARS-101/bt": ((0, 0, 0, 0, 0, 0, 0), True, 15, (), ()),
-        "ARS-100/ARS-101/spec": ((0, 0, 0, 0, 0, 0), True, 22, (), ()), "PSS-2290/bt": ((0.5, 1, 1, 0, 1, 1, 1), False, 0, (), ()),
+        "ARS-100/ARS-101/spec": ((0, 0, 0, 0, 0, 0), True, 22, (), ()), "PSS-2290/bt": ((1, 1, 1, 0, 1, 1, 1), False, 0, (), ()),
         "PSS-2290/spec": ((1, 1, 0.5, 1, 1, 1), False, 0, (), (2, 3)),
     }
     base = tempfile.mkdtemp(prefix="specs-lead-")
@@ -258,8 +267,8 @@ def selftest():
     spoils = {
         "внимание": lambda d: next(x for x in d["documents"] if x["path"].endswith("PSS-2210/business_requirements.md"))["attention"].append("zero"),
         "по коду": lambda d: next(x for x in d["documents"] if x["path"].endswith("PSS-2215/technical_specification.md")).update(origin="skill"),
-        "случай E: только ноль": lambda d: next(x for x in d["documents"] if x["path"].endswith("PSS-2290/business_requirements.md"))["attention"].append("off_form"),
-        "фундамент": lambda d: next(x for x in d["documents"] if "_foundation" in x["path"])["criteria"].update(source_logic=0),
+        "случай E: только ноль": lambda d: next(x for x in d["documents"] if x["path"].endswith("PSS-2290/business_requirements.md"))["attention"].append("off_structure"),
+        "фундамент": lambda d: next(x for x in d["documents"] if "_foundation" in x["path"])["criteria"].update(traceability=0),
         "строки": lambda d: d["documents"].pop(),
     }
     for name, spoil in spoils.items():

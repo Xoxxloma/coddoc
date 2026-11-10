@@ -1,27 +1,27 @@
 {
-  "_about": "Параметры оценки БТ и спек. Правь weight, form_weight и пороги — скрипты берут их отсюда при каждом запуске. Свой файл на один прогон: --params <файл>. Состав критериев менять нельзя: он задан рубриками. form_weight — вес «Полноты структуры» в итоге: form_score = доля разделов шаблона на месте × вес.",
+  "_about": "Параметры оценки БТ и спек. Правь weight, structure_weight и пороги — скрипты берут их отсюда при каждом запуске. Свой файл на один прогон: --params <файл>. Состав критериев менять нельзя: он задан рубриками. structure_weight — вес «Полноты структуры» в итоге: structure_score = доля разделов шаблона на месте × вес.",
   "criteria": {
     "bt": {
-      "goal": {"label": "Цель", "weight": 0.5},
-      "entities": {"label": "Бизнес-сущности", "weight": 1},
-      "functional": {"label": "Функционал", "weight": 1},
-      "acceptance": {"label": "Критерии приёмки", "weight": 1},
-      "roles": {"label": "Роли и права", "weight": 1},
-      "scope": {"label": "Границы", "weight": 0.5},
+      "necessity": {"label": "Необходимость", "weight": 1},
+      "entities": {"label": "Полнота бизнес-сущностей", "weight": 1},
+      "unambiguity": {"label": "Однозначность", "weight": 1},
+      "verifiability": {"label": "Проверяемость", "weight": 1},
+      "actors": {"label": "Адресаты", "weight": 1},
+      "scope": {"label": "Границы", "weight": 1},
       "consistency": {"label": "Непротиворечивость", "weight": 1}
     },
     "spec": {
-      "source_logic": {"label": "Функционал из источника", "weight": 1},
-      "data_model": {"label": "Модель данных и миграции", "weight": 1},
-      "access": {"label": "Роли RBAC/ABAC", "weight": 1},
-      "services": {"label": "Изменения и затронутые сервисы", "weight": 1},
-      "contracts": {"label": "Контракты", "weight": 1},
+      "traceability": {"label": "Прослеживаемость", "weight": 1},
+      "data_model": {"label": "Полнота моделей данных", "weight": 1},
+      "security": {"label": "Безопасность", "weight": 1},
+      "impact": {"label": "Область изменений", "weight": 1},
+      "interfaces": {"label": "Внешние интерфейсы", "weight": 1},
       "consistency": {"label": "Непротиворечивость", "weight": 1}
     }
   },
-  "form_weight": {"bt": 1, "spec": 1},
+  "structure_weight": {"bt": 1, "spec": 1},
   "attention": {
     "below_pct": 50,
-    "form_min_missing": {"bt": 5, "spec": 6}
+    "structure_min_missing": {"bt": 5, "spec": 6}
   }
 }

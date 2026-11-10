@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specs-quality/findings/2",
+  "$id": "specs-quality/findings/3",
   "title": "Ответ субагента по рубрике: один документ",
   "description": "Ответ на rubric-bt.md или rubric-spec.md. merge проверяет его по $defs/bt или $defs/spec, сверяет порядок критериев с рубрикой и ищет каждую цитату в тексте документа.",
   "oneOf": [{"$ref": "#/$defs/bt"}, {"$ref": "#/$defs/spec"}],
@@ -15,7 +15,7 @@
       "properties": {"section": {"type": "string", "minLength": 1, "maxLength": 200}, "quote": {"$ref": "#/$defs/quote"}}
     },
     "criterion": {
-      "description": "score — по шкале рубрики (у цели БТ 0 / 0.25 / 0.5, у остальных 0 / 0.5 / 1) или «н/п».",
+      "description": "score — по шкале рубрики 0 / 0.5 / 1 или «н/п».",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "evidence", "searched", "comment", "fix", "score"],

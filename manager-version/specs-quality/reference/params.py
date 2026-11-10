@@ -20,11 +20,11 @@ DEFAULT_PATH = os.path.join(HERE, "params.json")
 KINDS = ("bt", "spec")
 # Критерии по порядку рубрик: состав задан рубриками, в params.json — только веса.
 CRITERIA = {
-    "bt": ("goal", "entities", "functional", "acceptance", "roles", "scope", "consistency"),
-    "spec": ("source_logic", "data_model", "access", "services", "contracts", "consistency"),
+    "bt": ("necessity", "entities", "unambiguity", "verifiability", "actors", "scope", "consistency"),
+    "spec": ("traceability", "data_model", "security", "impact", "interfaces", "consistency"),
 }
 # Сколько разделов в списке «Форма» рубрики.
-FORM_SECTIONS = {"bt": 16, "spec": 23}
+STRUCTURE_SECTIONS = {"bt": 16, "spec": 23}
 
 
 class ParamsError(ValueError):
@@ -58,25 +58,25 @@ def check(data):
                 problems.append(f"criteria.{kind}.{criterion_id}.weight: нужно число больше нуля")
             if not isinstance(item, dict) or not isinstance(item.get("label"), str) or not item["label"]:
                 problems.append(f"criteria.{kind}.{criterion_id}.label: нужна строка")
-    form_weight = data.get("form_weight")
-    if not isinstance(form_weight, dict):
-        problems.append("form_weight: нужен раздел с bt и spec")
+    structure_weight = data.get("structure_weight")
+    if not isinstance(structure_weight, dict):
+        problems.append("structure_weight: нужен раздел с bt и spec")
     else:
         for kind in KINDS:
-            value = form_weight.get(kind)
+            value = structure_weight.get(kind)
             if not is_number(value) or value <= 0:
-                problems.append(f"form_weight.{kind}: нужно число больше нуля")
+                problems.append(f"structure_weight.{kind}: нужно число больше нуля")
     below = attention.get("below_pct")
     if not is_number(below) or not 0 <= below <= 100:
         problems.append("attention.below_pct: нужно число от 0 до 100")
-    form_min = attention.get("form_min_missing")
-    if not isinstance(form_min, dict):
-        problems.append("attention.form_min_missing: нужен раздел с bt и spec")
+    structure_min = attention.get("structure_min_missing")
+    if not isinstance(structure_min, dict):
+        problems.append("attention.structure_min_missing: нужен раздел с bt и spec")
     else:
         for kind in KINDS:
-            value = form_min.get(kind)
-            if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= FORM_SECTIONS[kind]:
-                problems.append(f"attention.form_min_missing.{kind}: нужно целое от 1 до {FORM_SECTIONS[kind]}")
+            value = structure_min.get(kind)
+            if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= STRUCTURE_SECTIONS[kind]:
+                problems.append(f"attention.structure_min_missing.{kind}: нужно целое от 1 до {STRUCTURE_SECTIONS[kind]}")
     return problems
 
 
@@ -97,8 +97,8 @@ def weights(data, kind):
     return {criterion_id: item["weight"] for criterion_id, item in data["criteria"][kind].items()}
 
 
-def form_weight(data, kind):
-    return data["form_weight"][kind]
+def structure_weight(data, kind):
+    return data["structure_weight"][kind]
 
 
 def label(data, kind, criterion_id):
