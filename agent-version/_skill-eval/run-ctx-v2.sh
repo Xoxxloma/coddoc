@@ -329,6 +329,9 @@ case "$PROBE" in
   # (состав — её `PROVENANCE.txt`); раунд — свой на случай, иначе пробы случаев делят одну папку.
   rvc-bt) FIXTURE=RV-CONTRA; SEED_SUB="${RVC:?RVC=cNN}"; PROMPT_FILE="$RVC/bt-prompt.txt"; SKILL=spec-review ;;
   rvc-ts) FIXTURE=RV-CONTRA; SEED_SUB="${RVC:?RVC=cNN}"; PROMPT_FILE="$RVC/ts-prompt.txt"; SKILL=spec-review ;;
+  # Приёмка БТ 1.7.0: п.3 — действие FR без критерия, п.12 — одна фраза, два прочтения. Случай —
+  # `RVA=aN`, подпапка `RV-AMB` (состав — её `PROVENANCE.txt`); раунд — свой на случай.
+  rva-bt) FIXTURE=RV-AMB; SEED_SUB="${RVA:?RVA=aN}"; PROMPT_FILE="$RVA/bt-prompt.txt"; SKILL=spec-review ;;
   # Аудит 2026-09-17, К1–К4 и К8.2: исключения чек-листов. `RV-CLEAN` шаблон обходит (§8 одной
   # строкой, блока «Открытые вопросы» в шапке нет), поэтому ложные срабатывания пунктов 6 и 10 на
   # ней не видны; здесь спеки в форме шаблона, БТ с именами ролей, фронтовая спека без контрактов и
