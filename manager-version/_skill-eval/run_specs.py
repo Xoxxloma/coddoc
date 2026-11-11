@@ -66,7 +66,7 @@ def read_stream(path):
 
 
 def content_checks(doc):
-    """Проверки grade-sq.mjs по документам выходов specs-quality/7 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
+    """Проверки grade-sq.mjs по документам выходов specs-quality/8 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
     Хороший документ — по потере баллов критериев (вес − балл), а не по проценту: процент зависит от максимума и
     округления, полнота структуры в потерю не входит."""
     docs = {d["path"]: d for d in doc["documents"]}

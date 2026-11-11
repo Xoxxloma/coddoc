@@ -1,6 +1,6 @@
 ---
 name: business-requirements-doc
-version: 1.6.0
+version: 1.6.1
 user-invocable: false
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
 description: 'Gathers business requirements and writes ONE Markdown spec (BRD→SRS) in Russian. It MAY read the repo as evidence, but nothing enters the spec on your own authority: before writing, every gate is either stated by the user themselves or put to the user and answered, and only what the user explicitly leaves open becomes TBD. The mandatory first question is the linked Jira/SberTrack task key (SMSEC-1234); without it the spec is not written. Before writing it also decides the business cut (§4.5) — several separate deliveries (поставки) → it proposes the split into parts (части); one delivery → it says so explicitly («не применимо: причина») — and puts that proposal to the user in the handoff. Use whenever someone wants to write a ТЗ / BRD / SRS, formalize a request, or describe a task, feature, change, or integration for developers.'
@@ -562,6 +562,9 @@ gates** and their status. Use exactly one marker per gate:
 **Каждый раздел пиши по словам пользователя — его сообщениям и файлам, — перечитав их, а не по памяти.**
 
 **Перед записью — сверка требований с критериями.** Разложи «что входит» на требования (будущие FR)
+— одно требование = одно действие или одно правило вместе с его развилками («до конца срока договора 30
+дней и меньше — юристу уходит уведомление, больше — нет»); разные действия («юрист заводит договор,
+продлевает, расторгает») — разные требования —
 и у каждого найди его критерий: слова пользователя или подтверждённая им гипотеза. Пользователь явно
 отложил критерий (⏭️) — это ответ: в файле `TBD`. Ни того, ни другого — гейт 11 ещё открыт (❓): вернись
 к Step 3.5 и спроси только про него. Своего критерия не сочиняй.
@@ -842,7 +845,7 @@ Only confirmed content is filled; gates the user explicitly deferred (⏭️) ar
 > **Задача Jira/SberTrack:** [SMSEC-1234] — обязательно, задаётся первым вопросом (Gate 0).
 > **Автор:** [логин того, кто пишет этот файл: вывод `whoami` (Linux, macOS, Windows); у `ДОМЕН\логин` — часть после `\`; команда не сработала — `—`. Файл уже был — список сохрани: твоего логина в нём нет (регистр не важен) — допиши через `, `; стоял `—` — замени]
 > **Редакция:** [N (ГГГГ-ММ-ДД): первая запись 1, доработка +1, строки не было — 2; дата этой записи — из окружения сессии или `date +%F`, не по памяти; не узнать — без скобок]
-> **Версия скилла:** [business-requirements-doc 1.6.0; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
+> **Версия скилла:** [business-requirements-doc 1.6.1; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
 >
 > **Статус готовности:** [Готово к оценке | Требуются уточнения (N)]
 > — **Заполняется последним** (Step 4). В момент записи файла здесь стоит

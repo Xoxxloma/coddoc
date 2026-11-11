@@ -1,0 +1,1 @@
+Проверь бизнес-требования coddoc/LM-2119/business_requirements.md. Можно отдавать дальше?
