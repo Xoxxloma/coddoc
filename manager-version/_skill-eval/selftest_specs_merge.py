@@ -241,12 +241,13 @@ def main_checks(base):
     for _meta, output in outputs:
         text = merge.dump(output)
         document = output["document"]
-        lines_max = 12 + len(document.get("findings") or []) + len(document.get("code_signs") or [])
+        sections = document.get("structure_missing") or []
+        lines_max = 14 + len(document.get("findings") or []) + len(document.get("code_signs") or []) + len(sections) + (1 if sections else 0)
         if json.loads(text) != output or text.count("\n") > lines_max:
             check(f"раскладка {document['path']}: читается обратно, строк не больше {lines_max}", False, text.count("\n"))
             break
     else:
-        check("раскладка: читается обратно без потерь, строка на находку и признак", True)
+        check("раскладка: читается обратно без потерь, строка на находку, признак и пропущенный раздел", True)
 
     # --check: перечисляет то, что merge не примет, и не трогает work/.
     bad, _ = merge.check_answers(data["work"])

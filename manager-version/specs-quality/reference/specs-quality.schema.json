@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specs-quality/7",
+  "$id": "specs-quality/8",
   "title": "Оценка качества одного документа: бизнес-требований или тех-спеки",
   "description": "Один документ — один файл <имя документа>.quality.json рядом с ним. Баллы и находки с цитатами даёт модель по рубрике; балл полноты структуры, суммы, проценты, подсветку и происхождение считает скрипт merge. Правила, которые схемой не выразить (суммы, балл полноты структуры, шкала балла, причины подсветки, находки ровно у сниженных критериев, веса того же вида), проверяет contract.py. Сводку по автору собирает дашборд: Σ sum / Σ max, разделы структуры — по structure_missing.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema", "generated_at", "params", "document"],
   "properties": {
-    "schema": {"const": "specs-quality/7"},
+    "schema": {"const": "specs-quality/8"},
     "generated_at": {"type": "string", "format": "date-time"},
     "params": {"$ref": "#/$defs/params"},
     "document": {"$ref": "#/$defs/document"}
@@ -86,8 +86,8 @@
         "attention": {"description": "Причины «требует внимания»; пусто — не требует.", "type": "array",
                       "items": {"enum": ["below_pct", "zero", "template", "off_structure"]}},
         "template": {"description": "Заполнено шаблонно.", "type": "boolean"},
-        "structure_missing": {"description": "Номера разделов списка «Форма» рубрики без своего заголовка; null — модель не вернула блок «Форма».",
-                         "oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "integer", "minimum": 1}}]},
+        "structure_missing": {"description": "Разделы списка «Форма» рубрики без своего заголовка — номер и название, по возрастанию номера; null — модель не вернула блок «Форма».",
+                         "oneOf": [{"type": "null"}, {"type": "array", "items": {"$ref": "#/$defs/structure_section"}}]},
         "structure_pct": {"description": "«Полнота структуры» в процентах: доля разделов шаблона на месте; структура не проверена — null.", "type": ["integer", "null"], "minimum": 0, "maximum": 100},
         "structure_score": {"description": "«Полнота структуры» в итоге: доля разделов на месте × params.structure_weight, до сотых; структура не проверена — null.",
                        "type": ["number", "null"], "minimum": 0},
@@ -108,6 +108,16 @@
                                "code_signs", "findings"],
                   "not": {"required": ["skip_reason"]}}}
       ]
+    },
+
+    "structure_section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "title"],
+      "properties": {
+        "n": {"description": "Номер раздела из списка «Форма» рубрики этого вида.", "type": "integer", "minimum": 1},
+        "title": {"description": "Название раздела из того же списка.", "type": "string", "minLength": 1}
+      }
     },
 
     "code_sign": {

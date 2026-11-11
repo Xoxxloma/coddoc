@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/7 по каждому документу.
+"""merge — последний шаг оценки: строки collect + ответы модели по рубрикам → specs-quality/8 по каждому документу.
 
     python3 merge.py --work <папка collect> [--keep-work]
     python3 merge.py --work <папка collect> --check   # какие ответы перезапустить: нет файла, не JSON, не по схеме
@@ -183,13 +183,14 @@ def scored_document(meta, row, repo, answer, cfg, haystack, log):
     if not template["flag"] and template["fact"] is None:
         log.append("«шаблонно: нет» без факта")
 
-    structure_missing = []
+    numbers = []
     for item in answer["form"]["missing"]:
-        if item["n"] in structure_missing or item["n"] > params.STRUCTURE_SECTIONS[kind]:
+        if item["n"] in numbers or item["n"] > params.STRUCTURE_SECTIONS[kind]:
             log.append(f"структура: раздел {item['n']} повтор или вне списка — отброшен")
             continue
-        structure_missing.append(item["n"])
-    structure_missing.sort()
+        numbers.append(item["n"])
+    # название — из списка рубрики по номеру, не из ответа модели: она может пересказать своими словами
+    structure_missing = [{"n": n, "title": params.STRUCTURE_TITLES[kind][n - 1]} for n in sorted(numbers)]
     structure_min = cfg["attention"]["structure_min_missing"]
 
     origin, code_signs = None, None
@@ -237,7 +238,7 @@ def check_answers(work):
 
 
 def build(work, now=None):
-    """→ ([(строка документа collect, выход specs-quality/7)], лог поправок, collect)."""
+    """→ ([(строка документа collect, выход specs-quality/8)], лог поправок, collect)."""
     collected = json.loads(read(os.path.join(work, "collect.json")))
     cfg = params.load(collected["params"])
     schema = json.loads(read(FINDINGS_SCHEMA_PATH))
@@ -294,7 +295,10 @@ def dump(output):
     else:
         lines.append("  " + pairs(document, ("scored", "pct", "sum", "max")) + ",")
         lines.append("  " + pairs(document, ("criteria",)) + ",")
-        lines.append("  " + pairs(document, ("attention", "template", "structure_missing", "structure_pct", "structure_score", "origin")) + ",")
+        lines.append("  " + pairs(document, ("attention", "template")) + ",")
+        lines += listed("structure_missing", document["structure_missing"], False) if document["structure_missing"] is not None \
+            else ['  "structure_missing": null,']
+        lines.append("  " + pairs(document, ("structure_pct", "structure_score", "origin")) + ",")
         lines += listed("code_signs", document["code_signs"], False) if document["code_signs"] is not None \
             else ['  "code_signs": null,']
         lines += listed("findings", document["findings"], True)

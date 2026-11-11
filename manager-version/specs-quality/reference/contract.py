@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Контракт выхода specs-quality/7: схема и правила, которые схемой не выразить.
+"""Контракт выхода specs-quality/8: схема и правила, которые схемой не выразить.
 
     python3 contract.py <документ>.quality.json   # «OK» или список нарушений, код выхода 1
     python3 contract.py --selftest                # пример и кейсы проходят, испорченные копии — нет
@@ -26,7 +26,7 @@ import params  # noqa: E402
 SCHEMA_PATH = os.path.join(HERE, "specs-quality.schema.json")
 EXAMPLE_PATH = os.path.join(HERE, "specs-quality.example.json")
 CASES_PATH = os.path.join(HERE, "specs-quality.cases.json")  # документы разных видов и случаев — для --selftest
-FORMAT = "specs-quality/7"
+FORMAT = "specs-quality/8"
 
 KNOWN_KEYWORDS = {
     "$schema", "$id", "title", "description", "$defs", "$ref", "type", "enum", "const",
@@ -316,8 +316,13 @@ def check_document_rules(document, doc_params):
         if score is not None and not score_ok(score, weights[cid]):
             errors.append(f"{name}: {cid}: балл {score:g} не из шкалы 0 / {weights[cid] / 2:g} / {weights[cid]:g}")
     missing = document["structure_missing"]
-    if missing is not None and (missing != sorted(set(missing)) or any(n > params.STRUCTURE_SECTIONS[kind] for n in missing)):
+    numbers = [section["n"] for section in missing] if missing is not None else []
+    if numbers != sorted(set(numbers)) or any(n > params.STRUCTURE_SECTIONS[kind] for n in numbers):
         errors.append(f"{name}: structure_missing — не по возрастанию, с повтором или вне списка 1–{params.STRUCTURE_SECTIONS[kind]}")
+    else:
+        for section in missing or []:
+            if section["title"] != params.STRUCTURE_TITLES[kind][section["n"] - 1]:
+                errors.append(f"{name}: раздел {section['n']} подписан «{section['title']}», по рубрике «{params.STRUCTURE_TITLES[kind][section['n'] - 1]}»")
 
     if document["structure_pct"] != structure_pct(document):
         errors.append(f"{name}: structure_pct {document['structure_pct']}, по structure_missing {structure_pct(document)}")
@@ -395,6 +400,10 @@ def selftest():
     scored_fields = ("pct", "sum", "max", "criteria", "attention", "template", "structure_missing", "structure_pct", "structure_score", "origin",
                      "code_signs", "findings")
 
+    def sections(kind, *numbers):
+        """structure_missing по номерам: название — из списка рубрики."""
+        return [{"n": n, "title": params.STRUCTURE_TITLES[kind][n - 1] if n <= params.STRUCTURE_SECTIONS[kind] else "x"} for n in numbers]
+
     def swap_criteria(d):
         keys = list(d["document"]["criteria"])
         keys[1], keys[2] = keys[2], keys[1]
@@ -451,8 +460,13 @@ def selftest():
         ("признаки у БТ", good_bt, lambda d: doc(d).update(code_signs=[]), "у БТ origin и code_signs должны быть null"),
         ("спека без признаков", good_spec, lambda d: doc(d).update(code_signs=None), "у спеки нужны origin и code_signs"),
         ("source у БТ", good_bt, lambda d: doc(d).update(source="coddoc/x/bug_report.md"), "у БТ source должен быть null"),
-        ("структура не по возрастанию", epic_bt, lambda d: doc(d).update(structure_missing=[3, 1, 4, 6, 7, 10, 13, 14, 15]), "structure_missing — не по возрастанию"),
-        ("номер раздела вне списка", good_spec, lambda d: doc(d).update(structure_missing=[19, 24]), "вне списка 1–23"),
+        ("структура не по возрастанию", epic_bt, lambda d: doc(d).update(structure_missing=sections("bt", 3, 1, 4, 6, 7, 10, 13, 14, 15)),
+         "structure_missing — не по возрастанию"),
+        ("номер раздела вне списка", good_spec, lambda d: doc(d).update(structure_missing=sections("spec", 19, 24)), "вне списка 1–23"),
+        ("название раздела не к номеру", good_spec, lambda d: doc(d)["structure_missing"][0].update(n=20),
+         "раздел 20 подписан «Фиче-флаги», по рубрике «План отката»"),
+        ("раздел без названия", good_spec, lambda d: doc(d)["structure_missing"][0].pop("title"),
+         "structure_missing: должно подходить ровно под один вариант"),
         ("вид не по имени файла", good_spec, lambda d: doc(d).update(kind="bt"), "вид bt, а имя файла не business_requirements.md"),
         ("не оценён, а баллы есть", good_bt, lambda d: doc(d).update(scored=False, skip_reason="нет ответа"), "запрещённый вариант"),
         ("не оценён без причины", good_bt, lambda d: [doc(d).pop(f) for f in scored_fields] and doc(d).update(scored=False),
@@ -462,7 +476,7 @@ def selftest():
         ("quote_found: true", part_spec, lambda d: doc(d)["findings"][0].update(quote_found=True), "ожидалось false"),
         ("н/п строкой с опечаткой", bug_spec, lambda d: doc(d)["criteria"].update(security="н.п"), "ожидался тип number"),
         ("поле старого формата", good_bt, lambda d: d.update(documents=[]), "лишнее поле «documents»"),
-        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/6"), 'ожидалось "specs-quality/7"'),
+        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/7"), 'ожидалось "specs-quality/8"'),
         ("нет repo", good_bt, lambda d: doc(d).pop("repo"), "нет поля «repo»"),
         ("structure_pct документа", good_spec, lambda d: doc(d).update(structure_pct=90), "structure_pct 90, по structure_missing 96"),
         ("время без пояса", good_bt, lambda d: d.update(generated_at="2026-10-28T15:00:00"), "часовым поясом"),
@@ -479,8 +493,8 @@ def selftest():
         ("оценка не состоялась", good_bt, fail_document),
         ("шаблонно — с причиной подсветки", good_bt, lambda d: doc(d).update(template=True, attention=["template"])),
         ("структура не проверена — подсветки нет", epic_bt, lambda d: doc(d).update(structure_missing=None, attention=[])),
-        ("БТ без 5 разделов — неполная структура", good_bt, lambda d: doc(d).update(structure_missing=[1, 2, 3, 4, 5], attention=["off_structure"])),
-        ("БТ без 4 разделов — структура полная", good_bt, lambda d: doc(d).update(structure_missing=[1, 2, 3, 4])),
+        ("БТ без 5 разделов — неполная структура", good_bt, lambda d: doc(d).update(structure_missing=sections("bt", 1, 2, 3, 4, 5), attention=["off_structure"])),
+        ("БТ без 4 разделов — структура полная", good_bt, lambda d: doc(d).update(structure_missing=sections("bt", 1, 2, 3, 4))),
         ("ровно 50% — не ниже порога", part_spec, spec_exactly_half),
     ]
     for name, tail, change in valid:
