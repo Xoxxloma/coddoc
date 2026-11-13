@@ -124,7 +124,7 @@ function Get-Base64([string[]]$fulls) {
     if ($null -eq $b) { $b = [byte[]]@() }
     $blobs += , ([byte[]]$b)
   }
-  $xml = Join-Path $env:TEMP ('to-html-' + (Get-Random) + '.xml')
+  $xml = Join-Path $script:work ('base64-' + (Get-Random) + '.xml')
   try {
     Export-Clixml -LiteralPath $xml -InputObject $blobs -Encoding UTF8
     $raw = Get-Content -LiteralPath $xml -Raw -Encoding UTF8
@@ -147,6 +147,25 @@ foreach ($p in @($Paths | Where-Object { $_ })) {
   if ($p -eq '--no-open') { $NoOpen = $true; continue }
   if (-not (Test-Path -LiteralPath $p)) { Fail 'not-found' "нет такого пути: $p" }
   $inputs += (Resolve-Path -LiteralPath $p).ProviderPath.TrimEnd('\')
+}
+
+# Временные файлы скиллов — в одной папке .coddoc-tmp\ в корне репозитория, у каждого скилла своя подпапка;
+# запуск из подпапки репозитория пишет туда же. Нет git или не репозиторий — от текущей папки.
+$top = $cwd
+try {
+  # stderr git («not a git repository») не должен обрывать скрипт: решает код возврата.
+  $ErrorActionPreference = 'Continue'
+  $t = & git rev-parse --show-toplevel 2>$null
+  if ($LASTEXITCODE -eq 0 -and $t) { $top = (Resolve-Path -LiteralPath $t).ProviderPath.TrimEnd('\') }
+} catch { }
+$ErrorActionPreference = 'Stop'
+$script:work = Join-Path (Join-Path $top '.coddoc-tmp') 'to-html'
+try {
+  New-Item -ItemType Directory -Force -Path $script:work | Out-Null
+  $ignore = Join-Path $top '.coddoc-tmp\.gitignore'
+  if (-not (Test-Path -LiteralPath $ignore)) { Set-Content -LiteralPath $ignore -Value '*' -Encoding Ascii }
+} catch {
+  Fail 'no-write' "не могу писать в $($script:work)"
 }
 
 $mode = 'blank'
@@ -225,32 +244,30 @@ if ($mode -eq 'dir' -and -not $open) {
 # ---------------------------------------------------------------- куда писать
 if ($mode -eq 'blank') {
   $slug = '_blank'; $label = ''; $base = ''
-} elseif ($script:root -eq $cwd) {
-  $slug = Split-Path -Leaf $cwd; $label = '.'; $base = '../../'
-} elseif ($script:root.ToLower().StartsWith(($cwd.TrimEnd('\') + '\').ToLower())) {
-  $label = $script:root.Substring($cwd.TrimEnd('\').Length + 1) -replace '\\', '/'
+} elseif ($script:root -eq $top) {
+  $slug = Split-Path -Leaf $top; $label = '.'; $base = '../../../'
+} elseif ($script:root.ToLower().StartsWith(($top.TrimEnd('\') + '\').ToLower())) {
+  $label = $script:root.Substring($top.TrimEnd('\').Length + 1) -replace '\\', '/'
   $slug = $label -replace '/', '--'
-  $base = "../../$label/"
+  $base = "../../../$label/"
 } else {
   $label = $script:root -replace '\\', '/'
   $slug = (Split-Path -Leaf $script:root) + '-' + ('{0:x8}' -f $script:root.ToLower().GetHashCode())
   $base = "file:///$label/"
 }
 $slug = $slug -replace '[:*?"<>|\\]', '_'
-$out = Join-Path (Join-Path $cwd '.to-html') $slug
+$out = Join-Path $script:work $slug
 try {
   New-Item -ItemType Directory -Force -Path $out | Out-Null
-  $ignore = Join-Path $cwd '.to-html\.gitignore'
-  if (-not (Test-Path -LiteralPath $ignore)) { Set-Content -LiteralPath $ignore -Value '*' -Encoding Ascii }
 } catch {
-  Fail 'no-write' "не могу писать в $cwd\.to-html"
+  Fail 'no-write' "не могу писать в $($script:work)"
 }
 
 # Каждый набор — копия страницы (~3 МБ) и тексты с картинками в base64: держим $MaxSets последних,
 # текущий — самый свежий. Не удалилось (файл занят) — не беда, сборка идёт дальше.
 try {
   Set-ItemProperty -LiteralPath $out -Name LastWriteTime -Value (Get-Date)
-  Get-ChildItem -LiteralPath (Join-Path $cwd '.to-html') -Directory | Sort-Object LastWriteTime -Descending |
+  Get-ChildItem -LiteralPath $script:work -Directory | Sort-Object LastWriteTime -Descending |
     Select-Object -Skip $MaxSets | Remove-Item -Recurse -Force
 } catch { }
 

@@ -2,7 +2,9 @@
 //
 // Оракул здесь же, на node: по тем же правилам (что входит в набор, какой файл открыть, куда писать)
 // считает ожидаемое и сверяет с тем, что записали скрипты, — файл за файлом, байт в байт после base64.
-// Скрипты гоняются с --no-open в песочнице selftest/to-html/ (в .gitignore).
+// Скрипты гоняются с --no-open в песочнице selftest/to-html/ (в .gitignore). Выход — в .coddoc-tmp/to-html/
+// корня репозитория: fx/ — свой репозиторий (git init), plain/ и prune/ — вне репозитория; GIT_CEILING_DIRECTORIES
+// не даёт git подняться из песочницы в репозиторий скиллов.
 //
 // Исполнители: sh — всегда; на Windows ещё ps (обычный режим) и ps-clm — ограниченный режим языка,
 // как на корпоративных машинах (только командлеты): его включает обёртка clm-run.ps1.
@@ -78,7 +80,14 @@ function links(root, rel) {
   return found;
 }
 
+// Корень репозитория, как его найдёт git: ближайшая вверх папка с .git, не выше песочницы; нет — текущая.
+function topOf(cwd) {
+  for (let d = cwd; d.startsWith(box + sep); d = dirname(d)) if (existsSync(join(d, '.git'))) return d;
+  return cwd;
+}
+
 function expected(cwd, args) {
+  const top = topOf(cwd);
   const abs = args.map((a) => resolve(cwd, a));
   if (abs.some((a) => !existsSync(a))) return { error: 'not-found' };
   let mode = 'blank', root = '', open = '', list = [];
@@ -122,15 +131,15 @@ function expected(cwd, args) {
   }
   let label = '', base = '', slug = '_blank';
   if (mode !== 'blank') {
-    if (root === cwd) { label = '.'; base = '../../'; slug = cwd.split(sep).pop(); }
-    else if (root.startsWith(cwd + sep)) {
-      label = relative(cwd, root).split(sep).join('/'); base = `../../${label}/`; slug = label.split('/').join('--');
+    if (root === top) { label = '.'; base = '../../../'; slug = top.split(sep).pop(); }
+    else if (root.startsWith(top + sep)) {
+      label = relative(top, root).split(sep).join('/'); base = `../../../${label}/`; slug = label.split('/').join('--');
     } else {
       label = root.split(sep).join('/'); base = `file://${win ? '/' : ''}${label}/`; slug = null; // хеш у скриптов свой
     }
   }
   if (slug) slug = slug.replace(/[:*?"<>|\\]/g, '_');
-  return { mode, root, open, list, label, base, slug };
+  return { mode, root, open, list, label, base, slug, top };
 }
 
 // ---------------------------------------------------------------- исполнители
@@ -146,7 +155,8 @@ function run(engine, cwd, args) {
   const [cmd, argv] = engines[engine](cwd, args);
   let out = '', code = 0;
   const t0 = Date.now();
-  try { out = execFileSync(cmd, argv, { cwd, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8'); }
+  const env = { ...process.env, GIT_CEILING_DIRECTORIES: box };
+  try { out = execFileSync(cmd, argv, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8'); }
   catch (e) { out = (e.stdout || '').toString('utf8') + (e.stderr || '').toString('utf8'); code = e.status ?? 1; }
   const last = out.trim().split(/\r?\n/).pop() || '';
   return { out, code, last, ms: Date.now() - t0 };
@@ -168,8 +178,10 @@ const cases = [
   { name: 'файл + папка', cwd: '.', args: ['TH-DOCS/README.md', 'TH-DOCS/процессы'] },
   { name: 'краевые байты', cwd: '.', args: ['TH-EDGE'] },
   { name: 'файл в огромной папке → его ссылки', cwd: '.', args: ['TH-ONE/проект/заметка.md'] },
-  { name: 'корень = текущая папка', cwd: 'TH-DOCS', args: ['.'] },
-  { name: 'корень вне текущей папки', cwd: 'TH-NB', args: ['../TH-VAULT'] },
+  { name: 'запуск из подпапки репозитория', cwd: 'TH-DOCS', args: ['.'] },
+  { name: 'корень в соседней папке репозитория', cwd: 'TH-NB', args: ['../TH-VAULT'] },
+  { name: 'корень вне репозитория', cwd: '.', args: ['../plain'] },
+  { name: 'вне репозитория: корень = текущая папка', cwd: '../plain', args: ['.'] },
   { name: 'без путей — пустая страница', cwd: '.', args: [] },
   { name: 'папка больше предела', cwd: '.', args: ['TH-ONE/проект'], error: 'too-many' },
   { name: 'нет пути', cwd: '.', args: ['нет-такого'], error: 'not-found' },
@@ -197,8 +209,12 @@ function verify(engine, c) {
 
   const page = fileURLToPath(r.last.split(' page=')[1]);
   const out = dirname(page);
-  if (exp.slug) check(out === join(cwd, '.to-html', exp.slug), `папка выхода ${out}, ждали .to-html/${exp.slug}`);
-  check(readFileSync(join(cwd, '.to-html', '.gitignore'), 'utf8').trim() === '*', '.to-html/.gitignore = «*»');
+  const work = join(exp.top, '.coddoc-tmp', 'to-html');
+  if (exp.slug) check(out === join(work, exp.slug), `папка выхода ${out}, ждали ${join(work, exp.slug)}`);
+  else check(dirname(out) === work, `папка выхода ${out}, ждали внутри ${work}`);
+  check(readFileSync(join(exp.top, '.coddoc-tmp', '.gitignore'), 'utf8').trim() === '*', '.coddoc-tmp/.gitignore = «*»');
+  if (cwd !== exp.top) check(!existsSync(join(cwd, '.coddoc-tmp')), 'в подпапке своей .coddoc-tmp нет');
+  check(!readdirSync(work).some((n) => n.startsWith('list.') || n.endsWith('.xml')), 'временные файлы скрипта убраны');
   const html = readFileSync(page, 'utf8');
   check(!html.includes('__MADE__') && /data\.js\?v=\d{14}/.test(html), 'метка снимка в index.html');
 
@@ -206,6 +222,7 @@ function verify(engine, c) {
   check(d && d.v === 1 && /^\d{4}-\d\d-\d\d \d\d:\d\d$/.test(d.made), 'data.js: v и made');
   check(d.root === exp.label, `root «${d.root}», ждали «${exp.label}»`);
   check(d.base === exp.base, `base «${d.base}», ждали «${exp.base}»`);
+  if (d.base && !d.base.startsWith('file:')) check(resolve(out, d.base) === exp.root, `base от страницы ведёт в ${resolve(out, d.base)}, ждали ${exp.root}`);
   check(d.open === exp.open, `open «${d.open}», ждали «${exp.open}»`);
   const got = d.files.map((f) => f[0]).sort();
   if (!check(JSON.stringify(got) === JSON.stringify(exp.list), 'набор файлов')) {
@@ -238,7 +255,7 @@ function verifyRepeat(engine) {
   const older = new Date(Date.now() - 120_000);
   for (const f of ['img/стенд.png', 'img/схема.svg']) utimesSync(join(cwd, 'TH-DOCS', f), older, older);
   run(engine, cwd, ['TH-DOCS']);
-  const assets = join(cwd, '.to-html', 'TH-DOCS', 'assets.js');
+  const assets = join(cwd, '.coddoc-tmp', 'to-html', 'TH-DOCS', 'assets.js');
   const old = new Date(Date.now() - 60_000);
   utimesSync(assets, old, old);
   const r1 = run(engine, cwd, ['TH-DOCS']);
@@ -250,10 +267,15 @@ function verifyRepeat(engine) {
   check(statSync(assets).mtimeMs > old.getTime() + 30_000, 'assets.js пересобран после правки картинки');
 }
 
-// Чистка: в .to-html остаются 10 последних наборов, текущий среди них, .gitignore на месте.
+// Чистка: в .coddoc-tmp/to-html остаются 10 последних наборов, текущий среди них; .gitignore и папки других
+// скиллов в .coddoc-tmp не тронуты.
 function verifyPrune(engine) {
   const cwd = join(box, 'prune');
-  const sets = join(cwd, '.to-html');
+  const sets = join(cwd, '.coddoc-tmp', 'to-html');
+  const other = join(cwd, '.coddoc-tmp', 'retro', 'x.journal.txt');
+  mkdirSync(dirname(other), { recursive: true });
+  writeFileSync(other, '');
+  utimesSync(dirname(other), new Date(0), new Date(0));
   const old = (i) => `old-${String(i).padStart(2, '0')}`;
   for (let i = 1; i <= 12; i++) {
     mkdirSync(join(sets, old(i)), { recursive: true });
@@ -268,7 +290,8 @@ function verifyPrune(engine) {
   const left = readdirSync(sets, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
   const want = [cur, ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map(old)].sort();
   check(JSON.stringify(left) === JSON.stringify(want), `осталось ${left.join(', ')}, ждали ${want.join(', ')}`);
-  check(existsSync(join(sets, '.gitignore')), '.gitignore не удалён');
+  check(existsSync(join(cwd, '.coddoc-tmp', '.gitignore')), '.gitignore не удалён');
+  check(existsSync(other), 'папка другого скилла не тронута');
 }
 
 // ---------------------------------------------------------------- запуск
@@ -283,6 +306,9 @@ for (const engine of list) {
   rmSync(box, { recursive: true, force: true });
   mkdirSync(join(box, 'fx'), { recursive: true });
   makeFixtures(join(box, 'fx'));
+  execFileSync('git', ['init', '-q'], { cwd: join(box, 'fx') });
+  mkdirSync(join(box, 'plain'));
+  writeFileSync(join(box, 'plain', 'README.md'), '# Вне репозитория\n');
   writeFileSync(join(box, 'clm-run.ps1'), '\uFEFF# Запускает скрипт в ограниченном режиме языка, как на корпоративной машине.\n' +
     '$script = $args[0]\n$rest = @($args | Select-Object -Skip 1)\n' +
     "$ExecutionContext.SessionState.LanguageMode = 'ConstrainedLanguage'\n& $script @rest\nexit $LASTEXITCODE\n");

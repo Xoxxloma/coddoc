@@ -33,8 +33,10 @@ writeFileSync(join(fx, 'TH-NFD', 'Мой файл.md'.normalize('NFD')), '# Фа
 function pack(...args) {
   return packIn(fx, ...args);
 }
+// Песочница — вне репозитория: без потолка git нашёл бы репозиторий скиллов и писал бы в его .coddoc-tmp/.
 function packIn(cwd, ...args) {
-  const out = execFileSync('bash', [join(ref, 'pack.sh').split(sep).join('/'), '--no-open', ...args], { cwd }).toString('utf8');
+  const env = { ...process.env, GIT_CEILING_DIRECTORIES: box };
+  const out = execFileSync('bash', [join(ref, 'pack.sh').split(sep).join('/'), '--no-open', ...args], { cwd, env }).toString('utf8');
   const last = out.trim().split(/\r?\n/).pop();
   if (!/^to-html: updated /.test(last)) throw new Error('pack: ' + out);
   return last.split(' page=')[1];
