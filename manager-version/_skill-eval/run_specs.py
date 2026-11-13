@@ -27,7 +27,8 @@ import time
 from datetime import date
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SKILL = os.path.normpath(os.path.join(HERE, "..", "specs-quality"))
+SKILL_NAME = os.environ.get("SQ_SKILL", "specs-quality")  # какой скилл гоняет стенд: specs-quality или specs-assess
+SKILL = os.path.normpath(os.path.join(HERE, "..", SKILL_NAME))
 sys.path.insert(0, os.path.join(SKILL, "reference"))
 sys.path.insert(0, HERE)
 import contract  # noqa: E402
@@ -38,7 +39,7 @@ from run_specs_rubric import claude_exe  # noqa: E402
 AGENT_TOOLS = ("Agent", "Task")
 ALLOWED_TOOLS = ["Read", "Write", "Glob", "Agent", "Task", "Bash(python:*)", "Bash(python3:*)"]
 DENIED_TOOLS = ["WebFetch", "WebSearch", "Edit", "NotebookEdit"]
-PROMPT = "/specs-quality coddoc/ pss --parallel {parallel}"
+PROMPT = "/" + SKILL_NAME + " coddoc/ pss --parallel {parallel}"
 BT, SPEC = "business_requirements.md", "technical_specification.md"
 IN_FORM = ["PSS-2210", "PSS-2211", "PSS-2212", "PSS-2213", "ARS-312"]
 BY_SKILL = ["PSS-2210", "PSS-2212", "PSS-2213", "PSS-2214", "ARS-312"]
@@ -66,7 +67,7 @@ def read_stream(path):
 
 
 def content_checks(doc):
-    """Проверки grade-sq.mjs по документам выходов specs-quality/8 + случай E. doc — {"documents": [...]}. → {имя: True/False}.
+    """Проверки grade-sq.mjs по документам выходов (формат — из contract.py скилла) + случай E. doc — {"documents": [...]}. → {имя: True/False}.
     Хороший документ — по потере баллов критериев (вес − балл), а не по проценту: процент зависит от максимума и
     округления, полнота структуры в потерю не входит."""
     docs = {d["path"]: d for d in doc["documents"]}
@@ -179,7 +180,7 @@ def grade(run_dir, parallel):
     with open(os.path.join(run_dir, "coddoc.sha256.json"), encoding="utf-8") as handle:
         if json.load(handle) != digest(os.path.join(ws, "coddoc")):
             problems.append("coddoc/ изменена")
-    if glob.glob(os.path.join(ws, "specs-quality-*.work")):
+    if glob.glob(os.path.join(ws, SKILL_NAME + "-*.work")):
         problems.append("рабочая папка не убрана")
     stray = [p for p in glob.glob(os.path.join(ws, "**", "*.json"), recursive=True)
              if not p.endswith(".quality.json") and os.sep + ".claude" + os.sep not in p]
@@ -315,7 +316,7 @@ def main(argv=None):
             handle.write(text)
     with open(os.path.join(run_dir, "coddoc.sha256.json"), "w", encoding="utf-8") as handle:
         json.dump(digest(os.path.join(ws, "coddoc")), handle, indent=1)
-    shutil.copytree(SKILL, os.path.join(ws, ".claude", "skills", "specs-quality"), ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(SKILL, os.path.join(ws, ".claude", "skills", SKILL_NAME), ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copytree(SKILL, os.path.join(run_dir, "_skill"), ignore=shutil.ignore_patterns("__pycache__"))  # текст, которым получены числа
 
     prompt = PROMPT.format(parallel=cfg.parallel)

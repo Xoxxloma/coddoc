@@ -22,13 +22,16 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "specs-quality", "reference"))
+SKILL_NAME = os.environ.get("SQ_SKILL", "specs-quality")  # какой скилл гоняет стенд: specs-quality или specs-assess
+sys.path.insert(0, os.path.join(HERE, "..", SKILL_NAME, "reference"))
 sys.path.insert(0, HERE)
 import collect  # noqa: E402
 import contract  # noqa: E402
 import merge  # noqa: E402
 import params  # noqa: E402
 import specs_cases  # noqa: E402
+
+ASSESS = SKILL_NAME == "specs-assess"  # у specs-assess в каждом документе ещё объём и сложность
 
 NA = "н/п"
 failures = []
@@ -64,6 +67,8 @@ def answer(kind, parts, quote, flag=False, missing=0, signs=(), traces=(2, 3)):
     if kind == "spec":
         result["origin"] = {"traces": [{"n": n, "what": "след"} for n in traces], "code_signs": [{"n": n, "quote": quote} for n in signs]}
     result["form"] = {"missing": [{"n": n, "title": "раздел"} for n in range(1, missing + 1)]}
+    if ASSESS:
+        result["complexity"] = {}  # пустая выписка — признаки по нулям; сложность здесь не проверяется
     return result
 
 
@@ -204,7 +209,7 @@ def main_checks(base):
 
     d = by_path(doc, "PSS-2210/" + bt)
     check("нет JSON — не состоялась, документ из одних общих полей", not d["scored"] and "нет JSON" in d["skip_reason"] and
-          set(d) == set(merge.HEAD_KEYS) | {"scored", "skip_reason"}, d)
+          set(d) == set(merge.HEAD_KEYS) | {"scored", "skip_reason"} | ({"volume", "complexity"} if ASSESS else set()), d)
     d = by_path(doc, "PSS-2211/" + bt)
     check("старая шкала цели — вне шкалы", not d["scored"] and "necessity: балл 0.25 вне шкалы 0 / 0.5 / 1" in d["skip_reason"], d.get("skip_reason"))
     d = by_path(doc, "PSS-2213/" + bt)
@@ -243,6 +248,9 @@ def main_checks(base):
         document = output["document"]
         sections = document.get("structure_missing") or []
         lines_max = 14 + len(document.get("findings") or []) + len(document.get("code_signs") or []) + len(sections) + (1 if sections else 0)
+        if ASSESS:  # строка объёма; сложность — строка, или шапка, признаки и что не засчитано по строке, закрытие
+            block = document["complexity"]
+            lines_max += 1 + (2 + sum(1 + len(f["excluded"]) for f in block["factors"]) if block["scored"] else 1)
         if json.loads(text) != output or text.count("\n") > lines_max:
             check(f"раскладка {document['path']}: читается обратно, строк не больше {lines_max}", False, text.count("\n"))
             break
