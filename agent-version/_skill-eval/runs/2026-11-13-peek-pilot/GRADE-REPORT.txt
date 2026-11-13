@@ -1,0 +1,18 @@
+раунд 2026-11-13-peek-pilot · модель claude-sonnet-5 · прогонов на пробу 1 · 2026-11-13T10:47:03.141Z
+
+## p-key — «/peek CRM-41»
+run-01: ✓ всё · $0.095 · ходов 2 · 10 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pilot\p-key\run-01\me" && python3 .gigacode/skills/peek/reference/peek.py "CRM-41"
+  ответ: **CRM-41** · `coddoc/CRM-41` ветка origin/feature/crm-41 · Марина · 2026-11-06 12:00 ещё в: work (старее), main (старее), origin/feature/crm-58 (старее), origin/main (старее) Файлы (2): - business_requirements.md — Готово к разработке · редакция 2 (2026-11-06) - technical_specification.md — без шапки Открыть в браузере: /to-html C:/Users/Konstantin/AppData/Local/Temp/peek-probes/2026-11-13-peek-pi
+
+## p-words — «/peek начисление баллов»
+run-01: ✓ всё · $0.096 · ходов 2 · 11 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pilot\p-words\run-01\me" && python3 "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pilot\p-words\run-01\me\.claude\skills\peek\reference\peek.py" "начисление баллов"
+  ответ: Нашлось: - **CRM-58** · origin/feature/crm-58 · Марина · coddoc/CRM-58/business_requirements.md:12 — «Начисление баллов за покупку в партнёрском магазине — через сутки.» Документы задачи: /peek CRM-58
+
+## p-natural — «Марина писала БТ по задаче CRM-58 у себя в ветке. Покажи, что там у неё сейчас, свою ветку не трогай.»
+run-01: ✓ всё · $0.108 · ходов 4 · 13 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pilot\p-natural\run-01\me" && python .claude/skills/peek/reference/peek.py "CRM-58"
+  ответ: По CRM-58 нашёлся один документ: - **business_requirements.md** — ветка `origin/feature/crm-58`, автор Марина, дата 2026-11-08 12:00, редакция 2, статус: **«Требуются уточнения»**. - Также встречается (но более старыми версиями) в `work`, `main`, `origin/feature/crm-41`, `origin/main`. Твоя ветка не трогалась — выгрузка лежит в `.coddoc-tmp/peek/CRM-58`. Открыть в браузере: `/to-html C:/Users/Kons
+
+итого: $0.30

@@ -7,10 +7,10 @@
 # предела — сам файл и то, на что он ссылается; несколько путей — только они. Без путей — пустая
 # страница, в которую перетаскивают файлы.
 #
-# Пишет <текущая папка>/.to-html/<набор>/: копию viewer/, data.js (тексты в base64), assets.js (картинки
-# в base64 — для экспорта) — и открывает index.html системной командой. Повторный вызов с тем же входом
-# пишет туда же: F5 в открытой вкладке показывает новое. --no-open — только пересобрать. В .to-html/
-# остаются MAX_SETS последних наборов, старые удаляются.
+# Пишет <корень репозитория>/.coddoc-tmp/to-html/<набор>/ (вне репозитория — от текущей папки): копию viewer/,
+# data.js (тексты в base64), assets.js (картинки в base64 — для экспорта) — и открывает index.html системной
+# командой. Повторный вызов с тем же входом пишет туда же: F5 в открытой вкладке показывает новое. --no-open —
+# только пересобрать. В .coddoc-tmp/to-html/ остаются MAX_SETS последних наборов, старые удаляются.
 # TO_HTML_NO_OPEN=1 в окружении — не открывать браузер, вывод как обычно (проверки без экрана).
 #
 # Последняя строка вывода — только ASCII, её читает агент (русские строки выше бывают в чужой кодировке):
@@ -148,7 +148,14 @@ for p in ${paths[@]+"${paths[@]}"}; do
   [ -e "$p" ] || fail not-found "нет такого пути: $p"
 done
 
-mode=blank root="" open="" list="$(mktemp "${TMPDIR:-/tmp}/to-html.XXXXXX")"
+# Временные файлы скиллов — в одной папке .coddoc-tmp/ в корне репозитория, у каждого скилла своя подпапка;
+# запуск из подпапки репозитория пишет туда же.
+top="$(git rev-parse --show-toplevel 2>/dev/null)" && top="$(cd "$top" && pwd -P)" || top="$cwd"
+work="$top/.coddoc-tmp/to-html"
+mkdir -p "$work" 2>/dev/null && [ -w "$work" ] || fail no-write "не могу писать в $work"
+[ -f "$top/.coddoc-tmp/.gitignore" ] || printf '*\n' > "$top/.coddoc-tmp/.gitignore"
+
+mode=blank root="" open="" list="$(mktemp "$work/list.XXXXXX")"
 trap 'rm -f "$list" "$list".*' EXIT
 
 if [ ${#paths[@]} -eq 1 ] && [ -d "${paths[0]}" ]; then
@@ -213,27 +220,26 @@ fi
 # ---------------------------------------------------------------- куда писать
 if [ "$mode" = blank ]; then
   slug=_blank label="" base=""
-elif [ "$root" = "$cwd" ]; then
-  slug="$(basename "$cwd")" label=. base=../../
-elif [ "${root#"$cwd"/}" != "$root" ]; then
-  label="${root#"$cwd"/}"; slug="${label//\//--}"; base="../../$label/"
+elif [ "$root" = "$top" ]; then
+  slug="$(basename "$top")" label=. base=../../../
+elif [ "${root#"$top"/}" != "$root" ]; then
+  label="${root#"$top"/}"; slug="${label//\//--}"; base="../../../$label/"
 else
   label="$root"; slug="$(basename "$root")-$(printf '%s' "$root" | cksum | cut -d' ' -f1)"
   case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) label="$(cygpath -m "$root")"; base="file:///$label/" ;; *) base="file://$root/" ;; esac
 fi
 slug="$(printf '%s' "$slug" | tr ':*?"<>|\\' '________')"
-out="$cwd/.to-html/$slug"
-mkdir -p "$out" 2>/dev/null && [ -w "$out" ] || fail no-write "не могу писать в $cwd/.to-html"
-[ -f "$cwd/.to-html/.gitignore" ] || printf '*\n' > "$cwd/.to-html/.gitignore"
+out="$work/$slug"
+mkdir -p "$out" 2>/dev/null && [ -w "$out" ] || fail no-write "не могу писать в $work"
 
 # Каждый набор — копия страницы (~3 МБ) и тексты с картинками в base64: держим MAX_SETS последних,
 # текущий — самый свежий. Не удалилось — не беда, сборка идёт дальше.
 touch "$out"
 n=0
-ls -1t "$cwd/.to-html" | while IFS= read -r d; do
-  [ -n "$d" ] && [ -d "$cwd/.to-html/$d" ] || continue
+ls -1At "$work" | while IFS= read -r d; do
+  [ -n "$d" ] && [ -d "$work/$d" ] || continue
   n=$((n + 1))
-  [ "$n" -gt "$MAX_SETS" ] && rm -rf "$cwd/.to-html/$d"
+  [ "$n" -gt "$MAX_SETS" ] && rm -rf "$work/$d"
 done
 
 made="$(date '+%Y-%m-%d %H:%M')"

@@ -139,8 +139,8 @@ def grade(run_dir):
         problems.append(f"субагенты не по одному: волна из {max(sizes)}")
     if reads:
         problems.append(f"ведущий сам читал журналы: {len(reads)} раз")
-    if os.path.isdir(os.path.join(os.path.realpath(tempfile.gettempdir()), "retro-work")):
-        problems.append("рабочая папка retro-work не убрана")
+    if os.path.isdir(os.path.join(run_dir, "ws", ".coddoc-tmp", "retro")):
+        problems.append("рабочая папка .coddoc-tmp/retro не убрана")
 
     moments, log = regrade(run_dir, written)
     found = {}
@@ -230,7 +230,9 @@ def main(argv=None):
     with open(os.path.join(run_dir, "stream.jsonl"), "w", encoding="utf-8") as out, \
             open(os.path.join(run_dir, "stderr.txt"), "w", encoding="utf-8") as err:
         try:
-            subprocess.run(command, stdout=out, stderr=err, cwd=ws, timeout=cfg.timeout, encoding="utf-8")
+            # ws — внутри репозитория скиллов: без потолка git рабочая папка ретро легла бы в его .coddoc-tmp/.
+            env = dict(os.environ, GIT_CEILING_DIRECTORIES=run_dir)
+            subprocess.run(command, stdout=out, stderr=err, cwd=ws, env=env, timeout=cfg.timeout, encoding="utf-8")
         except subprocess.TimeoutExpired:
             err.write(f"таймаут {cfg.timeout} с\n")
     print(f"прогон: {time.time() - started:.0f} с")

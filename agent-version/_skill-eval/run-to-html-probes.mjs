@@ -174,7 +174,7 @@ async function main() {
     report.push(`## ${probe.id} — «${probe.prompt}»`);
     for (const job of jobs.filter((j) => j.probe === probe)) {
       const lines = readFileSync(join(job.out, 'stream.jsonl'), 'utf8').split(/\r?\n/).filter(Boolean);
-      const pagesDir = join(job.sb, '.to-html');
+      const pagesDir = join(job.sb, '.coddoc-tmp', 'to-html');
       const hasPage = existsSync(pagesDir) && readdirSync(pagesDir).some((d) => existsSync(join(pagesDir, d, 'index.html')));
       const g = grade(probe, lines, hasPage);
       cost += g.cost;
