@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merge — последний шаг оценки: строки collect + ответы модели → specs-quality/9 по каждому документу.
+"""merge — последний шаг оценки: строки collect + ответы модели → specs-quality/10 по каждому документу.
 
     python3 merge.py --work <папка collect> [--keep-work]
     python3 merge.py --work <папка collect> --check   # какие ответы перезапустить: нет файла, не JSON, не по схеме,
@@ -255,7 +255,7 @@ def check_answers(work):
 
 
 def build(work, now=None):
-    """→ ([(строка документа collect, выход specs-quality/9)], лог поправок, collect)."""
+    """→ ([(строка документа collect, выход specs-quality/10)], лог поправок, collect)."""
     collected = json.loads(read(os.path.join(work, "collect.json")))
     cfg = params.load(collected["params"])
     schema = json.loads(read(FINDINGS_SCHEMA_PATH))

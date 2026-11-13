@@ -1,6 +1,6 @@
 {
- "schema": "specs-quality/9", "generated_at": "2026-10-28T15:00:00Z",
- "params": {"below_pct": 50, "structure_min_missing": 6, "weights": {"traceability": 1, "data_model": 1, "security": 1, "impact": 1, "interfaces": 1, "consistency": 1}, "structure_weight": 1, "complexity": {"buckets": {"C1": [2, 3, 5], "C2": [1, 3, 6], "C3": [3, 7, 13], "C4": [1, 3, 6], "C5": [1, 3], "C6": [1, 5, 9], "C7": [1, 2, 4], "C9": [1, 4, 9]}, "class_thresholds": [6, 11, 17, 23]}},
+ "schema": "specs-quality/10", "generated_at": "2026-10-28T15:00:00Z",
+ "params": {"below_pct": 50, "structure_min_missing": 6, "weights": {"traceability": 1, "data_model": 1, "security": 1, "impact": 1, "interfaces": 1, "consistency": 1}, "structure_weight": 1, "complexity": {"buckets": {"C2": [1, 3, 6], "C3": [3, 7, 13], "C4": [1, 3, 6], "C5": [1, 3], "C6": [1, 5, 9]}, "class_thresholds": [4, 7, 10, 13]}},
  "document": {"path": "coddoc/PRJ-105/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-105", "feature": "расчёт сметы", "author": null, "template_version": null, "source": null,
   "scored": true, "pct": 44, "sum": 3.09, "max": 7,
   "criteria": {"traceability": 0, "data_model": 0.5, "security": 0, "impact": 1, "interfaces": 0.5, "consistency": 1},
@@ -41,15 +41,11 @@
   ],
   "volume": {"sheets": 1.3, "chars": 2400, "illustrations": 0},
   "complexity": {"scored": true, "class": 1, "points": 1, "simple_change": null, "debt": 0, "factors": [
-   {"id": "C1", "title": "Сервисы", "value": 1, "points": 0, "excluded": [
-    {"reason": "not_found", "quote": "сервис approvals"}]},
-   {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": []},
+   {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": [
+    {"reason": "not_found", "quote": "вызов сервиса approvals"}]},
    {"id": "C3", "title": "Контракт", "value": 1, "points": 0, "excluded": []},
    {"id": "C4", "title": "Ошибки", "value": 0, "points": 0, "excluded": []},
    {"id": "C5", "title": "Данные", "value": 1, "points": 1, "excluded": []},
-   {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []},
-   {"id": "C7", "title": "Доступ и НФТ", "value": 0, "points": 0, "excluded": []},
-   {"id": "C8", "title": "Выкат и откат", "value": 0, "points": 0, "excluded": []},
-   {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+   {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []}
   ]}}
 }

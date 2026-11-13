@@ -6,7 +6,7 @@
 
 Документы — complexity-docs/<документ>/ (target.txt — какой файл оценивать). На прогон — песочница с копией coddoc/ и
 скилла в .claude/skills/specs-assess; субагент получает задание словами SKILL.md (шаг 2) и только Read, Glob, Grep.
-Итог — runs/complexity/<out>/<документ>/run-<n>/result.json: выход merge (specs-quality/9), цена, время.
+Итог — runs/complexity/<out>/<документ>/run-<n>/result.json: выход merge (specs-quality/10), цена, время.
 --compare: класс и баллы признаков рядом с прогонами пилота analyst-complexity (тот же документ, score.py).
 """
 

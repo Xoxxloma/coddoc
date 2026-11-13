@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specs-quality/9",
+  "$id": "specs-quality/10",
   "title": "Оценка одного документа — бизнес-требований или тех-спеки: качество, объём и сложность",
   "description": "Один документ — один файл <имя документа>.quality.json рядом с ним. Баллы и находки с цитатами даёт модель по рубрике; балл полноты структуры, суммы, проценты, подсветку и происхождение считает скрипт merge. Правила, которые схемой не выразить (суммы, балл полноты структуры, шкала балла, причины подсветки, находки ровно у сниженных критериев, веса того же вида), проверяет contract.py. Объём (листы, знаки, иллюстрации) считает скрипт по тексту документа; пункты признаков сложности с цитатами выписывает модель, цитаты сверяет, баллы признаков, класс и долг считает скрипт; что не засчитано — в excluded признака с причиной и цитатой. Сумму баллов, класс и состав признаков проверяет contract.py. Сводку по автору собирает дашборд: Σ sum / Σ max, разделы структуры — по structure_missing.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema", "generated_at", "params", "document"],
   "properties": {
-    "schema": {"const": "specs-quality/9"},
+    "schema": {"const": "specs-quality/10"},
     "generated_at": {"type": "string", "format": "date-time"},
     "params": {"$ref": "#/$defs/params"},
     "document": {"$ref": "#/$defs/document"}
@@ -40,7 +40,7 @@
       "additionalProperties": false,
       "required": ["buckets", "class_thresholds"],
       "properties": {
-        "buckets": {"description": "Признак → нижние границы корзин баллов 1, 2 и 3; у C5 — баллов 1 и 2 по числу сущностей. У C8 корзин нет: балл — число проверок.",
+        "buckets": {"description": "Признак → нижние границы корзин баллов 1, 2 и 3; у C5 — баллов 1 и 2 по числу сущностей.",
                     "oneOf": [{"$ref": "#/$defs/buckets_bt"}, {"$ref": "#/$defs/buckets_spec"}]},
         "class_thresholds": {"description": "Нижние границы классов 2–5 по сумме баллов признаков.", "type": "array", "minItems": 4, "maxItems": 4,
                              "items": {"type": "integer", "minimum": 1}}
@@ -51,17 +51,16 @@
     "buckets_bt": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["B1", "B2", "B3", "B4", "B5"],
+      "required": ["B1", "B2", "B3", "B5"],
       "properties": {"B1": {"$ref": "#/$defs/bucket3"}, "B2": {"$ref": "#/$defs/bucket3"}, "B3": {"$ref": "#/$defs/bucket3"},
-                     "B4": {"$ref": "#/$defs/bucket3"}, "B5": {"$ref": "#/$defs/bucket3"}}
+                     "B5": {"$ref": "#/$defs/bucket3"}}
     },
     "buckets_spec": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C9"],
-      "properties": {"C1": {"$ref": "#/$defs/bucket3"}, "C2": {"$ref": "#/$defs/bucket3"}, "C3": {"$ref": "#/$defs/bucket3"},
-                     "C4": {"$ref": "#/$defs/bucket3"}, "C5": {"$ref": "#/$defs/bucket2"}, "C6": {"$ref": "#/$defs/bucket3"},
-                     "C7": {"$ref": "#/$defs/bucket3"}, "C9": {"$ref": "#/$defs/bucket3"}}
+      "required": ["C2", "C3", "C4", "C5", "C6"],
+      "properties": {"C2": {"$ref": "#/$defs/bucket3"}, "C3": {"$ref": "#/$defs/bucket3"}, "C4": {"$ref": "#/$defs/bucket3"},
+                     "C5": {"$ref": "#/$defs/bucket2"}, "C6": {"$ref": "#/$defs/bucket3"}}
     },
     "weights_bt": {
       "type": "object",
@@ -175,20 +174,20 @@
         "simple_change": {"description": "Только у спеки: bugfix — багфикс, change_request — мелкая правка; при них класс 1 без счёта признаков. null — класс по баллам.",
                           "oneOf": [{"type": "null"}, {"enum": ["bugfix", "change_request"]}]},
         "debt": {"description": "Долг: число открытых пунктов документа; в класс не входит.", "type": "integer", "minimum": 0},
-        "factors": {"description": "Признаки сложности по порядку методики: у БТ B1–B5, у спеки C1–C9.", "type": "array", "minItems": 5, "maxItems": 9,
+        "factors": {"description": "Признаки сложности по порядку методики: у БТ B1, B2, B3, B5, у спеки C2–C6.", "type": "array", "minItems": 4, "maxItems": 5,
                     "items": {"$ref": "#/$defs/complexity_factor"}}
       }
     },
     "complexity_factor": {
-      "description": "B1 Сценарии приёмки, B2 Роли, B3 Бизнес-объекты, B4 Границы объёма, B5 Разрез на части; C1 Сервисы, C2 Взаимодействия, C3 Контракт, C4 Ошибки, C5 Данные, C6 Состояния экрана, C7 Доступ и НФТ, C8 Выкат и откат, C9 Подтверждённые факты.",
+      "description": "B1 Сценарии приёмки, B2 Роли, B3 Бизнес-объекты, B5 Разрез на части; C2 Взаимодействия, C3 Контракт, C4 Ошибки, C5 Данные, C6 Состояния экрана.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "value", "points", "excluded"],
       "properties": {
-        "id": {"enum": ["B1", "B2", "B3", "B4", "B5", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"]},
+        "id": {"enum": ["B1", "B2", "B3", "B5", "C2", "C3", "C4", "C5", "C6"]},
         "title": {"description": "Название признака по методике.", "type": "string", "minLength": 1},
         "value": {"description": "Сколько засчитано: число пунктов; у B3 — сумма весов объектов (новый 2, задействованный 1), у C2 — взаимодействий (потребление 1, новое и изменение 2), у C5 — сущности плюс 1 за миграцию схемы.", "type": "integer", "minimum": 0},
-        "points": {"description": "Балл признака в класс: корзина params.complexity.buckets; у C5 — корзина сущностей плюс 1 за миграцию, у C8 — число проверок; не больше 3.", "type": "integer", "minimum": 0, "maximum": 3},
+        "points": {"description": "Балл признака в класс: корзина params.complexity.buckets; у C5 — корзина сущностей плюс 1 за миграцию; не больше 3.", "type": "integer", "minimum": 0, "maximum": 3},
         "excluded": {"description": "Что модель выписала, а в счёт не вошло; пусто — засчитано всё.", "type": "array", "items": {"$ref": "#/$defs/complexity_excluded"}}
       }
     },
@@ -197,8 +196,8 @@
       "additionalProperties": false,
       "required": ["reason", "quote"],
       "properties": {
-        "reason": {"description": "not_found — цитаты нет в тексте документа; inherited — она только в унаследованном от родителя, засчитана ему; unchanged — у B3 объект не меняется, вес 0; single_service — у C8 порядок выката при одном сервисе не считается.",
-                   "enum": ["not_found", "inherited", "unchanged", "single_service"]},
+        "reason": {"description": "not_found — цитаты нет в тексте документа; inherited — она только в унаследованном от родителя, засчитана ему; unchanged — у B3 объект не меняется, вес 0.",
+                   "enum": ["not_found", "inherited", "unchanged"]},
         "quote": {"description": "Цитата пункта, как её дала модель; цитаты нет — имя пункта.", "type": "string", "minLength": 1, "maxLength": 300}
       }
     },

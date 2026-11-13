@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Контракт выхода specs-quality/9: схема и правила, которые схемой не выразить.
+"""Контракт выхода specs-quality/10: схема и правила, которые схемой не выразить.
 
     python3 contract.py <документ>.quality.json   # «OK» или список нарушений, код выхода 1
     python3 contract.py --selftest                # пример и кейсы проходят, испорченные копии — нет
@@ -29,7 +29,7 @@ import sheets  # noqa: E402
 SCHEMA_PATH = os.path.join(HERE, "specs-quality.schema.json")
 EXAMPLE_PATH = os.path.join(HERE, "specs-quality.example.json")
 CASES_PATH = os.path.join(HERE, "specs-quality.cases.json")  # документы разных видов и случаев — для --selftest
-FORMAT = "specs-quality/9"
+FORMAT = "specs-quality/10"
 
 KNOWN_KEYWORDS = {
     "$schema", "$id", "title", "description", "$defs", "$ref", "type", "enum", "const",
@@ -525,7 +525,7 @@ def selftest():
         ("quote_found: true", part_spec, lambda d: doc(d)["findings"][0].update(quote_found=True), "ожидалось false"),
         ("н/п строкой с опечаткой", bug_spec, lambda d: doc(d)["criteria"].update(security="н.п"), "ожидался тип number"),
         ("поле старого формата", good_bt, lambda d: d.update(documents=[]), "лишнее поле «documents»"),
-        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/8"), 'ожидалось "specs-quality/9"'),
+        ("старая версия формата", good_bt, lambda d: d.update(schema="specs-quality/9"), 'ожидалось "specs-quality/10"'),
         ("нет repo", good_bt, lambda d: doc(d).pop("repo"), "нет поля «repo»"),
         ("structure_pct документа", good_spec, lambda d: doc(d).update(structure_pct=90), "structure_pct 90, по structure_missing 96"),
         ("время без пояса", good_bt, lambda d: d.update(generated_at="2026-10-28T15:00:00"), "часовым поясом"),
@@ -533,23 +533,23 @@ def selftest():
         ("листы не по знакам", good_spec, lambda d: doc(d)["volume"].update(sheets=9), "volume.sheets 9, по знакам 4.2"),
         ("нет объёма", zero_bt, lambda d: doc(d).pop("volume"), "нет поля «volume»"),
         ("нет сложности у неоценённого качества", good_bt, lambda d: (fail_document(d), doc(d).pop("complexity")), "нет поля «complexity»"),
-        ("класс не по баллам", good_spec, lambda d: doc(d)["complexity"].update(**{"class": 5}), "класс 5, по баллам 13 и порогам [6, 11, 17, 23] — 3"),
-        ("сумма баллов признаков", good_bt, lambda d: doc(d)["complexity"].update(points=9), "complexity.points 9, по признакам 7"),
-        ("балл признака не в сумме", good_spec, lambda d: factor_of(d, "C1").update(points=3), "complexity.points 13, по признакам 14"),
+        ("класс не по баллам", good_spec, lambda d: doc(d)["complexity"].update(**{"class": 5}), "класс 5, по баллам 7 и порогам [4, 7, 10, 13] — 3"),
+        ("сумма баллов признаков", good_bt, lambda d: doc(d)["complexity"].update(points=9), "complexity.points 9, по признакам 5"),
+        ("балл признака не в сумме", good_spec, lambda d: factor_of(d, "C2").update(points=3), "complexity.points 7, по признакам 8"),
         ("признаки чужого вида", good_bt, lambda d: doc(d)["complexity"].update(factors=doc(case(good_spec))["complexity"]["factors"]),
-         "признаки сложности C1, C2, C3, C4, C5, C6, C7, C8, C9, а у вида bt — B1, B2, B3, B4, B5"),
-        ("признаки не по порядку", good_bt, lambda d: doc(d)["complexity"]["factors"].reverse(), "признаки сложности B5, B4, B3, B2, B1"),
+         "признаки сложности C2, C3, C4, C5, C6, а у вида bt — B1, B2, B3, B5"),
+        ("признаки не по порядку", good_bt, lambda d: doc(d)["complexity"]["factors"].reverse(), "признаки сложности B5, B3, B2, B1"),
         ("название признака", good_bt, lambda d: factor_of(d, "B2").update(title="Акторы"), "признак B2 подписан «Акторы», по методике «Роли»"),
         ("простой тип у БТ", good_bt, lambda d: doc(d)["complexity"].update(simple_change="bugfix", **{"class": 1}), "у БТ simple_change должен быть null"),
         ("simple_change не из списка", bug_spec, lambda d: doc(d)["complexity"].update(simple_change="багфикс"), "simple_change: должно подходить ровно под один вариант"),
-        ("простой тип, а класс по баллам", bug_spec, lambda d: doc(d)["complexity"].update(**{"class": 2}), "класс 2, по баллам 3 и порогам [6, 11, 17, 23] — 1"),
+        ("простой тип, а класс по баллам", bug_spec, lambda d: doc(d)["complexity"].update(**{"class": 2}), "класс 2, по баллам 2 и порогам [4, 7, 10, 13] — 1"),
         ("корзины чужого вида", good_bt, lambda d: d["params"]["complexity"].update(buckets=dict(case_params["complexity"]["spec"]["buckets"])),
-         "params.complexity.buckets: признаки C1, C2, C3, C4, C5, C6, C7, C9, а у вида bt"),
+         "params.complexity.buckets: признаки C2, C3, C4, C5, C6, а у вида bt"),
         ("класс вне шкалы", good_bt, lambda d: doc(d)["complexity"].update(**{"class": 6}), "больше 5"),
         ("сложность не оценена без причины", zero_bt, lambda d: doc(d)["complexity"].pop("skip_reason"), "должно подходить ровно под один вариант"),
         ("не засчитано без цитаты", epic_bt, lambda d: factor_of(d, "B1")["excluded"][0].pop("quote"), "нет поля «quote»"),
         ("не засчитано по чужой причине", epic_bt, lambda d: factor_of(d, "B1")["excluded"][0].update(reason="duplicate"), "значение не из списка"),
-        ("лишнее поле у признака", good_spec, lambda d: factor_of(d, "C1").update(items=[]), "лишнее поле «items»"),
+        ("лишнее поле у признака", good_spec, lambda d: factor_of(d, "C2").update(items=[]), "лишнее поле «items»"),
         ("версия шаблона в сложности", good_spec, lambda d: doc(d)["complexity"].update(template_version="1.6.1"), "лишнее поле «template_version»"),
         ("нет версии шаблона в шапке", zero_bt, lambda d: doc(d).pop("template_version"), "нет поля «template_version»"),
     ]

@@ -27,17 +27,15 @@ import sheets  # noqa: E402
 SIMPLE_CHANGES = {"багфикс": "bugfix", "мелкая правка": "change_request"}  # тип изменения из выписки → simple_change
 CHANGE_REQUEST = "change_request.md"
 TITLES = {
-    "B1": "Сценарии приёмки", "B2": "Роли", "B3": "Бизнес-объекты", "B4": "Границы объёма", "B5": "Разрез на части",
-    "C1": "Сервисы", "C2": "Взаимодействия", "C3": "Контракт", "C4": "Ошибки", "C5": "Данные", "C6": "Состояния экрана",
-    "C7": "Доступ и НФТ", "C8": "Выкат и откат", "C9": "Подтверждённые факты",
+    "B1": "Сценарии приёмки", "B2": "Роли", "B3": "Бизнес-объекты", "B5": "Разрез на части",
+    "C2": "Взаимодействия", "C3": "Контракт", "C4": "Ошибки", "C5": "Данные", "C6": "Состояния экрана",
 }
-FACTORS = {"bt": ("B1", "B2", "B3", "B4", "B5"), "spec": ("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9")}
-CHECKS_MAX = 3  # C5 и C8 — не больше 3 баллов
-NFR_SECTIONS = 5  # C7: разделов доступа и НФТ в шаблоне спеки пять
+FACTORS = {"bt": ("B1", "B2", "B3", "B5"), "spec": ("C2", "C3", "C4", "C5", "C6")}
+DATA_MAX = 3  # C5 — не больше 3 баллов
 OBJECT_WEIGHTS = {"new": 2, "changed": 1}  # B3: новый объект — 2, изменённый или задействованный — 1, неизменный — 0
 CONSUMPTION = "consumption"  # C2: потребление существующего — 1, новое взаимодействие и изменение — 2
 # Почему пункт не засчитан — excluded[].reason.
-NOT_FOUND, INHERITED, UNCHANGED, SINGLE_SERVICE = "not_found", "inherited", "unchanged", "single_service"
+NOT_FOUND, INHERITED, UNCHANGED = "not_found", "inherited", "unchanged"
 QUOTE_MAX = 300
 
 
@@ -162,38 +160,23 @@ def bt_factors(items: dict, quotes: Quotes, cfg: dict) -> list[dict]:
     objects_out += [entry for item, weight in zip(objects, weights) if not weight for entry in excluded(UNCHANGED, item)]
     return [counted("B1", quotes.sort(items.get("scenarios")), buckets), counted("B2", quotes.sort(items.get("roles")), buckets),
             factor("B3", sum(weights), bucket(sum(weights), buckets["B3"]), unique(objects_out)),
-            counted("B4", quotes.sort(items.get("out_of_scope")), buckets), counted("B5", quotes.sort(items.get("parts")), buckets)]
+            counted("B5", quotes.sort(items.get("parts")), buckets)]
 
 
 def spec_factors(items: dict, quotes: Quotes, cfg: dict) -> list[dict]:
     buckets = params.complexity_buckets(cfg)
-    services, services_out = quotes.sort(items.get("services"))
     interactions, interactions_out = quotes.sort(items.get("interactions"))
     interaction_value = sum(1 if str(item.get("kind")) == CONSUMPTION else 2 for item in interactions)
     contracts, contracts_out = quotes.sort(items.get("contracts"), key=contract_key)
     fields, fields_out = quotes.sort(items.get("field_changes"))
     entities, entities_out = quotes.sort(items.get("data_entities"))
     migration, migration_out = quotes.flag(items.get("ddl_migration"))
-    zones, zones_out = quotes.sort(items.get("access_nfr"), key=lambda item: normalize(str(item.get("section"))))
-    release = items.get("release") if isinstance(items.get("release"), dict) else {}
-    checks, checks_out = 0, []
-    for name in ("rollout_order", "rollback_plan", "presetup_open"):
-        yes, out = quotes.flag(release.get(name))
-        if yes and name == "rollout_order" and len(services) < 2:  # порядок выката считается, когда сервисов больше одного
-            yes, out = False, excluded(SINGLE_SERVICE, release[name])
-        checks += yes
-        checks_out += out
-    data_points = min(CHECKS_MAX, bucket(len(entities), buckets["C5"]) + migration)  # миграция — плюс 1 к баллу
-    nfr = min(NFR_SECTIONS, len(zones))
-    return [factor("C1", len(services), bucket(len(services), buckets["C1"]), services_out),
-            factor("C2", interaction_value, bucket(interaction_value, buckets["C2"]), interactions_out),
+    data_points = min(DATA_MAX, bucket(len(entities), buckets["C5"]) + migration)  # миграция — плюс 1 к баллу
+    return [factor("C2", interaction_value, bucket(interaction_value, buckets["C2"]), interactions_out),
             counted("C3", (contracts + fields, unique(contracts_out + fields_out)), buckets),
             counted("C4", quotes.sort(items.get("errors")), buckets),
             factor("C5", len(entities) + migration, data_points, unique(entities_out + migration_out)),
-            counted("C6", quotes.sort(items.get("ui_states")), buckets),
-            factor("C7", nfr, bucket(nfr, buckets["C7"]), zones_out),
-            factor("C8", checks, min(CHECKS_MAX, checks), unique(checks_out)),
-            counted("C9", quotes.sort(items.get("confirmed_facts")), buckets)]
+            counted("C6", quotes.sort(items.get("ui_states")), buckets)]
 
 
 def simple_change(path: str, items: dict, quotes: Quotes) -> str | None:

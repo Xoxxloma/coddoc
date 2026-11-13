@@ -1,12 +1,12 @@
 {
- "_about": "Документы разных видов и случаев для contract.py --selftest: каждый оборачивается в выход specs-quality/9 с параметрами своего вида. Не пример выхода — пример лежит в specs-quality.example.json.",
+ "_about": "Документы разных видов и случаев для contract.py --selftest: каждый оборачивается в выход specs-quality/10 с параметрами своего вида. Не пример выхода — пример лежит в specs-quality.example.json.",
  "generated_at": "2026-10-28T15:00:00Z",
  "params": {"below_pct": 50, "structure_min_missing": {"bt": 5, "spec": 6},
   "weights": {"bt": {"necessity": 1, "entities": 1, "unambiguity": 1, "verifiability": 1, "actors": 1, "scope": 1, "consistency": 1},
               "spec": {"traceability": 1, "data_model": 1, "security": 1, "impact": 1, "interfaces": 1, "consistency": 1}},
   "structure_weight": {"bt": 1, "spec": 1},
-  "complexity": {"bt": {"buckets": {"B1": [1, 4, 9], "B2": [2, 4, 6], "B3": [1, 3, 6], "B4": [1, 3, 5], "B5": [2, 3, 4]}, "class_thresholds": [3, 6, 9, 12]},
-                 "spec": {"buckets": {"C1": [2, 3, 5], "C2": [1, 3, 6], "C3": [3, 7, 13], "C4": [1, 3, 6], "C5": [1, 3], "C6": [1, 5, 9], "C7": [1, 2, 4], "C9": [1, 4, 9]}, "class_thresholds": [6, 11, 17, 23]}}},
+  "complexity": {"bt": {"buckets": {"B1": [1, 4, 9], "B2": [2, 4, 6], "B3": [1, 3, 6], "B5": [2, 3, 4]}, "class_thresholds": [4, 6, 8, 10]},
+                 "spec": {"buckets": {"C2": [1, 3, 6], "C3": [3, 7, 13], "C4": [1, 3, 6], "C5": [1, 3], "C6": [1, 5, 9]}, "class_thresholds": [4, 7, 10, 13]}}},
  "documents": [
    {"path": "coddoc/PRJ-101/business_requirements.md", "repo": "service-a", "kind": "bt", "key": "PRJ-101", "feature": "просроченная поверка на схеме цеха", "author": "ivanov", "template_version": "1.6.1", "source": null,
    "scored": true, "pct": 100, "sum": 8, "max": 8,
@@ -15,11 +15,10 @@
    "code_signs": null,
    "findings": [],
    "volume": {"sheets": 2.9, "chars": 5200, "illustrations": 1},
-   "complexity": {"scored": true, "class": 3, "points": 7, "simple_change": null, "debt": 1, "factors": [
+   "complexity": {"scored": true, "class": 2, "points": 5, "simple_change": null, "debt": 1, "factors": [
     {"id": "B1", "title": "Сценарии приёмки", "value": 5, "points": 2, "excluded": []},
     {"id": "B2", "title": "Роли", "value": 2, "points": 1, "excluded": []},
     {"id": "B3", "title": "Бизнес-объекты", "value": 3, "points": 2, "excluded": [{"reason": "unchanged", "quote": "Цех: без изменений"}]},
-    {"id": "B4", "title": "Границы объёма", "value": 3, "points": 2, "excluded": []},
     {"id": "B5", "title": "Разрез на части", "value": 0, "points": 0, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-101/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-101", "feature": "просроченная поверка на схеме цеха", "author": "ivanov", "template_version": "1.6.1", "source": "coddoc/PRJ-101/business_requirements.md",
@@ -31,16 +30,12 @@
     {"criterion": "security", "comment": "проверка на сервере не описана (искал: Авторизация/доступ на бэке)", "fix": "сказать, какая роль проверяется на сервере при согласовании", "quote": "§4.4: «кнопка видна согласующему»"}
    ],
    "volume": {"sheets": 4.2, "chars": 7560, "illustrations": 1},
-   "complexity": {"scored": true, "class": 3, "points": 13, "simple_change": null, "debt": 2, "factors": [
-    {"id": "C1", "title": "Сервисы", "value": 3, "points": 2, "excluded": []},
+   "complexity": {"scored": true, "class": 3, "points": 7, "simple_change": null, "debt": 2, "factors": [
     {"id": "C2", "title": "Взаимодействия", "value": 5, "points": 2, "excluded": []},
     {"id": "C3", "title": "Контракт", "value": 3, "points": 1, "excluded": []},
     {"id": "C4", "title": "Ошибки", "value": 2, "points": 1, "excluded": []},
     {"id": "C5", "title": "Данные", "value": 2, "points": 2, "excluded": []},
-    {"id": "C6", "title": "Состояния экрана", "value": 4, "points": 1, "excluded": []},
-    {"id": "C7", "title": "Доступ и НФТ", "value": 2, "points": 2, "excluded": []},
-    {"id": "C8", "title": "Выкат и откат", "value": 2, "points": 2, "excluded": []},
-    {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+    {"id": "C6", "title": "Состояния экрана", "value": 4, "points": 1, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-102/business_requirements.md", "repo": "service-a", "kind": "bt", "key": "PRJ-102", "feature": "заявка на отпуск", "author": null, "template_version": null, "source": null,
    "scored": true, "pct": 88, "sum": 7, "max": 8,
@@ -66,16 +61,12 @@
     {"criterion": "consistency", "comment": "кто видит заявки отдела — в спеке не так, как в БТ", "fix": "привести роль к БТ", "quote": "источник, FR-2: «заявки отдела видит руководитель» ↔ §4.4: «заявки отдела видит кадровик»"}
    ],
    "volume": {"sheets": 2.3, "chars": 4100, "illustrations": 0},
-   "complexity": {"scored": true, "class": 2, "points": 6, "simple_change": null, "debt": 0, "factors": [
-    {"id": "C1", "title": "Сервисы", "value": 1, "points": 0, "excluded": []},
+   "complexity": {"scored": true, "class": 2, "points": 4, "simple_change": null, "debt": 0, "factors": [
     {"id": "C2", "title": "Взаимодействия", "value": 2, "points": 1, "excluded": []},
     {"id": "C3", "title": "Контракт", "value": 2, "points": 0, "excluded": []},
     {"id": "C4", "title": "Ошибки", "value": 1, "points": 1, "excluded": []},
     {"id": "C5", "title": "Данные", "value": 2, "points": 2, "excluded": []},
-    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []},
-    {"id": "C7", "title": "Доступ и НФТ", "value": 1, "points": 1, "excluded": []},
-    {"id": "C8", "title": "Выкат и откат", "value": 0, "points": 0, "excluded": []},
-    {"id": "C9", "title": "Подтверждённые факты", "value": 1, "points": 1, "excluded": []}
+    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-103/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-103", "feature": "двойная отрисовка слоя на карте", "author": "petrova", "template_version": "1.6.1", "source": "coddoc/PRJ-103/bug_report.md",
    "scored": true, "pct": 99, "sum": 3.96, "max": 4,
@@ -88,16 +79,12 @@
     {"criterion": "interfaces", "comment": "правка внутри фронта", "fix": null, "quote": "§2: «Не применимо: контракт не меняется»"}
    ],
    "volume": {"sheets": 0.7, "chars": 1300, "illustrations": 0},
-   "complexity": {"scored": true, "class": 1, "points": 3, "simple_change": "bugfix", "debt": 0, "factors": [
-    {"id": "C1", "title": "Сервисы", "value": 1, "points": 0, "excluded": []},
+   "complexity": {"scored": true, "class": 1, "points": 2, "simple_change": "bugfix", "debt": 0, "factors": [
     {"id": "C2", "title": "Взаимодействия", "value": 2, "points": 1, "excluded": []},
     {"id": "C3", "title": "Контракт", "value": 0, "points": 0, "excluded": []},
     {"id": "C4", "title": "Ошибки", "value": 0, "points": 0, "excluded": []},
     {"id": "C5", "title": "Данные", "value": 0, "points": 0, "excluded": []},
-    {"id": "C6", "title": "Состояния экрана", "value": 2, "points": 1, "excluded": []},
-    {"id": "C7", "title": "Доступ и НФТ", "value": 0, "points": 0, "excluded": []},
-    {"id": "C8", "title": "Выкат и откат", "value": 1, "points": 1, "excluded": [{"reason": "single_service", "quote": "выкатываем map-ui одним релизом"}]},
-    {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+    {"id": "C6", "title": "Состояния экрана", "value": 2, "points": 1, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-104/business_requirements.md", "repo": "service-a", "kind": "bt", "key": "PRJ-104", "feature": "согласование смет", "author": "sidorov", "template_version": "1.6.1", "source": null,
    "scored": true, "pct": 87, "sum": 6.94, "max": 8,
@@ -108,11 +95,10 @@
     {"criterion": "verifiability", "comment": "результат непроверяем", "fix": "назвать наблюдаемый результат", "quote": "§4.2: «Тогда: система корректно обрабатывает смету»"}
    ],
    "volume": {"sheets": 5.5, "chars": 9900, "illustrations": 2},
-   "complexity": {"scored": true, "class": 3, "points": 6, "simple_change": null, "debt": 1, "factors": [
+   "complexity": {"scored": true, "class": 2, "points": 5, "simple_change": null, "debt": 1, "factors": [
     {"id": "B1", "title": "Сценарии приёмки", "value": 3, "points": 1, "excluded": [{"reason": "inherited", "quote": "Дано: смета на согласовании — общий случай эпика"}]},
     {"id": "B2", "title": "Роли", "value": 3, "points": 1, "excluded": [{"reason": "inherited", "quote": "администратор — участник согласования эпика"}]},
     {"id": "B3", "title": "Бизнес-объекты", "value": 2, "points": 1, "excluded": []},
-    {"id": "B4", "title": "Границы объёма", "value": 1, "points": 1, "excluded": []},
     {"id": "B5", "title": "Разрез на части", "value": 3, "points": 2, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-104/_foundation/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-104", "feature": "общий контракт смет", "author": "sidorov", "template_version": "1.6.1", "source": null,
@@ -124,16 +110,12 @@
     {"criterion": "traceability", "comment": "узел-фундамент: источник не передан", "fix": null, "quote": null}
    ],
    "volume": {"sheets": 3.5, "chars": 6300, "illustrations": 1},
-   "complexity": {"scored": true, "class": 2, "points": 7, "simple_change": null, "debt": 0, "factors": [
-    {"id": "C1", "title": "Сервисы", "value": 2, "points": 1, "excluded": []},
+   "complexity": {"scored": true, "class": 2, "points": 5, "simple_change": null, "debt": 0, "factors": [
     {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": []},
     {"id": "C3", "title": "Контракт", "value": 4, "points": 1, "excluded": []},
     {"id": "C4", "title": "Ошибки", "value": 3, "points": 2, "excluded": []},
     {"id": "C5", "title": "Данные", "value": 3, "points": 2, "excluded": []},
-    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []},
-    {"id": "C7", "title": "Доступ и НФТ", "value": 1, "points": 1, "excluded": []},
-    {"id": "C8", "title": "Выкат и откат", "value": 0, "points": 0, "excluded": []},
-    {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []}
    ]}},
    {"path": "coddoc/PRJ-105/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-105", "feature": "расчёт сметы", "author": null, "template_version": null, "source": null,
    "scored": true, "pct": 44, "sum": 3.09, "max": 7,
@@ -151,15 +133,11 @@
    ],
    "volume": {"sheets": 1.3, "chars": 2400, "illustrations": 0},
    "complexity": {"scored": true, "class": 1, "points": 1, "simple_change": null, "debt": 0, "factors": [
-    {"id": "C1", "title": "Сервисы", "value": 1, "points": 0, "excluded": [{"reason": "not_found", "quote": "сервис approvals"}]},
-    {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": []},
+    {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": [{"reason": "not_found", "quote": "вызов сервиса approvals"}]},
     {"id": "C3", "title": "Контракт", "value": 1, "points": 0, "excluded": []},
     {"id": "C4", "title": "Ошибки", "value": 0, "points": 0, "excluded": []},
     {"id": "C5", "title": "Данные", "value": 1, "points": 1, "excluded": []},
-    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []},
-    {"id": "C7", "title": "Доступ и НФТ", "value": 0, "points": 0, "excluded": []},
-    {"id": "C8", "title": "Выкат и откат", "value": 0, "points": 0, "excluded": []},
-    {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+    {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []}
    ]}}
  ]
 }
