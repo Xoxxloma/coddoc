@@ -28,6 +28,8 @@ import grade_specs_rubric  # noqa: E402
 import specs_cases  # noqa: E402
 
 RUBRICS = {kind: os.path.join(grade_specs_rubric.REFERENCE_DIR, f"rubric-{kind}.md") for kind in ("bt", "spec")}
+# У specs-assess вторая часть задания — признаки сложности: идёт в системный промпт следом за рубрикой.
+COMPLEXITY = {kind: os.path.join(grade_specs_rubric.REFERENCE_DIR, f"complexity-{kind}.md") for kind in ("bt", "spec")}
 
 
 def claude_exe():
@@ -96,6 +98,10 @@ def main(argv=None):
         with open(path, encoding="utf-8") as handle:
             rubrics[kind] = handle.read()
         shutil.copy(path, os.path.join(run_dir, os.path.basename(path)))  # снимок рубрики, которой получены числа
+        if os.path.exists(COMPLEXITY[kind]):
+            with open(COMPLEXITY[kind], encoding="utf-8") as handle:
+                rubrics[kind] += "\n\n" + handle.read()
+            shutil.copy(COMPLEXITY[kind], os.path.join(run_dir, os.path.basename(COMPLEXITY[kind])))
 
     only = set(cfg.only.split(",")) if cfg.only else None
     jobs = []

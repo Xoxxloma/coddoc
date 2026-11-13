@@ -1,0 +1,55 @@
+{
+ "schema": "specs-quality/9", "generated_at": "2026-10-28T15:00:00Z",
+ "params": {"below_pct": 50, "structure_min_missing": 6, "weights": {"traceability": 1, "data_model": 1, "security": 1, "impact": 1, "interfaces": 1, "consistency": 1}, "structure_weight": 1, "complexity": {"buckets": {"C1": [2, 3, 5], "C2": [1, 3, 6], "C3": [3, 7, 13], "C4": [1, 3, 6], "C5": [1, 3], "C6": [1, 5, 9], "C7": [1, 2, 4], "C9": [1, 4, 9]}, "class_thresholds": [6, 11, 17, 23]}},
+ "document": {"path": "coddoc/PRJ-105/technical_specification.md", "repo": "service-a", "kind": "spec", "key": "PRJ-105", "feature": "расчёт сметы", "author": null, "template_version": null, "source": null,
+  "scored": true, "pct": 44, "sum": 3.09, "max": 7,
+  "criteria": {"traceability": 0, "data_model": 0.5, "security": 0, "impact": 1, "interfaces": 0.5, "consistency": 1},
+  "attention": ["below_pct", "zero", "off_structure"], "template": false,
+  "structure_missing": [
+   {"n": 1, "title": "Что делаем и тип изменения"},
+   {"n": 2, "title": "Затронутые сервисы и владельцы"},
+   {"n": 3, "title": "Связь с бизнес-требованиями"},
+   {"n": 4, "title": "Взаимодействия"},
+   {"n": 5, "title": "Каталог ошибок"},
+   {"n": 6, "title": "По сервисам (бэкенд)"},
+   {"n": 7, "title": "Данные и хранение"},
+   {"n": 8, "title": "Авторизация/доступ на бэке"},
+   {"n": 9, "title": "Где и что меняется в UI"},
+   {"n": 10, "title": "Пользовательские сценарии"},
+   {"n": 11, "title": "Состояния"},
+   {"n": 12, "title": "Loading и таймауты"},
+   {"n": 13, "title": "Доступ по ролям в UI"},
+   {"n": 14, "title": "Синхронность, кэш, производительность"},
+   {"n": 15, "title": "Надёжность/деградация"},
+   {"n": 16, "title": "Безопасность/доступ (сводно)"},
+   {"n": 17, "title": "Порядок выката"},
+   {"n": 18, "title": "Обратная совместимость"},
+   {"n": 19, "title": "Фиче-флаги"},
+   {"n": 20, "title": "План отката"},
+   {"n": 21, "title": "Преднастройка до релиза"}
+  ],
+  "structure_pct": 9, "structure_score": 0.09, "origin": "by_code",
+  "code_signs": [
+   {"n": 1, "kind": "сделано в коде", "quote": "Изменения: «вынесена логика расчёта в хелпер»"},
+   {"n": 2, "kind": "путь к исходнику", "quote": "Изменения: «EstimateServiceImpl.java»"}
+  ],
+  "findings": [
+   {"criterion": "traceability", "comment": "нет документа сверху: сверять не с чем", "fix": "написать спеку по требованиям", "quote": null},
+   {"criterion": "data_model", "comment": "про миграцию ни слова", "fix": "сказать, нужна ли миграция", "quote": "Изменения: «добавлено поле total в смету»"},
+   {"criterion": "security", "comment": "правил доступа нет (искал: Авторизация, Безопасность, Каталог ошибок)", "fix": "назвать роль и проверку на сервере", "quote": null},
+   {"criterion": "interfaces", "comment": "нет полей ответа и ошибок", "fix": "дать поля ответа с типами и ошибки", "quote": "API: «GET /v1/estimates/{id}/total»"}
+  ],
+  "volume": {"sheets": 1.3, "chars": 2400, "illustrations": 0},
+  "complexity": {"scored": true, "class": 1, "points": 1, "simple_change": null, "debt": 0, "factors": [
+   {"id": "C1", "title": "Сервисы", "value": 1, "points": 0, "excluded": [
+    {"reason": "not_found", "quote": "сервис approvals"}]},
+   {"id": "C2", "title": "Взаимодействия", "value": 0, "points": 0, "excluded": []},
+   {"id": "C3", "title": "Контракт", "value": 1, "points": 0, "excluded": []},
+   {"id": "C4", "title": "Ошибки", "value": 0, "points": 0, "excluded": []},
+   {"id": "C5", "title": "Данные", "value": 1, "points": 1, "excluded": []},
+   {"id": "C6", "title": "Состояния экрана", "value": 0, "points": 0, "excluded": []},
+   {"id": "C7", "title": "Доступ и НФТ", "value": 0, "points": 0, "excluded": []},
+   {"id": "C8", "title": "Выкат и откат", "value": 0, "points": 0, "excluded": []},
+   {"id": "C9", "title": "Подтверждённые факты", "value": 0, "points": 0, "excluded": []}
+  ]}}
+}

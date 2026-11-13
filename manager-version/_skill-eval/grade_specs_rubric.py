@@ -20,7 +20,8 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REFERENCE_DIR = os.path.join(HERE, "..", "specs-quality", "reference")
+SKILL_NAME = os.environ.get("SQ_SKILL", "specs-quality")  # какой скилл гоняет стенд: specs-quality или specs-assess
+REFERENCE_DIR = os.path.join(HERE, "..", SKILL_NAME, "reference")
 sys.path.insert(0, REFERENCE_DIR)
 sys.path.insert(0, HERE)
 import contract  # noqa: E402
