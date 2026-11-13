@@ -1,6 +1,6 @@
 ---
 name: retro
-version: 1.1.0
+version: 1.2.0
 user-invocable: true
 disable-model-invocation: true
 allowed-tools: Bash, Read, Write, Agent

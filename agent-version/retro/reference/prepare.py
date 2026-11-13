@@ -2,11 +2,12 @@
 """prepare — первый шаг ретро: находит последние сессии проекта и пишет по каждой сжатый журнал для субагента.
 
     python3 prepare.py [--sessions <папка>] [--project <папка проекта>] [--out <рабочая папка>] [--params <файл>]
-    python3 prepare.py --clean [--out <рабочая папка>]   # в конце ретро: убрать журналы и ответы
+    python3 prepare.py --clean [--project <папка проекта>] [--out <рабочая папка>]   # в конце ретро: убрать журналы и ответы
 
 Сессии — журналы чата GigaCode: по умолчанию <дом>/.gigacode/projects/*/chats/*.jsonl; берутся те, у которых cwd в
 записях — папка проекта (по умолчанию текущая). Пропускаются сессии с вызовом ретро (в том числе текущая) и короткие;
-из остальных — последние limit по времени начала. В --out (по умолчанию <временная папка>/retro-work) пишет:
+из остальных — последние limit по времени начала. В --out (по умолчанию <корень репозитория проекта>/.coddoc-tmp/retro,
+вне репозитория — <папка проекта>/.coddoc-tmp/retro) пишет:
   <id>.journal.txt — сжатый журнал сессии, [N] — номер строки в журнале чата; длинный журнал ещё и частями
                      <id>.partK.journal.txt — каждая часть уходит своему субагенту;
   retro.json       — разобранные сессии с фактами скрипта, задания субагентам, пропущенное, сверка полей.
@@ -18,8 +19,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
-import tempfile
 from collections import Counter
 from pathlib import Path
 
@@ -365,11 +366,27 @@ def clean_work(folder):
     return removed
 
 
+def work_dir(project):
+    """Рабочая папка по умолчанию: временные файлы скиллов — в .coddoc-tmp/ корня репозитория, у скилла своя подпапка.
+
+    Вне репозитория или без git — от папки проекта. Путь полный: короткое имя Windows (IVANOV~1) агенты считают
+    подозрительным и не пишут туда."""
+    top = project
+    try:
+        done = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=project, capture_output=True,
+                              text=True, encoding="utf-8")
+        if done.returncode == 0 and done.stdout.strip():
+            top = done.stdout.strip()
+    except OSError:
+        pass
+    return Path(os.path.realpath(top)) / ".coddoc-tmp" / "retro"
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Сессии проекта → сжатые журналы для ретро.")
     parser.add_argument("--sessions", default=None, help="папка или файл журналов (по умолчанию <дом>/.gigacode/projects)")
     parser.add_argument("--project", default=None, help="папка проекта (по умолчанию текущая)")
-    parser.add_argument("--out", default=None, help="рабочая папка (по умолчанию <временная папка>/retro-work)")
+    parser.add_argument("--out", default=None, help="рабочая папка (по умолчанию <корень репозитория>/.coddoc-tmp/retro)")
     parser.add_argument("--params", default=None, help="файл параметров (по умолчанию reference/params.json)")
     parser.add_argument("--clean", action="store_true", help="убрать свои файлы из рабочей папки и её саму, если пуста")
     cfg = parser.parse_args(argv)
@@ -377,8 +394,8 @@ def main(argv=None):
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
-    # Временная папка — полным путём: короткое имя Windows (IVANOV~1) агенты считают подозрительным и не пишут туда.
-    out = Path(cfg.out) if cfg.out else Path(os.path.realpath(tempfile.gettempdir())) / "retro-work"
+    project = cfg.project or os.getcwd()
+    out = Path(cfg.out) if cfg.out else work_dir(project)
     if cfg.clean:
         removed = clean_work(out)
         try:
@@ -398,7 +415,6 @@ def main(argv=None):
     if not files:
         print(f"Журналов не найдено: {root}. Укажите папку с журналами: --sessions <папка>")
         return 1
-    project = cfg.project or os.getcwd()
     chosen, skipped = select(files, project, p)
     if not chosen:
         print(f"Журналов: {len(files)}, сессий этого проекта для разбора нет ("
@@ -407,6 +423,9 @@ def main(argv=None):
         return 1
 
     out.mkdir(parents=True, exist_ok=True)
+    ignore = out.parent / ".gitignore"
+    if not cfg.out and not ignore.exists():
+        ignore.write_text("*\n", encoding="utf-8")
     clean_work(out)
     sessions, tasks = [], []
     for chat in chosen:

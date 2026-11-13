@@ -15,8 +15,10 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "retro", "reference"))
@@ -286,6 +288,34 @@ def main():
         json.dump({"limit": {"value": 3}}, handle)
     code, screen = run("--out", out, "--params", bad)
     expect(code == 2 and "нет значений" in screen, f"неполные параметры: {code}, {screen.strip()}")
+
+    # Рабочая папка по умолчанию — .coddoc-tmp/retro в корне репозитория проекта, вне репозитория — в папке проекта.
+    # GIT_CEILING_DIRECTORIES не даёт git подняться из песочницы в чужой репозиторий.
+    space = os.path.realpath(os.path.join(root, "space"))
+    repo, plain = os.path.join(space, "repo"), os.path.join(space, "plain")
+    os.makedirs(os.path.join(repo, "sub"))
+    os.makedirs(plain)
+    os.environ["GIT_CEILING_DIRECTORIES"] = space
+    subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    got = prepare.work_dir(os.path.join(repo, "sub"))
+    expect(got == Path(repo) / ".coddoc-tmp" / "retro", f"из подпапки репозитория — в его корень: {got}")
+    got = prepare.work_dir(plain)
+    expect(got == Path(plain) / ".coddoc-tmp" / "retro", f"вне репозитория — в папку проекта: {got}")
+    second = os.path.join(root, "second")
+    write_chat(second, "proj-g", build_plain("sg", "2026-10-26T09:00:00"), cwd=plain)
+    screen = io.StringIO()
+    with contextlib.redirect_stdout(screen):
+        code = prepare.main(["--sessions", os.path.join(second, "projects"), "--project", plain])
+    temp = os.path.join(plain, ".coddoc-tmp")
+    expect(code == 0 and os.path.isfile(os.path.join(temp, "retro", "retro.json")),
+           f"без --out пишет в .coddoc-tmp/retro: {code}, {screen.getvalue().strip()}")
+    ignore = os.path.join(temp, ".gitignore")
+    expect(os.path.isfile(ignore) and Path(ignore).read_text(encoding="utf-8").strip() == "*", ".coddoc-tmp/.gitignore = «*»")
+    with contextlib.redirect_stdout(io.StringIO()):
+        code = prepare.main(["--clean", "--project", plain])
+    expect(code == 0 and not os.path.exists(os.path.join(temp, "retro")) and os.path.isfile(ignore),
+           "--clean убирает свою папку, .coddoc-tmp и .gitignore остаются")
+    os.environ.pop("GIT_CEILING_DIRECTORIES")
 
     if failures:
         print("\n".join(failures))
