@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сложность документа</title>
+<style>
+  :root {
+    --ink: #1c2430; --muted: #5b6676; --line: #dde3ea; --bg: #ffffff; --panel: #f6f8fa;
+    --accent: #2457c5;
+    --b0: #eef2f6; --b1: #d6e4fb; --b2: #8fb3ef; --b3: #2f63cf;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body { width: 1600px; height: 1150px; padding: 40px 48px; font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); }
+  h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.2px; }
+  .sub { font-size: 17px; color: var(--muted); margin-top: 6px; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin-top: 26px; }
+  .step { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+  .step b { display: block; font-size: 17px; }
+  .step span { font-size: 14px; color: var(--muted); }
+  .step .n { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
+             font-size: 14px; font-weight: 700; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 1px; }
+  .arrow { width: 34px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 24px; font-weight: 700; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 26px; }
+  h2 { font-size: 20px; margin-bottom: 10px; }
+  h2 small { font-weight: 400; color: var(--muted); font-size: 14px; margin-left: 6px; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0 5px; font-size: 14.5px; }
+  th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 600; padding: 0 8px; text-transform: uppercase; letter-spacing: .3px; }
+  td { padding: 6px 8px; background: var(--panel); vertical-align: middle; }
+  td:first-child { border-radius: 7px 0 0 7px; font-weight: 600; white-space: nowrap; }
+  td.where { color: var(--muted); font-size: 13.5px; }
+  td.bk { padding: 4px 6px; border-radius: 0 7px 7px 0; width: 236px; }
+  .bks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .bks i { font-style: normal; text-align: center; font-size: 13px; padding: 4px 0; border-radius: 4px; }
+  .k0 { background: var(--b0); } .k1 { background: var(--b1); } .k2 { background: var(--b2); } .k3 { background: var(--b3); color: #fff; }
+  .note { font-size: 12.5px; line-height: 1.3; color: var(--ink); padding: 2px 4px; }
+  .legend { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .legend i { font-style: normal; width: 46px; text-align: center; padding: 3px 0; border-radius: 4px; color: var(--ink); }
+
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 22px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h2 { margin-bottom: 8px; }
+  ul { list-style: none; }
+  li { font-size: 14.5px; line-height: 1.35; margin-top: 8px; padding-left: 16px; position: relative; }
+  li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  li b { font-weight: 600; }
+
+  .line { display: grid; grid-template-columns: 0.6fr 1.6fr 1.6fr 1.4fr; gap: 3px; margin-top: 4px; }
+  .line div { text-align: center; padding: 6px 0 5px; border-radius: 5px; font-size: 13px; }
+  .line div b { display: block; font-size: 16px; }
+  .cap { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+  .scale { margin-top: 10px; }
+  .scale .t { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .seg { display: grid; gap: 3px; position: relative; }
+  .seg div { text-align: center; padding: 5px 0 4px; border-radius: 5px; font-size: 12.5px; }
+  .seg div b { display: block; font-size: 15px; }
+  .c1 { background: #eef2f6; } .c2 { background: #d6e4fb; } .c3 { background: #a9c4f2; } .c4 { background: #5f8be0; color: #fff; } .c5 { background: #2148a8; color: #fff; }
+  .ex { font-size: 13px; color: var(--ink); margin-top: 8px; line-height: 1.4; }
+  .ex span { display: inline-block; background: #fff; border: 1px solid var(--line); border-radius: 5px; padding: 1px 7px; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Сложность документа: как считается класс</h1>
+<div class="sub">Шаблон отводит каждому решению аналитика своё место. Агент выписывает решения с цитатами, скрипт сверяет цитаты и считает.</div>
+
+<div class="flow">
+  <div class="step"><b><span class="n">1</span>Агент выписывает пункты</b><span>сценарии, роли, карточки и прочее, к каждому цитата</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b><span class="n">2</span>Признак → балл 0-3</b><span>скрипт сверяет цитаты и раскладывает по корзинам</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b><span class="n">3</span>Складываем баллы</b><span>БТ: 5 признаков, до 15. Спека: 9, до 27</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b><span class="n">4</span>Сумма → класс 1-5</b><span>класс идёт множителем в трудоёмкость</span></div>
+</div>
+
+<div class="cols">
+  <div>
+    <h2>Признаки БТ <small>бизнес-требования</small></h2>
+    <table>
+      <tr><th>Признак</th><th>Что считаем</th><th>Балл: 0 · 1 · 2 · 3</th></tr>
+      <tr><td>Сценарии приёмки</td><td class="where">сценарии в «Критерии приёмки» (§4.2) и в файлах задачи</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-3</i><i class="k2">4-8</i><i class="k3">9+</i></div></td></tr>
+      <tr><td>Роли</td><td class="where">роли, «Ролевая модель» (§5.3)</td>
+          <td class="bk"><div class="bks"><i class="k0">0-1</i><i class="k1">2-3</i><i class="k2">4-5</i><i class="k3">6+</i></div></td></tr>
+      <tr><td>Бизнес-объекты</td><td class="where">«Бизнес-данные» (§4.3): новый 2, «без изменений» 0, остальные 1</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-2</i><i class="k2">3-5</i><i class="k3">6+</i></div></td></tr>
+      <tr><td>Границы объёма</td><td class="where">договорённости «Не входит в проект» (§3.2), кроме открытых</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-2</i><i class="k2">3-4</i><i class="k3">5+</i></div></td></tr>
+      <tr><td>Разрез на части</td><td class="where">части поставки, «Разбиение на части» (§4.5)</td>
+          <td class="bk"><div class="bks"><i class="k0">0-1</i><i class="k1">2</i><i class="k2">3</i><i class="k3">4+</i></div></td></tr>
+    </table>
+    <div class="legend">Цвет показывает балл:<i class="k0">0</i><i class="k1">1</i><i class="k2">2</i><i class="k3" style="color:#fff">3</i></div>
+
+    <div class="card" style="margin-top:18px">
+      <h2>Что не считаем</h2>
+      <ul>
+        <li>Число требований (FR): оно зависит от нарезки текста, поэтому считаем сценарии.</li>
+        <li>Факты из карточки сервиса: они взяты из готового описания, аналитик их не добывал.</li>
+        <li>Раздел «Трассировка приёмки» (§7): он повторяет сценарии, уже посчитанные в БТ.</li>
+        <li>Нерешённые пункты (❓, TBD): в класс не идут, вместе с «к валидации» их показываем рядом как долг.</li>
+        <li>Скопированное ребёнком эпика у эпика или у узла-фундамента: оно засчитано им.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+    <h2>Признаки спеки <small>техническая спецификация</small></h2>
+    <table>
+      <tr><th>Признак</th><th>Что считаем</th><th>Балл: 0 · 1 · 2 · 3</th></tr>
+      <tr><td>Сервисы</td><td class="where">«Затронутые сервисы и владельцы» (§1.2)</td>
+          <td class="bk"><div class="bks"><i class="k0">1</i><i class="k1">2</i><i class="k2">3-4</i><i class="k3">5+</i></div></td></tr>
+      <tr><td>Взаимодействия</td><td class="where">взаимодействия в «Взаимодействия» (§2): новое и изменение 2, потребление 1</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-2</i><i class="k2">3-5</i><i class="k3">6+</i></div></td></tr>
+      <tr><td>Контракт</td><td class="where">новые и изменённые стыки (ручки, события), изменённые поля, «Взаимодействия» (§2)</td>
+          <td class="bk"><div class="bks"><i class="k0">0-2</i><i class="k1">3-6</i><i class="k2">7-12</i><i class="k3">13+</i></div></td></tr>
+      <tr><td>Ошибки</td><td class="where">новые и изменённые ошибки, «Каталог ошибок» (§2)</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-2</i><i class="k2">3-5</i><i class="k3">6+</i></div></td></tr>
+      <tr><td>Данные</td><td class="where">свои новые и изменённые сущности, «Данные и хранение» (§3.2)</td>
+          <td class="bk"><div class="note">сущностей: 0 → 0, 1-2 → 1, 3+ → 2<br>нужна миграция схемы → +1</div></td></tr>
+      <tr><td>Состояния экрана</td><td class="where">состояния экрана, «Состояния» (§4.3)</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-4</i><i class="k2">5-8</i><i class="k3">9+</i></div></td></tr>
+      <tr><td>Доступ и НФТ</td><td class="where">сколько разделов записывают решение: «Авторизация/доступ на бэке» (§3.3), «Доступ по ролям в UI» (§4.4), «Синхронность, кэш, производительность» (§5.1), «Надёжность/деградация» (§5.2), «Безопасность/доступ» (§5.3)</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1</i><i class="k2">2-3</i><i class="k3">4-5</i></div></td></tr>
+      <tr><td>Выкат и откат</td><td class="where">«Порядок выката» (§6.1), «План отката» (§6.4), «Преднастройка до релиза» (§6.5)</td>
+          <td class="bk"><div class="note">+1 порядок выката (2+ сервиса)<br>+1 план отката · +1 подготовка до релиза</div></td></tr>
+      <tr><td>Подтверждённые факты</td><td class="where">факты, подтверждённые аналитиком, кроме взятых из карточки сервиса</td>
+          <td class="bk"><div class="bks"><i class="k0">0</i><i class="k1">1-3</i><i class="k2">4-8</i><i class="k3">9+</i></div></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="bottom">
+  <div class="card">
+    <h2>Зачем корзины</h2>
+    <div class="cap" style="margin-top:0">Пример: состояния экрана, число строк → балл</div>
+    <div class="line">
+      <div class="k0"><b>0</b>0 строк</div>
+      <div class="k1"><b>1</b>1-4 · выгрузка: 3</div>
+      <div class="k2"><b>2</b>5-8 · возврат: 8</div>
+      <div class="k3"><b>3</b>9 и больше</div>
+    </div>
+    <ul>
+      <li>Признаки разного масштаба: состояний бывает десять, сервисов два. С корзинами любой признак весит не больше 3.</li>
+      <li>Потолок: если разбить карточку на пять, признак всё равно остановится на 3.</li>
+      <li>Следующая единица дешевле: второй код ошибки делают по образцу первого, поэтому корзины к верху шире (у сценариев 1-3, 4-8, 9+).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Сумма баллов → класс</h2>
+    <div class="scale">
+      <div class="t">БТ, баллы от 0 до 15</div>
+      <div class="seg" style="grid-template-columns: 3fr 3fr 3fr 3fr 4fr;">
+        <div class="c1"><b>1</b>0-2</div><div class="c2"><b>2</b>3-5</div><div class="c3"><b>3</b>6-8</div><div class="c4"><b>4</b>9-11</div><div class="c5"><b>5</b>12+</div>
+      </div>
+    </div>
+    <div class="scale">
+      <div class="t">Спека, баллы от 0 до 27</div>
+      <div class="seg" style="grid-template-columns: 6fr 5fr 6fr 6fr 5fr;">
+        <div class="c1"><b>1</b>0-5</div><div class="c2"><b>2</b>6-10</div><div class="c3"><b>3</b>11-16</div><div class="c4"><b>4</b>17-22</div><div class="c5"><b>5</b>23+</div>
+      </div>
+    </div>
+    <div class="ex"><span>Выгрузка в Excel: 6 → класс 2</span><span>Возврат товара: 22 → класс 4</span></div>
+    <div class="cap">Баг-репорт, запрос на правку, спека багфикса или мелкой правки — класс 1, кроме правки «выше порога».</div>
+  </div>
+</div>
+
+</body>
+</html>
