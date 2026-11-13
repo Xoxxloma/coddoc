@@ -1,6 +1,6 @@
 ---
 name: to-html
-version: 1.1.0
+version: 1.1.1
 user-invocable: true
 argument-hint: "[путь к .md, папке или нескольким путям — без пути: пустая страница]"
 allowed-tools: Bash, Glob

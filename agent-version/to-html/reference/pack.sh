@@ -236,7 +236,7 @@ mkdir -p "$out" 2>/dev/null && [ -w "$out" ] || fail no-write "не могу п�
 # текущий — самый свежий. Не удалилось — не беда, сборка идёт дальше.
 touch "$out"
 n=0
-ls -1t "$work" | while IFS= read -r d; do
+ls -1At "$work" | while IFS= read -r d; do
   [ -n "$d" ] && [ -d "$work/$d" ] || continue
   n=$((n + 1))
   [ "$n" -gt "$MAX_SETS" ] && rm -rf "$work/$d"

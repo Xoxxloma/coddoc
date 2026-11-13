@@ -267,8 +267,8 @@ function verifyRepeat(engine) {
   check(statSync(assets).mtimeMs > old.getTime() + 30_000, 'assets.js пересобран после правки картинки');
 }
 
-// Чистка: в .coddoc-tmp/to-html остаются 10 последних наборов, текущий среди них; .gitignore и папки других
-// скиллов в .coddoc-tmp не тронуты.
+// Чистка: в .coddoc-tmp/to-html остаются 10 последних наборов, текущий среди них, набор с точкой в имени тоже
+// считается; .gitignore и папки других скиллов в .coddoc-tmp не тронуты.
 function verifyPrune(engine) {
   const cwd = join(box, 'prune');
   const sets = join(cwd, '.coddoc-tmp', 'to-html');
@@ -276,7 +276,7 @@ function verifyPrune(engine) {
   mkdirSync(dirname(other), { recursive: true });
   writeFileSync(other, '');
   utimesSync(dirname(other), new Date(0), new Date(0));
-  const old = (i) => `old-${String(i).padStart(2, '0')}`;
+  const old = (i) => `${i === 1 ? '.' : ''}old-${String(i).padStart(2, '0')}`;
   for (let i = 1; i <= 12; i++) {
     mkdirSync(join(sets, old(i)), { recursive: true });
     writeFileSync(join(sets, old(i), 'data.js'), '');
