@@ -1,6 +1,6 @@
 ---
 name: services-graph
-version: 1.3.0
+version: 1.3.1
 user-invocable: true
 argument-hint: "[сервис] [папка слепка — без неё services/ корня репозитория]"
 allowed-tools: Bash

@@ -32,6 +32,13 @@ declare global {
     MDV_DATA?: unknown;
     /** assets.js — граница ввода: проверяется в app.js (loadAssets) */
     MDV_ASSETS?: unknown;
+    /** overview.js — вид «Обзор» и «Показ» для БТ и спеки; show() зовёт render() и mounted() */
+    CoddocView?: {
+      attach(api: object): void;
+      render(e: object, out: { html: string, headings: Array<{ level: number, text: string, id: string }> }):
+        { html: string, headings: Array<{ level: number, text: string, id: string }> } | null;
+      mounted(e: object, doc: HTMLElement): void;
+    };
   }
 }
 

@@ -142,6 +142,11 @@ function verifyOk(engine, what, r, work, snap, label, focus) {
   eq(d.focus, focus, `${engine} ${what}: сервис в фокусе`);
   const cards = Object.keys(want).filter(f => !f.includes('/') && f.endsWith('.md')).length;
   check(r.last.includes(` cards=${cards} `), `${engine} ${what}: cards=${cards} в строке ${r.last}`);
+  // Адрес из последней строки — тот, что агент даёт человеку, если вкладка не открылась: ведёт на эту страницу.
+  const url = (r.last.match(/ page=(\S+)$/) || [])[1] || '';
+  let page = '';
+  try { page = fileURLToPath(url); } catch (e) { page = 'битый адрес: ' + url; }
+  eq(page, join(work, 'index.html'), `${engine} ${what}: page= ведёт на страницу`);
   const html = readFileSync(join(work, 'index.html'), 'utf8');
   check(!html.includes('__MADE__'), `${engine} ${what}: __MADE__ заменён`);
   for (const f of ['app.js', 'parse.js', 'vendor/cytoscape.min.js', 'vendor/markdown-it.min.js', 'vendor/purify.min.js']) check(existsSync(join(work, f)), `${engine} ${what}: есть ${f}`);
@@ -179,6 +184,11 @@ function verifyPack(engine) {
   const odd = join(repo, 'слепок сервисов');
   cpSync(snap, odd, { recursive: true });
   verifyOk(engine, 'кириллица и пробел', run(engine, repo, ['слепок сервисов/']), work, odd, 'слепок сервисов', '');
+
+  const cyr = join(box, 'репо с пробелом');
+  cpSync(snap, join(cyr, 'services'), { recursive: true });
+  execFileSync('git', ['init', '-q'], { cwd: cyr });
+  verifyOk(engine, 'репозиторий в папке с кириллицей', run(engine, cyr, []), join(cyr, '.coddoc-tmp', 'services-graph'), join(cyr, 'services'), 'services', '');
 
   const plain = join(box, 'plain');
   cpSync(snap, join(plain, 'services'), { recursive: true });

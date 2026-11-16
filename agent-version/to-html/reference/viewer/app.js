@@ -1042,8 +1042,11 @@
       out = { html: `<h1>${esc(e.name)}</h1><div class="note-box err">Не удалось показать файл: ${esc(String(err))}</div>` +
         (hasText(e) ? codeBlock(textOf(e), "") : ""), headings: [] };
     }
+    // Обзор документов петли (overview.js): свой вид для БТ и спеки, остальное — как было.
+    if (window.CoddocView) { try { out = window.CoddocView.render(e, out) || out; } catch (err) { console.error(err); } }
     headings = out.headings;
     doc.innerHTML = out.html;
+    if (window.CoddocView) { try { window.CoddocView.mounted(e, doc); } catch (err) { console.error(err); } }
     watchDiagrams();
     const title = titleOf(e);
     crumbs.innerHTML = `<span>${esc(setName())}</span>` + (e.dir ? e.dir.split("/").map((p) => `<span class="sep">›</span><span>${esc(p)}</span>`).join("") : "") +
@@ -2145,6 +2148,10 @@ var n=order[(order.indexOf(root.getAttribute("data-theme")||"auto")+1)%3];root.s
   let theme = "auto";
   try { theme = localStorage.getItem("to-html:theme") ?? "auto"; } catch (e) { theme = "auto"; }
   setTheme(theme);
+  if (window.CoddocView) window.CoddocView.attach({
+    current: () => current, get: (/** @type {string} */ p) => files.get(p), text: textOf, has: hasText, paths: () => [...files.keys()],
+    href: hrefOf, rerender: () => { const c = current; current = ""; show(c); },
+  });
   window.addEventListener("hashchange", route);
 
   const raw = window.MDV_DATA;
