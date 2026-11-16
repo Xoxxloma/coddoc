@@ -9,13 +9,13 @@
 #
 # Берёт из папки слепка карточки *.md верхнего уровня, manifest.yaml и _history/*.md (_pending/ и прочее — нет).
 # Сами файлы не разбирает: разбор карточек — на странице (viewer/parse.js), один на все ОС.
-# Пишет <корень репозитория>/.coddoc-tmp/landscape/: копию viewer/ и data.js (тексты в base64) — и открывает
+# Пишет <корень репозитория>/.coddoc-tmp/services-graph/: копию viewer/ и data.js (тексты в base64) — и открывает
 # index.html системной командой. Повторный вызов пишет туда же: F5 в открытой вкладке показывает новое.
-# --no-open — только пересобрать. LANDSCAPE_NO_OPEN=1 в окружении — не открывать браузер (проверки без экрана).
+# --no-open — только пересобрать. SERVICES_GRAPH_NO_OPEN=1 в окружении — не открывать браузер (проверки без экрана).
 #
 # Последняя строка вывода — только ASCII, её читает агент (русские строки выше бывают в чужой кодировке):
-#   landscape: ok cards=N manifest=yes|no history=N page=file:///…       (с --no-open — updated)
-#   landscape: error not-found | no-cards | no-write
+#   services-graph: ok cards=N manifest=yes|no history=N page=file:///…       (с --no-open — updated)
+#   services-graph: error not-found | no-cards | no-write
 #
 # Для Windows рядом pack.ps1 — та же логика и тот же формат data.js; правятся оба файла вместе.
 # Пишется под bash 3.2 (macOS) и без GNU-расширений: без mapfile, ${x,,}, find -printf, stat, realpath.
@@ -27,7 +27,7 @@ here="$(cd "$(dirname "$0")" && pwd -P)"
 viewer="$here/viewer"
 cwd="$(pwd -P)"
 
-fail() { printf '%s\n' "$2"; printf 'landscape: error %s\n' "$1"; exit 1; }
+fail() { printf '%s\n' "$2"; printf 'services-graph: error %s\n' "$1"; exit 1; }
 
 # Строка JSON: в путях и именах из того, что надо экранировать, бывают только \ " и табуляция.
 json() {
@@ -88,7 +88,7 @@ case "$root" in
 esac
 
 # ---------------------------------------------------------------- что берём
-list="$(mktemp "${TMPDIR:-/tmp}/landscape.XXXXXX")"
+list="$(mktemp "${TMPDIR:-/tmp}/services-graph.XXXXXX")"
 trap 'rm -f "$list"' EXIT
 (cd "$root" && find . -mindepth 1 -maxdepth 1 -type f \( -name '*.md' -o -name 'manifest.yaml' -o -name 'manifest.yml' \) -print) \
   | sed 's|^\./||' | LC_ALL=C sort > "$list"
@@ -102,7 +102,7 @@ manifest=no
 grep -q -E '^manifest\.ya?ml$' "$list" && manifest=yes
 [ "$n_cards" -gt 0 ] || fail no-cards "в $root нет карточек *.md"
 
-work="$top/.coddoc-tmp/landscape"
+work="$top/.coddoc-tmp/services-graph"
 mkdir -p "$work" 2>/dev/null && [ -w "$work" ] || fail no-write "не могу писать в $work"
 [ -f "$top/.coddoc-tmp/.gitignore" ] || printf '*\n' > "$top/.coddoc-tmp/.gitignore"
 
@@ -112,7 +112,7 @@ stamp="$(date '+%Y%m%d%H%M%S')"
 # ---------------------------------------------------------------- data.js
 {
   printf '// создано pack.sh %s — не править руками\n' "$made"
-  printf 'window.LANDSCAPE_DATA = {"v":1'
+  printf 'window.SERVICES_GRAPH_DATA = {"v":1'
   json "$made"; printf ',"made":%s' "$JSON"
   json "$label"; printf ',"root":%s' "$JSON"
   json "$focus"; printf ',"focus":%s,"files":[' "$JSON"
@@ -149,7 +149,7 @@ status=ok
 if [ "$no_open" = 1 ]; then
   status=updated
   printf 'обновлено — нажми F5 во вкладке\n'
-elif [ -z "${LANDSCAPE_NO_OPEN:-}" ]; then
+elif [ -z "${SERVICES_GRAPH_NO_OPEN:-}" ]; then
   case "$(uname -s)" in
     Darwin) open "$page" ;;
     MINGW*|MSYS*|CYGWIN*) cmd.exe //c start "" "$(cygpath -w "$page")" ;;
@@ -160,4 +160,4 @@ elif [ -z "${LANDSCAPE_NO_OPEN:-}" ]; then
        fi ;;
   esac
 fi
-printf 'landscape: %s cards=%s manifest=%s history=%s page=%s\n' "$status" "$n_cards" "$manifest" "$n_hist" "$(urlenc "$url")"
+printf 'services-graph: %s cards=%s manifest=%s history=%s page=%s\n' "$status" "$n_cards" "$manifest" "$n_hist" "$(urlenc "$url")"

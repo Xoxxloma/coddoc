@@ -1,13 +1,13 @@
-// Самотест landscape: разбор карточек (viewer/parse.js) и упаковщики pack.sh / pack.ps1.
+// Самотест services-graph: разбор карточек (viewer/parse.js) и упаковщики pack.sh / pack.ps1.
 //
 // Часть 1 — разбор: фикстуры ID-DIAG и SM-EDGES (карточки v1, обе формы «Событий») и точечные случаи на месте.
-// Часть 2 — упаковщики: песочница selftest/landscape/ (в .gitignore); что попало в data.js, байт в байт после base64,
+// Часть 2 — упаковщики: песочница selftest/services-graph/ (в .gitignore); что попало в data.js, байт в байт после base64,
 // подпись, сервис в фокусе, ошибки, запуск из подпапки и вне репозитория, путь с кириллицей и пробелом.
 //
 // Исполнители: sh — всегда; на Windows ещё ps (обычный режим) и ps-clm — ограниченный режим языка, как на
 // корпоративных машинах (обёртка clm-run.ps1, та же, что у to-html).
 //
-// Запуск: node agent-version/_skill-eval/selftest-landscape.mjs [parse] [sh|ps|ps-clm ...]
+// Запуск: node agent-version/_skill-eval/selftest-services-graph.mjs [parse] [sh|ps|ps-clm ...]
 //   без аргументов — разбор и все исполнители этой ОС.
 
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -18,8 +18,8 @@ import { runInNewContext } from 'node:vm';
 import { createRequire } from 'node:module';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const ref = process.env.LANDSCAPE_REF || resolve(here, '..', 'landscape', 'reference');
-const box = join(here, 'selftest', 'landscape');
+const ref = process.env.SERVICES_GRAPH_REF || resolve(here, '..', 'services-graph', 'reference');
+const box = join(here, 'selftest', 'services-graph');
 const win = process.platform === 'win32';
 const P = createRequire(import.meta.url)(join(ref, 'viewer', 'parse.js'));
 
@@ -109,7 +109,7 @@ const engines = {
 function run(engine, cwd, args) {
   const [cmd, argv] = engines[engine](args);
   let out = '', code = 0;
-  const env = { ...process.env, GIT_CEILING_DIRECTORIES: box, LANDSCAPE_NO_OPEN: '1' };
+  const env = { ...process.env, GIT_CEILING_DIRECTORIES: box, SERVICES_GRAPH_NO_OPEN: '1' };
   try { out = execFileSync(cmd, argv, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8'); }
   catch (e) { out = (e.stdout || '').toString('utf8') + (e.stderr || '').toString('utf8'); code = e.status ?? 1; }
   return { out, code, last: out.trim().split(/\r?\n/).pop() || '' };
@@ -118,7 +118,7 @@ function run(engine, cwd, args) {
 function loadData(work) {
   const window = {};
   runInNewContext(readFileSync(join(work, 'data.js'), 'utf8').replace(/^﻿/, ''), { window });
-  return window.LANDSCAPE_DATA;
+  return window.SERVICES_GRAPH_DATA;
 }
 
 // Что должно попасть в набор: *.md и manifest.y(a)ml верхнего уровня, _history/*.md; остальное — нет.
@@ -132,7 +132,7 @@ function expected(dir) {
 }
 
 function verifyOk(engine, what, r, work, snap, label, focus) {
-  if (!check(r.code === 0 && /^landscape: (ok|updated) /.test(r.last), `${engine} ${what}: ${r.last}\n${r.out}`)) return;
+  if (!check(r.code === 0 && /^services-graph: (ok|updated) /.test(r.last), `${engine} ${what}: ${r.last}\n${r.out}`)) return;
   const d = loadData(work);
   const want = expected(snap);
   const got = Object.fromEntries(d.files.map(([f, b]) => [f, b == null ? null : Buffer.from(b, 'base64')]));
@@ -167,7 +167,7 @@ function verifyPack(engine) {
   writeFileSync(join(box, 'clm-run.ps1'), '﻿# Запускает скрипт в ограниченном режиме языка, как на корпоративной машине.\n' +
     '$script = $args[0]\n$rest = @($args | Select-Object -Skip 1)\n' +
     "$ExecutionContext.SessionState.LanguageMode = 'ConstrainedLanguage'\n& $script @rest\nexit $LASTEXITCODE\n");
-  const work = join(repo, '.coddoc-tmp', 'landscape');
+  const work = join(repo, '.coddoc-tmp', 'services-graph');
 
   verifyOk(engine, 'без аргументов', run(engine, repo, []), work, snap, 'services', '');
   check(existsSync(join(repo, '.coddoc-tmp', '.gitignore')), `${engine}: .coddoc-tmp/.gitignore`);
@@ -182,17 +182,17 @@ function verifyPack(engine) {
 
   const plain = join(box, 'plain');
   cpSync(snap, join(plain, 'services'), { recursive: true });
-  verifyOk(engine, 'вне репозитория', run(engine, plain, []), join(plain, '.coddoc-tmp', 'landscape'), join(plain, 'services'), 'services', '');
+  verifyOk(engine, 'вне репозитория', run(engine, plain, []), join(plain, '.coddoc-tmp', 'services-graph'), join(plain, 'services'), 'services', '');
 
   let r = run(engine, join(box), []);
-  check(r.code !== 0 && r.last === 'landscape: error not-found', `${engine} нет services/: ${r.last}`);
+  check(r.code !== 0 && r.last === 'services-graph: error not-found', `${engine} нет services/: ${r.last}`);
   r = run(engine, repo, ['нет/такой']);
-  check(r.code !== 0 && r.last === 'landscape: error not-found', `${engine} путь, которого нет: ${r.last}`);
+  check(r.code !== 0 && r.last === 'services-graph: error not-found', `${engine} путь, которого нет: ${r.last}`);
   const empty = join(box, 'empty');
   mkdirSync(join(empty, 'services'), { recursive: true });
   writeFileSync(join(empty, 'services', 'manifest.yaml'), 'services:\n');
   r = run(engine, empty, []);
-  check(r.code !== 0 && r.last === 'landscape: error no-cards', `${engine} нет карточек: ${r.last}`);
+  check(r.code !== 0 && r.last === 'services-graph: error no-cards', `${engine} нет карточек: ${r.last}`);
 }
 
 // ---------------------------------------------------------------- запуск

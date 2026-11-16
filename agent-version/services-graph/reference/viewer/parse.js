@@ -1,6 +1,6 @@
 // parse.js — карточки services/*.md (форма v1, `service-map/reference/card.template.md`) и manifest.yaml → граф.
 //
-// Работает и в браузере (window.LandscapeParse), и под node (module.exports) — так его проверяет самотест.
+// Работает и в браузере (window.ServicesGraphParse), и под node (module.exports) — так его проверяет самотест.
 // Вход: [[путь от папки слепка, текст], …] — карточки `<имя>.md`, `manifest.yaml`, история `_history/<имя>.md`.
 // Выход: { nodes, edges, topics, issues } — см. build() внизу.
 //
@@ -9,7 +9,7 @@
 // События: публикующий → потребляющий, по совпадению топика у двух карточек.
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.LandscapeParse = factory();
+  else root.ServicesGraphParse = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 

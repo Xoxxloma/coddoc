@@ -1,6 +1,6 @@
 ---
-name: landscape
-version: 1.2.0
+name: services-graph
+version: 1.3.0
 user-invocable: true
 argument-hint: "[сервис] [папка слепка — без неё services/ корня репозитория]"
 allowed-tools: Bash
@@ -10,7 +10,7 @@ description: 'Карта сервисов в браузере: по карточ
 # Карта сервисов — одна команда
 
 Скрипт `pack.sh` (на Windows — `pack.ps1`) лежит в папке `reference/` рядом с этим файлом. Он берёт из слепка карточки
-`*.md`, `manifest.yaml` и `_history/`, собирает страницу `.coddoc-tmp/landscape/index.html` в корне репозитория и
+`*.md`, `manifest.yaml` и `_history/`, собирает страницу `.coddoc-tmp/services-graph/index.html` в корне репозитория и
 открывает её в браузере. Разбирает карточки сама страница. Твоя работа — запустить скрипт и пересказать итог.
 
 ## Порядок
@@ -28,13 +28,13 @@ description: 'Карта сервисов в браузере: по карточ
    macOS, Linux:
 
    ```
-   bash .gigacode/skills/landscape/reference/pack.sh ["<сервис>"] ["<папка слепка>"]
+   bash .gigacode/skills/services-graph/reference/pack.sh ["<сервис>"] ["<папка слепка>"]
    ```
 
    Windows:
 
    ```
-   powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/landscape/reference/pack.ps1 ["<сервис>"] ["<папка слепка>"]
+   powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/services-graph/reference/pack.ps1 ["<сервис>"] ["<папка слепка>"]
    ```
 
    Если скиллы установлены в другую папку, путь до `reference/` начинается с неё. Именно через `bash …`, не `./…`; на
@@ -42,26 +42,26 @@ description: 'Карта сервисов в браузере: по карточ
 
    Карту в этом разговоре уже открывал — добавь `--no-open` (на Windows `-NoOpen`): вкладка уже открыта, новую не плоди.
 
-3. **Ответ** — по последней строке вывода, она начинается с `landscape:`. Русские строки над ней бывают кракозябрами —
+3. **Ответ** — по последней строке вывода, она начинается с `services-graph:`. Русские строки над ней бывают кракозябрами —
    на них не опирайся.
-   - `landscape: ok …` — «Открыл карту сервисов: карточек <cards>. Клик по сервису — его связи и карточка, двойной
+   - `services-graph: ok …` — «Открыл карту сервисов: карточек <cards>. Клик по сервису — его связи и карточка, двойной
      клик — только его окрестность, Shift+клик по второму — путь между ними. Карточку удобнее читать широко: кнопка
-     «Развернуть» в панели или потянуть её за край. После нового скана — снова /landscape,
+     «Развернуть» в панели или потянуть её за край. После нового скана — снова /services-graph,
      потом F5 во вкладке. Если вкладка не появилась — открой: <адрес из `page=` как есть>». При `manifest=no` добавь:
      «Манифеста нет — типы сервисов взяты из карточек».
-   - `landscape: updated …` — «Обновил — нажми F5 во вкладке.»
-   - `landscape: error <код>` или скрипт не запустился — подсказка из таблицы, больше ничего.
+   - `services-graph: updated …` — «Обновил — нажми F5 во вкладке.»
+   - `services-graph: error <код>` или скрипт не запустился — подсказка из таблицы, больше ничего.
 
 | В выводе | Подсказка пользователю |
 |---|---|
-| `landscape: error not-found` | Нет папки `services/` — назови папку слепка или собери слепок: `/service-map`. |
-| `landscape: error no-cards` | В папке нет карточек сервисов — собери слепок: `/service-map`. |
-| `landscape: error no-write` | В `.coddoc-tmp/` нельзя писать — запусти из папки, где можно. |
+| `services-graph: error not-found` | Нет папки `services/` — назови папку слепка или собери слепок: `/service-map`. |
+| `services-graph: error no-cards` | В папке нет карточек сервисов — собери слепок: `/service-map`. |
+| `services-graph: error no-write` | В `.coddoc-tmp/` нельзя писать — запусти из папки, где можно. |
 | `bash: command not found`, `'bash' is not recognized` | На macOS и Linux bash есть из коробки — значит, агент запускает команды другой оболочкой; на Windows нужна команда для Windows из шага 2. |
-| `running scripts is disabled`, `is not digitally signed`, `выполнение сценариев отключено`, `не имеет цифровой подписи`, любая другая ошибка запуска | Обойтись без скрипта: открыть файл `.gigacode/skills/landscape/reference/viewer/index.html` двойным щелчком и перетащить в окно папку `services`. |
+| `running scripts is disabled`, `is not digitally signed`, `выполнение сценариев отключено`, `не имеет цифровой подписи`, любая другая ошибка запуска | Обойтись без скрипта: открыть файл `.gigacode/skills/services-graph/reference/viewer/index.html` двойным щелчком и перетащить в окно папку `services`. |
 
 ## Чего не делать
 
 - Не читать карточки и не собирать html сам — всё делают скрипт и страница.
-- Не править `.coddoc-tmp/landscape/` и файлы в `reference/`.
+- Не править `.coddoc-tmp/services-graph/` и файлы в `reference/`.
 - Не запускать скрипт повторно «на всякий случай»: один вызов — одна команда.

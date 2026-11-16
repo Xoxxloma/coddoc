@@ -4,7 +4,7 @@
 #
 # Что берётся, куда пишется, формат data.js и что печатается — как в pack.sh; правятся оба файла вместе.
 # Слэши в путях прямые: если агент выполняет команды через bash, обратные он съест.
-# LANDSCAPE_NO_OPEN=1 в окружении — не открывать браузер, вывод как обычно (проверки без экрана).
+# SERVICES_GRAPH_NO_OPEN=1 в окружении — не открывать браузер, вывод как обычно (проверки без экрана).
 #
 # Пишется под Windows PowerShell 5.1 и ограниченный режим языка: только командлеты, без вызовов .NET.
 # Поэтому base64 — через Export-Clixml: массив байтов он записывает именно так (<BA>…</BA>), а
@@ -29,7 +29,7 @@ $cwd = (Get-Location).ProviderPath
 
 function Fail([string]$code, [string]$msg) {
   Write-Output $msg
-  Write-Output "landscape: error $code"
+  Write-Output "services-graph: error $code"
   exit 1
 }
 
@@ -118,7 +118,7 @@ $nHist = @($list | Where-Object { $_ -match '^_history/' }).Count
 $manifest = if (@($list | Where-Object { $_ -match '^manifest\.ya?ml$' }).Count) { 'yes' } else { 'no' }
 if ($nCards -eq 0) { Fail 'no-cards' "в $root нет карточек *.md" }
 
-$script:work = Join-Path (Join-Path $top '.coddoc-tmp') 'landscape'
+$script:work = Join-Path (Join-Path $top '.coddoc-tmp') 'services-graph'
 try {
   New-Item -ItemType Directory -Force -Path $script:work | Out-Null
   $ignore = Join-Path $top '.coddoc-tmp\.gitignore'
@@ -144,7 +144,7 @@ foreach ($f in $list) {
   $rows += '[' + (J $f) + ',' + $c + ']'
 }
 $data = "// создано pack.ps1 $made — не править руками`n" +
-  'window.LANDSCAPE_DATA = {"v":1,"made":' + (J $made) + ',"root":' + (J $label) + ',"focus":' + (J $focus) +
+  'window.SERVICES_GRAPH_DATA = {"v":1,"made":' + (J $made) + ',"root":' + (J $label) + ',"focus":' + (J $focus) +
   ',"files":[' + "`n" + ($rows -join ",`n") + "`n]};`n"
 try { Write-Utf8 (Join-Path $script:work 'data.js') $data } catch { Fail 'no-write' "не могу писать в $($script:work)" }
 
@@ -164,9 +164,9 @@ $status = 'ok'
 if ($NoOpen) {
   $status = 'updated'
   Write-Output 'обновлено — нажми F5 во вкладке'
-} elseif (-not $env:LANDSCAPE_NO_OPEN) {
+} elseif (-not $env:SERVICES_GRAPH_NO_OPEN) {
   Invoke-Item -LiteralPath $page
 }
-Write-Output "landscape: $status cards=$nCards manifest=$manifest history=$nHist page=$url"
+Write-Output "services-graph: $status cards=$nCards manifest=$manifest history=$nHist page=$url"
 # Явно: иначе код выхода у вызывающего — от последней внешней команды (robocopy отвечает 1 на «скопировал»).
 exit 0

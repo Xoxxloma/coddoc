@@ -70,6 +70,9 @@
   .btn:hover { background: var(--hover); }
   .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
   select.btn { padding-right: 6px; }
+  .btn.icon { width: 32px; padding: 0; justify-content: center; }
+  .ico { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ico.inl { width: 14px; height: 14px; vertical-align: -2px; }
 
   /* ---------- фильтры ---------- */
   .filters { display: flex; gap: 6px; padding: 8px 16px; background: var(--paper); border-bottom: 1px solid var(--line);
@@ -207,7 +210,7 @@
       <option value="grid">Раскладка: сетка</option>
     </select>
     <button class="btn" id="reset" title="Снять выбор и путь, вернуть фильтры и раскладку «слои», расставить заново и вписать в экран">Сбросить</button>
-    <button class="btn" id="fit" title="Вписать в экран (F)">Вписать</button>
+    <button class="btn icon" id="fit" title="Весь граф на экран — выбор не снимается (F)" aria-label="Весь граф на экран"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M10 19H5v-5M19 5 5 19"/></svg></button>
     <button class="btn" id="png" title="Сохранить картинку">PNG</button>
     <button class="btn" id="theme" title="Тема: авто / светлая / тёмная" aria-label="Тема">◐</button>
   </div>

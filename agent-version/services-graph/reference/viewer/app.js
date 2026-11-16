@@ -1,5 +1,5 @@
 // app.js — страница карты сервисов: граф на cytoscape, панель сервиса, фильтры, фокус, путь.
-// Данные: window.LANDSCAPE_DATA из data.js (его пишет pack.sh / pack.ps1); нет его — экран «перетащите папку».
+// Данные: window.SERVICES_GRAPH_DATA из data.js (его пишет pack.sh / pack.ps1); нет его — экран «перетащите папку».
 (function () {
   'use strict';
 
@@ -9,8 +9,8 @@
   var SHAPE = { backend: 'round-rectangle', frontend: 'ellipse', fullstack: 'round-octagon', lib: 'round-hexagon', external: 'round-rectangle' };
 
   var store = {
-    get: function (k) { try { return window.localStorage.getItem('landscape.' + k); } catch (e) { return null; } },
-    set: function (k, v) { try { window.localStorage.setItem('landscape.' + k, v); } catch (e) { /* без памяти — не беда */ } },
+    get: function (k) { try { return window.localStorage.getItem('services-graph.' + k); } catch (e) { return null; } },
+    set: function (k, v) { try { window.localStorage.setItem('services-graph.' + k, v); } catch (e) { /* без памяти — не беда */ } },
   };
   var md = window.markdownit ? window.markdownit({ html: false, linkify: true }) : null;
 
@@ -159,7 +159,7 @@
 
   // ---------------------------------------------------------------- загрузка
   function load(files, meta) {
-    var g = window.LandscapeParse.build(files);
+    var g = window.ServicesGraphParse.build(files);
     if (!g.nodes.length) {
       showDrop('В папке нет карточек сервисов — ни одного <code>*.md</code> с шапкой <code>service:</code>.');
       return;
@@ -467,7 +467,8 @@
       (ext.length ? stat(ext.length, 'вне манифеста') : '') + '</div>';
     html += '<p class="hint"><b>Клик</b> — карточка сервиса и его связи. <b>Двойной клик</b> — только его окрестность. ' +
       '<b>Shift+клик</b> по второму — путь между ними. Узлы можно таскать, колесо — масштаб, <b>/</b> — поиск, <b>Esc</b> — снять выбор. ' +
-      '<b>Сбросить</b> — всё как при открытии.</p>';
+      '<b>Сбросить</b> — всё как при открытии. <b><svg class="ico inl" viewBox="0 0 24 24" aria-label="кнопка весь граф"><path d="M14 5h5v5M10 19H5v-5M19 5 5 19"/></svg></b> ' +
+      'или <b>F</b> — весь граф на экран, выбор не снимается.</p>';
 
     html += '<h3>Обозначения</h3><div class="legend">' +
       '<span class="sw backend"></span><span>бэкенд</span><span class="sw frontend"></span><span>фронт</span>' +
@@ -777,7 +778,7 @@
       if (!S.cy) return;
       var uri = S.cy.png({ full: true, scale: 2, bg: css('--bg') });
       var a = document.createElement('a');
-      a.href = uri; a.download = 'landscape.png';
+      a.href = uri; a.download = 'services-graph.png';
       document.body.appendChild(a); a.click(); a.remove();
     });
 
@@ -889,7 +890,7 @@
   }
 
   // Ручки для самотеста (DevTools-протокол): состояние и действия страницы.
-  window.LandscapeApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath, reset: resetAll,
+  window.ServicesGraphApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath, reset: resetAll,
     widen: toggleWide, setWidth: function (w) { setPanelWidth(w, false); } };
 
   // ---------------------------------------------------------------- старт
@@ -898,8 +899,8 @@
     bindPanelWidth();
     bindUi();
     bindDrop();
-    if (!window.cytoscape || !window.LandscapeParse) { showDrop('Страница собрана не полностью: нет файлов из <code>vendor/</code>.'); return; }
-    var D = window.LANDSCAPE_DATA;
+    if (!window.cytoscape || !window.ServicesGraphParse) { showDrop('Страница собрана не полностью: нет файлов из <code>vendor/</code>.'); return; }
+    var D = window.SERVICES_GRAPH_DATA;
     if (D && D.files) {
       var files = D.files.map(function (f) { return [f[0], f[1] == null ? null : b64utf8(f[1])]; });
       load(files, D);
