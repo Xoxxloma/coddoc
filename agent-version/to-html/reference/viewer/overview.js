@@ -1,5 +1,6 @@
 // overview.js — режим «Обзор» и «Показ» для документов петли внутри to-html.
-// Узнаёт файл по имени: business_requirements.md — БТ, technical_specification.md — спека. Для них над документом
+// Узнаёт файл по имени: business_requirements.md — БТ, bug_report.md — баг-репорт, change_request.md — запрос на правку,
+// technical_specification.md — спека. Для них над документом
 // появляются «Текст / Обзор» и «Показ»; остальные файлы to-html показывает как всегда. Всё на странице — текст
 // документа: разбор только раскладывает его по блокам; не узнанный раздел — обычный markdown на своём месте.
 // Ссылки FR-n / INT-n ищутся в той же папке; «#0» — фундамент эпика (_foundation/ выше по дереву); этап — по
@@ -9,7 +10,9 @@
   'use strict';
   var md = window.markdownit({ html: false, linkify: true });
   var api = null;
-  var KIND = { 'business_requirements.md': 'brd', 'technical_specification.md': 'spec' };
+  var KIND = { 'business_requirements.md': 'brd', 'bug_report.md': 'bug', 'change_request.md': 'cr', 'technical_specification.md': 'spec' };
+  // Документ, из которого спека берёт требования FR: по одному на папку задачи.
+  var SOURCES = [['business_requirements.md', 'БТ'], ['bug_report.md', 'Баг-репорт'], ['change_request.md', 'Запрос на правку']];
 
   var store = {
     get: function (k) { try { return sessionStorage.getItem('cv:' + k); } catch (e) { return null; } },
@@ -56,6 +59,11 @@
   function child(node, re) { for (var i = 0; node && i < node.children.length; i++) if (re.test(node.children[i].title)) return node.children[i]; return null; }
   function take(node, re) { var c = child(node, re); if (c) c.used = true; return c; }
   function bodyMd(node) { return node ? node.body.join('\n').trim() : ''; }
+  // Правило полноты: что обработчик раздела не забрал — строки, абзацы рядом с таблицей, подзаголовки ниже уровнем, —
+  // выводится markdown на месте. Обзор раскладывает текст документа, а не выбирает из него.
+  function kidsMd(node) { return node ? node.children.map(function (c) { return mdOf(c, true); }).join('') : ''; }
+  function nonTable(node) { return node ? node.body.filter(function (l) { return !/^\s*\|/.test(l); }).join('\n').trim() : ''; }
+  function restCard(md) { md = (md || '').trim(); return md ? card('<div class="cv-md">' + R(md) + '</div>') : ''; }
   function table(lines) {
     var rows = lines.filter(function (l) { return /^\s*\|/.test(l); }).map(function (l) {
       return l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (c) { return c.trim(); });
@@ -64,15 +72,42 @@
   }
   function secNum(title) { var m = title.match(/^(\d+(?:\.\d+)*)\.?\s+(.*)$/); return m ? { num: m[1], name: m[2] } : { num: '', name: title }; }
   function header(h1) {
-    var kv = {}, oq = [], oqNote = '', legend = [], md2 = null;
+    var kv = {}, list = [], oq = [], oqNote = '', legend = [], free = [], md2 = null;
     h1.body.filter(function (l) { return /^>/.test(l); }).map(function (l) { return l.replace(/^>\s?/, ''); }).forEach(function (l) {
       var m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/);
-      if (m) { kv[m[1].trim()] = m[2].trim(); md2 = /Открытые вопросы/i.test(m[1]) ? 'oq' : /Легенда/i.test(m[1]) ? 'legend' : null; return; }
+      if (m) {
+        var k = m[1].trim(), v = m[2].trim();
+        kv[k] = v; list.push([k, v]);
+        md2 = /Открытые вопросы/i.test(k) ? 'oq' : /Легенда/i.test(k) ? 'legend' : null;
+        if (md2 === 'oq' && v) oqNote += v;
+        if (md2 === 'legend' && v) legend.push(v);
+        return;
+      }
       if (md2 === 'oq') { var n = l.match(/^\s*\d+\.\s+(.*)$/); if (n) oq.push(n[1]); else if (l.trim()) oqNote += (oqNote ? ' ' : '') + l.trim(); }
       else if (md2 === 'legend' && l.trim()) legend.push(l.trim());
+      else if (l.trim()) free.push(l);
     });
-    return { kv: kv, oq: oq, oqNote: oqNote, legend: legend, rest: h1.body.filter(function (l) { return !/^>/.test(l); }).join('\n').trim() };
+    return { kv: kv, list: list, oq: oq, oqNote: oqNote, legend: legend, free: free, rest: h1.body.filter(function (l) { return !/^>/.test(l); }).join('\n').trim() };
   }
+  // Шапка: чипами — задача, статус, автор, редакция (у спеки строкой — источник); остальные строки шапки и текст под
+  // заголовком — как есть.
+  var SHOWN = /^(Задача|Статус|Автор|Редакция)/;
+  function heroRest(hd, shown) {
+    var lines = hd.list.filter(function (p) { return !shown.test(p[0]) && !/Открытые вопросы|Легенда/i.test(p[0]); })
+      .map(function (p) { return '**' + p[0] + ':** ' + p[1]; });
+    var md = (lines.join('  \n') + (hd.free.length ? '\n\n' + hd.free.join('\n') : '') + (hd.rest ? '\n\n' + hd.rest : '')).trim();
+    return md ? '<div class="cv-md hero-rest">' + R(md) + '</div>' : '';
+  }
+  function heroOq(hd, numbered) {
+    if (!hd.oq.length) return hd.oqNote ? '<p class="muted" style="margin:14px 0 0">' + RI(hd.oqNote) + '</p>' : '';
+    var note = hd.oqNote ? '<p class="muted" style="margin:0 0 8px">' + RI(hd.oqNote) + '</p>' : '';
+    return numbered
+      ? '<div class="card" style="margin-top:16px"><h3>Открытые вопросы · ' + hd.oq.length + '</h3>' + note + '<ol class="oq">' +
+        hd.oq.map(function (q, i) { return '<li><span class="n">' + (i + 1) + '</span><span>' + RI(q) + '</span></li>'; }).join('') + '</ol></div>'
+      : '<div class="card" style="margin-top:16px"><h3>Открытые вопросы</h3>' + note + '<ol class="cv-md">' + hd.oq.map(function (q) { return '<li>' + RI(q) + '</li>'; }).join('') + '</ol></div>';
+  }
+  // Вне первого заголовка «#»: текст над ним и второй «#», если есть, — в конце обзора.
+  function outsideMd(m) { return m.top ? (m.top.body.join('\n') + '\n' + m.top.children.slice(1).map(function (c) { return mdOf(c, true); }).join('')).trim() : ''; }
   function kvGet(kv, re) { for (var k in kv) if (re.test(k)) return kv[k]; return ''; }
   function gwt(text) {
     var g = text.match(/^Дано:?\s+([\s\S]+?)[,.]\s+когда:?\s+([\s\S]+?)[,.]\s+тогда:?\s+([\s\S]+)$/i);
@@ -84,17 +119,28 @@
   }
 
   // ---------------------------------------------------------------- модели
+  var FR_LINE = /^(?:-\s+)?\*\*FR-(\d+)\b\.?\s*(.*?)\*\*\s*(.*)$/;
   function brdModel(text) {
-    var h1 = tree(text).children[0] || { title: '', body: [], children: [] };
-    var m = { kind: 'brd', root: h1, head: header(h1), frs: [], crit: {}, critOther: [] };
+    var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] };
+    var m = { kind: 'brd', top: top, root: h1, head: header(h1), frs: [], crit: {}, critOther: [], critText: [] };
     var tm = h1.title.match(/^(.+?):\s*(.+)$/);
     m.kindLabel = tm ? tm[1] : 'Бизнес-требования'; m.title = tm ? tm[2] : h1.title;
-    var s4 = child(h1, /^4\.?\s/), s41 = child(s4, /^4\.1\.?\s/), s42 = child(s4, /^4\.2\.?\s/);
+    // Требования и критерии ищутся по содержимому, а не по номеру: подраздел §4 со строками FR — требования,
+    // с пунктами «- **[FR-n]**» — критерии. Остальные подразделы §4 (например, «4.2. Роли») — обычным markdown.
+    var s4 = child(h1, /^4\.?\s/), kids4 = s4 ? s4.children : [];
+    var s41 = kids4.filter(function (k) { return k.body.some(function (l) { return FR_LINE.test(l); }); })[0] || null;
+    var s42 = kids4.filter(function (k) { return k !== s41 && k.body.some(function (l) { return /^- \*\*\[FR-\d+\]\*\*/.test(l); }); })[0] || null;
+    m.s41 = s41; m.s42 = s42;
     if (s41) {
       var cur = null, intro = [];
       s41.body.forEach(function (l) {
-        var f = l.match(/^\*\*FR-(\d+)\.\s*(.+?)\*\*\s*$/);
-        if (f) { cur = { id: 'FR-' + f[1], n: f[1], name: f[2], text: [] }; m.frs.push(cur); } else if (cur) cur.text.push(l); else intro.push(l);
+        var f = l.match(FR_LINE);
+        if (f) {
+          // Формы: «**FR-1. Название**», «**FR-1. Название.** текст», «**FR-1** текст», «- **FR-1.** текст», пометка после «**».
+          cur = { id: 'FR-' + f[1], n: f[1], name: f[2].replace(/\.$/, ''), text: [] };
+          if (f[3].trim()) cur.text.push(f[3]);
+          m.frs.push(cur);
+        } else if (cur) cur.text.push(l); else intro.push(l);
       });
       m.frIntro = intro.join('\n').trim();
     }
@@ -105,13 +151,14 @@
         if (c) { it = { fr: c[1], text: c[2] }; (m.crit[c[1]] = m.crit[c[1]] || []).push(it); }
         else if (/^- /.test(l)) { it = { fr: '', text: l.replace(/^- /, '') }; m.critOther.push(it); }
         else if (it && /^\s+\S/.test(l)) it.text += ' ' + l.trim();
+        else if (l.trim()) { it = null; m.critText.push(l); }
       });
     }
     return m;
   }
   function specModel(text) {
-    var h1 = tree(text).children[0] || { title: '', body: [], children: [] };
-    var m = { kind: 'spec', root: h1, head: header(h1), ints: [], trace: {} };
+    var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] };
+    var m = { kind: 'spec', top: top, root: h1, head: header(h1), ints: [], trace: {}, traceRows: [] };
     var tm = h1.title.match(/^(.+?):\s*(.+)$/);
     m.kindLabel = tm ? tm[1] : 'Техническая спецификация'; m.title = tm ? tm[2] : h1.title;
     var s2 = child(h1, /^2\.?\s/);
@@ -132,6 +179,7 @@
     });
     var s7 = child(h1, /^7\.?\s/);
     if (s7) table(s7.body).rows.forEach(function (row) {
+      m.traceRows.push(row);
       (row[0].match(/FR-\d+/g) || []).forEach(function (fr) { m.trace[fr] = { ints: (row[1] || '').match(/INT-\d+/g) || [], test: row[2] || '' }; });
     });
     return m;
@@ -150,6 +198,8 @@
   // ---------------------------------------------------------------- соседи по дереву
   function ctx(path) {
     var dir = dirOf(path), c = { dir: dir, brd: join(dir, 'business_requirements.md'), spec: join(dir, 'technical_specification.md'), stageOf: {}, children: [], epic: null, foundation: null };
+    SOURCES.some(function (s) { if (api.get(join(dir, s[0]))) { c.src = join(dir, s[0]); c.srcLabel = s[1]; return true; } return false; });
+    if (!c.src) { c.src = c.brd; c.srcLabel = 'БТ'; }
     // Этапы: stages/stage-NN.md, `owns: [INT-1, …]` в шапке.
     api.paths().filter(function (p) { return dirOf(p) === join(dir, 'stages') && /\/stage-\d+\.md$/i.test(p); }).sort().forEach(function (p) {
       var t = fileText(p) || '', fm = frontMatter(t), owns = (fm.match(/^owns:\s*\[(.*)\]/m) || [])[1] || '';
@@ -187,7 +237,7 @@
       return card('<h3>' + esc(s.num ? s.num + ' ' + s.name : s.name) + '</h3><div class="cv-md">' + R(mdOf(c, false)) + '</div>');
     }).join('');
   }
-  function sub(c, cls) { var s = secNum(c.title); return card('<h3>' + esc(s.name) + '</h3><div class="cv-md">' + R(bodyMd(c)) + '</div>', cls); }
+  function sub(c, cls) { var s = secNum(c.title); return card('<h3>' + esc(s.name) + '</h3><div class="cv-md">' + R(mdOf(c, false)) + '</div>', cls); }
   function heroChips(m, c, extra) {
     var kv = m.head.kv, h = '<div class="chips"><span class="chip"><b>' + esc(kvGet(kv, /^Задача/) || '') + '</b></span>' + statusChip(kvGet(kv, /Статус/)) +
       (kvGet(kv, /^Редакция/) ? '<span class="chip">редакция ' + esc(kvGet(kv, /^Редакция/)) + '</span>' : '') +
@@ -203,20 +253,19 @@
     var hd = m.head, specSt = statusOf(c.spec), heads = [];
     var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
       heroChips(m, c, specSt !== null ? '<span class="chip link"' + goAttr(c.spec) + '>Спека · ' + esc(specSt) + '</span>' : '');
-    if (hd.oq.length) h += '<div class="card" style="margin-top:16px"><h3>Открытые вопросы</h3><ol class="cv-md">' + hd.oq.map(function (q) { return '<li>' + RI(q) + '</li>'; }).join('') + '</ol></div>';
-    else if (hd.oqNote) h += '<p class="muted" style="margin:14px 0 0">' + RI(hd.oqNote) + '</p>';
-    if (hd.rest) h += '<div class="cv-md">' + R(hd.rest) + '</div>';
-    h += '</div>';
+    h += heroOq(hd, false) + heroRest(hd, SHOWN) + '</div>';
     var specM = specSt !== null ? specModel(fileText(c.spec)) : null;
     m.root.children.forEach(function (sec, i) {
       var id = 'cv-s-' + i;
       heads.push({ level: 2, text: sec.title, id: id });
       h += '<section class="blk" id="' + id + '">' + secHead(sec);
       var n = secNum(sec.title).num;
+      // Текст сразу под «## N.» до первого подраздела — у разделов с раскладкой его обработчик не берёт.
+      if (/^[1-5]$/.test(n)) h += restCard(bodyMd(sec));
       if (n === '1') h += brdContext(sec);
       else if (n === '2') h += brdGoal(sec);
       else if (n === '3') h += brdScope(sec);
-      else if (n === '4') { h += brdReqs(sec, m, specM, c); m.frs.forEach(function (f) { heads.push({ level: 3, text: f.id + ' ' + f.name, id: 'fr-' + f.n }); }); }
+      else if (n === '4') { h += brdReqs(sec, m, specM, c); m.frs.forEach(function (f) { heads.push({ level: 3, text: (f.id + ' ' + f.name).trim(), id: 'fr-' + f.n }); }); }
       else if (n === '5') h += brdLimits(sec);
       else if (sec.body.join('').trim()) h += card('<div class="cv-md">' + R(bodyMd(sec)) + '</div>');
       h += '<div class="stack" style="margin-top:14px">' + leftovers(sec) + '</div></section>';
@@ -230,9 +279,9 @@
   }
   function brdGoal(sec) {
     var goal = take(sec, /^2\.1/), val = take(sec, /^2\.2/), risk = take(sec, /^2\.3/), h = '';
-    if (goal) h += '<div class="grid2">' + bodyMd(goal).split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) { return card('<div class="story cv-md">' + R(p) + '</div>', 'goal'); }).join('') + '</div>';
+    if (goal) h += '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(goal.title).name) + '</h3><div class="grid2">' + mdOf(goal, false).trim().split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) { return card('<div class="story cv-md">' + R(p) + '</div>', 'goal'); }).join('') + '</div>';
     if (val) h += '<div style="margin-top:14px">' + sub(val) + '</div>';
-    if (risk) h += '<div style="margin-top:14px">' + card('<h3>' + esc(secNum(risk.title).name) + '</h3><div class="cv-md tw">' + R(bodyMd(risk)) + '</div>') + '</div>';
+    if (risk) h += '<div style="margin-top:14px">' + card('<h3>' + esc(secNum(risk.title).name) + '</h3><div class="cv-md tw">' + R(mdOf(risk, false)) + '</div>') + '</div>';
     return h;
   }
   function brdScope(sec) {
@@ -241,26 +290,41 @@
       '<div class="grid2" style="margin-top:14px">' + (arch ? sub(arch) : '') + (dep ? sub(dep) : '') + '</div>';
   }
   function brdReqs(sec, m, spec, c) {
-    var s41 = take(sec, /^4\.1/), s42 = take(sec, /^4\.2/), s43 = take(sec, /^4\.3/), h = '';
+    var s41 = m.s41, s42 = m.s42, s43 = take(sec, /^4\.3/), h = '';
+    if (s41) s41.used = true;
+    if (s42) s42.used = true;
+    var critCap = s42 ? '<div class="ac-cap">' + RI(secNum(s42.title).name) + '</div>' : '';
+    // Критерий — с меткой своего FR, как в документе; «Дано / Когда / Тогда» — строками.
+    var acHtml = function (cr) { var g = gwt(cr.text); return '<div class="ac"><span class="ac-id">' + esc(cr.fr) + '</span>' + (g ? gwtHtml(g) : '<div class="cv-md">' + RI(cr.text) + '</div>') + '</div>'; };
+    if (s41) h += '<h3 class="cv-sub">' + RI(secNum(s41.title).name) + '</h3>';
     if (m.frIntro) h += card('<div class="cv-md">' + R(m.frIntro) + '</div>');
+    var withCard = {};
     h += '<div class="stack">' + m.frs.map(function (f) {
+      withCard[f.id] = 1;
       var tr = spec && spec.trace[f.id];
       var links = tr ? tr.ints.map(function (i) { return '<span class="chip link"' + goAttr(c.spec, 'int-' + i.split('-')[1]) + '>' + i + '</span>'; }).join('') : '';
-      var crit = (m.crit[f.id] || []).map(function (cr) { var g = gwt(cr.text); return '<div class="ac">' + (g ? gwtHtml(g) : '<div class="cv-md">' + RI(cr.text) + '</div>') + '</div>'; }).join('');
+      var crit = (m.crit[f.id] || []).map(acHtml).join('');
       return '<div class="card fr" id="fr-' + f.n + '"><div class="top"><div class="head"><span class="id">' + f.id + '</span><span class="name">' + RI(f.name) + '</span>' +
         (links ? '<span class="links"><span class="muted" style="font-size:12.5px">в спеке</span>' + links + '</span>' : '') + '</div><div class="cv-md">' + R(f.text.join('\n')) + '</div></div>' +
-        (crit || '<div class="ac muted">Критерия приёмки нет</div>') + '</div>';
+        (crit ? critCap + crit : '<div class="ac muted">Критерия приёмки нет</div>') + '</div>';
     }).join('') + '</div>';
+    h += restCard(kidsMd(s41));
+    // Критерии требований, у которых нет своей карточки (FR в 4.1 записан иначе или его нет), — отдельной карточкой.
+    var orphan = Object.keys(m.crit).filter(function (k) { return !withCard[k]; });
+    if (orphan.length) h += '<div class="card fr" style="margin-top:14px">' + (s42 ? '<div class="top"><h3>' + RI(secNum(s42.title).name) + '</h3></div>' : '') +
+      orphan.map(function (k) { return m.crit[k].map(acHtml).join(''); }).join('') + '</div>';
     if (m.critOther.length) h += card('<h3>Критерии без требования</h3><ul class="cv-md">' + m.critOther.map(function (x) { return '<li>' + RI(x.text) + '</li>'; }).join('') + '</ul>');
+    h += restCard(m.critText.join('\n') + '\n' + kidsMd(s42));
     if (s43) {
       var t = table(s43.body);
       if (t.rows.length && t.head.length >= 3) {
         var off = t.head.length >= 4 ? 1 : 0;
         h += '<h3 class="cv-sub">' + esc(secNum(s43.title).name) + '</h3><div class="grid3">' + t.rows.map(function (r) {
-          return card('<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>' + RI(r[off]) + '</b>' +
+          return card('<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>' + (off ? '<span class="muted" style="font-weight:500">' + RI(r[0]) + '</span> ' : '') + RI(r[off]) + '</b>' +
             (/новый/i.test(r[off + 2] || '') ? '<span class="badge new">новый</span>' : '<span class="badge">меняется</span>') + '</div><p class="muted" style="font-size:13.5px">' +
-            RI(r[off + 1]) + '</p><div style="font-size:14px">' + RI(r[off + 2] || '') + '</div>', 'obj');
-        }).join('') + '</div>';
+            RI(r[off + 1]) + '</p><div style="font-size:14px">' + RI(r[off + 2] || '') + '</div>' +
+            (r.length > off + 3 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(off + 3).map(RI).join(' · ') + '</div>' : ''), 'obj');
+        }).join('') + '</div>' + restCard(nonTable(s43) + '\n' + kidsMd(s43));
       } else h += sub(s43);
     }
     return h;
@@ -272,8 +336,8 @@
       if (t.rows.length) h += '<h3 class="cv-sub">' + esc(secNum(roles.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
         var name = r[0].replace(/\s*\(`?[A-Z_]+`?\)/, ''), code = (r[0].match(/`([A-Z_]+)`/) || [])[1];
         return card('<div class="role"><span class="av">' + esc(name.replace(/[`*]/g, '').trim()[0] || '?') + '</span><div><b>' + RI(name) + '</b>' + (code ? ' <code>' + esc(code) + '</code>' : '') +
-          '<div style="margin-top:4px">' + RI(r[1] || '') + '</div></div></div>');
-      }).join('') + '</div>';
+          '<div style="margin-top:4px">' + RI(r.slice(1).join(' · ')) + '</div></div></div>');
+      }).join('') + '</div>' + restCard(nonTable(roles) + '\n' + kidsMd(roles));
       else h += sub(roles);
     }
     return h;
@@ -281,23 +345,21 @@
 
   // ---------------------------------------------------------------- обзор спеки
   function specOverview(m, c) {
-    var hd = m.head, brdSt = statusOf(c.brd), heads = [];
+    var hd = m.head, brdSt = statusOf(c.src), heads = [];
     var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
-      heroChips(m, c, brdSt !== null ? '<span class="chip link"' + goAttr(c.brd) + '>БТ · ' + esc(brdSt) + '</span>' : '');
+      heroChips(m, c, brdSt !== null ? '<span class="chip link"' + goAttr(c.src) + '>' + esc(c.srcLabel) + ' · ' + esc(brdSt) + '</span>' : '');
     if (kvGet(hd.kv, /^Источник/)) h += '<p class="muted" style="font-size:13px;margin:12px 0 0">Источник: ' + RI(kvGet(hd.kv, /^Источник/)) + '</p>';
-    if (hd.oq.length) h += '<div class="card" style="margin-top:16px"><h3>Открытые вопросы · ' + hd.oq.length + '</h3><ol class="oq">' +
-      hd.oq.map(function (q, i) { return '<li><span class="n">' + (i + 1) + '</span><span>' + RI(q) + '</span></li>'; }).join('') + '</ol></div>';
-    else if (hd.oqNote) h += '<p class="muted" style="margin:14px 0 0">' + RI(hd.oqNote) + '</p>';
+    h += heroOq(hd, true);
     if (hd.legend.length) h += '<details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:13px">Легенда меток</summary><div class="cv-md" style="font-size:13.5px">' +
       hd.legend.map(function (l) { return '<div>' + RI(l) + '</div>'; }).join('') + '</div></details>';
-    h += '</div>';
-    var brdM = brdSt !== null ? brdModel(fileText(c.brd)) : null;
+    h += heroRest(hd, /^(Задача|Статус|Автор|Редакция|Источник)/) + '</div>';
+    var brdM = brdSt !== null ? docModel(c.src, fileText(c.src)) : null;
     m.root.children.forEach(function (sec, i) {
       var id = 'cv-s-' + i;
       heads.push({ level: 2, text: sec.title, id: id });
       h += '<section class="blk" id="' + id + '">' + secHead(sec);
       var n = secNum(sec.title).num;
-      if (n === '1') h += specIntro(sec);
+      if (n === '1') h += restCard(bodyMd(sec)) + specIntro(sec);
       else if (n === '2') { h += specInts(sec, m, c); m.ints.forEach(function (x) { heads.push({ level: 3, text: x.id + ' ' + x.name, id: 'int-' + x.n }); }); }
       else if (n === '6') h += specRelease(sec);
       else if (n === '7') h += specTrace(sec, m, brdM, c);
@@ -312,15 +374,18 @@
       var parts = [], other = [];
       what.body.forEach(function (l) { var mm = l.match(/^\*\*(.+?):\*\*\s*(.*)$/); if (mm) parts.push(mm); else if (l.trim()) other.push(l); });
       var essence = parts.filter(function (p) { return /Суть/.test(p[1]); })[0], rest = parts.filter(function (p) { return !/Суть/.test(p[1]); });
-      if (essence) h += card('<div class="story cv-md">' + RI(essence[2]) + '</div>', 'goal');
+      h += '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(what.title).name) + '</h3>';
+      if (essence) h += card('<h3>' + esc(essence[1]) + '</h3><div class="story cv-md">' + RI(essence[2]) + '</div>', 'goal');
       if (rest.length) h += '<div class="grid2" style="margin-top:14px">' + rest.map(function (p) { return card('<h3>' + esc(p[1]) + '</h3><div>' + RI(p[2]) + '</div>'); }).join('') + '</div>';
       if (other.length) h += card('<div class="cv-md">' + R(other.join('\n')) + '</div>');
+      h += restCard(kidsMd(what));
     }
     if (svc) {
       var t = table(svc.body);
       if (t.rows.length && t.head.length >= 3) h += '<h3 class="cv-sub">' + esc(secNum(svc.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
-        return card('<div class="svc"><b>' + RI(r[0]) + '</b><span>' + RI(r[3] || '') + '</span></div><div style="margin-top:6px">' + RI(r[1] || '') + '</div><div class="muted" style="font-size:13.5px;margin-top:4px">' + RI(r[2] || '') + '</div>');
-      }).join('') + '</div>';
+        return card('<div class="svc"><b>' + RI(r[0]) + '</b><span>' + RI(r[3] || '') + '</span></div><div style="margin-top:6px">' + RI(r[1] || '') + '</div><div class="muted" style="font-size:13.5px;margin-top:4px">' + RI(r[2] || '') + '</div>' +
+          (r.length > 4 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(4).map(RI).join(' · ') + '</div>' : ''));
+      }).join('') + '</div>' + restCard(nonTable(svc) + '\n' + kidsMd(svc));
       else h += sub(svc);
     }
     return h;
@@ -338,10 +403,16 @@
         return fs.length ? '<details' + (/^(Изменение|Контракт|Поведение)$/.test(g[0]) ? ' open' : '') + '><summary>' + g[0] + '</summary><div class="body">' +
           fs.map(function (f) { return '<div class="f"><b>' + esc(f.name) + '</b><div class="cv-md">' + R(f.md) + '</div></div>'; }).join('') + '</div></details>' : '';
       }).join('');
-      var other = x.fields.filter(function (f) { return !seen[f.name] && !shown.test(f.name); });
-      if (other.length) det += '<details><summary>Прочее</summary><div class="body">' + other.map(function (f) { return '<div class="f"><b>' + esc(f.name || '—') + '</b><div class="cv-md">' + R(f.md) + '</div></div>'; }).join('') + '</div></details>';
+      // «Трассировка» видна чипами FR; если в ней есть что-то кроме номеров — полностью в «Прочем».
+      var other = x.fields.filter(function (f) {
+        if (seen[f.name]) return false;
+        if (/^Трассировка/.test(f.name)) return !!f.md.replace(/FR-\d+/g, '').replace(/[\s,;.]/g, '');
+        return !shown.test(f.name);
+      }), kids = kidsMd(x.node);
+      if (other.length || kids.trim()) det += '<details><summary>Прочее</summary><div class="body">' + other.map(function (f) { return '<div class="f"><b>' + esc(f.name || '—') + '</b><div class="cv-md">' + R(f.md) + '</div></div>'; }).join('') +
+        (kids.trim() ? '<div class="cv-md">' + R(kids) + '</div>' : '') + '</div></details>';
       var routes = x.routes.map(function (r) { return '<div class="route"><span class="verb ' + r.verb + '">' + r.verb + '</span>' + esc(r.path) + (r.query ? '<span class="muted">?' + esc(r.query) + '</span>' : '') + '</div>'; }).join('');
-      var side = x.traceFr.map(function (fr) { return '<span class="chip link"' + goAttr(c.brd, 'fr-' + fr.split('-')[1]) + '>' + fr + '</span>'; }).join('');
+      var side = x.traceFr.map(function (fr) { return '<span class="chip link"' + goAttr(c.src, 'fr-' + fr.split('-')[1]) + '>' + fr + '</span>'; }).join('');
       var st = c.stageOf[x.id];
       if (st) side += '<span class="chip link stage"' + goAttr(st.path) + ' title="' + esc(st.title) + '">этап ' + esc(st.num) + '</span>';
       return '<div class="card int" id="int-' + x.n + '"><div class="top"><div><div class="ttl"><span class="id">' + x.id + '</span><span class="name">' + RI(x.name) + '</span></div>' +
@@ -358,7 +429,7 @@
       pre.body.forEach(function (l) { var mm = l.match(/^- \[[ x]\]\s*(.*)$/); if (mm) items.push(mm[1]); else if (l.trim()) tail.push(l); });
       h += '<div style="margin-top:14px">' + card('<h3>' + esc(secNum(pre.title).name) + '</h3><ul class="chk">' + items.map(function (it) {
         return '<li' + (/^~~[\s\S]*~~$/.test(it.trim()) ? ' class="na"' : '') + '>' + RI(it) + '</li>';
-      }).join('') + '</ul>' + (tail.length ? '<div class="cv-md">' + R(tail.join('\n')) + '</div>' : '')) + '</div>';
+      }).join('') + '</ul>' + (tail.length ? '<div class="cv-md">' + R(tail.join('\n')) + '</div>' : '') + (pre.children.length ? '<div class="cv-md">' + R(kidsMd(pre)) + '</div>' : '')) + '</div>';
     }
     return h;
   }
@@ -368,27 +439,156 @@
     var h = '<div class="card tw"><table class="matrix"><thead><tr><th></th>' + ints.map(function (i) { return '<th' + goAttr(c.spec, 'int-' + i.split('-')[1]) + '>' + i + '</th>'; }).join('') + '</tr></thead><tbody>' +
       frs.map(function (fr) {
         var name = brd ? (brd.frs.filter(function (f) { return f.id === fr; })[0] || {}).name : '';
-        return '<tr><th' + goAttr(c.brd, 'fr-' + fr.split('-')[1]) + '>' + fr + (name ? ' <span class="muted" style="font:13px var(--sans)">' + esc(name) + '</span>' : '') + '</th>' +
+        return '<tr><th' + goAttr(c.src, 'fr-' + fr.split('-')[1]) + '>' + fr + (name ? ' <span class="muted" style="font:13px var(--sans)">' + esc(name) + '</span>' : '') + '</th>' +
           ints.map(function (i) { return '<td>' + (m.trace[fr].ints.indexOf(i) >= 0 ? '<span class="dot"' + goAttr(c.spec, 'int-' + i.split('-')[1]) + ' title="' + fr + ' → ' + i + '"></span>' : '') + '</td>'; }).join('') + '</tr>';
       }).join('') + '</tbody></table></div>';
-    h += '<details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Тест-кейсы</summary><div class="stack" style="margin-top:10px">' + frs.map(function (fr) {
-      var g = gwt(m.trace[fr].test);
-      return card('<div style="margin-bottom:6px"><b>' + fr + '</b></div>' + (g ? gwtHtml(g) : '<div>' + RI(m.trace[fr].test) + '</div>'));
+    // Тест-кейсы — по строке таблицы целиком: ячейки FR и взаимодействий как есть (там бывают метки и §), тест — Дано/Когда/Тогда.
+    h += '<details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Тест-кейсы</summary><div class="stack" style="margin-top:10px">' + m.traceRows.map(function (row) {
+      var g = gwt(row[2] || '');
+      return card('<div style="margin-bottom:6px"><b>' + RI(row[0]) + '</b>' + (row[1] ? ' → ' + RI(row[1]) : '') + '</div>' + (g ? gwtHtml(g) : '<div>' + RI(row[2] || '') + '</div>') +
+        (row.length > 3 ? '<div class="muted" style="margin-top:6px">' + row.slice(3).map(RI).join(' · ') + '</div>' : ''));
     }).join('') + '</div></details>';
+    return h + restCard(nonTable(sec) + '\n' + kidsMd(sec));
+  }
+
+  // ---------------------------------------------------------------- баг-репорт и запрос на правку
+  // Устроены одинаково: шапка, пронумерованные разделы, требования строками «- **FR-n:** текст — 🔵 источник»,
+  // ненумерованные «Открытые вопросы» (и у запроса — «Что рядом остаётся прежним»).
+  function smallModel(text, kind) {
+    var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] };
+    var m = { kind: kind, top: top, root: h1, head: header(h1), frs: [] };
+    var tm = h1.title.match(/^(.+?):\s*(.+)$/);
+    m.kindLabel = tm ? tm[1] : (kind === 'bug' ? 'Баг-репорт' : 'Запрос на правку'); m.title = tm ? tm[2] : h1.title;
+    h1.children.forEach(function (sec) {
+      var cur = null;
+      sec.frLines = {};
+      sec.body.forEach(function (l, i) {
+        var f = l.match(/^- \*\*FR-(\d+):\*\*\s*(.*)$/);
+        if (f) { cur = { id: 'FR-' + f[1], n: f[1], text: f[2], sec: sec }; m.frs.push(cur); sec.frLines[i] = 1; }
+        else if (cur && /^\s+\S/.test(l)) { cur.text += ' ' + l.trim(); sec.frLines[i] = 1; }
+        else if (/^\S/.test(l)) cur = null;
+      });
+    });
+    // Хвост «— 🔵 …» — источник требования: строкой под ним.
+    m.frs.forEach(function (f) {
+      var mm = f.text.match(/^([\s\S]*?)\s+—\s+((?:🟢|🔵|🟡)[\s\S]*)$/);
+      f.main = mm ? mm[1].replace(/[,;]\s*$/, '') : f.text; f.source = mm ? mm[2] : '';
+    });
+    return m;
+  }
+  function docModel(path, text) {
+    var kind = KIND[path.split('/').pop()];
+    return kind === 'brd' ? brdModel(text) : kind === 'spec' ? specModel(text) : smallModel(text, kind);
+  }
+  // Первое слово раздела критичности («Средняя. …», «Высокая: …») — чипом в шапку.
+  function critWord(sec) { var mm = sec && bodyMd(sec).match(/^([А-ЯЁA-Z][^.:;,\n]{0,24})[.:]/); return mm ? mm[1] : ''; }
+  // Строки, которые не требования FR, — как есть.
+  function nonFr(sec) { return (sec.body.filter(function (l, i) { return !(sec.frLines || {})[i]; }).join('\n') + '\n' + kidsMd(sec)).trim(); }
+  function smallFr(f, c, specM) {
+    var tr = specM && specM.trace[f.id];
+    var links = tr ? tr.ints.map(function (i) { return '<span class="chip link"' + goAttr(c.spec, 'int-' + i.split('-')[1]) + '>' + i + '</span>'; }).join('') : '';
+    return '<div class="card fr" id="fr-' + f.n + '"><div class="top"><div class="head"><span class="id">' + f.id + '</span>' +
+      (links ? '<span class="links"><span class="muted" style="font-size:12.5px">в спеке</span>' + links + '</span>' : '') + '</div><div class="cv-md">' + RI(f.main) + '</div>' +
+      (f.source ? '<div class="muted" style="font-size:13px;margin-top:6px">' + RI(f.source) + '</div>' : '') + '</div></div>';
+  }
+  function smallHero(m, c, crit, oq) {
+    var specSt = statusOf(c.spec), hd = m.head;
+    var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
+      heroChips(m, c, (crit ? '<span class="chip crit">критичность · ' + esc(crit) + '</span>' : '') +
+        (specSt !== null ? '<span class="chip link"' + goAttr(c.spec) + '>Спека · ' + esc(specSt) + '</span>' : ''));
+    h += heroOq(hd, false) + heroRest(hd, SHOWN);
+    if (oq) {
+      var b = mdOf(oq, false).trim();
+      h += /^\s*(-|\d+\.)\s/m.test(b) ? '<div class="card" style="margin-top:16px"><h3>' + esc(oq.title) + '</h3><div class="cv-md">' + R(b) + '</div></div>'
+        : '<p class="muted" style="margin:14px 0 0">' + esc(oq.title) + ': ' + RI(b) + '</p>';
+    }
+    return h + '</div>';
+  }
+  function stepsHtml(s) {
+    var items = [], rest = [];
+    s.body.forEach(function (l) {
+      var mm = l.match(/^\s*\d+[.)]\s+(.*)$/);
+      if (mm) items.push(mm[1]); else if (items.length && /^\s{2,}\S/.test(l) && !rest.length) items[items.length - 1] += ' ' + l.trim(); else if (l.trim()) rest.push(l);
+    });
+    if (!items.length) return card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>');
+    var tail = (rest.join('\n') + '\n' + kidsMd(s)).trim();
+    return '<ol class="steps">' + items.map(function (t, i) { return '<li><span class="sn">' + (i + 1) + '</span><span>' + RI(t) + '</span></li>'; }).join('') + '</ol>' +
+      (tail ? '<div class="cv-md muted" style="margin-top:10px">' + R(tail) + '</div>' : '');
+  }
+  // Пара «как есть / как должно быть»: слева раздел текстом, справа — требования FR карточками.
+  function pairHtml(left, right, m, c, specM, ids, leftCls) {
+    var frs = m.frs.filter(function (f) { return f.sec === right; }), other = nonFr(right);
+    return '<div class="grid2">' + card('<h3>' + RI(secNum(left.title).name) + '</h3><div class="cv-md">' + R(mdOf(left, false)) + '</div>', leftCls, ids[0]) +
+      card('<h3>' + RI(secNum(right.title).name) + '</h3>' + (other ? '<div class="cv-md">' + R(other) + '</div>' : '') +
+        '<div class="stack" style="margin-top:8px">' + frs.map(function (f) { return smallFr(f, c, specM); }).join('') + '</div>', 'expect', ids[1]) + '</div>';
+  }
+  function touchedHtml(s) {
+    var t = table(s.body), rest = (nonTable(s) + '\n' + kidsMd(s)).trim();
+    if (!t.rows.length || t.head.length < 3) return card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>');
+    var yes = t.rows.filter(function (r) { return /^да/i.test(r[1]); }), no = t.rows.filter(function (r) { return !/^да/i.test(r[1]); });
+    var more = function (r) { return r.length > 3 ? '<div class="muted" style="font-size:13px;margin-top:6px">' + r.slice(3).map(RI).join(' · ') + '</div>' : ''; };
+    var h = '<div class="stack">' + yes.map(function (r) {
+      var p = r[2].split(/\s+→\s+/);
+      return card('<h3>' + RI(r[0]) + ' — ' + RI(r[1]) + '</h3>' + (p.length === 2 ? '<div class="was"><div><span class="k">СЕЙЧАС</span>' + RI(p[0]) + '</div><div><span class="k now">СТАНЕТ</span>' + RI(p[1]) + '</div></div>'
+        : '<div class="cv-md">' + RI(r[2]) + '</div>') + more(r));
+    }).join('') + '</div>';
+    if (no.length) h += '<div class="chips" style="margin-top:12px">' + no.map(function (r) {
+      return '<span class="chip">' + RI(r[0]) + ' — ' + RI(r[1]) + (r[2] && !/^[—–-]?$/.test(r[2].trim()) ? ': ' + RI(r[2]) : '') + (r.length > 3 ? ' · ' + r.slice(3).map(RI).join(' · ') : '') + '</span>';
+    }).join('') + '</div>';
+    if (rest) h += '<div class="cv-md" style="margin-top:12px">' + R(rest) + '</div>';
     return h;
+  }
+  function smallOverview(m, c) {
+    var h1 = m.root, heads = [], specM = statusOf(c.spec) !== null ? specModel(fileText(c.spec)) : null, bug = m.kind === 'bug';
+    var sec = function (re) { return child(h1, re); };
+    var proc = sec(/^1\.?\s/), second = sec(/^2\.?\s/), left = sec(/^3\.?\s/), right = sec(/^4\.?\s/);
+    var check = bug ? null : sec(/^5\.?\s/), critS = bug ? sec(/^5\.?\s/) : sec(/^6\.?\s/), same = sec(/остаётся прежним/i), oq = sec(/^Открытые вопросы/i);
+    var h = smallHero(m, c, critWord(critS), oq);
+    h1.children.forEach(function (s, i) {
+      if (s === oq || (s === right && left)) return;
+      var id = 'cv-s-' + i;
+      if (s === left && right) {
+        var j = h1.children.indexOf(right);
+        heads.push({ level: 2, text: s.title, id: id }, { level: 2, text: right.title, id: 'cv-s-' + j });
+        m.frs.filter(function (f) { return f.sec === right; }).forEach(function (f) { heads.push({ level: 3, text: f.id, id: 'fr-' + f.n }); });
+        h += '<section class="blk">' + pairHtml(s, right, m, c, specM, [id, 'cv-s-' + j], bug ? 'fact' : 'was-card') + '</section>';
+        return;
+      }
+      heads.push({ level: 2, text: s.title, id: id });
+      h += '<section class="blk" id="' + id + '">' + secHead(s);
+      if (s === second) h += bug ? stepsHtml(s) : touchedHtml(s);
+      else if (s === check) h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', 'goal');
+      else if (s === same) h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', 'scope-out');
+      else h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', s === proc ? 'proc' : '');
+      h += '</section>';
+    });
+    return { html: h, headings: heads };
+  }
+  function smallSlides(m, c) {
+    var h1 = m.root, out = [], bug = m.kind === 'bug', sec = function (re) { return child(h1, re); };
+    var proc = sec(/^1\.?\s/), second = sec(/^2\.?\s/), left = sec(/^3\.?\s/), right = sec(/^4\.?\s/), check = bug ? null : sec(/^5\.?\s/), critS = bug ? sec(/^5\.?\s/) : sec(/^6\.?\s/);
+    var same = sec(/остаётся прежним/i), crit = critWord(critS);
+    out.push({ name: 'Титул', html: '<div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
+      heroChips(m, c, crit ? '<span class="chip crit">критичность · ' + esc(crit) + '</span>' : '') + (proc ? '<div class="cv-md big" style="margin-top:28px">' + R(bodyMd(proc)) + '</div>' : '') });
+    if (second) out.push({ name: secNum(second.title).name, html: '<h2>' + RI(secNum(second.title).name) + '</h2>' + (bug ? stepsHtml(second) : touchedHtml(second)) });
+    if (left && right) out.push({ name: secNum(right.title).name, html: '<div style="font-size:19px">' + pairHtml(left, right, m, c, null, ['', ''], bug ? 'fact' : 'was-card') + '</div>' });
+    if (check) out.push({ name: secNum(check.title).name, html: '<h2>' + RI(secNum(check.title).name) + '</h2>' + card('<div class="cv-md big">' + R(bodyMd(check)) + '</div>', 'goal') });
+    if (same) out.push({ name: same.title, html: '<h2>' + RI(same.title) + '</h2><div class="cv-md big">' + R(bodyMd(same)) + '</div>' });
+    if (critS) out.push({ name: secNum(critS.title).name, html: '<h2>' + RI(secNum(critS.title).name) + '</h2><div class="cv-md big">' + R(bodyMd(critS)) + '</div>' });
+    return out;
   }
 
   // ---------------------------------------------------------------- ссылки FR-n / INT-n / #0 в тексте
   function linkRefs(root, m, c) {
-    var brd = fileText(c.brd) !== null ? brdModel(fileText(c.brd)) : null, spec = fileText(c.spec) !== null ? specModel(fileText(c.spec)) : null;
+    var brd = fileText(c.src) !== null ? docModel(c.src, fileText(c.src)) : null, spec = fileText(c.spec) !== null ? specModel(fileText(c.spec)) : null;
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [], n;
-    while ((n = walker.nextNode())) if (/\b(FR|INT)-\d+|#0\b/.test(n.nodeValue) && !n.parentElement.closest('[data-cv-go], .id, a, pre, .cv-bar')) nodes.push(n);
+    while ((n = walker.nextNode())) if (/\b(FR|INT)-\d+|#0\b/.test(n.nodeValue) && !n.parentElement.closest('[data-cv-go], .id, .ac-id, a, pre, .cv-bar')) nodes.push(n);
     nodes.forEach(function (tn) {
       var frag = document.createDocumentFragment(), s = tn.nodeValue, last = 0, rx = /\b(FR|INT)-(\d+)\b|#0\b/g, mm, any = false;
       while ((mm = rx.exec(s))) {
         var target = null;
         if (mm[0] === '#0') { if (c.foundation) target = c.foundation; }
-        else if (mm[1] === 'FR' && brd && brd.frs.some(function (f) { return f.n === mm[2]; })) target = c.brd + '#fr-' + mm[2];
+        else if (mm[1] === 'FR' && brd && brd.frs.some(function (f) { return f.n === mm[2]; })) target = c.src + '#fr-' + mm[2];
         else if (mm[1] === 'INT' && spec && spec.ints.some(function (x) { return x.n === mm[2]; })) target = c.spec + '#int-' + mm[2];
         if (!target) continue;
         any = true;
@@ -406,6 +606,7 @@
 
   // ---------------------------------------------------------------- показ
   function slidesFor(m, c) {
+    if (m.kind === 'bug' || m.kind === 'cr') return smallSlides(m, c);
     var out = [], hd = m.head;
     function title(extra) { return '<div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' + heroChips(m, c) + (extra || ''); }
     if (m.kind === 'brd') {
@@ -474,7 +675,7 @@
     showEl().querySelector('.slide').scrollTop = 0;
   }
   function present(e) {
-    var kind = KIND[e.name], text = api.text(e), c = ctx(e.path), m = kind === 'brd' ? brdModel(text) : specModel(text);
+    var c = ctx(e.path), m = docModel(e.path, api.text(e));
     SH.slides = slidesFor(m, c); SH.i = 0;
     showEl().hidden = false; draw();
     try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {}); } catch (err) { /* без полного экрана */ }
@@ -498,17 +699,20 @@
     var foreign = !!want && !/^(cv-|fr-|int-)/.test(decodeURIComponent(want));
     if (mode() === 'text' || foreign) { drawn = 'text'; return { html: bar('text') + out.html, headings: out.headings }; }
     drawn = 'overview';
-    var text = api.text(e), c = ctx(e.path), m = kind === 'brd' ? brdModel(text) : specModel(text);
-    var res = kind === 'brd' ? brdOverview(m, c) : specOverview(m, c);
+    var c = ctx(e.path), m = docModel(e.path, api.text(e));
+    var res = kind === 'brd' ? brdOverview(m, c) : kind === 'spec' ? specOverview(m, c) : smallOverview(m, c);
+    res.html += restCard(outsideMd(m));
+    // В правом оглавлении — текст заголовка без разметки (~~, **, `).
+    res.headings.forEach(function (x) { x.text = x.text.replace(/~~|\*\*|`/g, ''); });
     return { html: bar('overview') + '<div class="cv">' + res.html + '</div>', headings: res.headings };
   }
   function mounted(e, doc) {
-    var kind = KIND[e.name], on = drawn === 'overview';
+    var on = drawn === 'overview';
     doc.classList.toggle('cv-wide', on);
     // Типографика to-html (.md) — для текста; обзору нужна своя, иначе она перебивает карточки.
     doc.classList.toggle('md', !on);
     if (!on) return;
-    var c = ctx(e.path), m = kind === 'brd' ? brdModel(api.text(e)) : specModel(api.text(e));
+    var c = ctx(e.path), m = docModel(e.path, api.text(e));
     linkRefs(doc.querySelector('.cv'), m, c);
   }
   function go(target) {

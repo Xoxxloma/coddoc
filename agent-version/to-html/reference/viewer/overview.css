@@ -82,6 +82,24 @@
 .cv .obj .badge { font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--bg); color: var(--ink-2); }
 .cv .obj .badge.new { background: var(--ok-soft); color: var(--ok); }
 
+/* Баг-репорт и запрос на правку */
+.cv .chip.crit { background: var(--warn-soft); color: var(--warn); border-color: transparent; font-weight: 600; }
+.cv .fact { border-left: 4px solid var(--danger); }
+.cv .expect { border-left: 4px solid var(--ok); }
+.cv .was-card { border-left: 4px solid var(--line); }
+.cv .expect .fr .top { padding: 12px 14px 10px; }
+.steps { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+.steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; margin: 0; }
+.steps .sn { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700;
+             display: flex; align-items: center; justify-content: center; font-size: 13.5px; }
+.steps li + li { border-top: 1px dashed var(--line-2); }
+.was { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; font-size: 14px; }
+.was .k { display: block; font: 700 11px var(--sans); letter-spacing: .07em; color: var(--ink-3); margin-bottom: 2px; }
+.was .k.now { color: var(--ok); }
+@media (max-width: 760px) { .was { grid-template-columns: 1fr; } }
+#cvShow .steps li { font-size: 22px; } #cvShow .steps .sn { width: 36px; height: 36px; font-size: 17px; }
+#cvShow .was { font-size: 20px; }
+
 /* Спека */
 .oq { list-style: none; padding: 0; margin: 0; }
 .oq li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line-2); margin: 0; }
@@ -145,3 +163,13 @@
 #cvShow .prog i { display: block; height: 100%; background: var(--accent); }
 #cvShow .slist { list-style: none; padding: 0; margin: 0; }
 #cvShow .slist li { padding: 10px 0; border-bottom: 1px solid var(--line-2); display: flex; gap: 16px; align-items: baseline; }
+
+/* Строки шапки, которым нет чипа, и текст под заголовком — как есть */
+.cv .hero-rest { margin-top: 12px; font-size: 13.5px; color: var(--ink-2); }
+
+/* Подпись над критериями в карточке требования и метка FR у каждого критерия */
+.cv .fr .ac-cap { background: var(--bg); border-top: 1px solid var(--line); padding: 10px 18px 0; font: 600 11.5px var(--sans); letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.cv .fr .ac-cap + .ac { border-top: 0; }
+.cv .fr .ac { position: relative; }
+.cv .fr .ac-id { float: right; font: 600 11px var(--mono); color: var(--ink-3); margin: 2px 0 0 10px; }
+.cv .fr > .top > h3 { margin: 0; }
