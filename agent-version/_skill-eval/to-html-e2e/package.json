@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "types": "tsc -p .",
-    "e2e": "node e2e.mjs"
+    "e2e": "node e2e.mjs",
+    "overview": "node overview-coverage.mjs"
   },
   "devDependencies": {
     "@types/markdown-it": "14.1.2",

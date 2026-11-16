@@ -1,0 +1,175 @@
+/* overview.css — вид «Обзор» и «Показ» документов петли внутри to-html (макет). Токены — из to-html. */
+:root { --cv-blue: #1c64c8; --cv-blue-soft: #e8f0fc; --cv-violet: #7048c8; --cv-violet-soft: #f1ecfc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cv-blue: #7cb1ff; --cv-blue-soft: #1c2638; --cv-violet: #b69cff; --cv-violet-soft: #272138; } }
+:root[data-theme="dark"] { --cv-blue: #7cb1ff; --cv-blue-soft: #1c2638; --cv-violet: #b69cff; --cv-violet-soft: #272138; }
+
+/* Переключатель над документом */
+.cv-bar { display: flex; gap: 8px; align-items: center; margin: -12px 0 22px; }
+.cv-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.cv-seg button, .cv-btn { border: 0; background: var(--paper); padding: 5px 13px; cursor: pointer; font: 500 13.5px var(--sans); color: var(--ink); }
+.cv-seg button + button { border-left: 1px solid var(--line); }
+.cv-seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.cv-btn { border: 1px solid var(--line); border-radius: 9px; }
+.cv-btn:hover, .cv-seg button:hover:not([aria-pressed="true"]) { background: var(--hover); }
+.doc.cv-wide { max-width: 1060px; }
+
+/* Своя типографика, как в первом макете: в режиме «Обзор» класс .md с документа снят */
+.cv { font: 15px/1.6 var(--sans); color: var(--ink); }
+.cv h1, .cv h2, .cv h3 { letter-spacing: normal; }
+.cv code, #cvShow code { font: 0.88em/1.4 var(--mono); background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+.cv pre, #cvShow pre { background: var(--code-bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font: 12.5px/1.5 var(--mono); }
+.cv pre code, #cvShow pre code { background: none; padding: 0; }
+.cv a { color: var(--accent); }
+.cv-md table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+.cv-md th, .cv-md td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+.cv-md th { background: var(--bg); font-weight: 600; }
+.cv-md blockquote { margin: 8px 0; padding: 2px 12px; border-left: 3px solid var(--line); color: var(--ink-2); }
+.cv .hero { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; box-shadow: var(--shadow); scroll-margin-top: 72px; }
+.cv .kind, #cvShow .kind { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); font-weight: 600; }
+.cv .hero h1 { font-size: 28px; line-height: 1.25; margin: 6px 0 14px; }
+.cv .hero h1::first-letter, #cvShow h1::first-letter { text-transform: uppercase; }
+.cv .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cv .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 13px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); }
+.cv .chip b { color: var(--ink); font-weight: 600; }
+.cv .chip.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; font-weight: 600; }
+.cv .chip.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; font-weight: 600; }
+.cv .chip.link { cursor: pointer; }
+.cv .chip.link:hover { border-color: var(--accent); color: var(--accent); }
+.cv .chip.stage { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+.cv section.blk { margin-top: 34px; scroll-margin-top: 72px; }
+.cv section.blk > h2 { font-size: 20px; margin: 0 0 14px; display: flex; align-items: baseline; gap: 10px; }
+.cv section.blk > h2 .num { color: var(--ink-3); font-weight: 500; font-size: 15px; }
+.cv .cv-sub { margin: 26px 0 10px; font-size: 15px; }
+.cv .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; scroll-margin-top: 72px; }
+.cv .card h3 { font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: 0 0 6px; font-weight: 600; }
+.cv .card > :last-child, .cv .card .cv-md > :last-child { margin-bottom: 0; }
+.cv .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.cv .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .cv .grid2, .cv .grid3 { grid-template-columns: 1fr; } }
+.cv .stack > * + * { margin-top: 14px; }
+.cv-md p { margin: 6px 0; }
+.cv-md ul, .cv-md ol { padding-left: 20px; margin: 6px 0; }
+.cv-md li { margin: 3px 0; }
+.cv .tw { overflow-x: auto; }
+.cv .muted { color: var(--ink-3); }
+.mk { display: inline-flex; align-items: center; font-size: .85em; font-weight: 600; padding: 0 5px; border-radius: 6px; white-space: nowrap; }
+.mk.green { background: var(--ok-soft); } .mk.blue { background: var(--cv-blue-soft); } .mk.yellow { background: var(--warn-soft); }
+.mk.q { background: var(--cv-violet-soft); } .mk.w { background: var(--danger-soft); }
+
+/* БТ */
+.cv .problem { border-left: 4px solid var(--danger); }
+.cv .goal { border-left: 4px solid var(--ok); }
+.cv .story { font-size: 16px; }
+.cv .scope-in h3 { color: var(--ok); }
+.cv .scope-in ul, .cv .scope-out ul { list-style: none; padding: 0; }
+.cv .scope-in li, .cv .scope-out li { padding: 6px 0 6px 26px; position: relative; border-bottom: 1px solid var(--line-2); margin: 0; }
+.cv .scope-in li:last-child, .cv .scope-out li:last-child { border-bottom: 0; }
+.cv .scope-in li::before { content: "✓"; position: absolute; left: 4px; color: var(--ok); font-weight: 700; }
+.cv .scope-out li::before { content: "—"; position: absolute; left: 4px; color: var(--ink-3); }
+.cv .fr { padding: 0; overflow: hidden; }
+.cv .fr .top { padding: 16px 18px 12px; }
+.cv .fr .head, #cvShow .fr .head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.cv .fr .id, #cvShow .fr .id { font: 700 13px var(--mono); color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; }
+.cv .fr .name { font-size: 17px; font-weight: 650; }
+.cv .fr .links { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cv .fr .ac { background: var(--bg); border-top: 1px solid var(--line); padding: 12px 18px 14px; }
+.cv .fr .ac + .ac { border-top: 1px dashed var(--line); }
+.gwt { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+.gwt .k { font: 700 11px var(--sans); letter-spacing: .07em; color: var(--ink-3); padding-top: 3px; }
+.gwt .k.then { color: var(--ok); }
+.cv .role { display: flex; gap: 12px; }
+.cv .role .av { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.cv .obj .badge { font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--bg); color: var(--ink-2); }
+.cv .obj .badge.new { background: var(--ok-soft); color: var(--ok); }
+
+/* Баг-репорт и запрос на правку */
+.cv .chip.crit { background: var(--warn-soft); color: var(--warn); border-color: transparent; font-weight: 600; }
+.cv .fact { border-left: 4px solid var(--danger); }
+.cv .expect { border-left: 4px solid var(--ok); }
+.cv .was-card { border-left: 4px solid var(--line); }
+.cv .expect .fr .top { padding: 12px 14px 10px; }
+.steps { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+.steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; margin: 0; }
+.steps .sn { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700;
+             display: flex; align-items: center; justify-content: center; font-size: 13.5px; }
+.steps li + li { border-top: 1px dashed var(--line-2); }
+.was { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; font-size: 14px; }
+.was .k { display: block; font: 700 11px var(--sans); letter-spacing: .07em; color: var(--ink-3); margin-bottom: 2px; }
+.was .k.now { color: var(--ok); }
+@media (max-width: 760px) { .was { grid-template-columns: 1fr; } }
+#cvShow .steps li { font-size: 22px; } #cvShow .steps .sn { width: 36px; height: 36px; font-size: 17px; }
+#cvShow .was { font-size: 20px; }
+
+/* Спека */
+.oq { list-style: none; padding: 0; margin: 0; }
+.oq li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line-2); margin: 0; }
+.oq li:last-child { border-bottom: 0; }
+.oq .n { font-weight: 700; color: var(--ink-3); }
+.cv .svc { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.cv .int { padding: 0; overflow: hidden; }
+.cv .int .top { padding: 14px 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; }
+.cv .int .ttl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cv .int .id { font: 700 13px var(--mono); color: var(--ink-2); }
+.cv .int .name { font-size: 17px; font-weight: 650; }
+.cv .int .orig { font-size: 13px; color: var(--ink-2); margin: 2px 0 6px; }
+.route { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 14px var(--mono); }
+.verb { font: 700 12px var(--mono); padding: 2px 7px; border-radius: 6px; color: #fff; }
+.verb.GET { background: #1a7f37; } .verb.POST { background: #3b5bdb; } .verb.PUT, .verb.PATCH { background: #a86200; } .verb.DELETE { background: #c62828; }
+.cv .int .dir { font: 13px var(--sans); color: var(--ink-3); }
+.cv .int .cv-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.cv .int .trig { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+/* to-html рисует <details> коробкой — внутри карточки взаимодействия это не нужно */
+.cv .int details { border: 0; border-top: 1px solid var(--line-2); border-radius: 0; margin: 0; padding: 0; background: none; box-shadow: none; }
+.cv .int details > summary { margin: 0; }
+.cv .int summary { padding: 9px 18px; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--ink-2); list-style: none; display: flex; gap: 8px; }
+.cv .int summary::-webkit-details-marker { display: none; }
+.cv .int summary::before { content: "▸"; color: var(--ink-3); }
+.cv .int details[open] summary::before { content: "▾"; }
+.cv .int summary:hover { background: var(--hover); }
+.cv .int .body { padding: 2px 18px 14px; font-size: 14px; }
+.cv .int .body .f { margin: 10px 0 0; }
+.cv .int .body .f > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin-bottom: 2px; }
+.matrix { border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+.matrix th, .matrix td { padding: 7px 10px; text-align: center; border: 0; border-bottom: 1px solid var(--line-2); background: none; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; }
+.matrix thead th { font: 600 12.5px var(--mono); color: var(--ink-2); cursor: pointer; }
+.matrix tbody th { font: 600 12.5px var(--mono); cursor: pointer; }
+.matrix .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+.matrix tr:hover td, .matrix tr:hover th { background: var(--hover); }
+.cv .chk { list-style: none; padding: 0; }
+.cv .chk li { padding: 5px 0 5px 28px; position: relative; margin: 0; }
+.cv .chk li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 15px; height: 15px; border: 2px solid var(--line); border-radius: 4px; }
+.cv .chk li.na { color: var(--ink-3); }
+.cv .chk li.na::before { border-style: dashed; }
+
+/* Показ */
+#cvShow { position: fixed; inset: 0; z-index: 100; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; font-family: var(--sans); }
+#cvShow[hidden] { display: none; }
+#cvShow .slide { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 48px 64px 24px; }
+#cvShow .inner { width: 100%; max-width: 1180px; font-size: 22px; line-height: 1.5; }
+#cvShow h1 { font-size: 46px; line-height: 1.15; margin: 10px 0 22px; }
+#cvShow h2 { font-size: 34px; margin: 0 0 22px; }
+#cvShow .kind { font-size: 16px; }
+#cvShow .chip { font-size: 17px; padding: 5px 14px; }
+#cvShow .card { padding: 20px 24px; border-radius: 16px; }
+#cvShow .gwt { font-size: 21px; grid-template-columns: 110px minmax(0, 1fr); gap: 10px 18px; }
+#cvShow .gwt .k { font-size: 15px; padding-top: 5px; }
+#cvShow .big { font-size: 26px; }
+#cvShow .route { font-size: 24px; }
+#cvShow .verb { font-size: 18px; padding: 3px 10px; }
+#cvShow .cv-md table { font-size: 17px; }
+#cvShow .foot { display: flex; align-items: center; gap: 14px; padding: 10px 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+#cvShow .prog { flex: 1; height: 4px; background: var(--line-2); border-radius: 2px; overflow: hidden; }
+#cvShow .prog i { display: block; height: 100%; background: var(--accent); }
+#cvShow .slist { list-style: none; padding: 0; margin: 0; }
+#cvShow .slist li { padding: 10px 0; border-bottom: 1px solid var(--line-2); display: flex; gap: 16px; align-items: baseline; }
+
+/* Строки шапки, которым нет чипа, и текст под заголовком — как есть */
+.cv .hero-rest { margin-top: 12px; font-size: 13.5px; color: var(--ink-2); }
+
+/* Подпись над критериями в карточке требования и метка FR у каждого критерия */
+.cv .fr .ac-cap { background: var(--bg); border-top: 1px solid var(--line); padding: 10px 18px 0; font: 600 11.5px var(--sans); letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.cv .fr .ac-cap + .ac { border-top: 0; }
+.cv .fr .ac { position: relative; }
+.cv .fr .ac-id { float: right; font: 600 11px var(--mono); color: var(--ink-3); margin: 2px 0 0 10px; }
+.cv .fr > .top > h3 { margin: 0; }

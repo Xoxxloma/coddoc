@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карта сервисов</title>
+<style>
+  /* Токены — те же, что у to-html: две страницы рядом выглядят одной системой. */
+  :root {
+    --bg: #f7f7f5; --paper: #ffffff; --ink: #1d1d1f; --ink-2: #55555b; --ink-3: #6e6e73;
+    --line: #e4e3df; --line-2: #eeede9; --hover: #efeeea;
+    --accent: #3b5bdb; --accent-ink: #ffffff; --accent-soft: #eef1fd;
+    --mark: #fff1b8; --code-bg: #f5f5f3;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 12px 32px rgba(0,0,0,.10);
+    --warn: #8a5a00; --warn-soft: #fdf5e1; --danger: #c62828; --danger-soft: #fdeded;
+    /* Типы сервисов и связи на графе */
+    --t-backend: #3b5bdb; --t-frontend: #1a7f37; --t-fullstack: #8e44ad; --t-lib: #a86200; --t-external: #8c8c94;
+    --e-call: #a3a3ab; --e-event: #c77c02; --e-mirror: #c62828; --e-path: #e8590c;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151617; --paper: #1b1c1e; --ink: #e8e8ea; --ink-2: #b0b0b8; --ink-3: #8c8c94;
+      --line: #2e2f33; --line-2: #26272a; --hover: #26272a;
+      --accent: #8ea2ff; --accent-ink: #10121a; --accent-soft: #23283d;
+      --mark: #4a3f10; --code-bg: #212225;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+      --warn: #e3b341; --warn-soft: #2d2615; --danger: #f47067; --danger-soft: #331d1d;
+      --t-backend: #8ea2ff; --t-frontend: #57c27a; --t-fullstack: #c8a6ff; --t-lib: #e3b341; --t-external: #8c8c94;
+      --e-call: #5d5f66; --e-event: #e3b341; --e-mirror: #f47067; --e-path: #ff922b;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151617; --paper: #1b1c1e; --ink: #e8e8ea; --ink-2: #b0b0b8; --ink-3: #8c8c94;
+    --line: #2e2f33; --line-2: #26272a; --hover: #26272a;
+    --accent: #8ea2ff; --accent-ink: #10121a; --accent-soft: #23283d;
+    --mark: #4a3f10; --code-bg: #212225;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+    --warn: #e3b341; --warn-soft: #2d2615; --danger: #f47067; --danger-soft: #331d1d;
+    --t-backend: #8ea2ff; --t-frontend: #57c27a; --t-fullstack: #c8a6ff; --t-lib: #e3b341; --t-external: #8c8c94;
+    --e-call: #5d5f66; --e-event: #e3b341; --e-mirror: #f47067; --e-path: #ff922b;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+         display: flex; flex-direction: column; overflow: hidden; }
+  [hidden] { display: none !important; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  code { font: 12.5px/1.4 var(--mono); background: var(--code-bg); border-radius: 4px; padding: 1px 4px; }
+
+  /* ---------- верхняя полоса ---------- */
+  .bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--paper);
+         border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .brand { font-weight: 650; font-size: 15px; white-space: nowrap; }
+  .brand .root { font-weight: 400; color: var(--ink-3); margin-left: 6px; font-size: 13px; }
+  .search { flex: 1 1 220px; max-width: 360px; position: relative; }
+  .search input { width: 100%; height: 32px; padding: 0 30px 0 10px; border: 1px solid var(--line); border-radius: 8px;
+                  background: var(--bg); }
+  .search kbd { position: absolute; right: 8px; top: 7px; font: 500 11px/1 var(--sans); color: var(--ink-3);
+                border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; }
+  .tools { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px; border: 1px solid var(--line);
+         border-radius: 8px; background: var(--paper); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: var(--hover); }
+  .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  select.btn { padding-right: 6px; }
+  .btn.icon { width: 32px; padding: 0; justify-content: center; }
+  .ico { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ico.inl { width: 14px; height: 14px; vertical-align: -2px; }
+
+  /* ---------- фильтры ---------- */
+  .filters { display: flex; gap: 6px; padding: 8px 16px; background: var(--paper); border-bottom: 1px solid var(--line);
+             flex-wrap: wrap; align-items: center; }
+  .filters .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--line);
+          border-radius: 999px; background: var(--paper); font-size: 12.5px; cursor: pointer; user-select: none; }
+  .chip:hover { background: var(--hover); }
+  .chip[aria-pressed="false"] { opacity: .45; }
+  .chip .n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .sw { width: 12px; height: 12px; border: 2px solid currentColor; flex: none; }
+  .sw.backend { color: var(--t-backend); border-radius: 3px; }
+  .sw.frontend { color: var(--t-frontend); border-radius: 50%; }
+  .sw.fullstack { color: var(--t-fullstack); border-radius: 3px; transform: rotate(45deg) scale(.85); }
+  .sw.lib { color: var(--t-lib); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: currentColor; }
+  .sw.external { color: var(--t-external); border-style: dashed; border-radius: 3px; }
+  .ln { width: 22px; height: 0; border-top: 2px solid; flex: none; }
+  .ln.call { border-color: var(--e-call); }
+  .ln.event { border-color: var(--e-event); border-top-style: dashed; }
+  .ln.mirror { border-color: var(--e-mirror); border-top-style: dotted; }
+
+  /* ---------- граф и панель ---------- */
+  main { flex: 1; display: flex; min-height: 0; }
+  #cy { flex: 1; min-width: 0; position: relative; background: var(--bg); }
+  /* Ширина панели — переменная --pw: её ставит ручка или «Развернуть»; на узком экране перебивает раскладка ниже. */
+  #panel { width: var(--pw, 400px); flex: none; background: var(--paper); overflow-y: auto; padding: 16px 18px 40px;
+           transition: width .18s ease; }
+  main.dragging #panel { transition: none; }
+  main.dragging, main.dragging * { cursor: col-resize !important; user-select: none; }
+  #grip { width: 7px; flex: none; cursor: col-resize; background: var(--paper); border-left: 1px solid var(--line);
+          position: relative; touch-action: none; }
+  #grip::after { content: ""; position: absolute; left: 1px; top: 50%; width: 3px; height: 36px; margin-top: -18px;
+                 border-radius: 2px; background: var(--line); }
+  #grip:hover::after, #grip:focus-visible::after, main.dragging #grip::after { background: var(--accent); }
+  #panel > h2 { font-size: 18px; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; word-break: break-word; }
+  #panel > h2 .grow { flex: 1; }
+  .btn.sm { height: 26px; padding: 0 9px; font-size: 12.5px; }
+  #panel > h3, #tabbody > h3, .linkcols h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); margin: 18px 0 6px; font-weight: 600; }
+  #panel p { margin: 6px 0; }
+  .muted { color: var(--ink-3); }
+  .badge { font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; }
+  .badge.backend { color: var(--t-backend); } .badge.frontend { color: var(--t-frontend); }
+  .badge.fullstack { color: var(--t-fullstack); } .badge.lib { color: var(--t-lib); } .badge.external { color: var(--t-external); }
+  .badge.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+  .badge.danger { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; margin: 10px 0; }
+  .stat { background: var(--bg); border-radius: 8px; padding: 6px 9px; }
+  .stat b { display: block; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 12px; color: var(--ink-3); }
+  .rel { list-style: none; margin: 0; padding: 0; }
+  .rel > li { padding: 6px 0; border-bottom: 1px solid var(--line-2); }
+  .rel > li:last-child { border-bottom: 0; }
+  .rel ul { margin: 3px 0 0; padding-left: 16px; color: var(--ink-2); font-size: 13px; }
+  .rel ul li { margin: 2px 0; }
+  a.svc { color: var(--accent); cursor: pointer; text-decoration: none; font-weight: 550; }
+  a.svc:hover { text-decoration: underline; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: var(--paper); padding: 4px 10px; cursor: pointer; font-size: 13px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; cursor: pointer; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 16px 0 8px; }
+  .tabs button { border: 0; background: none; padding: 7px 10px; cursor: pointer; border-bottom: 2px solid transparent;
+                 color: var(--ink-2); font-weight: 500; }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .notes { background: var(--warn-soft); border-radius: 8px; padding: 8px 10px; white-space: pre-wrap; font-size: 13px; margin: 8px 0; }
+  .md { font-size: 13.5px; line-height: 1.55; overflow-wrap: anywhere; }
+  .md h1 { font-size: 17px; } .md h2 { font-size: 15px; margin: 18px 0 6px; } .md h3 { font-size: 14px; margin: 14px 0 4px; }
+  .md table { border-collapse: collapse; font-size: 12.5px; margin: 6px 0; display: block; overflow-x: auto; max-width: 100%; }
+  .md p { margin: 6px 0; }
+  .md ul { padding-left: 20px; }
+
+  /* Широкая панель: карточка — оглавление слева и текст во всю ширину; связи — в две колонки. */
+  .cardwrap .toc { display: none; }
+  #panel.wide .cardwrap { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: start; }
+  #panel.wide .cardwrap .toc { display: block; position: sticky; top: 0; font-size: 13px; border-right: 1px solid var(--line-2);
+                               padding: 4px 12px 4px 0; max-height: calc(100vh - 160px); overflow-y: auto; }
+  .toc a { display: flex; justify-content: space-between; gap: 8px; padding: 4px 6px; border-radius: 6px; color: var(--ink-2);
+           text-decoration: none; cursor: pointer; }
+  .toc a:hover { background: var(--hover); color: var(--ink); }
+  .toc a .n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  /* Заголовок блока карточки — ключ (ручка, топик, сущность): выделен, чтобы блоки читались подряд. */
+  .md h3 code { font-size: 12.5px; font-weight: 600; background: var(--accent-soft); color: var(--accent); padding: 2px 6px; }
+  #panel.wide .md { font-size: 14px; }
+  #panel.wide .md h3 { margin-top: 18px; }
+  #panel.wide .md table { display: table; width: 100%; }
+  #panel.wide .md h2 { font-size: 17px; margin: 26px 0 8px; padding-top: 6px; border-top: 1px solid var(--line-2); }
+  #panel.wide .md h2:first-of-type { border-top: 0; }
+  #panel.wide .linkcols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  .md th, .md td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  .md blockquote { margin: 6px 0; padding: 2px 10px; border-left: 3px solid var(--line); color: var(--ink-3); }
+  .md pre { background: var(--code-bg); padding: 8px; border-radius: 6px; overflow-x: auto; }
+  .issues li { margin: 4px 0; }
+  .legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; font-size: 13px; }
+  .hint { font-size: 12.5px; color: var(--ink-3); }
+  .hint b { color: var(--ink-2); font-weight: 600; }
+
+  #tip { position: fixed; z-index: 20; max-width: 320px; background: var(--paper); border: 1px solid var(--line);
+         box-shadow: var(--shadow); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; pointer-events: none; }
+  #tip b { display: block; font-size: 13px; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--paper);
+           padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 30; box-shadow: var(--shadow); }
+
+  /* ---------- без данных: перетащить папку ---------- */
+  #drop { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  #drop .box { max-width: 520px; text-align: center; border: 2px dashed var(--line); border-radius: 16px; padding: 40px 28px; background: var(--paper); }
+  #drop.over .box { border-color: var(--accent); background: var(--accent-soft); }
+  #drop h1 { font-size: 20px; margin: 0 0 8px; }
+
+  @media (max-width: 760px) {
+    body { overflow: auto; }
+    main { flex-direction: column; }
+    #cy { min-height: 62vh; }
+    #panel { width: auto; border-left: 0; border-top: 1px solid var(--line); transition: none; }
+    #grip, #widen { display: none !important; }
+    .tools { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="brand">Карта сервисов<span class="root" id="root"></span></div>
+  <div class="search">
+    <input id="q" type="search" placeholder="Найти сервис" list="names" autocomplete="off" aria-label="Найти сервис">
+    <kbd>/</kbd>
+    <datalist id="names"></datalist>
+  </div>
+  <div class="tools">
+    <select id="layout" class="btn" aria-label="Раскладка">
+      <option value="layers">Раскладка: слои — кто кого вызывает</option>
+      <option value="cose">Раскладка: сила</option>
+      <option value="concentric">Раскладка: по числу связей</option>
+      <option value="circle">Раскладка: круг</option>
+      <option value="grid">Раскладка: сетка</option>
+    </select>
+    <button class="btn" id="reset" title="Снять выбор и путь, вернуть фильтры и раскладку «слои», расставить заново и вписать в экран">Сбросить</button>
+    <button class="btn icon" id="fit" title="Весь граф на экран — выбор не снимается (F)" aria-label="Весь граф на экран"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M10 19H5v-5M19 5 5 19"/></svg></button>
+    <button class="btn" id="png" title="Сохранить картинку">PNG</button>
+    <button class="btn" id="theme" title="Тема: авто / светлая / тёмная" aria-label="Тема">◐</button>
+  </div>
+</header>
+<nav class="filters" id="filters" aria-label="Фильтры"></nav>
+<main>
+  <div id="cy" aria-label="Граф сервисов"></div>
+  <div id="grip" role="separator" aria-orientation="vertical" aria-label="Ширина панели: тяни мышкой или стрелками, двойной клик — развернуть" tabindex="0"></div>
+  <aside id="panel" aria-live="polite"></aside>
+</main>
+<div id="tip" hidden></div>
+<div id="toast" hidden></div>
+<div id="drop" hidden>
+  <div class="box">
+    <h1>Перетащите сюда папку <code>services</code></h1>
+    <p class="muted">Карточки сервисов, <code>manifest.yaml</code> и <code>_history/</code> — всё читается в браузере, никуда не отправляется.</p>
+    <p><label class="btn" for="pick">Выбрать папку…</label>
+       <input id="pick" type="file" webkitdirectory directory multiple hidden></p>
+  </div>
+</div>
+
+<script src="vendor/cytoscape.min.js?v=__MADE__"></script>
+<script src="vendor/markdown-it.min.js?v=__MADE__"></script>
+<script src="vendor/purify.min.js?v=__MADE__"></script>
+<script src="parse.js?v=__MADE__"></script>
+<script src="data.js?v=__MADE__"></script>
+<script src="app.js?v=__MADE__"></script>
+</body>
+</html>
