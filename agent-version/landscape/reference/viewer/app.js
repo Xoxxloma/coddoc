@@ -491,14 +491,120 @@
   }
   function stat(n, label) { return '<div class="stat"><b>' + n + '</b><span>' + esc(label) + '</span></div>'; }
 
+  // ---------------------------------------------------------------- ширина панели
+  // Одна ширина (--pw): её тянет ручка, «Развернуть» ставит широкую, «Свернуть» возвращает прежнюю. Вид карточки
+  // зависит только от фактической ширины панели (класс .wide от ResizeObserver), а не от кнопки.
+  var WIDE = 720, GRAPH_MIN = 300, PANEL_MIN = 300;
+  function maxPanel() { return Math.max(PANEL_MIN, window.innerWidth - GRAPH_MIN - 7); }
+  function wideTarget() { return Math.min(maxPanel(), Math.max(WIDE, Math.round(window.innerWidth * 0.7))); }
+  function canWiden() { return maxPanel() >= WIDE; }
+  function panelWidth() { return $('#panel').getBoundingClientRect().width; }
+  function isWide() { return panelWidth() >= WIDE; }
+  function setPanelWidth(w, remember) {
+    w = Math.round(Math.max(PANEL_MIN, Math.min(maxPanel(), w)));
+    S.pw = w;
+    document.documentElement.style.setProperty('--pw', w + 'px');
+    if (remember) store.set('panelW', String(w));
+  }
+  function toggleWide() {
+    if (isWide()) setPanelWidth(S.pwBefore && S.pwBefore < WIDE ? S.pwBefore : 400, true);
+    else { S.pwBefore = S.pw || panelWidth(); setPanelWidth(wideTarget(), true); }
+    // Граф пересчитывает размер по ходу анимации ширины; в центр видимой части сервис ставим после неё.
+    setTimeout(function () { recenter(true); }, 220);
+  }
+  // Выбранный сервис с ближайшими соседями — в видимую часть графа; ближе, чем было, не приближаем.
+  function recenter(animate) {
+    if (!S.cy) return;
+    S.cy.resize();
+    var n = S.selected && S.cy.getElementById(S.selected);
+    if (!n || !n.length || !n.visible()) return;
+    var near = n.closedNeighborhood().nodes(':visible'), bb = near.boundingBox(), pad = 36;
+    var fitZoom = Math.min((S.cy.width() - 2 * pad) / Math.max(bb.w, 1), (S.cy.height() - 2 * pad) / Math.max(bb.h, 1));
+    var opts = { duration: animate ? 250 : 0 };
+    if (fitZoom < S.cy.zoom()) S.cy.animate(Object.assign({ fit: { eles: near, padding: pad } }, opts));
+    else S.cy.animate(Object.assign({ center: { eles: n } }, opts));
+  }
+  function bindPanelWidth() {
+    var saved = parseInt(store.get('panelW'), 10);
+    setPanelWidth(saved > 0 ? saved : 400, false);
+    var panel = $('#panel'), grip = $('#grip'), main = document.querySelector('main');
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        var wide = isWide();
+        panel.classList.toggle('wide', wide);
+        var b = $('#widen');
+        if (b) { b.textContent = wide ? 'Свернуть' : 'Развернуть'; b.hidden = !wide && !canWiden(); }
+      }).observe(panel);
+      new ResizeObserver(function () { if (S.cy) S.cy.resize(); }).observe($('#cy'));
+    }
+    var dragging = false, frame = 0, lastX = 0;
+    grip.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== 0) return;
+      dragging = true; main.classList.add('dragging');
+      grip.setPointerCapture(ev.pointerId);
+      ev.preventDefault();
+    });
+    grip.addEventListener('pointermove', function (ev) {
+      if (!dragging) return;
+      lastX = ev.clientX;
+      if (frame) return;
+      frame = requestAnimationFrame(function () {
+        frame = 0;
+        setPanelWidth(main.getBoundingClientRect().right - lastX - 3, false);
+      });
+    });
+    function stop(ev) {
+      if (!dragging) return;
+      dragging = false; main.classList.remove('dragging');
+      try { grip.releasePointerCapture(ev.pointerId); } catch (e) { /* уже отпущен */ }
+      setPanelWidth(S.pw, true);
+      recenter(true);
+    }
+    grip.addEventListener('pointerup', stop);
+    grip.addEventListener('pointercancel', stop);
+    grip.addEventListener('dblclick', toggleWide);
+    grip.addEventListener('keydown', function (ev) {
+      var step = ev.shiftKey ? 80 : 24;
+      if (ev.key === 'ArrowLeft') { ev.preventDefault(); setPanelWidth(S.pw + step, true); }
+      else if (ev.key === 'ArrowRight') { ev.preventDefault(); setPanelWidth(S.pw - step, true); }
+      else if (ev.key === 'Enter') { ev.preventDefault(); toggleWide(); }
+    });
+    var t = 0;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { setPanelWidth(S.pw, false); }, 120);
+    });
+  }
+
+  // Оглавление карточки: разделы ## с числом блоков ### или строк таблицы под ними.
+  function buildToc() {
+    var wrap = $('#panel .cardwrap');
+    if (!wrap) return;
+    var md = wrap.querySelector('.md'), toc = wrap.querySelector('.toc'), heads = md.querySelectorAll('h2'), html = '';
+    Array.prototype.forEach.call(heads, function (h, i) {
+      h.id = 'sec-' + i;
+      var n = 0, rows = 0;
+      for (var el = h.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
+        if (el.tagName === 'H3') n++;
+        if (el.tagName === 'TABLE') rows += el.querySelectorAll('tbody tr').length;
+      }
+      var cnt = n || rows;
+      html += '<a data-sec="sec-' + i + '"><span>' + esc(h.textContent) + '</span>' + (cnt ? '<span class="n">' + cnt + '</span>' : '') + '</a>';
+    });
+    toc.innerHTML = html || '<span class="muted">Разделов нет</span>';
+  }
+
   // ---------------------------------------------------------------- панель: сервис
   function renderService(id, pathIds) {
     var n = S.byId[id], g = S.graph, p = $('#panel');
     if (!n) return;
     var t = n.external ? 'external' : (n.type || '');
+    var wide = isWide();
     var html = '<h2>' + esc(n.label) + (t ? ' <span class="badge ' + t + '">' + esc(TYPE_RU[t] || t) + '</span>' : '') +
       (!n.hasCard && !n.external ? ' <span class="badge warn">нет карточки</span>' : '') +
-      (n.hasCard && !n.inManifest && g.manifest ? ' <span class="badge warn">нет в манифесте</span>' : '') + '</h2>';
+      (n.hasCard && !n.inManifest && g.manifest ? ' <span class="badge warn">нет в манифесте</span>' : '') +
+      '<span class="grow"></span><button class="btn sm" id="widen" data-widen' + (!wide && !canWiden() ? ' hidden' : '') +
+      ' title="Ширину можно и тянуть за край панели">' + (wide ? 'Свернуть' : 'Развернуть') + '</button></h2>';
     if (n.description) html += '<p>' + esc(n.description) + '</p>';
     if (n.external) html += '<p class="muted">Внешняя система или сервис вне манифеста: карточки нет, связи — из карточек соседей.</p>';
     var dates = [];
@@ -534,10 +640,12 @@
       tabBtn('links', 'Связи') + (n.text ? tabBtn('card', 'Карточка') : '') + (hasHist ? tabBtn('hist', 'История') : '') + '</div>';
     var tab = S.tab;
     if ((tab === 'card' && !n.text) || (tab === 'hist' && !hasHist)) tab = 'links';
-    html += '<div id="tabbody">' + (tab === 'card' ? '<div class="md">' + renderMd(n.text) + '</div>'
+    html += '<div id="tabbody">' + (tab === 'card' ? '<div class="cardwrap"><nav class="toc" aria-label="Разделы карточки"></nav>' +
+      '<div class="md">' + renderMd(n.text) + '</div></div>'
       : tab === 'hist' ? '<div class="md">' + renderMd(n.history) + '</div>' : linksHtml(id)) + '</div>';
     p.innerHTML = html;
     p.scrollTop = 0;
+    if (tab === 'card') buildToc();
   }
   function tabBtn(key, label) {
     var tab = S.tab;
@@ -561,24 +669,31 @@
       });
       return li.length ? '<ul>' + li.join('') + '</ul>' : '';
     }
-    var h = '';
+    // Пары «Вызывает / Его вызывают» и «Публикует / Слушает» — каждая в .linkcols: на широкой панели две колонки.
+    var h = '<div class="linkcols"><section>';
     h += '<h3>Вызывает · ' + out.length + '</h3>';
     h += out.length ? '<ul class="rel">' + out.map(function (e) { return '<li>' + svcLink(e.target) + items(e) + '</li>'; }).join('') + '</ul>'
       : '<p class="muted">Ни от кого не зависит.</p>';
-    h += '<h3>Его вызывают · ' + inn.length + '</h3>';
+    h += '</section><section><h3>Его вызывают · ' + inn.length + '</h3>';
     h += inn.length ? '<ul class="rel">' + inn.map(function (e) { return '<li>' + svcLink(e.source) + items(e) + '</li>'; }).join('') + '</ul>'
       : '<p class="muted">В слепке его никто не вызывает.</p>';
-    if (pub.length) {
-      h += '<h3>Публикует · ' + pub.length + '</h3><ul class="rel">' + pub.map(function (t) {
-        return '<li><code>' + esc(t.topic) + '</code><ul><li>' + (t.sub.length ? 'слушают: ' + t.sub.map(svcLink).join(', ')
-          : '<span class="muted">в слепке никто не слушает</span>') + '</li></ul></li>';
-      }).join('') + '</ul>';
-    }
-    if (sub.length) {
-      h += '<h3>Слушает · ' + sub.length + '</h3><ul class="rel">' + sub.map(function (t) {
-        return '<li><code>' + esc(t.topic) + '</code><ul><li>' + (t.pub.length ? 'публикует: ' + t.pub.map(svcLink).join(', ')
-          : '<span class="muted">публикующего в слепке нет</span>') + '</li></ul></li>';
-      }).join('') + '</ul>';
+    h += '</section></div>';
+    if (pub.length || sub.length) {
+      h += '<div class="linkcols"><section>';
+      if (pub.length) {
+        h += '<h3>Публикует · ' + pub.length + '</h3><ul class="rel">' + pub.map(function (t) {
+          return '<li><code>' + esc(t.topic) + '</code><ul><li>' + (t.sub.length ? 'слушают: ' + t.sub.map(svcLink).join(', ')
+            : '<span class="muted">в слепке никто не слушает</span>') + '</li></ul></li>';
+        }).join('') + '</ul>';
+      }
+      h += '</section><section>';
+      if (sub.length) {
+        h += '<h3>Слушает · ' + sub.length + '</h3><ul class="rel">' + sub.map(function (t) {
+          return '<li><code>' + esc(t.topic) + '</code><ul><li>' + (t.pub.length ? 'публикует: ' + t.pub.map(svcLink).join(', ')
+            : '<span class="muted">публикующего в слепке нет</span>') + '</li></ul></li>';
+        }).join('') + '</ul>';
+      }
+      h += '</section></div>';
     }
     if (mir.length) {
       h += '<h3>Без пары · ' + mir.length + '</h3><p class="hint">Строки «Кто меня потребляет» этой карточки, которых нет у вызывающего: ' +
@@ -614,6 +729,9 @@
     $('#panel').addEventListener('click', function (ev) {
       var a = ev.target.closest('[data-svc]');
       if (a) { select(a.getAttribute('data-svc'), true); return; }
+      if (ev.target.closest('[data-widen]')) { toggleWide(); return; }
+      var sec = ev.target.closest('[data-sec]');
+      if (sec) { var h = document.getElementById(sec.getAttribute('data-sec')); if (h) h.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
       var d = ev.target.closest('[data-d]');
       if (d && S.selected) {
         S.depth = +d.getAttribute('data-d');
@@ -675,7 +793,7 @@
     document.addEventListener('keydown', function (ev) {
       var typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName);
       if (ev.key === '/' && !typing) { ev.preventDefault(); q.focus(); q.select(); }
-      else if (ev.key === 'Escape' && !typing && S.cy) clearSelection();
+      else if (ev.key === 'Escape' && !typing && S.cy) { if (isWide() && canWiden()) toggleWide(); else clearSelection(); }
       else if ((ev.key === 'f' || ev.key === 'F' || ev.key === 'а' || ev.key === 'А') && !typing && S.cy && !ev.metaKey && !ev.ctrlKey) $('#fit').click();
     });
   }
@@ -747,11 +865,13 @@
   }
 
   // Ручки для самотеста (DevTools-протокол): состояние и действия страницы.
-  window.LandscapeApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath };
+  window.LandscapeApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath,
+    widen: toggleWide, setWidth: function (w) { setPanelWidth(w, false); } };
 
   // ---------------------------------------------------------------- старт
   function boot() {
     initTheme();
+    bindPanelWidth();
     bindUi();
     bindDrop();
     if (!window.cytoscape || !window.LandscapeParse) { showDrop('Страница собрана не полностью: нет файлов из <code>vendor/</code>.'); return; }
