@@ -17,8 +17,12 @@
   var S = {
     graph: null, cy: null, byId: {}, selected: null, selectedEdge: null, depth: 1, onlyNear: false, path: null,
     tab: 'links', layout: store.get('layout') || 'layers',
-    show: { backend: true, frontend: true, fullstack: true, lib: true, external: true, call: true, event: true, mirror: false },
+    show: {},
   };
+
+  // Фильтры при открытии и после «Сбросить»: всё видно, кроме строк «Кто меня потребляет» без пары.
+  var SHOW_DEFAULT = { backend: true, frontend: true, fullstack: true, lib: true, external: true, call: true, event: true, mirror: false };
+  Object.keys(SHOW_DEFAULT).forEach(function (k) { S.show[k] = SHOW_DEFAULT[k]; });
 
   // ---------------------------------------------------------------- мелочи
   function esc(s) {
@@ -462,7 +466,8 @@
       stat(g.topics.length, plural(g.topics.length, 'топик', 'топика', 'топиков')) +
       (ext.length ? stat(ext.length, 'вне манифеста') : '') + '</div>';
     html += '<p class="hint"><b>Клик</b> — карточка сервиса и его связи. <b>Двойной клик</b> — только его окрестность. ' +
-      '<b>Shift+клик</b> по второму — путь между ними. Узлы можно таскать, колесо — масштаб, <b>/</b> — поиск, <b>Esc</b> — сброс.</p>';
+      '<b>Shift+клик</b> по второму — путь между ними. Узлы можно таскать, колесо — масштаб, <b>/</b> — поиск, <b>Esc</b> — снять выбор. ' +
+      '<b>Сбросить</b> — всё как при открытии.</p>';
 
     html += '<h3>Обозначения</h3><div class="legend">' +
       '<span class="sw backend"></span><span>бэкенд</span><span class="sw frontend"></span><span>фронт</span>' +
@@ -757,14 +762,16 @@
       b.setAttribute('aria-pressed', S.show[f]);
       S.path = null;
       applyFilters();
-      if (S.selected && !S.cy.getElementById(S.selected).visible()) clearSelection();
+      if (S.selected && !S.cy.getElementById(S.selected).visible()) { S.onlyNear = false; clearSelection(); applyFilters(); }
       else if (S.selected) renderService(S.selected);
+      // Скрытые узлы оставляли бы дыры — граф перестраивается сам.
+      runLayout(false);
     });
     var sel = $('#layout');
     sel.value = S.layout;
     if (sel.value !== S.layout) { S.layout = 'layers'; sel.value = 'layers'; }
     sel.addEventListener('change', function () { S.layout = sel.value; store.set('layout', S.layout); runLayout(false); });
-    $('#relayout').addEventListener('click', function () { runLayout(false); });
+    $('#reset').addEventListener('click', resetAll);
     $('#fit').addEventListener('click', function () { if (S.cy) S.cy.animate({ fit: { eles: S.cy.elements(':visible'), padding: 40 } }, { duration: 300 }); });
     $('#png').addEventListener('click', function () {
       if (!S.cy) return;
@@ -796,6 +803,23 @@
       else if (ev.key === 'Escape' && !typing && S.cy) { if (isWide() && canWiden()) toggleWide(); else clearSelection(); }
       else if ((ev.key === 'f' || ev.key === 'F' || ev.key === 'а' || ev.key === 'А') && !typing && S.cy && !ev.metaKey && !ev.ctrlKey) $('#fit').click();
     });
+  }
+
+  // «Сбросить»: снять выбор, путь, окрестность и поиск, вернуть фильтры и раскладку по умолчанию, расставить заново
+  // и вписать в экран. Ширина панели и тема — настройки, их не трогаем.
+  function resetAll() {
+    if (!S.cy) return;
+    S.selected = null; S.selectedEdge = null; S.path = null; S.onlyNear = false; S.depth = 1; S.tab = 'links';
+    Object.keys(SHOW_DEFAULT).forEach(function (k) { S.show[k] = SHOW_DEFAULT[k]; });
+    var q = $('#q');
+    q.value = '';
+    S.cy.nodes().removeClass('match');
+    S.cy.elements().unselect();
+    S.layout = 'layers'; $('#layout').value = 'layers'; store.set('layout', 'layers');
+    renderFilters();
+    applyFilters();
+    runLayout(false);
+    renderOverview();
   }
 
   // ---------------------------------------------------------------- без данных: перетащить папку
@@ -865,7 +889,7 @@
   }
 
   // Ручки для самотеста (DevTools-протокол): состояние и действия страницы.
-  window.LandscapeApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath,
+  window.LandscapeApp = { state: S, select: select, clear: function () { clearSelection(); }, path: showPath, reset: resetAll,
     widen: toggleWide, setWidth: function (w) { setPanelWidth(w, false); } };
 
   // ---------------------------------------------------------------- старт

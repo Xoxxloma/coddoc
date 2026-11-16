@@ -1,6 +1,6 @@
 ---
 name: landscape
-version: 1.1.0
+version: 1.2.0
 user-invocable: true
 argument-hint: "[сервис] [папка слепка — без неё services/ корня репозитория]"
 allowed-tools: Bash
