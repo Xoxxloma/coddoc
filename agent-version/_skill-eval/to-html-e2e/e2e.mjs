@@ -2,6 +2,7 @@
 //
 // Запуск (из этой папки, после npm install): node e2e.mjs [chrome|msedge]
 // Браузер — установленный в системе (playwright-core сам браузеры не качает).
+//   TO_HTML_REF=<папка> — подменная reference/ вместо agent-version/to-html/reference (проверка на испорченной копии).
 
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
@@ -11,7 +12,7 @@ import { chromium } from 'playwright-core';
 import { makeFixtures, journal } from '../to-html-fixtures.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const ref = resolve(here, '..', '..', 'to-html', 'reference');
+const ref = process.env.TO_HTML_REF ? resolve(process.env.TO_HTML_REF) : resolve(here, '..', '..', 'to-html', 'reference');
 const box = resolve(here, '..', 'selftest', 'to-html-e2e');
 const channel = process.argv[2] || 'chrome';
 
@@ -48,6 +49,7 @@ const urls = {
   edge: pack('TH-EDGE'),
   nfd: pack('TH-NFD'),
   nb: pack('TH-NB/notes/выдача-лодок'),
+  task: pack('TH-TASK'),
   // Корень вне папки запуска: base — абсолютный file:///…
   outside: packIn(join(fx, 'TH-NB'), '../TH-DOCS'),
   blank: pathToFileURL(join(ref, 'viewer', 'index.html')).href,
@@ -219,6 +221,117 @@ await go('.doc a.path-link');
 check(/sources\/2026-10-16-1\.md/.test(await hash()), 'и открывает исходник');
 await visit(urls.nb + '#f=' + encodeURIComponent('notebook-2026-10-17.points.md'));
 check(await page.locator('.doc a.nb-ref').count() === 1, 'в списке пунктов номер — ссылка');
+
+console.log('Задача: схемы, картинки и ссылки в «Обзоре» и «Показе» (TH-TASK)');
+{
+  const err0 = errors.length;
+  const dir = 'coddoc/PRK-31/';
+  const brd = dir + 'business_requirements.md';
+  const spec = dir + 'technical_specification.md';
+  const img = (n) => dir + 'img/' + n;
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  // Схемы в области: каждую — к экрану (в документе схема рисуется, когда подходит к нему), потом ждём, пока все
+  // нарисуются. src — блоки кода с исходником Mermaid: так схема выглядела, когда её не рисовали.
+  const diagrams = async (scope) => {
+    const boxes = page.locator(`${scope} .diagram`);
+    const n = await boxes.count();
+    for (let i = 0; i < n; i++) {
+      await boxes.nth(i).scrollIntoViewIfNeeded();
+      await page.waitForFunction(([s, k]) => { const b = document.querySelectorAll(`${s} .diagram`)[k]; return !(b instanceof HTMLElement) || b.dataset.src !== undefined; },
+        [scope, i], { timeout: 5000 }).catch(() => {});
+    }
+    await page.waitForFunction((s) => [...document.querySelectorAll(`${s} .diagram`)].every((b) => b instanceof HTMLElement && b.dataset.drawn),
+      scope, { timeout: 15000 }).catch(() => {});
+    return page.locator(scope).first().evaluate((root) => ({
+      svg: root.querySelectorAll('.diagram svg').length,
+      err: root.querySelectorAll('.diagram[data-drawn="error"]').length,
+      src: [...root.querySelectorAll('pre, code')].filter((c) => /flowchart|sequenceDiagram/.test(c.textContent ?? '')).length,
+    }));
+  };
+  // Картинки в области: каждую — к экрану (грузятся лениво), ждём загрузки. shown — путь (data-file) загруженных.
+  const images = async (scope) => {
+    const imgs = page.locator(`${scope} img`);
+    const n = await imgs.count();
+    for (let i = 0; i < n; i++) await imgs.nth(i).scrollIntoViewIfNeeded().catch(() => {});
+    await page.waitForFunction((s) => [...document.querySelectorAll(`${s} img`)].every((i) => i instanceof HTMLImageElement && i.complete),
+      scope, { timeout: 5000 }).catch(() => {});
+    return page.locator(scope).first().evaluate((root) => ({
+      shown: [...root.querySelectorAll('img')].filter((i) => i instanceof HTMLImageElement && i.naturalWidth > 0).map((i) => i.getAttribute('data-file') ?? i.getAttribute('src')),
+      missing: root.querySelectorAll('.img-missing').length,
+    }));
+  };
+  const links = (scope, label) => page.locator(`${scope} a:text-is("${label}")`)
+    .evaluateAll((as) => as.map((a) => ({ href: a.getAttribute('href'), target: a.getAttribute('target') })));
+  const toDoc = (path) => '#f=' + encodeURIComponent(path);
+  const cvMode = async (m) => {
+    await page.click(`[data-cv-mode="${m}"]`);
+    await page.waitForFunction((want) => (document.querySelector('#doc .cv') !== null) === want, m === 'overview', { timeout: 5000 });
+  };
+  // «Показ» — кнопкой; листаем до слайда с именем (next() за последним слайдом падает — не зовём).
+  const showSlide = async (name) => {
+    await page.click('[data-cv-show]');
+    await page.locator('#cvShow').waitFor({ state: 'visible', timeout: 5000 });
+    const n = await page.evaluate(() => window.CoddocView.test.slides());
+    for (let i = 0; i < n; i++) {
+      if ((await page.locator('#cvSname').textContent()) === name) return true;
+      if (i < n - 1) await page.evaluate(() => window.CoddocView.test.next());
+    }
+    return false;
+  };
+
+  await visit(urls.task + toDoc(brd));
+  if (await page.locator('#doc .cv').count() === 0) await cvMode('overview');
+  check(await page.locator('#doc .cv').count() === 1, 'БТ открыт «Обзором»');
+  let d = await diagrams('#doc .cv');
+  check(d.svg === 2 && d.err === 0, `БТ, «Обзор»: схемы нарисованы — в «Проблеме» и в «Приложениях» (svg: ${d.svg}, ошибок: ${d.err})`);
+  check(await page.locator('#doc .cv .card.problem .diagram svg').count() === 1, 'и схема «Проблемы» — в её карточке');
+  check(d.src === 0, `исходник схемы не остался блоком кода (блоков с Mermaid: ${d.src})`);
+  let im = await images('#doc .cv');
+  const brdImgs = [img('parking-lot.png'), img('разметка-мест.png'), img('entrance.png'), img('разметка-мест.png')];
+  check(same(im.shown, brdImgs), `картинки загружены, пути — от документа: ![](img/…) и ![[…]] (${im.shown.join(', ') || 'ни одной'})`);
+  check(im.missing === 0, `«картинка не нашлась» нет (${im.missing})`);
+  let ln = await links('#doc .cv', 'спецификации');
+  const toSpec = check(ln.length === 2 && ln.every((a) => a.href === toDoc(spec) && !a.target),
+    `ссылка на соседний документ ведёт в to-html (#f=…), а не на файл (${ln.map((a) => a.href).join(', ')})`);
+  ln = [...await links('#doc .cv', 'портале охраны'), ...await links('#doc .cv', 'на сайте')];
+  check(ln.length === 2 && ln.every((a) => /^https:\/\/example\.com\//.test(a.href ?? '') && a.target === '_blank'), 'внешняя ссылка — в новой вкладке (target="_blank")');
+  // Ссылка на файл увела бы со страницы — тогда спеку открываем адресом, а проверка щелчка красная.
+  if (toSpec) await go('#doc .cv a:text-is("спецификации")');
+  else await visit(urls.task + toDoc(spec));
+  check(toSpec && /f=coddoc\/PRK-31\/technical_specification\.md/.test(await hash()) && await page.locator('#doc .cv').count() === 1, 'щелчок по ней открывает спеку, тоже «Обзором»');
+
+  d = await diagrams('#doc .cv');
+  check(d.svg === 1 && d.err === 0 && await page.locator('#doc .cv .card.int .diagram svg').count() === 1,
+    `спека, «Обзор»: схема в «Поведении» INT-1 нарисована (svg: ${d.svg}, ошибок: ${d.err})`);
+  check(d.src === 0, `исходник схемы не остался блоком кода (блоков с Mermaid: ${d.src})`);
+  im = await images('#doc .cv');
+  check(same(im.shown, [img('guard-screen.png')]) && im.missing === 0, `картинка над INT загружена (${im.shown.join(', ') || 'ни одной'}; не нашлось: ${im.missing})`);
+  ln = await links('#doc .cv', 'бизнес-требованиях');
+  check(ln.length === 1 && ln[0].href === toDoc(brd), `ссылка на БТ ведёт в to-html (${ln.map((a) => a.href).join(', ')})`);
+
+  check(await showSlide('INT-1'), 'спека, «Показ»: есть слайд INT-1');
+  d = await diagrams('#cvSlide');
+  check(d.svg === 1 && d.err === 0 && d.src === 0, `на нём схема нарисована (svg: ${d.svg}, ошибок: ${d.err}, блоков с Mermaid: ${d.src})`);
+  await page.keyboard.press('Escape');
+  check(await page.locator('#cvShow').isHidden(), 'Esc закрывает «Показ»');
+
+  await visit(urls.task + toDoc(brd));
+  check(await showSlide('Проблема'), 'БТ, «Показ»: есть слайд «Проблема»');
+  d = await diagrams('#cvSlide');
+  check(d.svg === 1 && d.err === 0 && d.src === 0, `на нём схема нарисована (svg: ${d.svg}, ошибок: ${d.err}, блоков с Mermaid: ${d.src})`);
+  im = await images('#cvSlide');
+  check(same(im.shown, brdImgs.slice(0, 2)) && im.missing === 0, `и картинки загружены (${im.shown.join(', ') || 'ни одной'}; не нашлось: ${im.missing})`);
+  await page.keyboard.press('Escape');
+
+  await cvMode('text');
+  d = await diagrams('#doc');
+  check(d.svg === 2 && d.err === 0 && d.src === 0, `БТ, «Текст»: схемы нарисованы (svg: ${d.svg}, ошибок: ${d.err}, блоков с Mermaid: ${d.src})`);
+  im = await images('#doc');
+  check(same(im.shown, brdImgs) && im.missing === 0, `и картинки загружены (${im.shown.join(', ') || 'ни одной'}; не нашлось: ${im.missing})`);
+  await cvMode('overview');
+  const own = errors.slice(err0);
+  check(own.length === 0, 'ошибок страницы нет' + (own.length ? ': ' + own.join(' | ') : ''));
+}
 
 console.log('Поиск');
 const typed = async (s) => { await page.fill('#q', s); await page.waitForTimeout(200); };

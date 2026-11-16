@@ -1,18 +1,27 @@
 // overview.js — режим «Обзор» и «Показ» для документов петли внутри to-html.
-// Узнаёт файл по имени: business_requirements.md — БТ, bug_report.md — баг-репорт, change_request.md — запрос на правку,
-// technical_specification.md — спека. Для них над документом
-// появляются «Текст / Обзор» и «Показ»; остальные файлы to-html показывает как всегда. Всё на странице — текст
-// документа: разбор только раскладывает его по блокам; не узнанный раздел — обычный markdown на своём месте.
+// Какой файл как раскладывать, задают описания видов в views.js. Для файла с видом над документом появляются
+// «Текст / Обзор» и «Показ»; остальные файлы to-html показывает как всегда. Всё на странице — текст документа: блоки
+// только раскладывают его; что не взял ни один блок — обычный markdown на своём месте.
 // Ссылки FR-n / INT-n ищутся в той же папке; «#0» — фундамент эпика (_foundation/ выше по дереву); этап — по
 // `owns:` в шапке stages/stage-NN.md. Экспорт и копирование в Confluence/Word берут обычную отрисовку — обзор их не задевает.
 // Подключение к to-html: show() зовёт render() и mounted(), app.js отдаёт через attach() доступ к файлам и адресу.
 (function () {
   'use strict';
-  var md = window.markdownit({ html: false, linkify: true });
-  var api = null;
-  var KIND = { 'business_requirements.md': 'brd', 'bug_report.md': 'bug', 'change_request.md': 'cr', 'technical_specification.md': 'spec' };
-  // Документ, из которого спека берёт требования FR: по одному на папку задачи.
-  var SOURCES = [['business_requirements.md', 'БТ'], ['bug_report.md', 'Баг-репорт'], ['change_request.md', 'Запрос на правку']];
+  // Текст разделов рисует to-html (api.md): схемы, картинки и ссылки — как в «Тексте», от пути документа (CUR).
+  var api = null, CUR = '';
+  // ---------------------------------------------------------------- виды
+  // Проектный вид с тем же id заменяет встроенный, с новым id — добавляется (и при совпадении файлов идёт первым).
+  // Ошибки описаний не роняют страницу: файл пропускается, над документом — пометка.
+  var VIEWS = window.CODDOC_VIEWS || [];
+  // Описание вида с ошибкой (неизвестный блок) — в консоль: страница работает, раздел показывается как есть.
+  function warn(msg) { if (window.console) console.warn('overview.js: ' + msg); }
+  function globRe(p) { return new RegExp('^' + String(p).replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]') + '$', 'i'); }
+  function viewFor(name) {
+    for (var i = 0; i < VIEWS.length; i++) if ((VIEWS[i].files || []).some(function (p) { return globRe(p).test(name); })) return VIEWS[i];
+    return null;
+  }
+  function kindOf(v) { return v ? (v.kind || 'doc') : null; }
+  function viewsBy(role) { return VIEWS.filter(function (v) { return v.role === role; }); }
 
   var store = {
     get: function (k) { try { return sessionStorage.getItem('cv:' + k); } catch (e) { return null; } },
@@ -27,8 +36,8 @@
   function marks(html) {
     return html.replace(/(🟢|🔵|🟡|❓|⚠️)/g, function (m) { return '<span class="mk ' + MK[m][0] + '" title="' + MK[m][1] + '">' + m + '</span>'; });
   }
-  function R(text) { return marks(DOMPurify.sanitize(md.render(text || ''))); }
-  function RI(text) { return marks(DOMPurify.sanitize(md.renderInline(text || ''))); }
+  function R(text) { return marks(api.md(text || '', CUR)); }
+  function RI(text) { return marks(api.md(text || '', CUR, true)); }
   function card(inner, cls, id) { return '<div class="card' + (cls ? ' ' + cls : '') + '"' + (id ? ' id="' + id + '"' : '') + '>' + inner + '</div>'; }
   function dirOf(p) { var i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i); }
   function join(d, f) { return d ? d + '/' + f : f; }
@@ -58,6 +67,53 @@
   }
   function child(node, re) { for (var i = 0; node && i < node.children.length; i++) if (re.test(node.children[i].title)) return node.children[i]; return null; }
   function take(node, re) { var c = child(node, re); if (c) c.used = true; return c; }
+  // Правило вида находит раздел по названию ("title": регулярное выражение без учёта регистра, без номера раздела) или
+  // по номеру ("num": "4.2"). Правила одного уровня раздают разделы в два прохода: сначала по названию, потом по номеру
+  // среди ещё не занятых — перенумерация шаблона не сбивает раскладку, а документ с другими названиями раскладывается
+  // по номерам. Один раздел — одному правилу.
+  function titleRe(r) {
+    if (!r.title) return null;
+    try { return new RegExp(r.title, 'i'); } catch (e) { warn('неверное выражение "title": ' + r.title); return null; }
+  }
+  function assign(node, rules) {
+    var map = new Map(), taken = new Set(), kids = node ? node.children : [];
+    rules.forEach(function (r) {
+      var re = titleRe(r);
+      if (!re) return;
+      for (var i = 0; i < kids.length; i++) if (!taken.has(kids[i]) && re.test(secNum(kids[i].title).name)) { map.set(r, kids[i]); taken.add(kids[i]); return; }
+    });
+    rules.forEach(function (r) {
+      if (map.has(r) || r.num == null) return;
+      for (var i = 0; i < kids.length; i++) if (!taken.has(kids[i]) && secNum(kids[i].title).num === String(r.num)) { map.set(r, kids[i]); taken.add(kids[i]); return; }
+    });
+    return map;
+  }
+  // Правила верхнего уровня вида: разделы, их пары («with») и раздел критичности шапки.
+  function topRules(view) {
+    var rs = [];
+    ((view && view.sections) || []).forEach(function (r) { rs.push(r); if (r.with) rs.push(r.with); });
+    if (view && view.hero && view.hero.critical) rs.push(view.hero.critical);
+    return rs;
+  }
+  function topMap(view, root) {
+    if (!root) return new Map();
+    if (!root._amap || root._aview !== view) { root._amap = assign(root, topRules(view)); root._aview = view; }
+    return root._amap;
+  }
+  // Раздел верхнего уровня по правилу вида — или подраздел по одиночному правилу (данные, чек-лист).
+  function find(node, rule) {
+    if (!node || !rule) return null;
+    if (node._amap && node._amap.has(rule)) return node._amap.get(rule);
+    return assign(node, [rule]).get(rule) || null;
+  }
+  function takeRule(node, rule) { var c = find(node, rule); if (c) c.used = true; return c; }
+  function findTop(view, root, rule) { return rule ? topMap(view, root).get(rule) || null : null; }
+  function ruleFor(view, node, root) {
+    var hit = null;
+    topMap(view, root).forEach(function (n, r) { if (n === node && !hit && (view.sections || []).indexOf(r) >= 0) hit = r; });
+    return hit;
+  }
+  function ruleBy(view, block) { var rs = (view && view.sections) || []; for (var i = 0; i < rs.length; i++) if (rs[i].block === block) return rs[i]; return null; }
   function bodyMd(node) { return node ? node.body.join('\n').trim() : ''; }
   // Правило полноты: что обработчик раздела не забрал — строки, абзацы рядом с таблицей, подзаголовки ниже уровнем, —
   // выводится markdown на месте. Обзор раскладывает текст документа, а не выбирает из него.
@@ -120,14 +176,14 @@
 
   // ---------------------------------------------------------------- модели
   var FR_LINE = /^(?:-\s+)?\*\*FR-(\d+)\b\.?\s*(.*?)\*\*\s*(.*)$/;
-  function brdModel(text) {
+  function brdModel(text, view) {
     var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] };
     var m = { kind: 'brd', top: top, root: h1, head: header(h1), frs: [], crit: {}, critOther: [], critText: [] };
     var tm = h1.title.match(/^(.+?):\s*(.+)$/);
     m.kindLabel = tm ? tm[1] : 'Бизнес-требования'; m.title = tm ? tm[2] : h1.title;
     // Требования и критерии ищутся по содержимому, а не по номеру: подраздел §4 со строками FR — требования,
     // с пунктами «- **[FR-n]**» — критерии. Остальные подразделы §4 (например, «4.2. Роли») — обычным markdown.
-    var s4 = child(h1, /^4\.?\s/), kids4 = s4 ? s4.children : [];
+    var s4 = findTop(view, h1, ruleBy(view, 'requirements')), kids4 = s4 ? s4.children : [];
     var s41 = kids4.filter(function (k) { return k.body.some(function (l) { return FR_LINE.test(l); }); })[0] || null;
     var s42 = kids4.filter(function (k) { return k !== s41 && k.body.some(function (l) { return /^- \*\*\[FR-\d+\]\*\*/.test(l); }); })[0] || null;
     m.s41 = s41; m.s42 = s42;
@@ -156,12 +212,12 @@
     }
     return m;
   }
-  function specModel(text) {
+  function specModel(text, view) {
     var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] };
     var m = { kind: 'spec', top: top, root: h1, head: header(h1), ints: [], trace: {}, traceRows: [] };
     var tm = h1.title.match(/^(.+?):\s*(.+)$/);
     m.kindLabel = tm ? tm[1] : 'Техническая спецификация'; m.title = tm ? tm[2] : h1.title;
-    var s2 = child(h1, /^2\.?\s/);
+    var s2 = findTop(view, h1, ruleBy(view, 'interactions'));
     if (s2) s2.children.forEach(function (c) {
       var im = c.title.match(/^INT-(\d+)\.\s*(.+)$/);
       if (!im) return;
@@ -177,7 +233,7 @@
       m.ints.push({ node: c, id: 'INT-' + im[1], n: im[1], name: name, origin: origin, fields: f, routes: routes,
         dir: get(/^Граница/), trigger: get(/^Триггер/), traceFr: (get(/^Трассировка/).match(/FR-\d+/g) || []) });
     });
-    var s7 = child(h1, /^7\.?\s/);
+    var s7 = findTop(view, h1, ruleBy(view, 'trace'));
     if (s7) table(s7.body).rows.forEach(function (row) {
       m.traceRows.push(row);
       (row[0].match(/FR-\d+/g) || []).forEach(function (fr) { m.trace[fr] = { ints: (row[1] || '').match(/INT-\d+/g) || [], test: row[2] || '' }; });
@@ -198,7 +254,11 @@
   // ---------------------------------------------------------------- соседи по дереву
   function ctx(path) {
     var dir = dirOf(path), c = { dir: dir, brd: join(dir, 'business_requirements.md'), spec: join(dir, 'technical_specification.md'), stageOf: {}, children: [], epic: null, foundation: null };
-    SOURCES.some(function (s) { if (api.get(join(dir, s[0]))) { c.src = join(dir, s[0]); c.srcLabel = s[1]; return true; } return false; });
+    // Спека папки и документ, из которого она берёт требования FR, — по ролям видов ("spec", "source").
+    var specV = viewsBy('spec')[0];
+    if (specV) c.spec = join(dir, specV.files[0]);
+    c.specLabel = specV ? (specV.label || specV.id) : 'Спека';
+    viewsBy('source').some(function (v) { var p = join(dir, v.files[0]); if (api.get(p)) { c.src = p; c.srcLabel = v.label || v.id; return true; } return false; });
     if (!c.src) { c.src = c.brd; c.srcLabel = 'БТ'; }
     // Этапы: stages/stage-NN.md, `owns: [INT-1, …]` в шапке.
     api.paths().filter(function (p) { return dirOf(p) === join(dir, 'stages') && /\/stage-\d+\.md$/i.test(p); }).sort().forEach(function (p) {
@@ -239,58 +299,138 @@
   }
   function sub(c, cls) { var s = secNum(c.title); return card('<h3>' + esc(s.name) + '</h3><div class="cv-md">' + R(mdOf(c, false)) + '</div>', cls); }
   function heroChips(m, c, extra) {
-    var kv = m.head.kv, h = '<div class="chips"><span class="chip"><b>' + esc(kvGet(kv, /^Задача/) || '') + '</b></span>' + statusChip(kvGet(kv, /Статус/)) +
+    var kv = m.head.kv, key = kvGet(kv, /^Задача/);
+    var h = '<div class="chips">' + (key ? '<span class="chip"><b>' + esc(key) + '</b></span>' : '') + statusChip(kvGet(kv, /Статус/)) +
       (kvGet(kv, /^Редакция/) ? '<span class="chip">редакция ' + esc(kvGet(kv, /^Редакция/)) + '</span>' : '') +
       (kvGet(kv, /^Автор/) ? '<span class="chip">автор ' + esc(kvGet(kv, /^Автор/)) + '</span>' : '') + (extra || '');
     if (c.epic) h += '<span class="chip link"' + goAttr(c.epic.path) + '>эпик ' + esc(c.epic.key) + '</span>';
     c.children.forEach(function (ch) { var st = statusOf(ch.path); if (st !== null) h += '<span class="chip link"' + goAttr(ch.path) + '>часть ' + esc(ch.key) + '</span>'; });
-    if (c.foundation && m.kind === 'spec') h += '<span class="chip link"' + goAttr(c.foundation) + '>фундамент #0</span>';
+    if (c.foundation && heroOpt(m).foundation) h += '<span class="chip link"' + goAttr(c.foundation) + '>фундамент #0</span>';
+    return h + '</div>';
+  }
+  function heroOpt(m) { return (m.view && m.view.hero) || {}; }
+  function reEsc(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // Шапка вида («hero» в описании): чипы задачи, статуса, редакции и автора; критичность — первым словом раздела
+  // «critical»; соседний документ — «sibling» ("spec" — спека папки, "source" — документ, из которого спека берёт FR);
+  // строка-ключ шапки — «line»; открытые вопросы — списком или с номерами; легенда меток; остальные строки шапки;
+  // раздел, отданный блоку «questions».
+  function hero(m, c, oqSec) {
+    var hc = heroOpt(m), hd = m.head, extra = '';
+    if (hc.critical) { var crit = critWord(findTop(m.view, m.root, hc.critical)); if (crit) extra += '<span class="chip crit">критичность · ' + esc(crit) + '</span>'; }
+    if (hc.sibling === 'spec') { var ss = statusOf(c.spec); if (ss !== null) extra += '<span class="chip link"' + goAttr(c.spec) + '>' + esc(c.specLabel) + ' · ' + esc(ss) + '</span>'; }
+    if (hc.sibling === 'source') { var bs = statusOf(c.src); if (bs !== null) extra += '<span class="chip link"' + goAttr(c.src) + '>' + esc(c.srcLabel) + ' · ' + esc(bs) + '</span>'; }
+    var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' + heroChips(m, c, extra);
+    var lineRe = hc.line ? new RegExp('^' + reEsc(hc.line)) : null;
+    if (lineRe && kvGet(hd.kv, lineRe)) h += '<p class="muted" style="font-size:13px;margin:12px 0 0">' + esc(hc.line) + ': ' + RI(kvGet(hd.kv, lineRe)) + '</p>';
+    h += heroOq(hd, hc.questions === 'numbered');
+    if (hc.legend && hd.legend.length) h += '<details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:13px">Легенда меток</summary><div class="cv-md" style="font-size:13.5px">' +
+      hd.legend.map(function (l) { return '<div>' + RI(l) + '</div>'; }).join('') + '</div></details>';
+    h += heroRest(hd, hc.line ? new RegExp('^(Задача|Статус|Автор|Редакция|' + reEsc(hc.line) + ')') : SHOWN);
+    if (oqSec) {
+      var b = mdOf(oqSec, false).trim();
+      h += /^\s*(-|\d+\.)\s/m.test(b) ? '<div class="card" style="margin-top:16px"><h3>' + esc(oqSec.title) + '</h3><div class="cv-md">' + R(b) + '</div></div>'
+        : '<p class="muted" style="margin:14px 0 0">' + esc(oqSec.title) + ': ' + RI(b) + '</p>';
+    }
     return h + '</div>';
   }
 
-  // ---------------------------------------------------------------- обзор БТ
-  function brdOverview(m, c) {
-    var hd = m.head, specSt = statusOf(c.spec), heads = [];
-    var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
-      heroChips(m, c, specSt !== null ? '<span class="chip link"' + goAttr(c.spec) + '>Спека · ' + esc(specSt) + '</span>' : '');
-    h += heroOq(hd, false) + heroRest(hd, SHOWN) + '</div>';
-    var specM = specSt !== null ? specModel(fileText(c.spec)) : null;
-    m.root.children.forEach(function (sec, i) {
-      var id = 'cv-s-' + i;
-      heads.push({ level: 2, text: sec.title, id: id });
-      h += '<section class="blk" id="' + id + '">' + secHead(sec);
-      var n = secNum(sec.title).num;
-      // Текст сразу под «## N.» до первого подраздела — у разделов с раскладкой его обработчик не берёт.
-      if (/^[1-5]$/.test(n)) h += restCard(bodyMd(sec));
-      if (n === '1') h += brdContext(sec);
-      else if (n === '2') h += brdGoal(sec);
-      else if (n === '3') h += brdScope(sec);
-      else if (n === '4') { h += brdReqs(sec, m, specM, c); m.frs.forEach(function (f) { heads.push({ level: 3, text: (f.id + ' ' + f.name).trim(), id: 'fr-' + f.n }); }); }
-      else if (n === '5') h += brdLimits(sec);
-      else if (sec.body.join('').trim()) h += card('<div class="cv-md">' + R(bodyMd(sec)) + '</div>');
-      h += '<div class="stack" style="margin-top:14px">' + leftovers(sec) + '</div></section>';
+  // ---------------------------------------------------------------- блоки
+  // Блок раздела получает узел раздела, своё правило из описания вида и окружение (модель, соседи, оглавление).
+  // own — блок сам выводит текст сразу под «## N.»; иначе его выводит движок перед блоком.
+  function markKids(sec) { sec.children.forEach(function (k) { k.used = true; }); }
+  var BLOCKS = {
+    rows: { render: rowsBlock },
+    requirements: { render: function (sec, rule, env) {
+      var h = brdReqs(sec, env.m, env.specM, env.c, rule);
+      env.m.frs.forEach(function (f) { env.heads.push({ level: 3, text: (f.id + ' ' + f.name).trim(), id: 'fr-' + f.n }); });
+      return h;
+    } },
+    interactions: { own: true, render: function (sec, rule, env) {
+      var h = specInts(sec, env.m, env.c);
+      env.m.ints.forEach(function (x) { env.heads.push({ level: 3, text: x.id + ' ' + x.name, id: 'int-' + x.n }); });
+      return h;
+    } },
+    release: { own: true, render: function (sec, rule) { return specRelease(sec, rule); } },
+    trace: { own: true, render: function (sec, rule, env) { return specTrace(sec, env.m, env.srcM, env.c); } },
+    steps: { own: true, render: function (sec) { markKids(sec); return stepsHtml(sec); } },
+    touched: { own: true, render: function (sec) { markKids(sec); return touchedHtml(sec); } },
+    card: { own: true, render: function (sec, rule) { markKids(sec); return card('<div class="cv-md">' + R(mdOf(sec, false)) + '</div>', rule.style || ''); } },
+  };
+  // «rows»: подразделы рядами. Ряд из двух и больше — сетка в две колонки (пустые места остаются пустыми); ряд из одного
+  // — во всю ширину. Пункт ряда — правило подраздела: "block" (по умолчанию карточка), "style", "scroll".
+  function rowsBlock(sec, rule, env) {
+    var h = '', rows = (rule.rows || []).map(function (row) { return Array.isArray(row) ? row : [row]; });
+    var amap = assign(sec, [].concat.apply([], rows));
+    rows.forEach(function (row, ri) {
+      var items = row.map(function (it) { var n = amap.get(it) || null; if (n) n.used = true; return { it: it, node: n }; });
+      if (row.length >= 2) {
+        h += '<div class="grid2"' + (ri ? ' style="margin-top:14px"' : '') + '>' + items.map(function (x) { return itemHtml(x, env); }).join('') + '</div>';
+      } else if (items[0] && items[0].node) {
+        var x = itemHtml(items[0], env), blockItem = items[0].it.block && items[0].it.block !== 'card';
+        h += blockItem || !ri ? x : '<div style="margin-top:14px">' + x + '</div>';
+      }
     });
-    return { html: h, headings: heads };
-  }
-  function brdContext(sec) {
-    var type = take(sec, /^1\.0/), prob = take(sec, /^1\.1/), who = take(sec, /^1\.2/), cust = take(sec, /^1\.3/), now = take(sec, /^1\.4/);
-    return '<div class="grid2">' + (prob ? sub(prob, 'problem') : '') + (type ? sub(type) : '') + '</div>' +
-      '<div class="grid2" style="margin-top:14px">' + (who ? sub(who) : '') + (cust ? sub(cust) : '') + '</div>' + (now ? '<div style="margin-top:14px">' + sub(now) + '</div>' : '');
-  }
-  function brdGoal(sec) {
-    var goal = take(sec, /^2\.1/), val = take(sec, /^2\.2/), risk = take(sec, /^2\.3/), h = '';
-    if (goal) h += '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(goal.title).name) + '</h3><div class="grid2">' + mdOf(goal, false).trim().split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) { return card('<div class="story cv-md">' + R(p) + '</div>', 'goal'); }).join('') + '</div>';
-    if (val) h += '<div style="margin-top:14px">' + sub(val) + '</div>';
-    if (risk) h += '<div style="margin-top:14px">' + card('<h3>' + esc(secNum(risk.title).name) + '</h3><div class="cv-md tw">' + R(mdOf(risk, false)) + '</div>') + '</div>';
     return h;
   }
-  function brdScope(sec) {
-    var inn = take(sec, /^3\.1/), out = take(sec, /^3\.2/), arch = take(sec, /^3\.3/), dep = take(sec, /^3\.4/);
-    return '<div class="grid2">' + (inn ? sub(inn, 'scope-in') : '') + (out ? sub(out, 'scope-out') : '') + '</div>' +
-      '<div class="grid2" style="margin-top:14px">' + (arch ? sub(arch) : '') + (dep ? sub(dep) : '') + '</div>';
+  function itemHtml(x, env) {
+    var it = x.it, node = x.node;
+    if (!node) return '';
+    var b = it.block || 'card';
+    if (b === 'stories') return '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(node.title).name) + '</h3><div class="grid2">' +
+      mdOf(node, false).trim().split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) { return card('<div class="story cv-md">' + R(p) + '</div>', 'goal'); }).join('') + '</div>';
+    if (b === 'table-cards') return tableCards(node, it.cards);
+    if (b === 'labeled') return labeledHtml(node);
+    if (b !== 'card') warn('неизвестный блок подраздела "' + b + '"');
+    if (it.scroll) return card('<h3>' + esc(secNum(node.title).name) + '</h3><div class="cv-md tw">' + R(mdOf(node, false)) + '</div>', it.style);
+    return sub(node, it.style);
   }
-  function brdReqs(sec, m, spec, c) {
-    var s41 = m.s41, s42 = m.s42, s43 = take(sec, /^4\.3/), h = '';
+  // «table-cards»: таблица подраздела — карточками: "roles" (роль и права), "services" (сервис, роль, владелец,
+  // происхождение), "objects" (№, объект, что это, что меняется). Без таблицы — подраздел как есть.
+  function tableCards(node, kind) {
+    var t = table(node.body), h = '';
+    if (kind === 'roles') {
+      if (!t.rows.length) return sub(node);
+      return '<h3 class="cv-sub">' + esc(secNum(node.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
+        var name = r[0].replace(/\s*\(`?[A-Z_]+`?\)/, ''), code = (r[0].match(/`([A-Z_]+)`/) || [])[1];
+        return card('<div class="role"><span class="av">' + esc(name.replace(/[`*]/g, '').trim()[0] || '?') + '</span><div><b>' + RI(name) + '</b>' + (code ? ' <code>' + esc(code) + '</code>' : '') +
+          '<div style="margin-top:4px">' + RI(r.slice(1).join(' · ')) + '</div></div></div>');
+      }).join('') + '</div>' + restCard(nonTable(node) + '\n' + kidsMd(node));
+    }
+    if (kind === 'services') {
+      if (!(t.rows.length && t.head.length >= 3)) return sub(node);
+      return '<h3 class="cv-sub">' + esc(secNum(node.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
+        return card('<div class="svc"><b>' + RI(r[0]) + '</b><span>' + RI(r[3] || '') + '</span></div><div style="margin-top:6px">' + RI(r[1] || '') + '</div><div class="muted" style="font-size:13.5px;margin-top:4px">' + RI(r[2] || '') + '</div>' +
+          (r.length > 4 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(4).map(RI).join(' · ') + '</div>' : ''));
+      }).join('') + '</div>' + restCard(nonTable(node) + '\n' + kidsMd(node));
+    }
+    if (kind === 'objects') {
+      if (!(t.rows.length && t.head.length >= 3)) return sub(node);
+      var off = t.head.length >= 4 ? 1 : 0;
+      return '<h3 class="cv-sub">' + esc(secNum(node.title).name) + '</h3><div class="grid3">' + t.rows.map(function (r) {
+        return card('<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>' + (off ? '<span class="muted" style="font-weight:500">' + RI(r[0]) + '</span> ' : '') + RI(r[off]) + '</b>' +
+          (/новый/i.test(r[off + 2] || '') ? '<span class="badge new">новый</span>' : '<span class="badge">меняется</span>') + '</div><p class="muted" style="font-size:13.5px">' +
+          RI(r[off + 1]) + '</p><div style="font-size:14px">' + RI(r[off + 2] || '') + '</div>' +
+          (r.length > off + 3 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(off + 3).map(RI).join(' · ') + '</div>' : ''), 'obj');
+      }).join('') + '</div>' + restCard(nonTable(node) + '\n' + kidsMd(node));
+    }
+    warn('неизвестный вид карточек "' + kind + '"');
+    return sub(node) + h;
+  }
+  // «labeled»: подраздел из строк «**Ключ:** значение» — «Суть» карточкой, остальные ключи сеткой, прочее как есть.
+  function labeledHtml(what) {
+    var parts = [], other = [], h = '';
+    what.body.forEach(function (l) { var mm = l.match(/^\*\*(.+?):\*\*\s*(.*)$/); if (mm) parts.push(mm); else if (l.trim()) other.push(l); });
+    var essence = parts.filter(function (p) { return /Суть/.test(p[1]); })[0], rest = parts.filter(function (p) { return !/Суть/.test(p[1]); });
+    h += '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(what.title).name) + '</h3>';
+    if (essence) h += card('<h3>' + esc(essence[1]) + '</h3><div class="story cv-md">' + RI(essence[2]) + '</div>', 'goal');
+    if (rest.length) h += '<div class="grid2" style="margin-top:14px">' + rest.map(function (p) { return card('<h3>' + esc(p[1]) + '</h3><div>' + RI(p[2]) + '</div>'); }).join('') + '</div>';
+    if (other.length) h += card('<div class="cv-md">' + R(other.join('\n')) + '</div>');
+    return h + restCard(kidsMd(what));
+  }
+  // «requirements»: требования FR карточками с критериями приёмки; "data" — подраздел бизнес-данных карточками.
+  function brdReqs(sec, m, spec, c, rule) {
+    var s41 = m.s41, s42 = m.s42, s43 = takeRule(sec, (rule && rule.data) || { num: '4.3' }), h = '';
     if (s41) s41.used = true;
     if (s42) s42.used = true;
     var critCap = s42 ? '<div class="ac-cap">' + RI(secNum(s42.title).name) + '</div>' : '';
@@ -315,79 +455,7 @@
       orphan.map(function (k) { return m.crit[k].map(acHtml).join(''); }).join('') + '</div>';
     if (m.critOther.length) h += card('<h3>Критерии без требования</h3><ul class="cv-md">' + m.critOther.map(function (x) { return '<li>' + RI(x.text) + '</li>'; }).join('') + '</ul>');
     h += restCard(m.critText.join('\n') + '\n' + kidsMd(s42));
-    if (s43) {
-      var t = table(s43.body);
-      if (t.rows.length && t.head.length >= 3) {
-        var off = t.head.length >= 4 ? 1 : 0;
-        h += '<h3 class="cv-sub">' + esc(secNum(s43.title).name) + '</h3><div class="grid3">' + t.rows.map(function (r) {
-          return card('<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>' + (off ? '<span class="muted" style="font-weight:500">' + RI(r[0]) + '</span> ' : '') + RI(r[off]) + '</b>' +
-            (/новый/i.test(r[off + 2] || '') ? '<span class="badge new">новый</span>' : '<span class="badge">меняется</span>') + '</div><p class="muted" style="font-size:13.5px">' +
-            RI(r[off + 1]) + '</p><div style="font-size:14px">' + RI(r[off + 2] || '') + '</div>' +
-            (r.length > off + 3 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(off + 3).map(RI).join(' · ') + '</div>' : ''), 'obj');
-        }).join('') + '</div>' + restCard(nonTable(s43) + '\n' + kidsMd(s43));
-      } else h += sub(s43);
-    }
-    return h;
-  }
-  function brdLimits(sec) {
-    var pr = take(sec, /^5\.1/), dl = take(sec, /^5\.2/), roles = take(sec, /^5\.3/), h = '<div class="grid2">' + (pr ? sub(pr) : '') + (dl ? sub(dl) : '') + '</div>';
-    if (roles) {
-      var t = table(roles.body);
-      if (t.rows.length) h += '<h3 class="cv-sub">' + esc(secNum(roles.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
-        var name = r[0].replace(/\s*\(`?[A-Z_]+`?\)/, ''), code = (r[0].match(/`([A-Z_]+)`/) || [])[1];
-        return card('<div class="role"><span class="av">' + esc(name.replace(/[`*]/g, '').trim()[0] || '?') + '</span><div><b>' + RI(name) + '</b>' + (code ? ' <code>' + esc(code) + '</code>' : '') +
-          '<div style="margin-top:4px">' + RI(r.slice(1).join(' · ')) + '</div></div></div>');
-      }).join('') + '</div>' + restCard(nonTable(roles) + '\n' + kidsMd(roles));
-      else h += sub(roles);
-    }
-    return h;
-  }
-
-  // ---------------------------------------------------------------- обзор спеки
-  function specOverview(m, c) {
-    var hd = m.head, brdSt = statusOf(c.src), heads = [];
-    var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
-      heroChips(m, c, brdSt !== null ? '<span class="chip link"' + goAttr(c.src) + '>' + esc(c.srcLabel) + ' · ' + esc(brdSt) + '</span>' : '');
-    if (kvGet(hd.kv, /^Источник/)) h += '<p class="muted" style="font-size:13px;margin:12px 0 0">Источник: ' + RI(kvGet(hd.kv, /^Источник/)) + '</p>';
-    h += heroOq(hd, true);
-    if (hd.legend.length) h += '<details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:13px">Легенда меток</summary><div class="cv-md" style="font-size:13.5px">' +
-      hd.legend.map(function (l) { return '<div>' + RI(l) + '</div>'; }).join('') + '</div></details>';
-    h += heroRest(hd, /^(Задача|Статус|Автор|Редакция|Источник)/) + '</div>';
-    var brdM = brdSt !== null ? docModel(c.src, fileText(c.src)) : null;
-    m.root.children.forEach(function (sec, i) {
-      var id = 'cv-s-' + i;
-      heads.push({ level: 2, text: sec.title, id: id });
-      h += '<section class="blk" id="' + id + '">' + secHead(sec);
-      var n = secNum(sec.title).num;
-      if (n === '1') h += restCard(bodyMd(sec)) + specIntro(sec);
-      else if (n === '2') { h += specInts(sec, m, c); m.ints.forEach(function (x) { heads.push({ level: 3, text: x.id + ' ' + x.name, id: 'int-' + x.n }); }); }
-      else if (n === '6') h += specRelease(sec);
-      else if (n === '7') h += specTrace(sec, m, brdM, c);
-      else if (sec.body.join('').trim()) h += card('<div class="cv-md">' + R(bodyMd(sec)) + '</div>');
-      h += '<div class="stack" style="margin-top:14px">' + leftovers(sec) + '</div></section>';
-    });
-    return { html: h, headings: heads };
-  }
-  function specIntro(sec) {
-    var what = take(sec, /^1\.1/), svc = take(sec, /^1\.2/), h = '';
-    if (what) {
-      var parts = [], other = [];
-      what.body.forEach(function (l) { var mm = l.match(/^\*\*(.+?):\*\*\s*(.*)$/); if (mm) parts.push(mm); else if (l.trim()) other.push(l); });
-      var essence = parts.filter(function (p) { return /Суть/.test(p[1]); })[0], rest = parts.filter(function (p) { return !/Суть/.test(p[1]); });
-      h += '<h3 class="cv-sub" style="margin-top:0">' + RI(secNum(what.title).name) + '</h3>';
-      if (essence) h += card('<h3>' + esc(essence[1]) + '</h3><div class="story cv-md">' + RI(essence[2]) + '</div>', 'goal');
-      if (rest.length) h += '<div class="grid2" style="margin-top:14px">' + rest.map(function (p) { return card('<h3>' + esc(p[1]) + '</h3><div>' + RI(p[2]) + '</div>'); }).join('') + '</div>';
-      if (other.length) h += card('<div class="cv-md">' + R(other.join('\n')) + '</div>');
-      h += restCard(kidsMd(what));
-    }
-    if (svc) {
-      var t = table(svc.body);
-      if (t.rows.length && t.head.length >= 3) h += '<h3 class="cv-sub">' + esc(secNum(svc.title).name) + '</h3><div class="grid2">' + t.rows.map(function (r) {
-        return card('<div class="svc"><b>' + RI(r[0]) + '</b><span>' + RI(r[3] || '') + '</span></div><div style="margin-top:6px">' + RI(r[1] || '') + '</div><div class="muted" style="font-size:13.5px;margin-top:4px">' + RI(r[2] || '') + '</div>' +
-          (r.length > 4 ? '<div class="muted" style="font-size:13px;margin-top:4px">' + r.slice(4).map(RI).join(' · ') + '</div>' : ''));
-      }).join('') + '</div>' + restCard(nonTable(svc) + '\n' + kidsMd(svc));
-      else h += sub(svc);
-    }
+    if (s43) h += tableCards(s43, 'objects');
     return h;
   }
   function specInts(sec, m, c) {
@@ -421,8 +489,8 @@
     }).join('') + '</div>';
     return h;
   }
-  function specRelease(sec) {
-    var pre = take(sec, /^6\.5/), h = '<div class="stack">' + sec.children.filter(function (x) { return !x.used && x !== pre; }).map(function (x) { x.used = true; return sub(x); }).join('') + '</div>';
+  function specRelease(sec, rule) {
+    var pre = takeRule(sec, (rule && rule.checklist) || { num: '6.5' }), h = '<div class="stack">' + sec.children.filter(function (x) { return !x.used && x !== pre; }).map(function (x) { x.used = true; return sub(x); }).join('') + '</div>';
     if (sec.body.join('').trim()) h = card('<div class="cv-md">' + R(bodyMd(sec)) + '</div>') + h;
     if (pre) {
       var items = [], tail = [];
@@ -451,6 +519,60 @@
     return h + restCard(nonTable(sec) + '\n' + kidsMd(sec));
   }
 
+  // ---------------------------------------------------------------- движки
+  // «sections» (БТ, спека): раздел — заголовок, блок по правилу (или текст как есть), не взятые подразделы — карточками.
+  // «cards» (баг-репорт, запрос на правку): раздел — карточкой целиком; «pair» ставит два раздела рядом.
+  function envOf(m, c, heads) {
+    return { m: m, c: c, heads: heads,
+      specM: statusOf(c.spec) !== null ? docModel(c.spec, fileText(c.spec)) : null,
+      srcM: statusOf(c.src) !== null ? docModel(c.src, fileText(c.src)) : null };
+  }
+  function sectionsOverview(m, c) {
+    var view = m.view, heads = [], env = envOf(m, c, heads), qRule = ruleBy(view, 'questions'), oq = findTop(view, m.root, qRule);
+    var h = hero(m, c, oq);
+    m.root.children.forEach(function (sec, i) {
+      if (sec === oq) return;
+      var id = 'cv-s-' + i;
+      heads.push({ level: 2, text: sec.title, id: id });
+      h += '<section class="blk" id="' + id + '">' + secHead(sec);
+      var rule = ruleFor(view, sec, m.root), B = rule && rule.block ? BLOCKS[rule.block] : null;
+      if (rule && rule.block && !B) warn('неизвестный блок "' + rule.block + '"');
+      if (B) { if (!B.own) h += restCard(bodyMd(sec)); h += B.render(sec, rule, env); }
+      else if (rule && rule.style) h += BLOCKS.card.render(sec, rule, env);
+      else if (sec.body.join('').trim()) h += card('<div class="cv-md">' + R(bodyMd(sec)) + '</div>');
+      h += '<div class="stack" style="margin-top:14px">' + leftovers(sec) + '</div></section>';
+    });
+    return { html: h, headings: heads };
+  }
+  function cardsOverview(m, c) {
+    var view = m.view, h1 = m.root, heads = [], env = envOf(m, c, heads), qRule = ruleBy(view, 'questions'), oq = findTop(view, h1, qRule);
+    var pairs = (view.sections || []).filter(function (r) { return r.block === 'pair'; })
+      .map(function (r) { return { rule: r, left: findTop(view, h1, r), right: findTop(view, h1, r.with) }; });
+    var h = hero(m, c, oq);
+    h1.children.forEach(function (s, i) {
+      if (s === oq) return;
+      if (pairs.some(function (p) { return p.right === s && p.left; })) return;
+      var id = 'cv-s-' + i, p = pairs.filter(function (x) { return x.left === s && x.right; })[0];
+      if (p) {
+        var j = h1.children.indexOf(p.right);
+        heads.push({ level: 2, text: s.title, id: id }, { level: 2, text: p.right.title, id: 'cv-s-' + j });
+        m.frs.filter(function (f) { return f.sec === p.right; }).forEach(function (f) { heads.push({ level: 3, text: f.id, id: 'fr-' + f.n }); });
+        h += '<section class="blk">' + pairHtml(s, p.right, m, c, env.specM, [id, 'cv-s-' + j], p.rule.style) + '</section>';
+        return;
+      }
+      heads.push({ level: 2, text: s.title, id: id });
+      h += '<section class="blk" id="' + id + '">' + secHead(s);
+      var rule = ruleFor(view, s, h1), B = rule && rule.block && rule.block !== 'pair' ? BLOCKS[rule.block] : null;
+      if (rule && rule.block && rule.block !== 'pair' && !B) warn('неизвестный блок "' + rule.block + '"');
+      // Как в раскладке по разделам: блок, который берёт не весь раздел, — текст раздела над ним, подразделы без правил под ним.
+      if (B && !B.own) h += restCard(bodyMd(s));
+      h += B ? B.render(s, rule, env) : card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', (rule && rule.block !== 'pair' && rule.style) || '');
+      var lo = B && !B.own ? leftovers(s) : '';
+      if (lo) h += '<div class="stack" style="margin-top:14px">' + lo + '</div>';
+      h += '</section>';
+    });
+    return { html: h, headings: heads };
+  }
   // ---------------------------------------------------------------- баг-репорт и запрос на правку
   // Устроены одинаково: шапка, пронумерованные разделы, требования строками «- **FR-n:** текст — 🔵 источник»,
   // ненумерованные «Открытые вопросы» (и у запроса — «Что рядом остаётся прежним»).
@@ -476,9 +598,20 @@
     });
     return m;
   }
+  // Модель документа — по его виду: kind "brd" / "spec" / "bug" / "cr" — разбор требований, взаимодействий и
+  // трассировки; "doc" — только дерево разделов и шапка (вид для своего документа).
   function docModel(path, text) {
-    var kind = KIND[path.split('/').pop()];
-    return kind === 'brd' ? brdModel(text) : kind === 'spec' ? specModel(text) : smallModel(text, kind);
+    var v = viewFor(path.split('/').pop()), k = kindOf(v), m;
+    if (k === 'brd') m = brdModel(text, v);
+    else if (k === 'spec') m = specModel(text, v);
+    else if (k === 'bug' || k === 'cr') m = smallModel(text, k);
+    else m = genericModel(text, v || {});
+    m.view = v || {}; m.frs = m.frs || []; m.ints = m.ints || []; m.trace = m.trace || {};
+    return m;
+  }
+  function genericModel(text, v) {
+    var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] }, tm = h1.title.match(/^(.+?):\s*(.+)$/);
+    return { kind: 'doc', top: top, root: h1, head: header(h1), kindLabel: tm ? tm[1] : (v.label || ''), title: tm ? tm[2] : h1.title };
   }
   // Первое слово раздела критичности («Средняя. …», «Высокая: …») — чипом в шапку.
   function critWord(sec) { var mm = sec && bodyMd(sec).match(/^([А-ЯЁA-Z][^.:;,\n]{0,24})[.:]/); return mm ? mm[1] : ''; }
@@ -490,19 +623,6 @@
     return '<div class="card fr" id="fr-' + f.n + '"><div class="top"><div class="head"><span class="id">' + f.id + '</span>' +
       (links ? '<span class="links"><span class="muted" style="font-size:12.5px">в спеке</span>' + links + '</span>' : '') + '</div><div class="cv-md">' + RI(f.main) + '</div>' +
       (f.source ? '<div class="muted" style="font-size:13px;margin-top:6px">' + RI(f.source) + '</div>' : '') + '</div></div>';
-  }
-  function smallHero(m, c, crit, oq) {
-    var specSt = statusOf(c.spec), hd = m.head;
-    var h = '<div class="hero" id="cv-top"><div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' +
-      heroChips(m, c, (crit ? '<span class="chip crit">критичность · ' + esc(crit) + '</span>' : '') +
-        (specSt !== null ? '<span class="chip link"' + goAttr(c.spec) + '>Спека · ' + esc(specSt) + '</span>' : ''));
-    h += heroOq(hd, false) + heroRest(hd, SHOWN);
-    if (oq) {
-      var b = mdOf(oq, false).trim();
-      h += /^\s*(-|\d+\.)\s/m.test(b) ? '<div class="card" style="margin-top:16px"><h3>' + esc(oq.title) + '</h3><div class="cv-md">' + R(b) + '</div></div>'
-        : '<p class="muted" style="margin:14px 0 0">' + esc(oq.title) + ': ' + RI(b) + '</p>';
-    }
-    return h + '</div>';
   }
   function stepsHtml(s) {
     var items = [], rest = [];
@@ -538,32 +658,6 @@
     if (rest) h += '<div class="cv-md" style="margin-top:12px">' + R(rest) + '</div>';
     return h;
   }
-  function smallOverview(m, c) {
-    var h1 = m.root, heads = [], specM = statusOf(c.spec) !== null ? specModel(fileText(c.spec)) : null, bug = m.kind === 'bug';
-    var sec = function (re) { return child(h1, re); };
-    var proc = sec(/^1\.?\s/), second = sec(/^2\.?\s/), left = sec(/^3\.?\s/), right = sec(/^4\.?\s/);
-    var check = bug ? null : sec(/^5\.?\s/), critS = bug ? sec(/^5\.?\s/) : sec(/^6\.?\s/), same = sec(/остаётся прежним/i), oq = sec(/^Открытые вопросы/i);
-    var h = smallHero(m, c, critWord(critS), oq);
-    h1.children.forEach(function (s, i) {
-      if (s === oq || (s === right && left)) return;
-      var id = 'cv-s-' + i;
-      if (s === left && right) {
-        var j = h1.children.indexOf(right);
-        heads.push({ level: 2, text: s.title, id: id }, { level: 2, text: right.title, id: 'cv-s-' + j });
-        m.frs.filter(function (f) { return f.sec === right; }).forEach(function (f) { heads.push({ level: 3, text: f.id, id: 'fr-' + f.n }); });
-        h += '<section class="blk">' + pairHtml(s, right, m, c, specM, [id, 'cv-s-' + j], bug ? 'fact' : 'was-card') + '</section>';
-        return;
-      }
-      heads.push({ level: 2, text: s.title, id: id });
-      h += '<section class="blk" id="' + id + '">' + secHead(s);
-      if (s === second) h += bug ? stepsHtml(s) : touchedHtml(s);
-      else if (s === check) h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', 'goal');
-      else if (s === same) h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', 'scope-out');
-      else h += card('<div class="cv-md">' + R(mdOf(s, false)) + '</div>', s === proc ? 'proc' : '');
-      h += '</section>';
-    });
-    return { html: h, headings: heads };
-  }
   function smallSlides(m, c) {
     var h1 = m.root, out = [], bug = m.kind === 'bug', sec = function (re) { return child(h1, re); };
     var proc = sec(/^1\.?\s/), second = sec(/^2\.?\s/), left = sec(/^3\.?\s/), right = sec(/^4\.?\s/), check = bug ? null : sec(/^5\.?\s/), critS = bug ? sec(/^5\.?\s/) : sec(/^6\.?\s/);
@@ -580,7 +674,7 @@
 
   // ---------------------------------------------------------------- ссылки FR-n / INT-n / #0 в тексте
   function linkRefs(root, m, c) {
-    var brd = fileText(c.src) !== null ? docModel(c.src, fileText(c.src)) : null, spec = fileText(c.spec) !== null ? specModel(fileText(c.spec)) : null;
+    var brd = fileText(c.src) !== null ? docModel(c.src, fileText(c.src)) : null, spec = fileText(c.spec) !== null ? docModel(c.spec, fileText(c.spec)) : null;
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [], n;
     while ((n = walker.nextNode())) if (/\b(FR|INT)-\d+|#0\b/.test(n.nodeValue) && !n.parentElement.closest('[data-cv-go], .id, .ac-id, a, pre, .cv-bar')) nodes.push(n);
     nodes.forEach(function (tn) {
@@ -608,6 +702,12 @@
   function slidesFor(m, c) {
     if (m.kind === 'bug' || m.kind === 'cr') return smallSlides(m, c);
     var out = [], hd = m.head;
+    // Свой вид без «kind»: титул и по экрану на раздел.
+    if (m.kind === 'doc') {
+      out.push({ name: 'Титул', html: '<div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' + heroChips(m, c) });
+      m.root.children.forEach(function (s) { out.push({ name: secNum(s.title).name, html: '<h2>' + RI(secNum(s.title).name) + '</h2><div class="cv-md">' + R(mdOf(s, false)) + '</div>' }); });
+      return out;
+    }
     function title(extra) { return '<div class="kind">' + esc(m.kindLabel) + '</div><h1>' + RI(m.title) + '</h1>' + heroChips(m, c) + (extra || ''); }
     if (m.kind === 'brd') {
       var s1 = child(m.root, /^1\.?\s/), s2 = child(m.root, /^2\.?\s/), s3 = child(m.root, /^3\.?\s/), s5 = child(m.root, /^5\.?\s/);
@@ -673,8 +773,10 @@
     document.getElementById('cvScount').textContent = (SH.i + 1) + ' / ' + SH.slides.length;
     document.getElementById('cvSprog').style.width = ((SH.i + 1) / SH.slides.length * 100) + '%';
     showEl().querySelector('.slide').scrollTop = 0;
+    api.mount(document.getElementById('cvSlide'));
   }
   function present(e) {
+    CUR = e.path;
     var c = ctx(e.path), m = docModel(e.path, api.text(e));
     SH.slides = slidesFor(m, c); SH.i = 0;
     showEl().hidden = false; draw();
@@ -691,16 +793,17 @@
   // Вызывается из show() to-html после обычной отрисовки: свой вид или null — оставить как есть.
   var drawn = null;
   function render(e, out) {
-    var kind = KIND[e.name];
+    var v = viewFor(e.name);
     drawn = null;
-    if (!kind || !api.has(e)) return null;
+    if (!v || !api.has(e)) return null;
     // Пришли на заголовок обычной отрисовки (поиск, ссылка из другого документа) — в обзоре его нет: текстом.
     var want = (location.hash.match(/[#&]h=([^&]*)/) || [])[1];
     var foreign = !!want && !/^(cv-|fr-|int-)/.test(decodeURIComponent(want));
     if (mode() === 'text' || foreign) { drawn = 'text'; return { html: bar('text') + out.html, headings: out.headings }; }
     drawn = 'overview';
-    var c = ctx(e.path), m = docModel(e.path, api.text(e));
-    var res = kind === 'brd' ? brdOverview(m, c) : kind === 'spec' ? specOverview(m, c) : smallOverview(m, c);
+    CUR = e.path;
+    var c = ctx(e.path), m = docModel(e.path, api.text(e)), k = kindOf(v);
+    var res = (v.layout || (k === 'bug' || k === 'cr' ? 'cards' : 'sections')) === 'cards' ? cardsOverview(m, c) : sectionsOverview(m, c);
     res.html += restCard(outsideMd(m));
     // В правом оглавлении — текст заголовка без разметки (~~, **, `).
     res.headings.forEach(function (x) { x.text = x.text.replace(/~~|\*\*|`/g, ''); });
@@ -717,7 +820,7 @@
   }
   function go(target) {
     var i = target.indexOf('#'), path = i < 0 ? target : target.slice(0, i), id = i < 0 ? 'cv-top' : target.slice(i + 1);
-    if (KIND[path.split('/').pop()]) store.set('mode', 'overview');
+    if (viewFor(path.split('/').pop())) store.set('mode', 'overview');
     location.hash = api.href(path, id);
   }
   document.addEventListener('click', function (ev) {

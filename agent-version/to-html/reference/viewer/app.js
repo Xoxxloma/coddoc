@@ -22,7 +22,7 @@
   /** @typedef {{ picked: Picked[], label: string }} PickedSet */
   /** @typedef {{ v: 1, made: string, root: string, base: string, open: string, files: Array<[string, number, string | null]> }} Data */
   /** @typedef {{ level: number, text: string, id: string }} Heading */
-  /** @typedef {{ file: string, headings: Heading[], slugs: Map<string, number>, nb?: boolean }} Env */
+  /** @typedef {{ file: string, headings: Heading[], slugs: Map<string, number>, nb?: boolean, frag?: boolean }} Env */
   /**
    * @typedef {{ type: "ext", href: string }
    *   | { type: "anchor", id: string }
@@ -325,6 +325,7 @@
   md.core.ruler.push("to_html_headings", (state) => {
     /** @type {Env} */
     const env = state.env;
+    if (env.frag) return;
     const tokens = state.tokens;
     for (let i = 0; i < tokens.length; i++) {
       if (tokens[i].type !== "heading_open") continue;
@@ -338,6 +339,7 @@
 
   // Пункты «- [ ] …» / «- [x] …» — галочка вместо скобок.
   md.core.ruler.push("to_html_tasks", (state) => {
+    if (state.env.frag) return;
     const tokens = state.tokens;
     for (let i = 2; i < tokens.length; i++) {
       if (tokens[i].type !== "inline" || tokens[i - 1].type !== "paragraph_open" || tokens[i - 2].type !== "list_item_open") continue;
@@ -361,6 +363,7 @@
     const id = tokens[idx].attrGet("id") ?? "";
     /** @type {Env} */
     const e = env;
+    if (e.frag) return self.renderToken(tokens, idx, options);
     return self.renderToken(tokens, idx, options) + `<a class="anchor" href="${esc(hrefOf(e.file, id))}" aria-hidden="true" tabindex="-1">#</a>`;
   };
 
@@ -675,11 +678,19 @@
     }
   });
 
-  rules.fence = (tokens, idx) => {
+  rules.fence = (tokens, idx, options, env) => {
     const t = tokens[idx];
     const lang = (t.info.trim().split(/\s+/)[0] ?? "").toLowerCase();
-    return lang === "mermaid" ? mermaidFigure(t.content) : codeBlock(t.content, lang);
+    if (lang === "mermaid") return mermaidFigure(t.content);
+    /** @type {Env} */
+    const e = env;
+    return e.frag ? plainCode(t.content, lang) : codeBlock(t.content, lang);
   };
+  // Код в «Обзоре» — без шапки и подсветки: вид карточек задаёт overview.css.
+  /** @param {string} code @param {string} lang */
+  function plainCode(code, lang) {
+    return `<pre><code${lang ? ` class="language-${esc(lang)}"` : ""}>${esc(code)}</code></pre>\n`;
+  }
 
   // Схема рисуется позже (drawDiagram), а пока на её месте — исходник.
   /** @param {string} src */
@@ -688,11 +699,11 @@
       `<figcaption>Mermaid <button class="icon-btn fig-btn" type="button" data-expand-fig title="Развернуть схему" aria-label="Развернуть схему">` +
       `${iconMark("i-expand")}</button></figcaption></figure>`;
   }
-  rules.code_block = (tokens, idx) => codeBlock(tokens[idx].content, "");
+  rules.code_block = (tokens, idx, options, env) => (/** @type {Env} */ (env).frag ? plainCode : codeBlock)(tokens[idx].content, "");
 
-  rules.table_open = () =>
+  rules.table_open = (tokens, idx, options, env) => /** @type {Env} */ (env).frag ? "<table>\n" :
     `<div class="table"><button class="icon-btn expand" type="button" data-expand title="Развернуть таблицу" aria-label="Развернуть таблицу">${iconMark("i-expand")}</button><table>`;
-  rules.table_close = () => "</table></div>";
+  rules.table_close = (tokens, idx, options, env) => /** @type {Env} */ (env).frag ? "</table>\n" : "</table></div>";
 
   /** @type {Record<string, string>} */
   const LANG = { sh: "bash", shell: "bash", zsh: "bash", console: "bash", yml: "yaml", js: "javascript", ts: "typescript",
@@ -784,6 +795,18 @@
       html += `<section class="sec">${part}</section>`;
     }
     return { html, headings: env.headings };
+  }
+
+  // Кусок документа для «Обзора» (overview.js) — тем же разбором, что и весь документ: схемы, картинки, ссылки и
+  // вставки считаются от пути документа. Заголовки без якорей (в обзоре свои), таблицы, код и галочки — без
+  // обёрток to-html: вид карточек задаёт overview.css. Сырой HTML — текстом, как обзор показывал всегда:
+  // иначе латинское слово в угловых скобках («<id>») очистка примет за тег и удалит.
+  /** @param {string} src @param {string} file @param {boolean} [inline] */
+  function fragment(src, file, inline) {
+    /** @type {Env} */
+    const env = { file, headings: [], slugs: new Map(), frag: true };
+    md.options.html = false;
+    try { return purify(inline ? md.renderInline(src, env) : md.render(src, env)); } finally { md.options.html = true; }
   }
 
   /** @param {Entry} e @returns {{ html: string, headings: Heading[] }} */
@@ -1120,7 +1143,8 @@
     return assetsReady;
   }
 
-  doc.addEventListener("error", (ev) => {
+  /** @param {Event} ev */
+  function imgFallback(ev) {
     const img = ev.target;
     if (!(img instanceof HTMLImageElement) || img.dataset.fallback) return;
     img.dataset.fallback = "1";
@@ -1133,7 +1157,8 @@
     };
     if (!path) { missing(); return; }
     loadAssets().then((m) => { const u = m.get(path); if (u) img.src = u; else missing(); });
-  }, true);
+  }
+  doc.addEventListener("error", imgFallback, true);
 
   // ---------------------------------------------------------------- схемы Mermaid
 
@@ -2151,6 +2176,12 @@ var n=order[(order.indexOf(root.getAttribute("data-theme")||"auto")+1)%3];root.s
   if (window.CoddocView) window.CoddocView.attach({
     current: () => current, get: (/** @type {string} */ p) => files.get(p), text: textOf, has: hasText, paths: () => [...files.keys()],
     href: hrefOf, rerender: () => { const c = current; current = ""; show(c); },
+    md: fragment,
+    // Показ рисуется вне документа: схемы — сразу, у картинок — тот же запасной путь через assets.js.
+    mount: (/** @type {HTMLElement} */ root) => {
+      if (!root.dataset.imgFallback) { root.dataset.imgFallback = "1"; root.addEventListener("error", imgFallback, true); }
+      for (const box of root.querySelectorAll(".diagram[data-mermaid]")) if (box instanceof HTMLElement && !box.dataset.drawn) drawDiagram(box);
+    },
   });
   window.addEventListener("hashchange", route);
 

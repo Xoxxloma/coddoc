@@ -1,9 +1,11 @@
 // Самотест «Обзора» to-html: не теряет ли обзор текст документа.
 //
 // Берёт все business_requirements.md, technical_specification.md, bug_report.md и change_request.md из
-// _skill-eval/fixtures/** (кроме /stubs/, одинаковые по содержимому — один раз), кладёт каждый в свою папку
+// _skill-eval/fixtures/** (кроме /stubs/, одинаковые по содержимому — один раз) и задачи TH-TASK из
+// to-html-fixtures.mjs (схемы, картинки, ссылки; документ — вместе с картинками задачи), кладёт каждый в свою папку
 // песочницы, пакует pack.sh, открывает каждый документ в виде «Обзор» и сверяет слова: всё, что человек
 // читает в виде «Текст», должно быть и в обзоре — не меньше раз, чем в документе. Лишние слова в обзоре — не ошибка.
+// Схема Mermaid в обзоре считается своим исходником.
 //
 // Запуск (из этой папки, node 20): node overview-coverage.mjs [chrome|msedge]
 //   TO_HTML_REF=<папка> — подменная reference/ вместо agent-version/to-html/reference (проверка на испорченной копии).
@@ -11,14 +13,17 @@
 //
 // Не считаются словами документа: разметка markdown (# * ` | > ~~, маркеры и номера пунктов, строки-ограды
 // блоков кода, адреса ссылок, html-теги), frontmatter, номера разделов в заголовках, подписи-ключи **Ключ:**
-// в начале строки цитаты-шапки и в начале пункта списка, строка заголовков таблицы, эмодзи и пунктуация.
+// в начале строки цитаты-шапки и в начале пункта списка, строка заголовков таблицы, эмодзи и пунктуация,
+// картинки ![…](…) и ![[…]] — в «Тексте» это картинка, а не слова.
 
-import { mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright-core';
+import { makeTaskFixture } from '../to-html-fixtures.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const evalDir = resolve(here, '..');
@@ -47,16 +52,37 @@ function walk(dir, out = []) {
   return out;
 }
 
+// Файлы рядом с документом, кроме самих документов, — картинки задачи: их путь считается от документа.
+function besides(dir) {
+  const out = [];
+  const go = (d, pre) => {
+    for (const name of readdirSync(d).sort()) {
+      const p = join(d, name);
+      if (statSync(p).isDirectory()) go(p, pre + name + '/');
+      else if (!KIND[name]) out.push([pre + name, readFileSync(p)]);
+    }
+  };
+  go(dir, '');
+  return out;
+}
+
 const seen = new Map();
-for (const p of walk(fixtures)) {
-  const rel = relative(fixtures, p).split(sep).join('/');
-  if (('/' + rel).includes('/stubs/')) continue;
+function add(root, p, withFiles) {
+  const rel = relative(root, p).split(sep).join('/');
+  if (('/' + rel).includes('/stubs/')) return;
   const buf = readFileSync(p);
   const key = createHash('sha1').update(buf).digest('hex');
   const doc = seen.get(key);
-  if (doc) { doc.copies++; continue; }
-  seen.set(key, { rel, name: rel.split('/').pop(), buf, text: buf.toString('utf8'), copies: 0 });
+  if (doc) { doc.copies++; return; }
+  seen.set(key, { rel, name: rel.split('/').pop(), buf, text: buf.toString('utf8'), copies: 0, extra: withFiles ? besides(dirname(p)) : [] });
 }
+for (const p of walk(fixtures)) add(fixtures, p, false);
+// Задача TH-TASK из to-html-fixtures.mjs — схемы, картинки, ссылки на соседний документ и наружу; документ едет
+// в свою папку вместе с картинками задачи.
+const taskSrc = mkdtempSync(join(tmpdir(), 'to-html-task-'));
+makeTaskFixture(taskSrc);
+for (const p of walk(taskSrc)) add(taskSrc, p, true);
+rmSync(taskSrc, { recursive: true, force: true });
 const docs = [...seen.values()];
 
 // ---------------------------------------------------------------- песочница и упаковка
@@ -70,6 +96,10 @@ docs.forEach((d, i) => {
   d.path = d.dir + '/' + d.name;
   mkdirSync(join(box, d.dir));
   writeFileSync(join(box, d.path), d.buf);
+  for (const [rel, buf] of d.extra) {
+    mkdirSync(dirname(join(box, d.dir, rel)), { recursive: true });
+    writeFileSync(join(box, d.dir, rel), buf);
+  }
 });
 // Потолок — папка над песочницей: git не уходит выше, в репозиторий скиллов, и .coddoc-tmp/ пишется в песочницу.
 const env = { ...process.env, GIT_CEILING_DIRECTORIES: dirname(box) };
@@ -137,8 +167,9 @@ function docWords(text) {
     if (brk || cols || item || /^\*\*[^*\n]+?:\*\*/.test(l)) block++;
     brk = !!cols;
     if (item || (quoted && inHead)) l = l.replace(/^\*\*[^*\n]+?:\*\*/, '');
-    // Ссылка: текст считается, адрес — нет.
-    l = untag(l.replace(/!?\[([^\]]*)\]\((?:<[^>]*>|[^)\s]*)(?:\s+"[^"]*")?\)/g, '$1'));
+    // Картинка — не слова; ссылка: текст считается, адрес — нет.
+    l = l.replace(/!\[\[[^\]\n]*\]\]/g, ' ').replace(/!\[[^\]]*\]\((?:<[^>]*>|[^)\s]*)(?:\s+"[^"]*")?\)/g, ' ');
+    l = untag(l.replace(/\[([^\]]*)\]\((?:<[^>]*>|[^)\s]*)(?:\s+"[^"]*")?\)/g, '$1'));
     push(l, where);
   }
   return out;
@@ -203,6 +234,7 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 
 // textContent обзора, но с пробелом на границе блоков: textContent склеивает «<h3>Ключ</h3><div>текст</div>»
 // в «Ключтекст», и оба слова пропали бы. Свёрнутые <details> и скрытое тоже идут: человек их раскрывает.
+// Нарисована ли схема и загрузилась ли картинка, проверяет e2e.mjs (раздел TH-TASK); здесь — только слова.
 const overviewText = () => page.evaluate(() => {
   const cv = document.querySelector('#doc .cv');
   if (!cv) return null;
@@ -212,6 +244,9 @@ const overviewText = () => page.evaluate(() => {
     if (n.nodeType !== 1) return;
     const el = /** @type {Element} */ (n);
     if (el.tagName === 'BR') { out.push(' '); return; }
+    // Схема — исходником, как в документе: нарисованная хранит его в data-src, ещё не нарисованная — в .mm-src.
+    const src = el.classList.contains('diagram') ? el.getAttribute('data-src') : null;
+    if (src !== null) { out.push(' ' + src + ' '); return; }
     const d = getComputedStyle(el).display;
     const inline = d === 'inline' || d === 'contents';
     if (!inline) out.push(' ');
@@ -231,7 +266,7 @@ const clip = (s, w) => {
 const placeOf = (x) => (x.where === 'head' ? 'шапка' : x.section ? x.section.replace(/[*`~]/g, '') : 'до первого заголовка') + (x.where === 'table' ? ' · таблица' : '');
 
 let bad = 0;
-console.log(`Обзор to-html: ${docs.length} документов из fixtures/` + (process.env.TO_HTML_REF ? ` (reference: ${ref})` : '') + '\n');
+console.log(`Обзор to-html: ${docs.length} документов из fixtures/ и TH-TASK` + (process.env.TO_HTML_REF ? ` (reference: ${ref})` : '') + '\n');
 for (const d of docs) {
   errors = [];
   await page.goto('about:blank');
