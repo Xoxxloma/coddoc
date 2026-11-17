@@ -352,8 +352,15 @@
     .fm dd { margin-bottom: 8px; }
     .init-feats { grid-template-columns: 1fr; }
     .search-btn kbd { display: none; }
+    #wideBtn { display: none; }
   }
   @media (min-width: 900px) { .scrim { display: none; } }
+  /* Развёрнутый вид (кнопка в шапке): без дерева и оглавления, колонка шире. Уже 900px боковин и так нет. */
+  @media (min-width: 900px) {
+    body.wide .app, body.wide .app.single { grid-template-columns: minmax(0, 1fr); }
+    body.wide .side, body.wide .toc { display: none; }
+    body.wide .doc { max-width: 1100px; }
+  }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
   /* ============ Печать ============ */
@@ -387,6 +394,7 @@
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
   <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6"/></symbol>
+  <symbol id="i-shrink" viewBox="0 0 24 24"><path d="M14 5v5h5M10 19v-5H5M20 4l-6 6M4 20l6-6"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
   <symbol id="i-files" viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h6l4 4v10a2 2 0 0 1-2 2h-2"/><path d="M4 9a2 2 0 0 1 2-2h6l4 4v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></symbol>
@@ -420,6 +428,7 @@
       <div class="crumbs" id="crumbs"></div>
       <div class="bar-actions" id="barActions">
         <button class="icon-btn only-narrow" data-open-search type="button" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button>
+        <button class="icon-btn" id="wideBtn" type="button" title="Развернуть" aria-label="Развернуть" aria-pressed="false"><svg class="ico"><use href="#i-expand"/></svg></button>
         <button class="btn" id="exportBtn" type="button" aria-haspopup="menu" aria-expanded="false"><svg class="ico"><use href="#i-down"/></svg><span class="wide-only">Экспорт</span><svg class="ico" style="width:14px;height:14px"><use href="#i-caret"/></svg></button>
         <div class="menu" id="exportMenu" role="menu" hidden>
           <button class="menu-item" type="button" role="menuitem" data-export="folder"><span class="menu-ico"><svg class="ico"><use href="#i-files"/></svg></span>

@@ -1293,6 +1293,16 @@
     redrawDiagrams();
   }
 
+  /** Развёрнутый вид: центральная часть на всю вкладку, без дерева и оглавления. @param {boolean} on */
+  function setWide(on) {
+    document.body.classList.toggle("wide", on);
+    const b = $("wideBtn"), label = on ? "Свернуть" : "Развернуть";
+    b.setAttribute("aria-pressed", String(on));
+    b.setAttribute("title", label);
+    b.setAttribute("aria-label", label);
+    b.querySelector("use")?.setAttribute("href", on ? "#i-shrink" : "#i-expand");
+  }
+
   /** @param {string} text @param {{ label: string, run: () => void }} [action] @param {number} [ms] */
   function toast(text, action, ms) {
     const t = $("toast");
@@ -1348,6 +1358,7 @@
     if (t.closest("[data-collapse]")) { for (const li of toc.querySelectorAll("nav > ul > li")) if (li.querySelector("ul")) li.classList.add("collapsed"); return; }
     if (t.closest("[data-open-search]")) { openSearch(); return; }
     if (t.closest("#drawerBtn")) { document.body.classList.toggle("drawer"); return; }
+    if (t.closest("#wideBtn")) { setWide(!document.body.classList.contains("wide")); return; }
     if (t.closest("#scrim")) { document.body.classList.remove("drawer"); return; }
     const a = t.closest("a");
     if (!(a instanceof HTMLAnchorElement)) return;

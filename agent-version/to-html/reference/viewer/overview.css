@@ -12,6 +12,7 @@
 .cv-btn { border: 1px solid var(--line); border-radius: 9px; }
 .cv-btn:hover, .cv-seg button:hover:not([aria-pressed="true"]) { background: var(--hover); }
 .doc.cv-wide { max-width: 1060px; }
+body.wide .doc.cv-wide { max-width: 1400px; }
 
 /* Своя типографика, как в первом макете: в режиме «Обзор» класс .md с документа снят */
 .cv { font: 15px/1.6 var(--sans); color: var(--ink); }
