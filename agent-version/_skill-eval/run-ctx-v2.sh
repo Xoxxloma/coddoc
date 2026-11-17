@@ -382,6 +382,15 @@ case "$PROBE" in
   sb-blue-cr)  FIXTURE=SB-BLUE; PROMPT_FILE=cr-prompt.txt;  SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   sb-blue-new) FIXTURE=SB-BLUE; PROMPT_FILE=new-prompt.txt; SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   sb-blue-na)  FIXTURE=SB-BLUE; PROMPT_FILE=na-prompt.txt;  SKILL=stage-breakdown-doc ;;
+  # Коды меток (5.113): одна реальная спека в двух формах меток — ревью и разрез должны совпасть. README фикстур.
+  rv-real-old-apl)   FIXTURE=RV-REAL-OLD;   PROMPT_FILE=apl-prompt.txt; SKILL=spec-review ;;
+  rv-real-codes-apl) FIXTURE=RV-REAL-CODES; PROMPT_FILE=apl-prompt.txt; SKILL=spec-review ;;
+  rv-real-old-lm)    FIXTURE=RV-REAL-OLD;   PROMPT_FILE=lm-prompt.txt;  SKILL=spec-review ;;
+  rv-real-codes-lm)  FIXTURE=RV-REAL-CODES; PROMPT_FILE=lm-prompt.txt;  SKILL=spec-review ;;
+  sb-real-old-apl)   FIXTURE=RV-REAL-OLD;   PROMPT_FILE=sb-apl-prompt.txt; SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
+  sb-real-codes-apl) FIXTURE=RV-REAL-CODES; PROMPT_FILE=sb-apl-prompt.txt; SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
+  sb-real-old-lm)    FIXTURE=RV-REAL-OLD;   PROMPT_FILE=sb-lm-prompt.txt;  SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
+  sb-real-codes-lm)  FIXTURE=RV-REAL-CODES; PROMPT_FILE=sb-lm-prompt.txt;  SKILL=stage-breakdown-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=2 ;;
   # SCX — маршрут мелкой правки после 5.74–5.81: Р9 у запроса на правку, вопросы без порога, стык «по документу сверху»,
   # чужой сервис — потребление; приёмка и разрез на выходе. README фикстур SCX-*; грейдеры grade-scx-cr|ts|down.mjs.
   scx-cr-nob)   FIXTURE=SCX-CR;   PROMPT_FILE=nob-w-prompt.txt;    SKILL=change-request-doc ;;
