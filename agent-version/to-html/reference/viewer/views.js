@@ -11,9 +11,8 @@ window.CODDOC_VIEWS = [
     "hero": { "sibling": "spec", "questions": "list" },
     "sections": [
       { "title": "^Введение", "num": "1", "block": "rows", "rows": [
-        [{ "title": "^Описание проблемы", "num": "1.1", "style": "problem" }, { "title": "^Тип изменения", "num": "1.0" }],
-        [{ "title": "^Конечные потребители", "num": "1.2" }, { "title": "^Заказчик", "num": "1.3" }],
-        [{ "title": "^Как сейчас", "num": "1.4" }]
+        [{ "title": "^Описание проблемы", "num": "1.1", "style": "problem" }, { "title": "^Как сейчас", "num": "1.4" }],
+        [{ "title": "^Тип изменения", "num": "1.0", "small": true }, { "title": "^Конечные потребители", "num": "1.2", "small": true }, { "title": "^Заказчик", "num": "1.3", "small": true }]
       ] },
       { "title": "^Бизнес-требования", "num": "2", "block": "rows", "rows": [
         [{ "title": "^Бизнес-цель", "num": "2.1", "block": "stories" }],
