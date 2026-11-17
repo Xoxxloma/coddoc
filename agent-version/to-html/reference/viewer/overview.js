@@ -357,15 +357,16 @@
     touched: { own: true, render: function (sec) { markKids(sec); return touchedHtml(sec); } },
     card: { own: true, render: function (sec, rule) { markKids(sec); return card('<div class="cv-md">' + R(mdOf(sec, false)) + '</div>', rule.style || ''); } },
   };
-  // «rows»: подразделы рядами. Ряд из двух и больше — сетка в две колонки (пустые места остаются пустыми); ряд из одного
-  // — во всю ширину. Пункт ряда — правило подраздела: "block" (по умолчанию карточка), "style", "scroll".
+  // «rows»: подразделы рядами. Ряд из двух — сетка в две колонки, из трёх и больше — в три (пустые места остаются
+  // пустыми); ряд из одного — во всю ширину. Пункт ряда — правило подраздела: "block" (по умолчанию карточка), "style",
+  // "scroll", "small" (карточка мельче).
   function rowsBlock(sec, rule, env) {
     var h = '', rows = (rule.rows || []).map(function (row) { return Array.isArray(row) ? row : [row]; });
     var amap = assign(sec, [].concat.apply([], rows));
     rows.forEach(function (row, ri) {
       var items = row.map(function (it) { var n = amap.get(it) || null; if (n) n.used = true; return { it: it, node: n }; });
       if (row.length >= 2) {
-        h += '<div class="grid2"' + (ri ? ' style="margin-top:14px"' : '') + '>' + items.map(function (x) { return itemHtml(x, env); }).join('') + '</div>';
+        h += '<div class="' + (row.length >= 3 ? 'grid3' : 'grid2') + '"' + (ri ? ' style="margin-top:14px"' : '') + '>' + items.map(function (x) { return itemHtml(x, env); }).join('') + '</div>';
       } else if (items[0] && items[0].node) {
         var x = itemHtml(items[0], env), blockItem = items[0].it.block && items[0].it.block !== 'card';
         h += blockItem || !ri ? x : '<div style="margin-top:14px">' + x + '</div>';
@@ -382,8 +383,9 @@
     if (b === 'table-cards') return tableCards(node, it.cards);
     if (b === 'labeled') return labeledHtml(node);
     if (b !== 'card') warn('неизвестный блок подраздела "' + b + '"');
-    if (it.scroll) return card('<h3>' + esc(secNum(node.title).name) + '</h3><div class="cv-md tw">' + R(mdOf(node, false)) + '</div>', it.style);
-    return sub(node, it.style);
+    var cls = [it.style, it.small ? 'mini' : ''].filter(Boolean).join(' ');
+    if (it.scroll) return card('<h3>' + esc(secNum(node.title).name) + '</h3><div class="cv-md tw">' + R(mdOf(node, false)) + '</div>', cls);
+    return sub(node, cls);
   }
   // «table-cards»: таблица подраздела — карточками: "roles" (роль и права), "services" (сервис, роль, владелец,
   // происхождение), "objects" (№, объект, что это, что меняется). Без таблицы — подраздел как есть.
