@@ -1,6 +1,6 @@
 ---
 name: business-requirements-doc
-version: 1.6.1
+version: 1.6.2
 user-invocable: false
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
 description: 'Gathers business requirements and writes ONE Markdown spec (BRD→SRS) in Russian. It MAY read the repo as evidence, but nothing enters the spec on your own authority: before writing, every gate is either stated by the user themselves or put to the user and answered, and only what the user explicitly leaves open becomes TBD. The mandatory first question is the linked Jira/SberTrack task key (SMSEC-1234); without it the spec is not written. Before writing it also decides the business cut (§4.5) — several separate deliveries (поставки) → it proposes the split into parts (части); one delivery → it says so explicitly («не применимо: причина») — and puts that proposal to the user in the handoff. Use whenever someone wants to write a ТЗ / BRD / SRS, formalize a request, or describe a task, feature, change, or integration for developers.'
@@ -845,7 +845,7 @@ Only confirmed content is filled; gates the user explicitly deferred (⏭️) ar
 > **Задача Jira/SberTrack:** [SMSEC-1234] — обязательно, задаётся первым вопросом (Gate 0).
 > **Автор:** [логин того, кто пишет этот файл: вывод `whoami` (Linux, macOS, Windows); у `ДОМЕН\логин` — часть после `\`; команда не сработала — `—`. Файл уже был — список сохрани: твоего логина в нём нет (регистр не важен) — допиши через `, `; стоял `—` — замени]
 > **Редакция:** [N (ГГГГ-ММ-ДД): первая запись 1, доработка +1, строки не было — 2; дата этой записи — из окружения сессии или `date +%F`, не по памяти; не узнать — без скобок]
-> **Версия скилла:** [business-requirements-doc 1.6.1; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
+> **Версия скилла:** [business-requirements-doc 1.6.2; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
 >
 > **Статус готовности:** [Готово к оценке | Требуются уточнения (N)]
 > — **Заполняется последним** (Step 4). В момент записи файла здесь стоит
@@ -867,6 +867,10 @@ Only confirmed content is filled; gates the user explicitly deferred (⏭️) ar
 > «механизм генерации файлов»), НИКОГДА кодовым именем из базы знаний (`client-cabinet`,
 > `reports`, `*Dto`, `MinIO`). Внутреннего имени сервиса у тебя нет. Единственное
 > исключение — имена ролей в §5.3.
+>
+> Каждый раздел отвечает только на свой заголовок. Факт пишется один раз — в разделе, на чей вопрос он
+> отвечает; в других разделах не пересказывай его — ни пояснением, ни оговоркой; нужна связь — ссылкой
+> (FR-6). Критерий приёмки — не пересказ: условие своего FR в нём пишется полностью.
 ### 1.0. Тип изменения
 [Новый функционал | Доработка существующего — если доработка, укажите чего именно.]
 ### 1.1. Описание проблемы
