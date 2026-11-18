@@ -409,6 +409,35 @@ def main():
            and "в работе — основная ветка origin/dev, невлитых веток: 4" in out, f"--list --base dev: {out}")
     code, out, last = peek(lme, "--list", "--base", "origin/dev")
     expect(code == 0 and "основная ветка origin/dev," in out and "AB-7" not in out, f"--list --base origin/dev: {out}")
+    # Влито не слиянием (squash): тот же файл в dev — не в работе, и когда коммит ветки позже (cherry-pick); ветка
+    # отстала — в dev файл правили позже, — не в работе; свежая правка в ветке поверх dev — в работе.
+    g(flow, "checkout", "-q", "-b", "feature/ab-8", "dev")
+    put(flow, "coddoc/AB-8/business_requirements.md", br("AB-8", "Требуются уточнения (1)"))
+    commit(flow, "Алиса", "2026-11-09T10:00:00+03:00", "AB-8")
+    g(flow, "checkout", "-q", "-b", "feature/ab-9", "dev")
+    put(flow, "coddoc/AB-9/business_requirements.md", br("AB-9", "Требуются уточнения (2)"))
+    commit(flow, "Алиса", "2026-11-09T11:00:00+03:00", "AB-9")
+    g(flow, "checkout", "-q", "dev")
+    g(flow, "merge", "-q", "--squash", "feature/ab-8")
+    commit(flow, "Боб", "2026-11-10T10:00:00+03:00", "AB-8 (squash)")
+    g(flow, "merge", "-q", "--squash", "feature/ab-9")
+    commit(flow, "Боб", "2026-11-10T11:00:00+03:00", "AB-9 (squash)")
+    put(flow, "coddoc/AB-9/business_requirements.md", br("AB-9", "Требуются уточнения (1)"))
+    commit(flow, "Боб", "2026-11-11T10:00:00+03:00", "AB-9: вопрос закрыт")
+    g(flow, "checkout", "-q", "-b", "feature/ab-8-copy", "dev~3")
+    g(flow, "cherry-pick", "dev~2", who="Алиса", date="2026-11-13T10:00:00+03:00")
+    g(flow, "checkout", "-q", "-b", "feature/ab-8-fix", "dev")
+    put(flow, "coddoc/AB-8/business_requirements.md", br("AB-8", "Требуются уточнения (2)"))
+    commit(flow, "Алиса", "2026-11-12T10:00:00+03:00", "AB-8: новый вопрос")
+    g(flow, "push", "-q", "origin", "dev", "feature/ab-8", "feature/ab-9", "feature/ab-8-copy", "feature/ab-8-fix")
+    g(lme, "fetch", "-q", "origin")
+    for name in ("feature/ab-8", "feature/ab-9", "feature/ab-8-copy", "feature/ab-8-fix"):
+        g(lme, "branch", "-q", name, f"origin/{name}")
+    code, out, last = peek(lme, "--list", "--base", "dev")
+    ab8 = [row for row in list_rows(out) if row.startswith("AB-8")]
+    expect(code == 0 and "AB-9" not in out
+           and ab8 == ["AB-8 · coddoc/AB-8/business_requirements.md · feature/ab-8-fix · Алиса · открытых: 2"],
+           f"--list: squash, отставшая ветка, правка поверх: {out}")
     g(lme, "branch", "-q", "stage", "main")
     code, out, last = peek(lme, "--list", "--base", "stage")
     expect(code == 0 and "основная ветка stage," in out, f"--list --base локальная: {out}")
