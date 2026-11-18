@@ -154,8 +154,9 @@
     var md = (lines.join('  \n') + (hd.free.length ? '\n\n' + hd.free.join('\n') : '') + (hd.rest ? '\n\n' + hd.rest : '')).trim();
     return md ? '<div class="cv-md hero-rest">' + R(md) + '</div>' : '';
   }
+  // Открытые вопросы — всегда карточкой с заголовком: и со списком, и одной пометкой («Все данные подтверждены…»).
   function heroOq(hd, numbered) {
-    if (!hd.oq.length) return hd.oqNote ? '<p class="muted" style="margin:14px 0 0">' + RI(hd.oqNote) + '</p>' : '';
+    if (!hd.oq.length) return hd.oqNote ? '<div class="card"><h3>Открытые вопросы</h3><div class="cv-md">' + RI(hd.oqNote) + '</div></div>' : '';
     var note = hd.oqNote ? '<p class="muted" style="margin:0 0 8px">' + RI(hd.oqNote) + '</p>' : '';
     return numbered
       ? '<div class="card" style="margin-top:16px"><h3>Открытые вопросы · ' + hd.oq.length + '</h3>' + note + '<ol class="oq">' +
@@ -347,8 +348,7 @@
     var h = heroOq(m.head, heroOpt(m).questions === 'numbered');
     if (oqSec) {
       var b = mdOf(oqSec, false).trim();
-      h += /^\s*(-|\d+\.)\s/m.test(b) ? '<div class="card" style="margin-top:16px"><h3>' + esc(oqSec.title) + '</h3><div class="cv-md">' + R(b) + '</div></div>'
-        : '<p class="muted" style="margin:14px 0 0">' + esc(oqSec.title) + ': ' + RI(b) + '</p>';
+      h += '<div class="card" style="margin-top:16px"><h3>' + esc(oqSec.title) + '</h3><div class="cv-md">' + R(b) + '</div></div>';
     }
     return h ? '<div class="cv-q">' + h + '</div>' : '';
   }
