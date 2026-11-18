@@ -244,7 +244,45 @@ function verify(engine, c) {
     check(/^image\//.test(mime), `${path}: mime ${mime}`);
     check(Buffer.from(b64, 'base64').equals(readFileSync(join(exp.root, path))), `${path}: байты картинки`);
   }
+  verifyLayoutsJs(out, work);
   return { out, cwd, args: c.args };
+}
+
+// Раскладки «Обзора»: папка layouts/ с пометкой; layouts.js — путь к папке и файлы <вид>.json (имя из букв, цифр,
+// «_» и «-», не больше 256 КБ) байт в байт после base64.
+function verifyLayoutsJs(out, work) {
+  const lays = join(work, 'layouts');
+  check(existsSync(join(lays, 'to-html-layouts.txt')), 'layouts/ с пометкой to-html-layouts.txt');
+  const dir = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUT_DIR');
+  check(dir === lays, `layouts.js: путь к папке «${dir}», ждали «${lays}»`);
+  const got = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUTS') || {};
+  const want = Object.fromEntries(readdirSync(lays).filter((n) => /^[A-Za-z0-9_-]+\.json$/.test(n) && statSync(join(lays, n)).size <= 256 * 1024)
+    .map((n) => [n.slice(0, -5), readFileSync(join(lays, n)).toString('base64')]));
+  check(JSON.stringify(Object.keys(got).sort()) === JSON.stringify(Object.keys(want).sort()), `layouts.js: раскладки ${Object.keys(got).join(', ') || '—'}, ждали ${Object.keys(want).join(', ') || '—'}`);
+  for (const k of Object.keys(want)) check(got[k] === want[k], `layouts.js: ${k}.json байт в байт`);
+}
+
+// Свои раскладки в папке: подходящие вшиваются, остальные (имя с пробелом, больше 256 КБ, не .json) — нет;
+// пометку, которую поправили руками, скрипт не перезаписывает.
+function verifyLayouts(engine) {
+  const cwd = resolve(box, 'fx');
+  const lays = join(cwd, '.coddoc-tmp', 'to-html', 'layouts');
+  console.log(`[${engine}] свои раскладки`);
+  mkdirSync(lays, { recursive: true });
+  writeFileSync(join(lays, 'brd.json'), '{"format":1,"view":"brd","items":[{"k":"введение/описание проблемы","w":6}]}\n');
+  writeFileSync(join(lays, 'spec.json'), '{"format":1,"view":"spec","items":[]}');
+  writeFileSync(join(lays, 'my layout.json'), '{}');
+  writeFileSync(join(lays, 'big.json'), 'x'.repeat(256 * 1024 + 1));
+  writeFileSync(join(lays, 'notes.txt'), 'заметка');
+  writeFileSync(join(lays, 'to-html-layouts.txt'), 'своя пометка');
+  const r = run(engine, cwd, ['TH-DOCS']);
+  if (!check(r.code === 0, `вызов прошёл: ${r.last}`)) return;
+  const out = dirname(fileURLToPath(r.last.split(' page=')[1]));
+  verifyLayoutsJs(out, join(cwd, '.coddoc-tmp', 'to-html'));
+  const got = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUTS') || {};
+  check(JSON.stringify(Object.keys(got).sort()) === '["brd","spec"]', `вшиты только brd и spec: ${Object.keys(got).join(', ')}`);
+  check(readFileSync(join(lays, 'to-html-layouts.txt'), 'utf8') === 'своя пометка', 'пометка не перезаписана');
+  check(readFileSync(join(out, 'index.html'), 'utf8').includes('layouts.js?v='), 'index.html подключает layouts.js');
 }
 
 // Повторный вызов: тот же выход, assets.js не пересобирается, пока картинки не поменялись.
@@ -283,13 +321,18 @@ function verifyPrune(engine) {
     const t = new Date(Date.now() - (13 - i) * 60_000);
     utimesSync(join(sets, old(i)), t, t);
   }
+  // Папка раскладок — старше всех наборов: чистка её всё равно не трогает.
+  mkdirSync(join(sets, 'layouts'), { recursive: true });
+  writeFileSync(join(sets, 'layouts', 'brd.json'), '{}');
+  utimesSync(join(sets, 'layouts'), new Date(0), new Date(0));
   console.log(`[${engine}] чистка старых наборов`);
   const r = run(engine, cwd, ['../fx/TH-DOCS']);
   if (!check(r.code === 0, `вызов прошёл: ${r.last}`)) return;
   const cur = dirname(fileURLToPath(r.last.split(' page=')[1])).split(sep).pop();
   const left = readdirSync(sets, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
-  const want = [cur, ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map(old)].sort();
+  const want = [cur, 'layouts', ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map(old)].sort();
   check(JSON.stringify(left) === JSON.stringify(want), `осталось ${left.join(', ')}, ждали ${want.join(', ')}`);
+  check(existsSync(join(sets, 'layouts', 'brd.json')), 'раскладка в layouts/ не удалена');
   check(existsSync(join(cwd, '.coddoc-tmp', '.gitignore')), '.gitignore не удалён');
   check(existsSync(other), 'папка другого скилла не тронута');
 }
@@ -314,6 +357,7 @@ for (const engine of list) {
     "$ExecutionContext.SessionState.LanguageMode = 'ConstrainedLanguage'\n& $script @rest\nexit $LASTEXITCODE\n");
   for (const c of cases) verify(engine, c);
   verifyRepeat(engine);
+  verifyLayouts(engine);
   verifyPrune(engine);
 }
 

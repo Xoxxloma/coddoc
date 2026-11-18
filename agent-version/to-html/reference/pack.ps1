@@ -167,6 +167,20 @@ try {
 } catch {
   Fail 'no-write' "не могу писать в $($script:work)"
 }
+# Своя раскладка «Обзора» — layouts\<вид>.json (пишет страница, кнопка «Редактировать форму»): папку с файлом-пометкой
+# создаёт этот скрипт (по пометке страница узнаёт папку в диалоге выбора), раскладки вшивает в набор (layouts.js),
+# чистка наборов её не трогает.
+$lays = Join-Path $script:work 'layouts'
+try {
+  New-Item -ItemType Directory -Force -Path $lays | Out-Null
+  $marker = Join-Path $lays 'to-html-layouts.txt'
+  if (-not (Test-Path -LiteralPath $marker)) {
+    Set-Content -LiteralPath $marker -Encoding UTF8 -Value @(
+      'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку).',
+      'Файлы пишет страница: «Редактировать форму» → «Сохранить»; /to-html берёт их при каждой сборке.',
+      'Удалить файл раскладки — обзор снова как в документе. Этот файл не удалять: по нему страница узнаёт папку.')
+  }
+} catch { }
 
 $mode = 'blank'
 $script:root = ''
@@ -267,7 +281,7 @@ try {
 # текущий — самый свежий. Не удалилось (файл занят) — не беда, сборка идёт дальше.
 try {
   Set-ItemProperty -LiteralPath $out -Name LastWriteTime -Value (Get-Date)
-  Get-ChildItem -LiteralPath $script:work -Directory | Sort-Object LastWriteTime -Descending |
+  Get-ChildItem -LiteralPath $script:work -Directory | Where-Object { $_.Name -ne 'layouts' } | Sort-Object LastWriteTime -Descending |
     Select-Object -Skip $MaxSets | Remove-Item -Recurse -Force
 } catch { }
 
@@ -291,6 +305,16 @@ $data = "// создано pack.ps1 $made — не править руками`n
   'window.MDV_DATA = {"v":1,"made":' + (J $made) + ',"root":' + (J $label) + ',"base":' + (J $base) +
   ',"open":' + (J $open) + ',"files":[' + "`n" + ($rows -join ",`n") + "`n]};`n"
 Write-Utf8 (Join-Path $out 'data.js') $data
+
+# ---------------------------------------------------------------- layouts.js
+# Раскладки «Обзора»: текст файла <вид>.json в base64 по имени вида; путь к папке — для подсказки «куда сохранить».
+$layFiles = @(Get-ChildItem -LiteralPath $lays -File -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '^[A-Za-z0-9_-]+\.json$' -and $_.Length -le 256KB } | Sort-Object Name)
+$lb64 = Get-Base64 @($layFiles | ForEach-Object { $_.FullName })
+$lrows = @()
+for ($i = 0; $i -lt $layFiles.Count; $i++) { $lrows += (J $layFiles[$i].BaseName) + ':"' + $lb64[$i] + '"' }
+Write-Utf8 (Join-Path $out 'layouts.js') ("// создано pack.ps1 $made — не править руками`n" + 'window.CODDOC_LAYOUT_DIR = ' + (J $lays) + ";`n" +
+  'window.CODDOC_LAYOUTS = {' + "`n" + ($lrows -join ",`n") + "`n};`n")
 
 # ---------------------------------------------------------------- assets.js (только если картинки поменялись)
 $imgRel = @($script:list | Where-Object { (Get-Kind $_) -eq 'img' -and $sizes[$_] -le $MaxImg })

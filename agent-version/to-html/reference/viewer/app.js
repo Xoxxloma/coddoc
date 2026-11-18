@@ -2187,6 +2187,7 @@ var n=order[(order.indexOf(root.getAttribute("data-theme")||"auto")+1)%3];root.s
   if (window.CoddocView) window.CoddocView.attach({
     current: () => current, get: (/** @type {string} */ p) => files.get(p), text: textOf, has: hasText, paths: () => [...files.keys()],
     href: hrefOf, rerender: () => { const c = current; current = ""; show(c); },
+    toast: (/** @type {string} */ text) => toast(text),
     md: fragment,
     // Показ рисуется вне документа: схемы — сразу, у картинок — тот же запасной путь через assets.js.
     mount: (/** @type {HTMLElement} */ root) => {
