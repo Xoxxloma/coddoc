@@ -12,12 +12,17 @@ origin.git — общий репозиторий; alice/ — клон колле
 незакоммиченная правка, правка в индексе и неотслеживаемый notes/. После каждого вызова peek всё это должно остаться
 как было: HEAD, ветка, индекс, рабочая копия, локальные ветки, notes/. Меняются только origin/* (fetch) и .coddoc-tmp/.
 
+--list — отдельная песочница lister/: основная (вопросы в ней не в работе), невлитые ветки с БТ, с ноутом и без правок
+документов, влитая ветка, текущая ветка с правкой на диске, удалённым файлом и новым ноутом вне git; плюс репозиторий
+без основной ветки.
+
 Git изолирован: свой глобальный конфиг, без системного, GIT_CEILING_DIRECTORIES — выше песочницы не подняться.
 """
 
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -271,6 +276,137 @@ def main():
     code, out, last = peek(me2, "LM-1")
     expect("origin не обновлён" in out, f"нет доступа к origin — строка: {out}")
     expect(code == 0 and "ветка origin/feature/lm-1 · Алиса" in out, f"нет доступа к origin — ищет по тому, что есть: {out}")
+
+    # ---------------------------------------------------------------- --list: документы в работе с открытыми вопросами
+    def br(key, status):
+        return (f"# Бизнес-требования: {key}\n\n> **Задача:** {key}\n> **Редакция:** 1\n>\n"
+                f"> **Статус готовности:** {status}\n\nТекст.\n")
+
+    def notebook(theme, key, *lines):
+        return (f"---\nтема: {theme}\nключ: {key}\nо чём: —\nроли: —\n---\n# Ноут: {theme}\n\n## 2026-11-01\n\n"
+                "### 1 · чат\n" + "".join(line + "\n" for line in lines))
+
+    boats = ("- [открыто] Кто выдаёт вёсла — ждёт: смотритель · 2026-11-01 №1.1",
+             "- [открыто] Нужен ли инструктаж — ждёт: инструктор · 2026-11-01 №1.2 ‖ закрыт: 2026-11-02 №1.1",
+             "> - [открыто] цитата, а не пункт",
+             "- [решено] Вёсла выдаёт смотритель — решил: Лаврова Е. · 2026-11-01 №1.3")
+    lorigin, lme = root / "list-origin.git", root / "lister"
+    g(root, "init", "-q", "--bare", str(lorigin))
+    g(root, "clone", "-q", str(lorigin), str(lme))
+    put(lme, "README.md", "# Список\n")
+    put(lme, "coddoc/AB-1/business_requirements.md", br("AB-1", "Требуются уточнения (3)"))
+    put(lme, "notes/лодки/notebook.md", notebook("лодки", "—", *boats))
+    put(lme, "notes/закрыт/notebook.md", notebook("закрыт", "AB-1",
+                                                  "- [открыто] Старый вопрос — ждёт: — · 2026-11-01 №1.1 ‖ снят: 2026-11-02 №1"))
+    put(lme, "notes/склад/notebook.md", notebook("склад", "—", "- [открыто] Где хранить вёсла — ждёт: — · 2026-11-01 №1.1"))
+    commit(lme, "Боб", "2026-11-01T10:00:00+03:00", "основная")
+    g(lme, "push", "-q", "origin", "main")
+    g(lme, "remote", "set-head", "origin", "-a")
+    # Невлитая ветка: в БТ два вопроса, спека готова, у этапов статуса нет.
+    g(lme, "checkout", "-q", "-b", "feature/ab-2")
+    put(lme, "coddoc/AB-2/business_requirements.md", br("AB-2", "Требуются уточнения (2)"))
+    put(lme, "coddoc/AB-2/technical_specification.md", br("AB-2", "Готово к разработке"))
+    put(lme, "coddoc/AB-2/stages.md", "# Этапы\n")
+    commit(lme, "Алиса", "2026-11-05T12:00:00+03:00", "AB-2")
+    # Влитая ветка: её вопрос уже в основной — не в работе.
+    g(lme, "checkout", "-q", "main")
+    g(lme, "checkout", "-q", "-b", "feature/ab-3")
+    put(lme, "coddoc/AB-3/business_requirements.md", br("AB-3", "Требуются уточнения (1)"))
+    commit(lme, "Алиса", "2026-11-03T12:00:00+03:00", "AB-3")
+    g(lme, "checkout", "-q", "main")
+    g(lme, "merge", "-q", "--no-ff", "-m", "влить AB-3", "feature/ab-3", who="Боб", date="2026-11-04T10:00:00+03:00")
+    g(lme, "push", "-q", "origin", "main")
+    # Невлитая ветка без правок документов: AB-1 в ней унаследован от основной — не в работе.
+    g(lme, "checkout", "-q", "-b", "feature/readme")
+    put(lme, "README.md", "# Список, правка\n")
+    commit(lme, "Боб", "2026-11-06T10:00:00+03:00", "readme")
+    # Невлитая ветка дописала ноут основной: её версия свежее.
+    g(lme, "checkout", "-q", "main")
+    g(lme, "checkout", "-q", "-b", "feature/boats")
+    put(lme, "notes/лодки/notebook.md", notebook("лодки", "—", *boats,
+                                                 "- [открыто] Сколько лодок в прокате — ждёт: — · 2026-11-06 №1.1"))
+    commit(lme, "Боб", "2026-11-06T12:00:00+03:00", "ноут")
+    # Текущая ветка: БТ закоммичен с четырьмя вопросами, на диске — один; старый файл удалён с диска; новый ноут не в git.
+    g(lme, "checkout", "-q", "main")
+    g(lme, "checkout", "-q", "-b", "feature/ab-5")
+    put(lme, "coddoc/AB-5/business_requirements.md", br("AB-5", "Требуются уточнения (4)"))
+    put(lme, "coddoc/AB-5/technical_specification.md", br("AB-5", "Требуются уточнения (2)"))
+    put(lme, "coddoc/AB-5/old.md", br("AB-5", "Требуются уточнения (5)"))
+    commit(lme, "Я", "2026-11-07T12:00:00+03:00", "AB-5")
+    put(lme, "coddoc/AB-5/business_requirements.md", br("AB-5", "Требуются уточнения (1)"))
+    (lme / "coddoc" / "AB-5" / "old.md").unlink()
+    put(lme, "notes/новый/notebook.md", notebook("новый", "AB-5", "- [открыто] Кто согласует — ждёт: — · 2026-11-18 №1.1"))
+
+    def lstate():
+        return [g(lme, *args) for args in (("rev-parse", "HEAD"), ("symbolic-ref", "HEAD"), ("status", "--porcelain=v1", "-uall"),
+                                            ("diff",), ("diff", "--cached"), ("for-each-ref", "refs/heads"))]
+
+    lbefore = lstate()
+    listed = lme / ".coddoc-tmp" / "peek" / "list"
+
+    def list_rows(out):
+        return [re.sub(r" · \d{4}-\d\d-\d\d \d\d:\d\d", "", line.strip()) for line in out.splitlines()
+                if line.startswith("  ") and " · " in line]
+
+    code, out, last = peek(lme, "--list")
+    expect(code == 0 and last == f"peek: list 6 path={listed.as_posix()}", f"--list: {out}")
+    expect("в работе — основная ветка origin/main, невлитых веток: 4" in out, f"--list: основная и невлитые: {out}")
+    want = ["AB-2 · coddoc/AB-2/business_requirements.md · feature/ab-2 · Алиса · открытых: 2",
+            "AB-5 · coddoc/AB-5/business_requirements.md · рабочая копия · не закоммичено · открытых: 1",
+            "AB-5 · coddoc/AB-5/technical_specification.md · feature/ab-5 · Я · открытых: 2",
+            "AB-5 · notes/новый/notebook.md · рабочая копия · не закоммичено · открытых: 1 · тема: новый",
+            "— · notes/лодки/notebook.md · feature/boats · Боб · открытых: 2 · тема: лодки",
+            "— · notes/склад/notebook.md · origin/main · Боб · открытых: 1 · тема: склад"]
+    expect(list_rows(out) == want, f"--list — строки: {list_rows(out)}")
+    expect("feature/ab-2 · Алиса · 2026-11-05" in out, f"--list: дата коммита: {out}")
+    copied = sorted(p.relative_to(listed).as_posix() for p in listed.rglob("*") if p.is_file())
+    expect(copied == ["coddoc/AB-2/business_requirements.md", "coddoc/AB-5/business_requirements.md",
+                      "coddoc/AB-5/technical_specification.md", "notes/лодки/notebook.md", "notes/новый/notebook.md",
+                      "notes/склад/notebook.md"],
+           f"--list: скопировано {copied}")
+    expect((listed / "coddoc" / "AB-5" / "business_requirements.md").read_bytes()
+           == (lme / "coddoc" / "AB-5" / "business_requirements.md").read_bytes(), "--list: копия с диска")
+    expect((listed / "notes" / "лодки" / "notebook.md").read_bytes()
+           == subprocess.run(["git", "cat-file", "blob", "feature/boats:notes/лодки/notebook.md"], cwd=lme, env=env,
+                             capture_output=True).stdout, "--list: копия ноута из ветки")
+    expect(lstate() == lbefore, "--list: репозиторий изменился")
+
+    # Вопрос ноута закрыт на диске — ноут уходит; старая копия из папки убрана.
+    put(listed, "stale.md", "от прошлого списка\n")
+    put(lme, "notes/новый/notebook.md", notebook("новый", "AB-5",
+                                                 "- [открыто] Кто согласует — ждёт: — · 2026-11-18 №1.1 ‖ закрыт: 2026-11-18 №2.1"))
+    code, out, last = peek(lme, "--list")
+    expect(code == 0 and last.startswith("peek: list 5 ") and "notes/новый" not in out, f"--list: закрытый ноут: {out}")
+    expect(not (listed / "stale.md").exists() and not (listed / "notes" / "новый").exists(), "--list: папка не пересоздана")
+    # origin/HEAD нет — основная всё равно origin/main, а не локальная main.
+    g(lme, "remote", "set-head", "origin", "-d")
+    code, out, last = peek(lme, "--list")
+    expect(code == 0 and "основная ветка origin/main," in out, f"--list без origin/HEAD: {out}")
+    # origin/HEAD на develop — основная develop.
+    g(lme, "push", "-q", "origin", "main:develop")
+    g(lme, "remote", "set-head", "origin", "develop")
+    code, out, last = peek(lme, "--list")
+    expect(code == 0 and "основная ветка origin/develop," in out, f"--list, origin/HEAD на develop: {out}")
+    g(lme, "remote", "set-head", "origin", "main")
+
+    # Основной ветки нет — все локальные ветки целиком.
+    trunk = root / "trunk"
+    g(root, "init", "-q", "-b", "trunk", str(trunk))
+    put(trunk, "coddoc/ZZ-1/business_requirements.md", br("ZZ-1", "Требуются уточнения (1)"))
+    commit(trunk, "Я", "2026-11-01T10:00:00+03:00", "init")
+    code, out, last = peek(trunk, "--list")
+    expect(code == 0 and last.startswith("peek: list 1 ") and "основную ветку не нашёл" in out
+           and "ZZ-1 · coddoc/ZZ-1/business_requirements.md · trunk · Я" in out, f"--list без основной: {out}")
+    # Основная — локальная main; документов нет.
+    code, out, last = peek(bare, "--list")
+    expect(code == 0 and last.startswith("peek: list 0 ") and "основная ветка main" in out
+           and "документов с открытыми вопросами в работе нет" in out, f"--list без документов: {out}")
+    # Песочница коллеги: у невлитых веток вопросов нет; рабочая копия не тронута.
+    code, out, last = peek(me, "--list")
+    expect(code == 0 and last.startswith("peek: list 0 "), f"--list у me: {out}")
+    unchanged("--list")
+    code, out, last = peek(me, "--list", "LM-1")
+    expect(code == 1 and last == "peek: error usage", f"--list с аргументом: {out}")
 
     if failures:
         print("\n".join(failures))

@@ -3,6 +3,7 @@
 
     python3 peek.py <КЛЮЧ>
     python3 peek.py <слово> [<слово> …]
+    python3 peek.py --list
 
 Ключ: находит coddoc/**/<КЛЮЧ>/ во всех локальных ветках и в origin, берёт самую свежую версию — по дате последнего
 коммита ветки, тронувшего папку ключа, — и выгружает её в <корень репозитория>/.coddoc-tmp/peek/<КЛЮЧ>/: старая
@@ -12,12 +13,21 @@
 Слова: строки файлов coddoc/ во всех ветках, где есть все слова (без учёта регистра): «ключ · ветка · автор ·
 файл:строка · строка». Одинаковая пара «файл, строка» из разных веток — один раз, с самой свежей веткой.
 
+--list: документы в работе с открытыми вопросами. Основная ветка — origin/HEAD, иначе origin/main, origin/master,
+локальные main, master.
+Смотрит файлы coddoc/ и notes/, которые невлитые локальные ветки поменяли от основной; ноуты notes/*/notebook.md
+основной ветки; изменённые и новые файлы рабочей копии (у текущей ветки они заменяют вершину). Один путь в
+нескольких местах — самая свежая версия. Документ coddoc/ — с «Статус готовности: Требуются уточнения (N)»; ноут —
+N строк «- [открыто]» без «‖». N = 0 и файлы без статуса не показываются. Найденное копирует в
+.coddoc-tmp/peek/list/<путь в репозитории> (папка пересоздаётся).
+
 Перед поиском — fetch origin без вопросов пароля. Только читает объекты git и пишет в .coddoc-tmp/peek/: текущая
 ветка, индекс, рабочая копия и локальные ветки не меняются; fetch обновляет только origin/*.
 
 Последняя строка — для агента:
   peek: ok key=<КЛЮЧ> files=N path=<папка выгрузки>
   peek: found N
+  peek: list N path=<папка копий>
   peek: error usage | no-git | not-repo | no-coddoc | not-found | no-write
 """
 
@@ -28,6 +38,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 KEEP = 10  # сколько последних выгрузок держать в .coddoc-tmp/peek/
@@ -40,6 +51,10 @@ HEAD_LINES = 40  # в скольких первых строках докуме�
 KEY_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*-\d+$")
 STATUS_RE = re.compile(r"\*\*Статус готовности:\*\*\s*(.+)")
 EDITION_RE = re.compile(r"\*\*Редакция:\*\*\s*(.+)")
+NEED_RE = re.compile(r"Требуются уточнения\s*\((\d+)\)")
+NOTEBOOK_RE = re.compile(r"^notes/[^/]+/notebook\.md$")
+OPEN_RE = re.compile(r"^- \[открыто\]")
+FRONT_RE = re.compile(r"^(ключ|тема):\s*(.*)$")
 KINDS = {0: "текущая", 1: "локальная", 2: "origin"}
 
 
@@ -170,6 +185,14 @@ def header(blob):
     return " · ".join(part for part in (status or "статус не указан", edition and f"редакция {edition}") if part)
 
 
+def make_folder(folder):
+    """.coddoc-tmp/peek/ и .coddoc-tmp/.gitignore со строкой «*»."""
+    folder.mkdir(parents=True, exist_ok=True)
+    ignore = folder.parent / ".gitignore"
+    if not ignore.exists():
+        ignore.write_text("*\n", encoding="utf-8")
+
+
 def prune(folder, keep):
     """В папке остаются keep самых свежих выгрузок; не удалилось — не беда."""
     dirs = sorted((d for d in folder.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime, reverse=True)
@@ -216,10 +239,7 @@ def peek_key(key):
     folder = top / ".coddoc-tmp" / "peek"
     dest = folder / best["path"].rsplit("/", 1)[-1]
     try:
-        folder.mkdir(parents=True, exist_ok=True)
-        ignore = folder.parent / ".gitignore"
-        if not ignore.exists():
-            ignore.write_text("*\n", encoding="utf-8")
+        make_folder(folder)
         files = export(top, best["tip"], best["path"], dest)
         prune(folder, KEEP)
     except OSError as error:
@@ -240,10 +260,10 @@ def peek_key(key):
     return 0
 
 
-def tree_files(top, tip):
-    """→ [(путь, хеш блоба)] всех файлов coddoc/ ветки."""
+def tree_files(top, tip, dirs=("coddoc",)):
+    """→ [(путь, хеш блоба)] всех файлов папок dirs ветки."""
     files = []
-    for entry in text(git(top, "ls-tree", "-r", "-z", tip, "--", "coddoc")).split("\0"):
+    for entry in text(git(top, "ls-tree", "-r", "-z", tip, "--", *dirs)).split("\0"):
         if entry:
             meta, path = entry.split("\t", 1)
             mode, kind, sha = meta.split()
@@ -305,6 +325,146 @@ def peek_words(words):
     return 0
 
 
+def base_ref(top):
+    """→ (ссылка, имя) основной ветки: origin/HEAD, origin/main, origin/master, потом локальные main и master —
+    origin свежее после fetch, локальная main у аналитика обычно отстаёт; нет — (None, None)."""
+    head = text(git(top, "symbolic-ref", "-q", "refs/remotes/origin/HEAD")).strip()
+    for ref in ([head] if head else []) + ["refs/remotes/origin/main", "refs/remotes/origin/master", "refs/heads/main",
+                                           "refs/heads/master"]:
+        if git(top, "rev-parse", "-q", "--verify", ref + "^{commit}").returncode == 0:
+            return ref, ref.split("/", 2)[2]
+    return None, None
+
+
+def wanted(path):
+    """Файл, у которого может быть счёт открытых вопросов: .md в coddoc/ или ноут."""
+    return (path.startswith("coddoc/") and path.lower().endswith(".md")) or bool(NOTEBOOK_RE.match(path))
+
+
+def branch_changes(top, base, tip):
+    """→ пути coddoc/ и notes/, которые ветка поменяла от общей с основной точки; общей точки нет — None."""
+    done = git(top, "diff", "--name-only", "-z", "--no-renames", "--diff-filter=d", f"{base}...{tip}", "--",
+               "coddoc", "notes")
+    if done.returncode:
+        return None
+    return {path for path in text(done).split("\0") if path}
+
+
+def disk_changes(top):
+    """→ (изменённые и новые файлы рабочей копии в coddoc/ и notes/, удалённые) — пути от корня репозитория."""
+    done = git(top, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--no-renames", "--",
+               "coddoc", "notes")
+    changed, gone = set(), set()
+    for entry in text(done).split("\0"):
+        if len(entry) > 3:
+            (gone if "D" in entry[:2] else changed).add(entry[3:])
+    return changed, gone
+
+
+def open_questions(path, blob):
+    """→ (открытых вопросов, ключ, тема ноута) или None — у файла нет счёта вопросов."""
+    lines = blob.decode("utf-8", "replace").splitlines()
+    if NOTEBOOK_RE.match(path):
+        front = {}
+        if lines and lines[0].strip() == "---":
+            for line in lines[1:]:
+                if line.strip() == "---":
+                    break
+                match = FRONT_RE.match(line.strip())
+                if match:
+                    front.setdefault(match.group(1), match.group(2).strip())
+        key = front.get("ключ", "")
+        count = sum(1 for line in lines if OPEN_RE.match(line) and "‖" not in line)
+        return count, key if KEY_RE.match(key) else "—", front.get("тема") or path.split("/")[1]
+    for line in lines[:HEAD_LINES]:
+        status = next(iter(STATUS_RE.findall(line)), "")
+        if status:
+            need = NEED_RE.search(status)
+            return int(need.group(1)) if need else 0, key_of(path), ""
+    return None
+
+
+def peek_list():
+    top = find_top()
+    note = fetch(top)
+    if note:
+        print(note)
+    base, base_name = base_ref(top)
+    current = text(git(top, "symbolic-ref", "-q", "HEAD")).strip()
+    listing = ["for-each-ref", "--format=%(refname)%00%(objectname)"] + ([f"--no-merged={base}"] if base else [])
+    work = [line.split("\0") for line in text(git(top, *listing, "refs/heads")).splitlines() if line]
+    changed, gone = disk_changes(top)
+
+    cands = {}  # путь → [{stamp, kind, where, author, date, sha | file}]; kind 0 — диск, 1 — ветка, 2 — основная
+
+    def from_tree(tip, where, kind, path, sha):
+        stamp, author, date = last_commit(top, tip, path)
+        cands.setdefault(path, []).append({"stamp": stamp, "kind": kind, "where": where, "author": author,
+                                           "date": date, "sha": sha})
+
+    for ref, tip in work:
+        touched = branch_changes(top, base, tip) if base else None
+        for path, sha in tree_files(top, tip, ("coddoc", "notes")):
+            if not wanted(path) or (touched is not None and path not in touched):
+                continue
+            if ref == current and (path in changed or path in gone):
+                continue  # у текущей ветки этот файл берётся с диска
+            from_tree(tip, ref[len("refs/heads/"):], 1, path, sha)
+    if base:
+        for path, sha in tree_files(top, base, ("notes",)):
+            if NOTEBOOK_RE.match(path):
+                from_tree(base, base_name, 2, path, sha)
+    for path in changed:
+        disk = top.joinpath(*path.split("/"))
+        if wanted(path) and disk.is_file():
+            stamp = disk.stat().st_mtime
+            cands.setdefault(path, []).append({
+                "stamp": stamp, "kind": 0, "where": "рабочая копия", "author": "не закоммичено",
+                "date": time.strftime("%Y-%m-%d %H:%M", time.localtime(stamp)), "file": disk})
+
+    # Самая свежая версия пути; одно время — диск, потом ветка, потом основная.
+    best = {path: max(found, key=lambda c: (c["stamp"], -c["kind"])) for path, found in cands.items()}
+    blobs = read_blobs(top, [c["sha"] for c in best.values() if "sha" in c])
+    rows = []
+    for path, c in best.items():
+        try:
+            data = c["file"].read_bytes() if "file" in c else blobs[c["sha"]]
+        except OSError:
+            continue
+        counted = open_questions(path, data)
+        if counted and counted[0] > 0:
+            rows.append({"path": path, "count": counted[0], "key": counted[1], "theme": counted[2], "data": data, **c})
+    rows.sort(key=lambda row: (row["key"] == "—", row["key"], row["path"]))
+
+    dest = top / ".coddoc-tmp" / "peek" / "list"
+    try:
+        make_folder(dest.parent)
+        if dest.exists():
+            shutil.rmtree(dest)
+        dest.mkdir()
+        for row in rows:
+            target = dest.joinpath(*row["path"].split("/"))
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(row["data"])
+    except OSError as error:
+        raise Fail("no-write", f"не могу писать в {dest}: {error}") from None
+
+    if base:
+        print(f"в работе — основная ветка {base_name}, невлитых веток: {len(work)}")
+    else:
+        print(f"основную ветку не нашёл — смотрю все локальные ветки целиком ({len(work)})")
+    if not rows:
+        print("документов с открытыми вопросами в работе нет")
+    for row in rows:
+        theme = f" · тема: {row['theme']}" if row["theme"] else ""
+        print(f"  {row['key']} · {row['path']} · {row['where']} · {row['author']} · {row['date']} · "
+              f"открытых: {row['count']}{theme}")
+    if rows:
+        print(f"скопировано: {dest}")
+    print(f"peek: list {len(rows)} path={dest.as_posix()}")
+    return 0
+
+
 def main(argv=None):
     args = sys.argv[1:] if argv is None else argv
     try:
@@ -312,11 +472,16 @@ def main(argv=None):
     except (AttributeError, ValueError):
         pass
     try:
+        if args[:1] == ["--list"]:
+            if len(args) > 1:
+                raise Fail("usage", "у --list нет аргументов: peek.py --list")
+            return peek_list()
         if len(args) == 1 and KEY_RE.match(args[0]):
             return peek_key(args[0])
         words = [word.casefold() for arg in args for word in arg.split()]
         if not words:
-            raise Fail("usage", "нужен ключ задачи или слова: peek.py <КЛЮЧ> | peek.py <слово> [<слово> …]")
+            raise Fail("usage", "нужен ключ задачи или слова: peek.py <КЛЮЧ> | peek.py <слово> [<слово> …] | "
+                                "peek.py --list")
         return peek_words(words)
     except Fail as error:
         print(error)
