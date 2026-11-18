@@ -11,6 +11,8 @@
 # data.js (тексты в base64), assets.js (картинки в base64 — для экспорта) — и открывает index.html системной
 # командой. Повторный вызов с тем же входом пишет туда же: F5 в открытой вкладке показывает новое. --no-open —
 # только пересобрать. В .coddoc-tmp/to-html/ остаются MAX_SETS последних наборов, старые удаляются.
+# Своя раскладка «Обзора» — .coddoc-tmp/to-html/layouts/<вид>.json (пишет страница, кнопка «Редактировать форму»): папку
+# с файлом-пометкой создаёт этот скрипт, раскладки вшивает в набор (layouts.js), чистка наборов её не трогает.
 # TO_HTML_NO_OPEN=1 в окружении — не открывать браузер, вывод как обычно (проверки без экрана).
 #
 # Последняя строка вывода — только ASCII, её читает агент (русские строки выше бывают в чужой кодировке):
@@ -155,6 +157,14 @@ top="$(git rev-parse --show-toplevel 2>/dev/null)" && top="$(cd "$top" && pwd -P
 work="$top/.coddoc-tmp/to-html"
 mkdir -p "$work" 2>/dev/null && [ -w "$work" ] || fail no-write "не могу писать в $work"
 [ -f "$top/.coddoc-tmp/.gitignore" ] || printf '*\n' > "$top/.coddoc-tmp/.gitignore"
+# Папка раскладок; пометка — по ней страница узнаёт эту папку в диалоге выбора.
+lays="$work/layouts"
+mkdir -p "$lays" 2>/dev/null
+[ -f "$lays/to-html-layouts.txt" ] || printf '%s\n' \
+  'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку).' \
+  'Файлы пишет страница: «Редактировать форму» → «Сохранить»; /to-html берёт их при каждой сборке.' \
+  'Удалить файл раскладки — обзор снова как в документе. Этот файл не удалять: по нему страница узнаёт папку.' \
+  > "$lays/to-html-layouts.txt" 2>/dev/null
 
 mode=blank root="" open="" list="$(mktemp "$work/list.XXXXXX")"
 trap 'rm -f "$list" "$list".*' EXIT
@@ -238,7 +248,7 @@ mkdir -p "$out" 2>/dev/null && [ -w "$out" ] || fail no-write "не могу п�
 touch "$out"
 n=0
 ls -1At "$work" | while IFS= read -r d; do
-  [ -n "$d" ] && [ -d "$work/$d" ] || continue
+  [ -n "$d" ] && [ -d "$work/$d" ] && [ "$d" != layouts ] || continue
   n=$((n + 1))
   [ "$n" -gt "$MAX_SETS" ] && rm -rf "$work/$d"
 done
@@ -270,6 +280,24 @@ stamp="$(date '+%Y%m%d%H%M%S')"
   done < "$list"
   printf '\n]};\n'
 } > "$out/data.js.tmp" && mv "$out/data.js.tmp" "$out/data.js"
+
+# ---------------------------------------------------------------- layouts.js
+# Раскладки «Обзора»: текст файла <вид>.json в base64 по имени вида; путь к папке — для подсказки «куда сохранить».
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) lays_shown="$(cygpath -w "$lays")" ;; *) lays_shown="$lays" ;; esac
+{
+  printf '// создано pack.sh %s — не править руками\n' "$made"
+  json "$lays_shown"; printf 'window.CODDOC_LAYOUT_DIR = %s;\nwindow.CODDOC_LAYOUTS = {' "$JSON"
+  sep=''
+  for f in "$lays"/*.json; do
+    [ -f "$f" ] || continue
+    name="$(basename "$f" .json)"
+    case "$name" in ''|*[!a-zA-Z0-9_-]*) continue ;; esac
+    [ "$(($(wc -c < "$f")))" -le 262144 ] || continue
+    printf '%s\n"%s":"' "$sep" "$name"; base64 < "$f" | tr -d '\n\r'; printf '"'
+    sep=','
+  done
+  printf '\n};\n'
+} > "$out/layouts.js.tmp" && mv "$out/layouts.js.tmp" "$out/layouts.js"
 
 # ---------------------------------------------------------------- assets.js (только если картинки поменялись)
 : > "$list.img"

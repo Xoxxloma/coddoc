@@ -39,6 +39,25 @@ declare global {
         { html: string, headings: Array<{ level: number, text: string, id: string }> } | null;
       mounted(e: object, doc: HTMLElement): void;
     };
+    /** layouts.js (пишут pack.sh / pack.ps1) — граница ввода: проверяется в layout.js (parseLayout) */
+    CODDOC_LAYOUTS?: unknown;
+    CODDOC_LAYOUT_DIR?: unknown;
+    /** layout.js — своя раскладка «Обзора» */
+    CoddocLayout?: {
+      attach(api: { rerender(): void, toast?(text: string): void }): void;
+      render(view: string, label: string, items: Array<{ key: string, title: string, html: string, span: number,
+        heads: Array<{ level: number, text: string, id: string }>, head: boolean }>):
+        { html: string, headings: Array<{ level: number, text: string, id: string }> };
+      mounted(doc: HTMLElement): void;
+      test: object;
+    };
+    /** File System Access (Chrome, Edge): выбор папки; в других браузерах нет — проверять typeof */
+    showDirectoryPicker?(opts?: { id?: string, mode?: "read" | "readwrite" }): Promise<FileSystemDirectoryHandle>;
+  }
+  /** разрешения выбранной папки — Chrome, Edge; в lib.dom их нет */
+  interface FileSystemHandle {
+    queryPermission?(opts: { mode: "read" | "readwrite" }): Promise<PermissionState>;
+    requestPermission?(opts: { mode: "read" | "readwrite" }): Promise<PermissionState>;
   }
 }
 

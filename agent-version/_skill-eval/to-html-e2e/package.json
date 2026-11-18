@@ -6,7 +6,8 @@
   "scripts": {
     "types": "tsc -p .",
     "e2e": "node e2e.mjs",
-    "overview": "node overview-coverage.mjs"
+    "overview": "node overview-coverage.mjs",
+    "layout": "node layout-e2e.mjs"
   },
   "devDependencies": {
     "@types/markdown-it": "14.1.2",

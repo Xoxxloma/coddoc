@@ -266,12 +266,35 @@ const clip = (s, w) => {
 const placeOf = (x) => (x.where === 'head' ? 'шапка' : x.section ? x.section.replace(/[*`~]/g, '') : 'до первого заголовка') + (x.where === 'table' ? ' · таблица' : '');
 
 let bad = 0;
+// SNAP=<файл> — снимок: слова обзора и оглавление каждого документа (сравнить до и после правки движка).
+const snap = {};
+let applied = 0;
 console.log(`Обзор to-html: ${docs.length} документов из fixtures/ и TH-TASK` + (process.env.TO_HTML_REF ? ` (reference: ${ref})` : '') + '\n');
 for (const d of docs) {
   errors = [];
   await page.goto('about:blank');
   await page.goto(pageUrl + '#f=' + encodeURIComponent(d.path));
   await page.waitForFunction(() => document.querySelector('#doc')?.children.length, null, { timeout: 10000 }).catch(() => {});
+  // LAYOUT=random — своя раскладка на документ: блоки перемешаны, ширина 3…12, четверть скрыта (свой зерно на
+  // документ — прогон повторяется). Раскладка кладётся во вкладку, как после «Сохранить», и страница перезагружается.
+  if (process.env.LAYOUT === 'random') {
+    const want = await page.evaluate((seed) => {
+      const g = document.querySelector('#doc .cv > .cvg');
+      if (!g) return null;
+      let s = seed;
+      const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+      const keys = [...document.querySelectorAll('#doc .cv .cvg-i')].map((e) => e.getAttribute('data-k'));
+      for (let i = keys.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [keys[i], keys[j]] = [keys[j], keys[i]]; }
+      const items = keys.map((k) => ({ k, w: 3 + Math.floor(rnd() * 10), hide: rnd() < 0.25 }));
+      const view = g.getAttribute('data-view');
+      sessionStorage.setItem('cvg:layout:' + view, JSON.stringify({ made: window.MDV_DATA.made, text: JSON.stringify({ format: 1, view, items }) }));
+      return items.filter((x) => !x.hide).map((x) => x.k);
+    }, docs.indexOf(d) + 7);
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#doc')?.children.length, null, { timeout: 10000 }).catch(() => {});
+    const got = await page.$$eval('#doc .cv > .cvg > .cvg-i', (els) => els.map((e) => e.getAttribute('data-k')));
+    if (want && JSON.stringify(got) === JSON.stringify(want)) applied++;
+  }
   const text = await overviewText();
   const label = `${d.rel}  [${KIND[d.name]}]` + (d.copies ? `  (+${d.copies} копий)` : '');
   // Файла нет в наборе — страница молча открывает первый попавшийся и переписывает адрес.
@@ -286,6 +309,7 @@ for (const d of docs) {
     console.log(`✗ ${label}\n    обзор не отрисовался (нет #doc .cv)` + (errors.length ? ': ' + errors.join(' | ') : ''));
     continue;
   }
+  if (process.env.SNAP) snap[d.path] = { words: tokens(text).join(' '), toc: await page.locator('#toc a').allInnerTexts() };
   const dw = docWords(d.text);
   const lost = missing(dw, tokens(text));
   if (!lost.length) continue;
@@ -304,6 +328,12 @@ for (const d of docs) {
   if (distinct.size > shown.size) console.log(`    … и ещё ${distinct.size - shown.size} разных слов`);
 }
 
+if (process.env.SNAP) writeFileSync(process.env.SNAP, JSON.stringify(snap, null, 1));
+// Раскладка не применилась — проверка выше прошла вхолостую: это тоже провал.
+if (process.env.LAYOUT === 'random') {
+  console.log(`\nслучайная раскладка применилась: ${applied} из ${docs.length}`);
+  if (applied !== docs.length) bad++;
+}
 console.log(`\nпроверено ${docs.length}, с нехваткой ${bad}`);
 process.on('uncaughtException', (e) => { if (/TargetClosed/.test(String(e))) process.exit(bad ? 1 : 0); throw e; });
 await browser.close().catch(() => {});
