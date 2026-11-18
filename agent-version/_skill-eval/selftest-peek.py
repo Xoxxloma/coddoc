@@ -13,8 +13,8 @@ origin.git — общий репозиторий; alice/ — клон колле
 как было: HEAD, ветка, индекс, рабочая копия, локальные ветки, notes/. Меняются только origin/* (fetch) и .coddoc-tmp/.
 
 --list — отдельная песочница lister/: основная (вопросы в ней не в работе), невлитые ветки с БТ, с ноутом и без правок
-документов, влитая ветка, текущая ветка с правкой на диске, удалённым файлом и новым ноутом вне git; плюс репозиторий
-без основной ветки.
+документов, влитая ветка, текущая ветка с правкой на диске, удалённым файлом и новым ноутом вне git; задачи, влитые в
+dev при origin/HEAD на main (--base); плюс репозиторий без основной ветки.
 
 Git изолирован: свой глобальный конфиг, без системного, GIT_CEILING_DIRECTORIES — выше песочницы не подняться.
 """
@@ -388,6 +388,34 @@ def main():
     code, out, last = peek(lme, "--list")
     expect(code == 0 and "основная ветка origin/develop," in out, f"--list, origin/HEAD на develop: {out}")
     g(lme, "remote", "set-head", "origin", "main")
+    # Задачи вливают в dev, origin/HEAD — на main: без --base влитая в dev задача «в работе»; с --base dev — нет,
+    # и сами dev и влитая ветка невлитыми не считаются.
+    flow = root / "flow"
+    g(root, "clone", "-q", str(lorigin), str(flow))
+    g(flow, "checkout", "-q", "-b", "dev")
+    g(flow, "checkout", "-q", "-b", "feature/ab-7")
+    put(flow, "coddoc/AB-7/business_requirements.md", br("AB-7", "Требуются уточнения (1)"))
+    commit(flow, "Алиса", "2026-11-08T10:00:00+03:00", "AB-7")
+    g(flow, "checkout", "-q", "dev")
+    g(flow, "merge", "-q", "--no-ff", "-m", "влить AB-7", "feature/ab-7", who="Боб", date="2026-11-08T12:00:00+03:00")
+    g(flow, "push", "-q", "origin", "dev", "feature/ab-7")
+    g(lme, "fetch", "-q", "origin")
+    g(lme, "branch", "-q", "dev", "origin/dev")
+    g(lme, "branch", "-q", "feature/ab-7", "origin/feature/ab-7")
+    code, out, last = peek(lme, "--list")
+    expect(code == 0 and last.startswith("peek: list 6 ") and "AB-7 ·" in out, f"--list, dev без --base: {out}")
+    code, out, last = peek(lme, "--list", "--base", "dev")
+    expect(code == 0 and last.startswith("peek: list 5 ") and "AB-7" not in out
+           and "в работе — основная ветка origin/dev, невлитых веток: 4" in out, f"--list --base dev: {out}")
+    code, out, last = peek(lme, "--list", "--base", "origin/dev")
+    expect(code == 0 and "основная ветка origin/dev," in out and "AB-7" not in out, f"--list --base origin/dev: {out}")
+    g(lme, "branch", "-q", "stage", "main")
+    code, out, last = peek(lme, "--list", "--base", "stage")
+    expect(code == 0 and "основная ветка stage," in out, f"--list --base локальная: {out}")
+    code, out, last = peek(lme, "--list", "--base", "нет-такой")
+    expect(code == 1 and last == "peek: error no-branch" and "нет-такой" in out, f"--list --base, ветки нет: {out}")
+    code, out, last = peek(lme, "--list", "--base")
+    expect(code == 1 and last == "peek: error usage", f"--list --base без ветки: {out}")
 
     # Основной ветки нет — все локальные ветки целиком.
     trunk = root / "trunk"

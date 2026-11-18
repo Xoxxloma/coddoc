@@ -3,7 +3,7 @@
 
     python3 peek.py <КЛЮЧ>
     python3 peek.py <слово> [<слово> …]
-    python3 peek.py --list
+    python3 peek.py --list [--base <ветка>]
 
 Ключ: находит coddoc/**/<КЛЮЧ>/ во всех локальных ветках и в origin, берёт самую свежую версию — по дате последнего
 коммита ветки, тронувшего папку ключа, — и выгружает её в <корень репозитория>/.coddoc-tmp/peek/<КЛЮЧ>/: старая
@@ -13,8 +13,8 @@
 Слова: строки файлов coddoc/ во всех ветках, где есть все слова (без учёта регистра): «ключ · ветка · автор ·
 файл:строка · строка». Одинаковая пара «файл, строка» из разных веток — один раз, с самой свежей веткой.
 
---list: документы в работе с открытыми вопросами. Основная ветка — origin/HEAD, иначе origin/main, origin/master,
-локальные main, master.
+--list: документы в работе с открытыми вопросами. Основная ветка — названная в --base (origin/<ветка>, иначе
+локальная), без --base — origin/HEAD, иначе origin/main, origin/master, локальные main, master.
 Смотрит файлы coddoc/ и notes/, которые невлитые локальные ветки поменяли от основной; ноуты notes/*/notebook.md
 основной ветки; изменённые и новые файлы рабочей копии (у текущей ветки они заменяют вершину). Один путь в
 нескольких местах — самая свежая версия. Документ coddoc/ — с «Статус готовности: Требуются уточнения (N)»; ноут —
@@ -28,7 +28,7 @@ N строк «- [открыто]» без «‖». N = 0 и файлы без �
   peek: ok key=<КЛЮЧ> files=N path=<папка выгрузки>
   peek: found N
   peek: list N path=<папка копий>
-  peek: error usage | no-git | not-repo | no-coddoc | not-found | no-write
+  peek: error usage | no-git | not-repo | no-coddoc | not-found | no-write | no-branch
 """
 
 from __future__ import annotations
@@ -325,12 +325,17 @@ def peek_words(words):
     return 0
 
 
-def base_ref(top):
-    """→ (ссылка, имя) основной ветки: origin/HEAD, origin/main, origin/master, потом локальные main и master —
-    origin свежее после fetch, локальная main у аналитика обычно отстаёт; нет — (None, None)."""
-    head = text(git(top, "symbolic-ref", "-q", "refs/remotes/origin/HEAD")).strip()
-    for ref in ([head] if head else []) + ["refs/remotes/origin/main", "refs/remotes/origin/master", "refs/heads/main",
-                                           "refs/heads/master"]:
+def base_ref(top, named=None):
+    """→ (ссылка, имя) основной ветки: названная — origin/<имя>, локальная <имя>, ссылка от refs/remotes/; иначе
+    origin/HEAD, origin/main, origin/master, потом локальные main и master — origin свежее после fetch, локальная
+    у аналитика обычно отстаёт; нет — (None, None)."""
+    if named:
+        refs = [f"refs/remotes/origin/{named}", f"refs/heads/{named}", f"refs/remotes/{named}"]
+    else:
+        head = text(git(top, "symbolic-ref", "-q", "refs/remotes/origin/HEAD")).strip()
+        refs = ([head] if head else []) + ["refs/remotes/origin/main", "refs/remotes/origin/master", "refs/heads/main",
+                                           "refs/heads/master"]
+    for ref in refs:
         if git(top, "rev-parse", "-q", "--verify", ref + "^{commit}").returncode == 0:
             return ref, ref.split("/", 2)[2]
     return None, None
@@ -384,12 +389,14 @@ def open_questions(path, blob):
     return None
 
 
-def peek_list():
+def peek_list(named=None):
     top = find_top()
     note = fetch(top)
     if note:
         print(note)
-    base, base_name = base_ref(top)
+    base, base_name = base_ref(top, named)
+    if named and not base:
+        raise Fail("no-branch", f"ветку {named} не нашёл ни в origin, ни среди локальных")
     current = text(git(top, "symbolic-ref", "-q", "HEAD")).strip()
     listing = ["for-each-ref", "--format=%(refname)%00%(objectname)"] + ([f"--no-merged={base}"] if base else [])
     work = [line.split("\0") for line in text(git(top, *listing, "refs/heads")).splitlines() if line]
@@ -473,15 +480,16 @@ def main(argv=None):
         pass
     try:
         if args[:1] == ["--list"]:
-            if len(args) > 1:
-                raise Fail("usage", "у --list нет аргументов: peek.py --list")
-            return peek_list()
+            rest = args[1:]
+            if rest and (len(rest) != 2 or rest[0] != "--base" or not rest[1].strip()):
+                raise Fail("usage", "у --list только --base <ветка>: peek.py --list [--base develop]")
+            return peek_list(rest[1].strip() if rest else None)
         if len(args) == 1 and KEY_RE.match(args[0]):
             return peek_key(args[0])
         words = [word.casefold() for arg in args for word in arg.split()]
         if not words:
             raise Fail("usage", "нужен ключ задачи или слова: peek.py <КЛЮЧ> | peek.py <слово> [<слово> …] | "
-                                "peek.py --list")
+                                "peek.py --list [--base <ветка>]")
         return peek_words(words)
     except Fail as error:
         print(error)

@@ -1,5 +1,6 @@
-// Пробы скилла work-plan: первый запуск, разбивка на два плана, повторный запуск, «следим» (два запуска подряд),
-// «добавь» (с запросом на правку), выбор из двух планов. Скилл задаёт вопросы — прогон идёт в несколько ходов
+// Пробы скилла work-plan: первый запуск, две инициативы — по плану на каждую или в один, повторный запуск, «следим»
+// (два запуска подряд), «добавь» (с запросом на правку), выбор из двух планов. Задачи в песочнице вливают в dev, а
+// origin/HEAD — на main: новый план начинается с вопроса о главной ветке. Скилл задаёт вопросы — прогон идёт в несколько ходов
 // (`--resume`): ход 1 — команда, ход 2 — ответ аналитика, последний — «да», только если файлы плана ещё не готовы
 // (лишний вопрос — метка). Ход с `fresh` — новый запуск скилла в новой сессии.
 //
@@ -32,6 +33,7 @@ const CR8 = 'coddoc/INV-8/change_request.md';
 const NB = 'notes/списание-запчастей/notebook.md';
 const PLAN7 = 'INV-7.md';
 const PLAN9 = 'INV-9.md';
+const PLAN_ALL = 'Склад.md';
 // Ядра вопросов — проверка «словами документа».
 const Q = {
   bt7a: 'Кто утверждает списание запчасти дороже 50 000 ₽',
@@ -75,8 +77,9 @@ const NB_RERUN = NB_HEAD + NB_DAY1.replace(`${Q.nb2} — ждёт: — · 2026-1
   '- [решено] Подпись кладовщика на акте не нужна — решил: Голубев А.; отвечает на: 2026-11-10 №1.2 · 2026-11-17 №1.1\n' +
   `- [открыто] ${Q.nbNew} — ждёт: Сидоров П. · 2026-11-17 №1.2\n` +
   '> Голубев А.: подпись не нужна. Кто забирает списанное — это к Сидорову.\n';
-const PLAN_RERUN = `# План: INV-7\n\nобновлён: 2026-11-12\nцель: ${GOAL_RERUN}\n\n## Документы\n` +
-  `- ${BT7} · feature/inv-7 · открытых: 2\n- ${NB} · origin/main · открытых: 2\n\n## Дела\n` +
+const BASE = 'origin/dev';  // задачи вливают в dev; origin/HEAD — на main
+const PLAN_RERUN = `# План: INV-7\n\nобновлён: 2026-11-12\nглавная: ${BASE}\nцель: ${GOAL_RERUN}\n\n## Документы\n` +
+  `- ${BT7} · feature/inv-7 · открытых: 2\n- ${NB} · ${BASE} · открытых: 2\n\n## Дела\n` +
   `1. ${Q.bt7a} — не назван. — ждём: — · ${BT7}, пункт 1\n` +
   `2. ${Q.bt7b} — не назван. — ждём: — · ${BT7}, пункт 2\n` +
   `3. ${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1\n` +
@@ -90,7 +93,7 @@ const CR = '---\ntype: change-request\ntask: INV-8\nsource: документа �
   '> **Задача:** INV-8\n> **Редакция:** 1\n\n## 1. Затронутый бизнес-процесс\nСписание запчасти, экран акта.\n\n' +
   '## 4. Как должно стать\n- **FR-1:** Лимит списания без утверждения — 20 000 ₽.\n\n' +
   `## Открытые вопросы\n1. ${Q.cr1}\n2. ${Q.cr2}\n`;
-const PLAN9_OLD = `# План: INV-9\n\nобновлён: 2026-11-13\nцель: БТ и спека влиты\n\n## Документы\n` +
+const PLAN9_OLD = `# План: INV-9\n\nобновлён: 2026-11-13\nглавная: ${BASE}\nцель: БТ и спека влиты\n\n## Документы\n` +
   `- ${BT9} · feature/inv-9 · открытых: 1\n\n## Дела\n1. ${Q.bt9} — не подтверждено. — ждём: — · ${BT9}, пункт 1\n`;
 
 function gitIn(cwd, env, ...args) {
@@ -118,17 +121,20 @@ function seed(box, variant) {
   put(irina, NB, NB_BASE);
   commit(irina, 'Ирина', '2026-11-10T10:00:00+03:00', 'основная');
   g(irina, 'push', '-q', 'origin', 'main');
+  // Задачи вливают в dev, а не в main (ветка по умолчанию, на неё — origin/HEAD); INV-3 влита в dev.
+  g(irina, 'checkout', '-q', '-b', 'dev');
   g(irina, 'checkout', '-q', '-b', 'feature/inv-3');
   put(irina, 'coddoc/INV-3/business_requirements.md', BT('INV-3', ['Кто принимает возврат — не назван.']));
   commit(irina, 'Ирина', '2026-11-11T10:00:00+03:00', 'INV-3');
-  g(irina, 'checkout', '-q', 'main');
+  g(irina, 'push', '-q', 'origin', 'feature/inv-3');
+  g(irina, 'checkout', '-q', 'dev');
   execFileSync('git', ['merge', '-q', '--no-ff', '-m', 'влить INV-3', 'feature/inv-3'], { cwd: irina, stdio: 'ignore', env: as('Ирина', '2026-11-11T12:00:00+03:00') });
-  g(irina, 'push', '-q', 'origin', 'main');
+  g(irina, 'push', '-q', 'origin', 'dev');
   g(irina, 'checkout', '-q', '-b', 'feature/inv-7');
   put(irina, BT7, BT('INV-7', [`${Q.bt7a} — не назван.`, `${Q.bt7b} — не назван.`]));
   commit(irina, 'Ирина', '2026-11-12T10:00:00+03:00', 'INV-7');
   g(irina, 'push', '-q', 'origin', 'feature/inv-7');
-  g(irina, 'checkout', '-q', 'main');
+  g(irina, 'checkout', '-q', 'dev');
   g(irina, 'checkout', '-q', '-b', 'feature/inv-9');
   put(irina, BT9, BT('INV-9', [`${Q.bt9} — не подтверждено.`]));
   commit(irina, 'Ирина', '2026-11-13T10:00:00+03:00', 'INV-9');
@@ -138,7 +144,7 @@ function seed(box, variant) {
   }
   g(irina, 'push', '-q', 'origin', 'feature/inv-9');
   if (variant === 'add') {
-    g(irina, 'checkout', '-q', 'main');
+    g(irina, 'checkout', '-q', 'dev');
     g(irina, 'checkout', '-q', '-b', 'feature/inv-8');
     put(irina, CR8, CR);
     commit(irina, 'Ирина', '2026-11-14T10:00:00+03:00', 'INV-8');
@@ -146,6 +152,9 @@ function seed(box, variant) {
   }
 
   g(box, 'clone', '-q', origin, me);
+  // Локальные dev и влитая feature/inv-3 — от main «невлитые», от dev — нет.
+  g(me, 'branch', '-q', 'dev', 'origin/dev');
+  g(me, 'branch', '-q', 'feature/inv-3', 'origin/feature/inv-3');
   g(me, 'branch', '-q', 'feature/inv-9', 'origin/feature/inv-9');
   if (variant === 'add') g(me, 'branch', '-q', 'feature/inv-8', 'origin/feature/inv-8');
   g(me, 'checkout', '-q', '-b', 'feature/inv-7', 'origin/feature/inv-7');
@@ -193,15 +202,19 @@ function parsePlan(text) {
   };
   const value = (name) => (lines.find((l) => l.startsWith(`${name}:`)) ?? '').slice(name.length + 1).trim();
   return {
-    goal: value('цель'), updated: value('обновлён'),
+    goal: value('цель'), updated: value('обновлён'), main: value('главная'),
     docs: section('Документы').filter((l) => l.startsWith('- ')),
     tasks: section('Дела').filter((l) => /^\d+\.\s/.test(l)),
   };
 }
 
 const PROBES = [
-  { id: 'p-create', variant: 'create', turns: ['/work-plan', '1, 2, 3'], fallback: 'Да, так.', done: (p) => !!p[PLAN7] },
-  { id: 'p-group', variant: 'create', turns: ['/work-plan', '1, 4'], fallback: 'Так, два плана.', done: (p) => !!p[PLAN7] && !!p[PLAN9] },
+  // Ход 1 — вопрос о главной ветке (гипотеза origin/main), ход 2 — «dev», дальше выбор.
+  { id: 'p-create', variant: 'create', turns: ['/work-plan', 'Нет, задачи вливают в dev.', '1, 2, 3'], fallback: 'Да, так.', done: (p) => !!p[PLAN7] },
+  { id: 'p-split', variant: 'create', turns: ['/work-plan', 'Нет, задачи вливают в dev.', '1, 4', 'По плану на инициативу.'],
+    fallback: 'Да.', done: (p) => !!p[PLAN7] && !!p[PLAN9] },
+  { id: 'p-merge', variant: 'create', turns: ['/work-plan', 'Нет, задачи вливают в dev.', '1, 4', 'Все в один, назови Склад.'],
+    fallback: 'Да.', done: (p) => !!p[PLAN_ALL] },
   { id: 'p-rerun', variant: 'rerun', turns: ['/work-plan INV-7', 'Закончили.'], fallback: 'Да.', done: (p) => p[PLAN7] !== PLAN_RERUN },
   // Ход 3 — новый запуск скилла в новой сессии: за день в ноуте появился вопрос; про БТ «следим» спрашивать нельзя.
   { id: 'p-watch', variant: 'rerun', fallback: 'Следим.', done: (p) => (p[PLAN7] ?? '').includes(Q.nbNext),
@@ -211,7 +224,7 @@ const PROBES = [
 ];
 const turnOf = (t) => (typeof t === 'string' ? { text: t } : t);
 
-/** run: { cmds, snaps: [планы после каждого хода], answer, intact, loaded } */
+/** run: { cmds, snaps: [планы после каждого хода], answer (последний ход), answers (по ходам), intact, loaded } */
 function grade(probe, run) {
   const last = run.snaps[run.snaps.length - 1] ?? {};
   const has = (line, text) => line.includes(text);
@@ -222,10 +235,18 @@ function grade(probe, run) {
     'ветку не трогал': !run.cmds.some((c) => /\bgit\b[^|;&]*\b(checkout|switch|stash|pull|worktree|reset|merge|rebase|restore|commit|add)\b/.test(c)),
     'репозиторий цел': run.intact,
   };
+  const fromBase = run.cmds.some((c) => c.includes('peek.py') && c.includes('--base') && c.includes('dev'));
+  if (['p-create', 'p-split', 'p-merge'].includes(probe.id)) {
+    const first = run.answers[0] ?? '';
+    marks['спросил главную ветку'] = Object.keys(run.snaps[0] ?? {}).length === 0 && first.includes('main') && first.includes('?');
+    marks['список от dev'] = fromBase;
+    marks['влитое не предложено'] = !(run.answers[1] ?? '').includes('INV-3');
+    marks['главная в шапке'] = Object.values(last).length > 0 && Object.values(last).every((t) => parsePlan(t).main.includes('dev'));
+  }
   if (probe.id === 'p-create') {
     const p = parsePlan(last[PLAN7]);
-    marks['спросил до записи'] = !(run.snaps[0] ?? {})[PLAN7];
-    marks['без лишнего вопроса'] = run.snaps.length === 2;
+    marks['спросил до записи'] = !(run.snaps[1] ?? {})[PLAN7];
+    marks['без лишнего вопроса'] = run.snaps.length === 3;
     marks['файл INV-7.md'] = !!last[PLAN7];
     marks['один план'] = Object.keys(last).length === 1;
     marks['цель по умолчанию'] = p.goal === 'БТ и спека влиты';
@@ -236,14 +257,22 @@ function grade(probe, run) {
     const nb1 = taskWith(p, Q.nb1) ?? '';
     marks['ноут: кого ждём и номер'] = has(nb1, 'Голубев') && has(nb1, '2026-11-10 №1.1');
     marks['закрытое не взято'] = !taskWith(p, Q.nbClosed);
-  } else if (probe.id === 'p-group') {
-    const p7 = parsePlan(last[PLAN7]), p9 = parsePlan(last[PLAN9]);
-    marks['спросил до записи'] = Object.keys(run.snaps[0] ?? {}).length === 0;
-    marks['спросил разбивку'] = Object.keys(run.snaps[1] ?? {}).length === 0 && run.snaps.length === 3;
-    marks['два файла'] = !!last[PLAN7] && !!last[PLAN9] && Object.keys(last).length === 2;
-    marks['INV-7: БТ и 2 дела'] = p7.docs.length === 1 && has(p7.docs[0], BT7) && p7.tasks.length === 2
-      && !!taskWith(p7, Q.bt7a) && !!taskWith(p7, Q.bt7b);
-    marks['INV-9: БТ и 1 дело'] = p9.docs.length === 1 && has(p9.docs[0], BT9) && p9.tasks.length === 1 && !!taskWith(p9, Q.bt9);
+  } else if (probe.id === 'p-split' || probe.id === 'p-merge') {
+    const asked = run.answers[2] ?? '';
+    marks['спросил разбивку до записи'] = Object.keys(run.snaps[2] ?? {}).length === 0 && run.snaps.length === 4
+      && asked.includes('INV-7') && asked.includes('INV-9');
+    if (probe.id === 'p-split') {
+      const p7 = parsePlan(last[PLAN7]), p9 = parsePlan(last[PLAN9]);
+      marks['два файла'] = !!last[PLAN7] && !!last[PLAN9] && Object.keys(last).length === 2;
+      marks['INV-7: БТ и 2 дела'] = p7.docs.length === 1 && has(p7.docs[0], BT7) && p7.tasks.length === 2
+        && !!taskWith(p7, Q.bt7a) && !!taskWith(p7, Q.bt7b);
+      marks['INV-9: БТ и 1 дело'] = p9.docs.length === 1 && has(p9.docs[0], BT9) && p9.tasks.length === 1 && !!taskWith(p9, Q.bt9);
+    } else {
+      const p = parsePlan(last[PLAN_ALL]);
+      marks['один файл Склад.md'] = Object.keys(last).join() === PLAN_ALL;
+      marks['Склад: оба БТ, 3 дела'] = p.docs.length === 2 && has(p.docs[0], BT7) && has(p.docs[1], BT9) && p.tasks.length === 3
+        && [Q.bt7a, Q.bt7b, Q.bt9].every((q) => taskWith(p, q));
+    }
   } else if (probe.id === 'p-watch') {
     const mid = parsePlan((run.snaps[1] ?? {})[PLAN7]), p = parsePlan(last[PLAN7]);
     const btLine = (plan) => plan.docs.find((l) => has(l, BT7)) ?? '';
@@ -294,6 +323,9 @@ function grade(probe, run) {
     const said = run.answer.toLowerCase();
     marks['отчёт: закрылось'] = said.includes('подпись кладовщика') && said.includes('утверждает списание');
     marks['отчёт: «добавь»'] = run.answer.includes('/work-plan INV-7 добавь');
+    marks['список от главной из файла'] = fromBase;
+    marks['главная как была'] = p.main === BASE;
+    marks['влитое не в отчёте'] = !run.answer.includes('INV-3');
   }
   return marks;
 }
@@ -307,42 +339,55 @@ function selftest() {
   const checkBad = (label, list) => {
     for (const k of Object.keys(list[0])) if (list.every((m) => m[k])) { fails++; console.log(`  ✗ ${label}: «${k}» не пойман`); }
   };
-  const ok = { cmds: ['python .claude/skills/work-plan/../peek/reference/peek.py --list'], answer: '', intact: true, loaded: true };
-  const plan = (goal, docs, tasks) => `# План: x\n\nобновлён: ${TODAY}\nцель: ${goal}\n\n## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n## Дела\n` +
-    tasks.map((t, i) => `${i + 1}. ${t}\n`).join('');
-  const create = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`, `${SPEC7} · рабочая копия · открытых: 1`, `${NB} · origin/main · открытых: 2`],
+  const P = (id) => PROBES.find((p) => p.id === id);
+  const ok = { cmds: ['python .claude/skills/work-plan/../peek/reference/peek.py --list',
+    'python .claude/skills/work-plan/../peek/reference/peek.py --list --base dev'], answer: '',
+  answers: ['Главная ветка — origin/main? Если задачи вливают в другую — назови её.', 'Какие берём в план? 1. INV-7 · …',
+    'Найдено 2 инициативы: INV-7, INV-9. По плану на инициативу или все в один план — под каким именем?'],
+  intact: true, loaded: true };
+  const plan = (goal, docs, tasks, main = BASE) => `# План: x\n\nобновлён: ${TODAY}\n${main ? `главная: ${main}\n` : ''}цель: ${goal}\n\n` +
+    `## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n## Дела\n` + tasks.map((t, i) => `${i + 1}. ${t}\n`).join('');
+  const create = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`, `${SPEC7} · рабочая копия · открытых: 1`, `${NB} · ${BASE} · открытых: 2`],
     [`${Q.bt7a} — не назван. — ждём: — · ${BT7}, пункт 1`, `${Q.bt7b} — не назван. — ждём: — · ${BT7}, пункт 2`,
       `❓ TBD: ${Q.spec7}. — ждём: — · ${SPEC7}, пункт 1`, `${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1`, `${Q.nb2} — ждём: — · ${NB}, 2026-11-10 №1.2`]);
-  check('создание, хороший', grade(PROBES[0], { ...ok, snaps: [{}, { [PLAN7]: create }] }), true);
-  const badCreate = plan('БТ', [`${BT7}`, `${BT9}`], [`${Q.nbClosed} — ждём: Голубев`, 'Кто утверждает списание'])
+  check('создание, хороший', grade(P('p-create'), { ...ok, snaps: [{}, {}, { [PLAN7]: create }] }), true);
+  const badCreate = plan('БТ', [`${BT7}`, `${BT9}`], [`${Q.nbClosed} — ждём: Голубев`, 'Кто утверждает списание'], '')
     .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
-  const bad = { cmds: ['git checkout main', 'git log --all'], answer: 'Готово.', intact: false, loaded: false };
+  const bad = { cmds: ['git checkout main', 'git log --all'], answer: 'Готово.', answers: ['Готово.', '1. INV-3 · coddoc/INV-3/…', 'Готово.'],
+    intact: false, loaded: false };
+  const many = { [PLAN7]: badCreate, [PLAN9]: 'x' };
   checkBad('создание, плохой', [
-    grade(PROBES[0], { ...bad, snaps: [{ [PLAN7]: badCreate }, { [PLAN7]: badCreate, [PLAN9]: 'x' }, { [PLAN7]: badCreate, [PLAN9]: 'x' }] }),
-    grade(PROBES[0], { ...bad, snaps: [{}, {}] })]);
+    grade(P('p-create'), { ...bad, snaps: [{ [PLAN7]: badCreate }, many, many, many] }),
+    grade(P('p-create'), { ...bad, snaps: [{}, {}] })]);
   const g7 = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`], [`${Q.bt7a} — не назван.`, `${Q.bt7b} — не назван.`]);
   const g9 = plan('БТ и спека влиты', [`${BT9} · feature/inv-9 · открытых: 1`], [`${Q.bt9} — не подтверждено.`]);
-  check('разбивка, хороший', grade(PROBES[1], { ...ok, snaps: [{}, {}, { [PLAN7]: g7, [PLAN9]: g9 }] }), true);
-  checkBad('разбивка, плохой', [grade(PROBES[1], { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] })]);
+  check('разбивка, хороший', grade(P('p-split'), { ...ok, snaps: [{}, {}, {}, { [PLAN7]: g7, [PLAN9]: g9 }] }), true);
+  checkBad('разбивка, плохой', [grade(P('p-split'), { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] }),
+    grade(P('p-split'), { ...bad, snaps: [{}, {}, {}, { [PLAN7]: badCreate }] })]);
+  const all = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`, `${BT9} · feature/inv-9 · открытых: 1`],
+    [`${Q.bt7a} — не назван.`, `${Q.bt7b} — не назван.`, `${Q.bt9} — не подтверждено.`]);
+  check('в один, хороший', grade(P('p-merge'), { ...ok, snaps: [{}, {}, {}, { [PLAN_ALL]: all }] }), true);
+  checkBad('в один, плохой', [grade(P('p-merge'), { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] }),
+    grade(P('p-merge'), { ...bad, snaps: [{}, {}, {}, { [PLAN_ALL]: badCreate }] })]);
   const rerun = plan(GOAL_RERUN, [`${NB} · рабочая копия · открытых: 2`],
     [`${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1`, `${Q.nbNew} — ждём: Сидоров П. · ${NB}, 2026-11-17 №1.2`]);
   const answer = `Закрылось: ${Q.bt7a}; ${Q.bt7b}; ${Q.nb2}. Появилось: ${Q.nbNew}. Ещё 2 документа — добавить: /work-plan INV-7 добавь`;
-  check('повтор, хороший', grade(PROBES[2], { ...ok, answer, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
+  check('повтор, хороший', grade(P('p-rerun'), { ...ok, answer, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
   const badRerun = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`, `${SPEC7} · рабочая копия · открытых: 1`],
-    [`${Q.nb2} — ждём: —`]).replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
+    [`${Q.nb2} — ждём: —`], '').replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
   checkBad('повтор, плохой', [
-    grade(PROBES[2], { ...bad, snaps: [{ [PLAN7]: badRerun }, { [PLAN7]: badRerun }, { [PLAN7]: badRerun, x: '' }] }),
-    grade(PROBES[2], { ...bad, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: PLAN_RERUN }] })]);
+    grade(P('p-rerun'), { ...bad, snaps: [{ [PLAN7]: badRerun }, { [PLAN7]: badRerun }, { [PLAN7]: badRerun, x: '' }] }),
+    grade(P('p-rerun'), { ...bad, answer: 'Ещё 3 документа: INV-3 …', snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: PLAN_RERUN }] })]);
 
   const nbTask = (q, who, n) => `${q} — ждём: ${who} · ${NB}, ${n}`;
   const watchDocs = (n) => [`${BT7} · feature/inv-7 · открытых: 0 · следим`, `${NB} · рабочая копия · открытых: ${n}`];
   const watchMid = plan(GOAL_RERUN, watchDocs(2), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2')]);
   const watchEnd = plan(GOAL_RERUN, watchDocs(3), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'),
     nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2'), nbTask(Q.nbNext, 'Сидоров П.', '2026-11-18 №1.1')]);
-  check('следим, хороший', grade(PROBES[3], { ...ok, answer: `План обновлён. Появилось: ${Q.nbNext}.`,
+  check('следим, хороший', grade(P('p-watch'), { ...ok, answer: `План обновлён. Появилось: ${Q.nbNext}.`,
     snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: watchMid }, { [PLAN7]: watchEnd }] }), true);
   const watchBad = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`], [nbTask(Q.nb1, '—', '')]);
-  checkBad('следим, плохой', [grade(PROBES[3], { ...bad, answer: 'Закончили с ним или следим дальше?',
+  checkBad('следим, плохой', [grade(P('p-watch'), { ...bad, answer: 'Закончили с ним или следим дальше?',
     snaps: [{ [PLAN7]: watchMid }, { [PLAN7]: PLAN_RERUN }, { [PLAN7]: watchBad }, { [PLAN7]: watchBad, x: '' }] })]);
 
   const addGood = plan(GOAL_RERUN, [`${BT7} · feature/inv-7 · открытых: 2`, `${NB} · origin/main · открытых: 2`,
@@ -350,19 +395,19 @@ function selftest() {
     [`${Q.bt7a} — не назван. — ждём: — · ${BT7}, пункт 1`, `${Q.bt7b} — не назван. — ждём: — · ${BT7}, пункт 2`,
       nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nb2, '—', '2026-11-10 №1.2'),
       `❓ TBD: ${Q.spec7}. — ждём: — · ${SPEC7}, пункт 1`, `${Q.cr1} — ждём: — · ${CR8}, пункт 1`, `${Q.cr2} — ждём: — · ${CR8}, пункт 2`]);
-  check('добавь, хороший', grade(PROBES[4], { ...ok, answer: 'Ещё 1 документ в работе не в плане — добавить: /work-plan INV-7 добавь',
+  check('добавь, хороший', grade(P('p-add'), { ...ok, answer: 'Ещё 1 документ в работе не в плане — добавить: /work-plan INV-7 добавь',
     snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: addGood }] }), true);
   const addBad = plan('БТ и спека влиты', [`${SPEC7}`, `${BT7}`], [`${Q.cr1} — ждём: — · ${SPEC7}`])
     .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
-  checkBad('добавь, плохой', [grade(PROBES[4], { ...bad, snaps: [{ [PLAN7]: addBad }, { [PLAN7]: addBad, x: '' }, { [PLAN7]: addBad, x: '' }] })]);
+  checkBad('добавь, плохой', [grade(P('p-add'), { ...bad, snaps: [{ [PLAN7]: addBad }, { [PLAN7]: addBad, x: '' }, { [PLAN7]: addBad, x: '' }] })]);
 
   const pickGood = plan('БТ и спека влиты', [`${BT9} · feature/inv-9 · открытых: 2`],
     [`${Q.bt9} — не подтверждено. — ждём: — · ${BT9}, пункт 1`, `${Q.bt9b} — не назван. — ждём: — · ${BT9}, пункт 2`]);
-  check('выбор плана, хороший', grade(PROBES[5], { ...ok, answer: `Появилось: ${Q.bt9b.toLowerCase()} — не назван.`,
+  check('выбор плана, хороший', grade(P('p-pick'), { ...ok, answer: `Появилось: ${Q.bt9b.toLowerCase()} — не назван.`,
     snaps: [{ [PLAN7]: PLAN_RERUN, [PLAN9]: PLAN9_OLD }, { [PLAN7]: PLAN_RERUN, [PLAN9]: pickGood }] }), true);
   const pickBad = plan('БТ', [`${BT9} · feature/inv-9 · открытых: 1`], [`${Q.bt9} — не подтверждено.`])
     .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-13');
-  checkBad('выбор плана, плохой', [grade(PROBES[5], { ...bad,
+  checkBad('выбор плана, плохой', [grade(P('p-pick'), { ...bad,
     snaps: [{ [PLAN7]: create }, { [PLAN7]: create, [PLAN9]: pickBad }, { [PLAN7]: create, [PLAN9]: pickBad }] })]);
   console.log(fails ? `оценщик: провалов ${fails}` : 'оценщик: хорошие данные — всё ✓, плохие — пойман каждый пункт');
   return fails;
@@ -463,7 +508,8 @@ async function main() {
       const init = ev.find((e) => e.subtype === 'init') ?? {};
       const loaded = (init.skills ?? []).includes('work-plan') && cmds.length > 0 && cmds[0].includes('peek.py') && cmds[0].includes('--list');
       total += cost;
-      const marks = grade(probe, { cmds, snaps: job.snaps, answer, intact: job.intact, loaded });
+      const answers = results.map((r) => String(r.result ?? ''));
+      const marks = grade(probe, { cmds, snaps: job.snaps, answer, answers, intact: job.intact, loaded });
       const bad = Object.entries(marks).filter(([, v]) => !v).map(([k]) => k);
       report.push(`run-${String(job.i).padStart(2, '0')}: ${bad.length ? '✗ ' + bad.join(', ') : '✓ всё'} · $${cost.toFixed(3)} · ходов ${job.codes.length} · ${Math.round(job.ms / 1000)} с`);
       report.push(`  ответы хода: ${results.map((r) => String(r.result ?? '').replace(/\s+/g, ' ').slice(0, 220)).join(' ⏎ ')}`);
