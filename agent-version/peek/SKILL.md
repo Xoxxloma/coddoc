@@ -1,6 +1,6 @@
 ---
 name: peek
-version: 1.2.0
+version: 1.2.1
 user-invocable: true
 argument-hint: "<ключ задачи или слова> | --list [--base <ветка>]"
 allowed-tools: Bash

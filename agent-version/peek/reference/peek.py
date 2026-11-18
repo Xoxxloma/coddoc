@@ -15,7 +15,8 @@
 
 --list: документы в работе с открытыми вопросами. Основная ветка — названная в --base (origin/<ветка>, иначе
 локальная), без --base — origin/HEAD, иначе origin/main, origin/master, локальные main, master.
-Смотрит файлы coddoc/ и notes/, которые невлитые локальные ветки поменяли от основной; ноуты notes/*/notebook.md
+Смотрит файлы coddoc/ и notes/, которые невлитые локальные ветки поменяли от основной (кроме версий, уже лежащих в
+основной, — влиты squash, rebase или cherry-pick, — и версий старше правки того же файла в основной); ноуты notes/*/notebook.md
 основной ветки; изменённые и новые файлы рабочей копии (у текущей ветки они заменяют вершину). Один путь в
 нескольких местах — самая свежая версия. Документ coddoc/ — с «Статус готовности: Требуются уточнения (N)»; ноут —
 N строк «- [открыто]» без «‖». N = 0 и файлы без статуса не показываются. Найденное копирует в
@@ -403,9 +404,15 @@ def peek_list(named=None):
     changed, gone = disk_changes(top)
 
     cands = {}  # путь → [{stamp, kind, where, author, date, sha | file}]; kind 0 — диск, 1 — ветка, 2 — основная
+    in_base = dict(tree_files(top, base, ("coddoc", "notes"))) if base else {}
+    base_stamps = {}
 
-    def from_tree(tip, where, kind, path, sha):
-        stamp, author, date = last_commit(top, tip, path)
+    def base_stamp(path):
+        if path not in base_stamps:
+            base_stamps[path] = last_commit(top, base, path)[0]
+        return base_stamps[path]
+
+    def add(path, sha, kind, where, stamp, author, date):
         cands.setdefault(path, []).append({"stamp": stamp, "kind": kind, "where": where, "author": author,
                                            "date": date, "sha": sha})
 
@@ -416,11 +423,17 @@ def peek_list(named=None):
                 continue
             if ref == current and (path in changed or path in gone):
                 continue  # у текущей ветки этот файл берётся с диска
-            from_tree(tip, ref[len("refs/heads/"):], 1, path, sha)
-    if base:
-        for path, sha in tree_files(top, base, ("notes",)):
-            if NOTEBOOK_RE.match(path):
-                from_tree(base, base_name, 2, path, sha)
+            # Версия ветки уже в основной — тот же файл: влита не слиянием (squash, rebase, cherry-pick).
+            if in_base.get(path) == sha:
+                continue
+            stamp, author, date = last_commit(top, tip, path)
+            # В основной файл правили позже — ветка отстала, её версия не в работе.
+            if path in in_base and base_stamp(path) >= stamp:
+                continue
+            add(path, sha, 1, ref[len("refs/heads/"):], stamp, author, date)
+    for path, sha in in_base.items():
+        if NOTEBOOK_RE.match(path):
+            add(path, sha, 2, base_name, *last_commit(top, base, path))
     for path in changed:
         disk = top.joinpath(*path.split("/"))
         if wanted(path) and disk.is_file():
