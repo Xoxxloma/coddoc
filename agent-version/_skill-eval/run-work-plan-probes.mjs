@@ -63,16 +63,18 @@ const BT = (key, items) => doc('bt', key, items.length ? `Требуются у�
 const SPEC = (key, items) => doc('spec', key, `Требуются уточнения (${items.length})`,
   'Открытые вопросы (решить до / во время разработки)', items);
 
-const NB_HEAD = '---\nтема: списание запчастей\nключ: INV-7\nо чём: списание запчастей со склада\nроли: —\n---\n# Ноут: списание запчастей\n\n';
+// Свой вопрос аналитика с уточнением в скобках: группа «Ваши дела», уточнение — в сути.
+const NB2_WHO = 'аналитик (сверить с актом формы)';
+const NB_HEAD ='---\nтема: списание запчастей\nключ: INV-7\nо чём: списание запчастей со склада\nроли: —\n---\n# Ноут: списание запчастей\n\n';
 const NB_DAY1 = '## 2026-11-10\n\n### 1 · созвон с Голубевым А. (главный механик) со слов аналитика\n' +
   `- [открыто] ${Q.nb1} — ждёт: Голубев А. · 2026-11-10 №1.1\n` +
-  `- [открыто] ${Q.nb2} — ждёт: — · 2026-11-10 №1.2\n` +
+  `- [открыто] ${Q.nb2} — ждёт: ${NB2_WHO} · 2026-11-10 №1.2\n` +
   `- [открыто] ${Q.nbClosed} — ждёт: Голубев А. · 2026-11-10 №1.3 ‖ закрыт: 2026-11-12 №1.1\n\n` +
   '## 2026-11-12\n\n### 1 · письмо Голубева А.\n' +
   '- [решено] Износ считается по пробегу — решил: Голубев А.; отвечает на: 2026-11-10 №1.3 · 2026-11-12 №1.1\n' +
   '> Износ считаем по пробегу.\n';
 const NB_BASE = NB_HEAD + NB_DAY1;
-const NB_RERUN = NB_HEAD + NB_DAY1.replace(`${Q.nb2} — ждёт: — · 2026-11-10 №1.2\n`, `${Q.nb2} — ждёт: — · 2026-11-10 №1.2 ‖ закрыт: 2026-11-17 №1.1\n`) +
+const NB_RERUN = NB_HEAD + NB_DAY1.replace(`${Q.nb2} — ждёт: ${NB2_WHO} · 2026-11-10 №1.2\n`, `${Q.nb2} — ждёт: ${NB2_WHO} · 2026-11-10 №1.2 ‖ закрыт: 2026-11-17 №1.1\n`) +
   '\n## 2026-11-17\n\n### 1 · чат с Голубевым А.\n' +
   '- [решено] Подпись кладовщика на акте не нужна — решил: Голубев А.; отвечает на: 2026-11-10 №1.2 · 2026-11-17 №1.1\n' +
   `- [открыто] ${Q.nbNew} — ждёт: Сидоров П. · 2026-11-17 №1.2\n` +
@@ -83,7 +85,7 @@ const PLAN_RERUN = `# План: INV-7\n\nобновлён: 2026-11-12\nглав�
   `1. ${Q.bt7a} — не назван. — ждём: — · ${BT7}, пункт 1\n` +
   `2. ${Q.bt7b} — не назван. — ждём: — · ${BT7}, пункт 2\n` +
   `3. ${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1\n` +
-  `4. ${Q.nb2} — ждём: — · ${NB}, 2026-11-10 №1.2\n`;
+  `4. ${Q.nb2} — ждём: ${NB2_WHO} · ${NB}, 2026-11-10 №1.2\n`;  // форма 1.2.0: дело — одна строка
 // Второй запуск «следим»: за день в ноуте появился ещё вопрос.
 const NB_NEXT = NB_RERUN + '\n## 2026-11-18\n\n### 1 · письмо Сидорова П.\n' +
   `- [открыто] ${Q.nbNext} — ждёт: Сидоров П. · 2026-11-18 №1.1\n`;
@@ -201,10 +203,20 @@ function parsePlan(text) {
     return out;
   };
   const value = (name) => (lines.find((l) => l.startsWith(`${name}:`)) ?? '').slice(name.length + 1).trim();
+  // Дело 1.3.0: «### <группа> — K», строка «N. <суть> · <откуда>», под ней «   > <оригинал>»; 1.2.0 — одна строка.
+  const items = [];
+  let group = '';
+  for (const l of section('Дела')) {
+    if (l.startsWith('### ')) group = l.slice(4).trim();
+    else if (/^\d+\.\s/.test(l)) items.push({ group, line: l, quote: '' });
+    else if (items.length && /^\s+>/.test(l)) items[items.length - 1].quote += l.replace(/^\s+>\s?/, '');
+  }
   return {
     goal: value('цель'), updated: value('обновлён'), main: value('главная'),
     docs: section('Документы').filter((l) => l.startsWith('- ')),
-    tasks: section('Дела').filter((l) => /^\d+\.\s/.test(l)),
+    summary: section('Дела').find((l) => l.startsWith('Всего')) ?? '',
+    items,
+    tasks: items.map((t) => `${t.group} | ${t.line} | ${t.quote}`),
   };
 }
 
@@ -253,9 +265,17 @@ function grade(probe, run) {
     marks['обновлён сегодня'] = p.updated === TODAY;
     marks['документы — три выбранных'] = p.docs.length === 3 && [BT7, SPEC7, NB].every((d) => p.docs.some((l) => has(l, d)));
     marks['дел 5'] = p.tasks.length === 5;
-    marks['вопросы дословно'] = [Q.bt7a, Q.bt7b, Q.spec7, Q.nb1, Q.nb2].every((q) => taskWith(p, q));
-    const nb1 = taskWith(p, Q.nb1) ?? '';
-    marks['ноут: кого ждём и номер'] = has(nb1, 'Голубев') && has(nb1, '2026-11-10 №1.1');
+    // Форма 1.3.0: оригинал — второй строкой, группы по «кого ждём», источник коротко.
+    const item = (q) => p.items.find((t) => t.quote.includes(q)) ?? { group: '', line: '', quote: '' };
+    marks['оригинал дословно второй строкой'] = [Q.bt7a, Q.bt7b, Q.spec7, Q.nb1, Q.nb2].every((q) => item(q).line);
+    marks['строка «Всего 5»'] = p.summary.startsWith('Всего 5');
+    const groups = [...new Set(p.items.map((t) => t.group))];
+    marks['группы: Голубев, Ваши дела, Без адресата — последняя'] = item(Q.nb1).group.startsWith('Голубев')
+      && item(Q.nb2).group.startsWith('Ваши дела') && item(Q.bt7a).group.startsWith('Без адресата')
+      && groups.length === 3 && groups[2].startsWith('Без адресата');
+    marks['уточнение из скобок — в сути'] = has(item(Q.nb2).line, 'сверить с актом');
+    marks['источник коротко'] = has(item(Q.bt7a).line, 'БТ INV-7 п.1') && has(item(Q.nb1).line, '2026-11-10 №1.1')
+      && !p.items.some((t) => has(t.line, 'coddoc/') || has(t.line, 'notebook.md'));
     marks['закрытое не взято'] = !taskWith(p, Q.nbClosed);
   } else if (probe.id === 'p-split' || probe.id === 'p-merge') {
     const asked = run.answers[2] ?? '';
@@ -321,8 +341,13 @@ function grade(probe, run) {
     marks['отчёт: появилось'] = run.answer.includes(Q.nbNew);
     // Отчёт пересказывает: дословность — только в файле плана; здесь — что названы и вопрос ноута, и вопросы убранного БТ.
     const said = run.answer.toLowerCase();
-    marks['отчёт: закрылось'] = said.includes('подпись кладовщика') && said.includes('утверждает списание');
+    marks['отчёт: закрылось'] = said.includes('кладовщик') && (said.includes('утверждает списание') || said.includes('50 000'));
     marks['отчёт: «добавь»'] = run.answer.includes('/work-plan INV-7 добавь');
+    // План был в форме 1.2.0 (дело — одна строка): переписан в 1.3.0, и оставшееся дело не названо закрытым или новым
+    // («осталось: …» — можно).
+    marks['переписан в новую форму'] = p.items.length === 2 && p.items.every((t) => t.group && t.quote);
+    marks['оставшееся — не «закрылось» и не «появилось»'] = !said.split('\n')
+      .some((l) => /закрыл|появил/.test(l) && l.includes('гаранти'));
     marks['список от главной из файла'] = fromBase;
     marks['главная как была'] = p.main === BASE;
     marks['влитое не в отчёте'] = !run.answer.includes('INV-3');
@@ -347,9 +372,20 @@ function selftest() {
   intact: true, loaded: true };
   const plan = (goal, docs, tasks, main = BASE) => `# План: x\n\nобновлён: ${TODAY}\n${main ? `главная: ${main}\n` : ''}цель: ${goal}\n\n` +
     `## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n## Дела\n` + tasks.map((t, i) => `${i + 1}. ${t}\n`).join('');
-  const create = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`, `${SPEC7} · рабочая копия · открытых: 1`, `${NB} · ${BASE} · открытых: 2`],
-    [`${Q.bt7a} — не назван. — ждём: — · ${BT7}, пункт 1`, `${Q.bt7b} — не назван. — ждём: — · ${BT7}, пункт 2`,
-      `❓ TBD: ${Q.spec7}. — ждём: — · ${SPEC7}, пункт 1`, `${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1`, `${Q.nb2} — ждём: — · ${NB}, 2026-11-10 №1.2`]);
+  // Форма 1.3.0: groups — [[группа, [[суть · откуда, оригинал], …]], …].
+  const plan13 = (goal, docs, groups) => {
+    let k = 0;
+    const n = groups.reduce((a, [, items]) => a + items.length, 0);
+    return `# План: x\n\nобновлён: ${TODAY}\nглавная: ${BASE}\nцель: ${goal}\n\n## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n` +
+      `## Дела\nВсего ${n}: ${groups.map(([g, items]) => `${g} — ${items.length}`).join(' · ')}\n\n` +
+      groups.map(([g, items]) => `### ${g} — ${items.length}\n` + items.map(([line, quote]) => `${++k}. ${line}\n   > ${quote}\n`).join('')).join('\n');
+  };
+  const create = plan13('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 2`, `${SPEC7} · рабочая копия · открытых: 1`, `${NB} · ${BASE} · открытых: 2`], [
+    ['Голубев А.', [[`Списывать ли запчасть при действующей гарантии · списание-запчастей 2026-11-10 №1.1`, Q.nb1]]],
+    ['Ваши дела', [[`Проверить, нужна ли подпись кладовщика (сверить с актом формы) · списание-запчастей 2026-11-10 №1.2`, Q.nb2]]],
+    ['Без адресата', [[`Кто утверждает списание дороже 50 000 ₽ · БТ INV-7 п.1`, `${Q.bt7a} — не назван.`],
+      [`Срок хранения списанных запчастей · БТ INV-7 п.2`, `${Q.bt7b} — не назван.`],
+      [`Какой сервис хранит фото · спека INV-7 п.1`, `❓ TBD: ${Q.spec7}.`]]]]);
   check('создание, хороший', grade(P('p-create'), { ...ok, snaps: [{}, {}, { [PLAN7]: create }] }), true);
   const badCreate = plan('БТ', [`${BT7}`, `${BT9}`], [`${Q.nbClosed} — ждём: Голубев`, 'Кто утверждает списание'], '')
     .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
@@ -369,15 +405,16 @@ function selftest() {
   check('в один, хороший', grade(P('p-merge'), { ...ok, snaps: [{}, {}, {}, { [PLAN_ALL]: all }] }), true);
   checkBad('в один, плохой', [grade(P('p-merge'), { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] }),
     grade(P('p-merge'), { ...bad, snaps: [{}, {}, {}, { [PLAN_ALL]: badCreate }] })]);
-  const rerun = plan(GOAL_RERUN, [`${NB} · рабочая копия · открытых: 2`],
-    [`${Q.nb1} — ждём: Голубев А. · ${NB}, 2026-11-10 №1.1`, `${Q.nbNew} — ждём: Сидоров П. · ${NB}, 2026-11-17 №1.2`]);
+  const rerun = plan13(GOAL_RERUN, [`${NB} · рабочая копия · открытых: 2`], [
+    ['Голубев А.', [[`Списывать ли при гарантии · списание-запчастей 2026-11-10 №1.1`, Q.nb1]]],
+    ['Сидоров П.', [[`Кто забирает списанное · списание-запчастей 2026-11-17 №1.2`, Q.nbNew]]]]);
   const answer = `Закрылось: ${Q.bt7a}; ${Q.bt7b}; ${Q.nb2}. Появилось: ${Q.nbNew}. Ещё 2 документа — добавить: /work-plan INV-7 добавь`;
   check('повтор, хороший', grade(P('p-rerun'), { ...ok, answer, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
   const badRerun = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`, `${SPEC7} · рабочая копия · открытых: 1`],
     [`${Q.nb2} — ждём: —`], '').replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
   checkBad('повтор, плохой', [
     grade(P('p-rerun'), { ...bad, snaps: [{ [PLAN7]: badRerun }, { [PLAN7]: badRerun }, { [PLAN7]: badRerun, x: '' }] }),
-    grade(P('p-rerun'), { ...bad, answer: 'Ещё 3 документа: INV-3 …', snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: PLAN_RERUN }] })]);
+    grade(P('p-rerun'), { ...bad, answer: `Появилось: ${Q.nb1}. Ещё 3 документа: INV-3 …`, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: PLAN_RERUN }] })]);
 
   const nbTask = (q, who, n) => `${q} — ждём: ${who} · ${NB}, ${n}`;
   const watchDocs = (n) => [`${BT7} · feature/inv-7 · открытых: 0 · следим`, `${NB} · рабочая копия · открытых: ${n}`];
