@@ -161,7 +161,7 @@ mkdir -p "$work" 2>/dev/null && [ -w "$work" ] || fail no-write "не могу �
 lays="$work/layouts"
 mkdir -p "$lays" 2>/dev/null
 [ -f "$lays/to-html-layouts.txt" ] || printf '%s\n' \
-  'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку).' \
+  'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку), md-….json — остальные .md по маске файлов (маска — внутри).' \
   'Файлы пишет страница: «Редактировать форму» → «Сохранить»; /to-html берёт их при каждой сборке.' \
   'Удалить файл раскладки — обзор снова как в документе. Этот файл не удалять: по нему страница узнаёт папку.' \
   > "$lays/to-html-layouts.txt" 2>/dev/null

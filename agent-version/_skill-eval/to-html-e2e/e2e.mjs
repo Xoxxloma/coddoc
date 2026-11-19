@@ -112,7 +112,11 @@ check(await page.locator('#tree .tree-cap').innerText() === 'Вложения', 
 await go('.doc a:text("архитектура")');
 check(await text('.doc h1') === 'Как устроен сервис заказов', 'ссылка на другой файл открывает его');
 check(await page.locator('#toc a').count() >= 3, 'оглавление справа заполнено');
-check(await page.locator('.doc img[data-file="img/стенд.png"]').evaluate((i) => i.complete && i.naturalWidth > 0), 'картинка по пути видна');
+// Картинка ленивая (loading="lazy"): грузится, когда видна, — к ней прокрутить и дождаться загрузки.
+const standImg = page.locator('.doc img[data-file="img/стенд.png"]');
+await standImg.scrollIntoViewIfNeeded().catch(() => {});
+await standImg.evaluate((i) => i.complete || new Promise((ok) => { i.addEventListener('load', ok, { once: true }); i.addEventListener('error', ok, { once: true }); setTimeout(ok, 5000); }));
+check(await standImg.evaluate((i) => i.complete && i.naturalWidth > 0), 'картинка по пути видна');
 check(await page.locator('.code [data-copy] svg').count() > 0, 'у блока кода кнопка «Копировать» со значком');
 check(await page.locator('.table [data-expand] svg').count() > 0, 'у таблицы кнопка «Развернуть» со значком');
 await page.locator('.doc .table [data-expand]').first().click();

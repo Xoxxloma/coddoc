@@ -1,7 +1,8 @@
-// overview.js — режим «Обзор» и «Показ» для документов петли внутри to-html.
-// Какой файл как раскладывать, задают описания видов в views.js. Для файла с видом над документом появляются
-// «Текст / Обзор» и «Показ»; остальные файлы to-html показывает как всегда. Всё на странице — текст документа: блоки
-// только раскладывают его; что не взял ни один блок — обычный markdown на своём месте.
+// overview.js — режим «Обзор» и «Показ» для документов внутри to-html.
+// Какой файл как раскладывать, задают описания видов в views.js; остальные .md — вид "md": разделы и шапка, как
+// у документа без правил. Над документом — «Текст / Обзор» и «Показ»; открывается «Текстом», выбор вкладка помнит
+// отдельно для документов петли и для остальных .md. Всё на странице — текст документа: блоки только раскладывают
+// его; что не взял ни один блок — обычный markdown на своём месте.
 // Ссылки FR-n / INT-n ищутся в той же папке; «#0» — фундамент эпика (_foundation/ выше по дереву); этап — по
 // `owns:` в шапке stages/stage-NN.md. Экспорт и копирование в Confluence/Word берут обычную отрисовку — обзор их не задевает.
 // Подключение к to-html: show() зовёт render() и mounted(), app.js отдаёт через attach() доступ к файлам и адресу.
@@ -22,12 +23,18 @@
   }
   function kindOf(v) { return v ? (v.kind || 'doc') : null; }
   function viewsBy(role) { return VIEWS.filter(function (v) { return v.role === role; }); }
+  // Остальные .md: разделы без правил; раскладка — по маске файлов (layout.js). Блоков больше LIMIT — подразделы
+  // остаются в своих разделах; и разделов больше — обзор без правки раскладки (журнал, CHANGELOG).
+  var GENERIC = { id: 'md' }, LIMIT = 50;
+  function viewOf(e) { return viewFor(e.name) || (/\.(md|markdown)$/i.test(e.name) ? GENERIC : null); }
 
   var store = {
     get: function (k) { try { return sessionStorage.getItem('cv:' + k); } catch (e) { return null; } },
     set: function (k, v) { try { sessionStorage.setItem('cv:' + k, v); } catch (e) { /* без памяти */ } },
   };
-  function mode() { return store.get('mode') || 'overview'; }
+  // «Текст» или «Обзор»: по умолчанию «Текст»; выбор — отдельно для документов петли и для остальных .md.
+  function modeKey(v) { return v === GENERIC ? 'mode:md' : 'mode'; }
+  function mode(v) { return store.get(modeKey(v)) || 'text'; }
 
   // ---------------------------------------------------------------- мелочи
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -645,12 +652,18 @@
     if (k === 'brd') m = brdModel(text, v);
     else if (k === 'spec') m = specModel(text, v);
     else if (k === 'bug' || k === 'cr') m = smallModel(text, k);
-    else m = genericModel(text, v || {});
+    else m = genericModel(text, v || {}, path.split('/').pop());
     m.view = v || {}; m.frs = m.frs || []; m.ints = m.ints || []; m.trace = m.trace || {};
     return m;
   }
-  function genericModel(text, v) {
-    var top = tree(text), h1 = top.children[0] || { title: '', body: [], children: [] }, tm = h1.title.match(/^(.+?):\s*(.+)$/);
+  // Один «#» — шапка документа, его разделы — блоки. Заголовков верхнего уровня несколько или он не «#» (нет «#»,
+  // документ начинается с «##») — разделы все они, шапка — имя файла, текст над ними — в шапке.
+  // «Тип: название» в заголовке — только у документа со своим видом.
+  function genericModel(text, v, name) {
+    var top = tree(text), kids = top.children, one = kids.length === 1 && kids[0].level === 1;
+    var h1 = one ? kids[0] : { level: 0, title: String(name || '').replace(/\.(md|markdown)$/i, ''), body: top.body, children: kids };
+    if (!one) top = { level: 0, title: '', body: [], children: [h1] };
+    var tm = v.id ? h1.title.match(/^(.+?):\s*(.+)$/) : null;
     return { kind: 'doc', top: top, root: h1, head: header(h1), kindLabel: tm ? tm[1] : (v.label || ''), title: tm ? tm[2] : h1.title };
   }
   // Первое слово раздела критичности («Средняя. …», «Высокая: …») — чипом в шапку.
@@ -826,34 +839,38 @@
   function stopShow() { var el = document.getElementById('cvShow'); if (el) el.hidden = true; try { if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* уже */ } }
 
   // ---------------------------------------------------------------- точки входа для to-html
-  function bar(view) {
+  // edit — кнопка «Редактировать форму» (её нет у .md, где блоков больше LIMIT).
+  function bar(view, edit) {
     return '<div class="cv-bar"><span class="cv-seg"><button type="button" data-cv-mode="text" aria-pressed="' + (view === 'text') + '">Текст</button>' +
       '<button type="button" data-cv-mode="overview" aria-pressed="' + (view === 'overview') + '">Обзор</button></span>' +
       '<button type="button" class="cv-btn" data-cv-show>▶ Показ</button>' +
-      (view === 'overview' && window.CoddocLayout ? '<button type="button" class="cv-btn" data-cvg-edit title="Расставить блоки обзора: порядок, ширина, скрыть">Редактировать форму</button>' : '') + '</div>';
+      (view === 'overview' && edit && window.CoddocLayout ? '<button type="button" class="cv-btn" data-cvg-edit title="Расставить блоки обзора: порядок, ширина, скрыть">Редактировать форму</button>' : '') + '</div>';
   }
   // Вызывается из show() to-html после обычной отрисовки: свой вид или null — оставить как есть.
   var drawn = null;
   function render(e, out) {
-    var v = viewFor(e.name);
+    var v = viewOf(e);
     drawn = null;
     if (!v || !api.has(e)) return null;
     // Пришли на заголовок обычной отрисовки (поиск, ссылка из другого документа) — в обзоре его нет: текстом.
     var want = (location.hash.match(/[#&]h=([^&]*)/) || [])[1];
     var foreign = !!want && !/^(cv-|fr-|int-)/.test(decodeURIComponent(want));
-    if (mode() === 'text' || foreign) { drawn = 'text'; return { html: bar('text') + out.html, headings: out.headings }; }
+    if (mode(v) === 'text' || foreign) { drawn = 'text'; return { html: bar('text') + out.html, headings: out.headings }; }
     drawn = 'overview';
     CUR = e.path;
     var c = ctx(e.path), m = docModel(e.path, api.text(e)), k = kindOf(v);
-    var items = (v.layout || (k === 'bug' || k === 'cr' ? 'cards' : 'sections')) === 'cards' ? cardsOverview(m, c) : sectionsOverview(m, c);
+    var cards = (v.layout || (k === 'bug' || k === 'cr' ? 'cards' : 'sections')) === 'cards';
+    var items = cards ? cardsOverview(m, c) : sectionsOverview(m, c);
+    if (v === GENERIC && items.list.length > LIMIT) items = cardsOverview(m, c);
     items.add(':outside', 'Текст вне документа', restCard(outsideMd(m)));
+    var edit = !(v === GENERIC && items.list.length > LIMIT);
     // Блоки — на сетку своей раскладки (layout.js); без неё — подряд, как в документе.
     var L = window.CoddocLayout;
-    var res = L ? L.render(v.id, v.label || v.id, items.list)
+    var res = L ? L.render(v.id, v === GENERIC ? e.name : (v.label || v.id), items.list, api.repoPath ? api.repoPath(e.path) : e.path)
       : { html: items.list.map(function (x) { return x.html; }).join(''), headings: [].concat.apply([], items.list.map(function (x) { return x.heads; })) };
     // В правом оглавлении — текст заголовка без разметки (~~, **, `).
     res.headings.forEach(function (x) { x.text = x.text.replace(/~~|\*\*|`/g, ''); });
-    return { html: bar('overview') + '<div class="cv">' + res.html + '</div>', headings: res.headings };
+    return { html: bar('overview', edit) + '<div class="cv">' + res.html + '</div>', headings: res.headings };
   }
   function mounted(e, doc) {
     var on = drawn === 'overview';
@@ -873,7 +890,11 @@
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-cv-mode]');
     // Переключили вид — якорь заголовка прежнего вида больше не нужен.
-    if (b) { store.set('mode', b.getAttribute('data-cv-mode')); history.replaceState(null, '', api.href(api.current())); api.rerender(); return; }
+    if (b) {
+      var ce = api.get(api.current());
+      store.set(modeKey(ce ? viewOf(ce) : null), b.getAttribute('data-cv-mode'));
+      history.replaceState(null, '', api.href(api.current())); api.rerender(); return;
+    }
     if (ev.target.closest('[data-cv-show]')) { var e = api.get(api.current()); if (e) present(e); return; }
     var g = ev.target.closest('[data-cv-go]');
     if (g && !ev.target.closest('#cvShow')) { ev.preventDefault(); go(g.getAttribute('data-cv-go')); }

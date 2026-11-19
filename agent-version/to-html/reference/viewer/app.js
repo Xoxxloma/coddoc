@@ -2187,6 +2187,9 @@ var n=order[(order.indexOf(root.getAttribute("data-theme")||"auto")+1)%3];root.s
   if (window.CoddocView) window.CoddocView.attach({
     current: () => current, get: (/** @type {string} */ p) => files.get(p), text: textOf, has: hasText, paths: () => [...files.keys()],
     href: hrefOf, rerender: () => { const c = current; current = ""; show(c); },
+    // Путь файла от корня репозитория (у набора вне репозитория — от его папки): раскладка по маске одна, открыт
+    // файл своим путём или вместе с папкой. У набора, перетащенного в окно, — путь в наборе.
+    repoPath: (/** @type {string} */ p) => (!dropped && rootLabel && rootLabel !== "." ? rootLabel + "/" + p : p),
     toast: (/** @type {string} */ text) => toast(text),
     md: fragment,
     // Показ рисуется вне документа: схемы — сразу, у картинок — тот же запасной путь через assets.js.
