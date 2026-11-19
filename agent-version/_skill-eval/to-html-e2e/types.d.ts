@@ -46,7 +46,7 @@ declare global {
     CoddocLayout?: {
       attach(api: { rerender(): void, toast?(text: string): void }): void;
       render(view: string, label: string, items: Array<{ key: string, title: string, html: string, span: number,
-        heads: Array<{ level: number, text: string, id: string }>, head: boolean }>):
+        heads: Array<{ level: number, text: string, id: string }>, head: boolean }>, path?: string):
         { html: string, headings: Array<{ level: number, text: string, id: string }> };
       mounted(doc: HTMLElement): void;
       test: object;

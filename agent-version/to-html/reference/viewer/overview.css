@@ -202,6 +202,12 @@ body.wide .doc.cv-wide { max-width: 1400px; }
 /* Правка раскладки: полоса с названием — тянуть, правый край — ширина; содержимое блока — превью */
 .cvg-tools { position: sticky; top: 52px; z-index: 6; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--accent-line); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); font-size: 13.5px; }
 .cvg-act { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+/* Маска файлов — у раскладки остальных .md */
+.cvg-mask { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.cvg-mask input { flex: 1 1 auto; min-width: 0; max-width: 420px; height: 28px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink); font: 13px var(--mono); }
+.cvg-mask input:focus { outline: 2px solid var(--accent-line); outline-offset: 0; }
+.cvg-bad { display: block; margin-top: 4px; color: var(--danger); }
+.cvg-bad[hidden] { display: none; }
 /* Окно «Куда сохранить» (<dialog>, модальное) */
 .cvg-dlg { width: min(560px, calc(100vw - 32px)); padding: 20px 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); font: 14px/1.55 var(--sans); }
 .cvg-dlg::backdrop { background: rgba(0, 0, 0, .35); }

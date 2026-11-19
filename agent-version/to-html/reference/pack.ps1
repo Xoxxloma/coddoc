@@ -176,7 +176,7 @@ try {
   $marker = Join-Path $lays 'to-html-layouts.txt'
   if (-not (Test-Path -LiteralPath $marker)) {
     Set-Content -LiteralPath $marker -Encoding UTF8 -Value @(
-      'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку).',
+      'Папка раскладок «Обзора» to-html: brd.json (БТ), spec.json (спека), bug.json (баг-репорт), cr.json (запрос на правку), md-….json — остальные .md по маске файлов (маска — внутри).',
       'Файлы пишет страница: «Редактировать форму» → «Сохранить»; /to-html берёт их при каждой сборке.',
       'Удалить файл раскладки — обзор снова как в документе. Этот файл не удалять: по нему страница узнаёт папку.')
   }
