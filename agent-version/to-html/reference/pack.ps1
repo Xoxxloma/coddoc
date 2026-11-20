@@ -150,7 +150,9 @@ foreach ($p in @($Paths | Where-Object { $_ })) {
 }
 
 # Временные файлы скиллов — в одной папке .coddoc-tmp\ в корне репозитория, у каждого скилла своя подпапка;
-# запуск из подпапки репозитория пишет туда же. Нет git или не репозиторий — от текущей папки.
+# запуск из подпапки репозитория пишет туда же. Нет git или не репозиторий — от текущей папки. Личные настройки
+# любого скилла — в .coddoc-tmp\coddoc-settings\: у каждого файла один писатель, читают по точному пути, чистки эту
+# папку не трогают.
 $top = $cwd
 try {
   # stderr git («not a git repository») не должен обрывать скрипт: решает код возврата.
@@ -167,10 +169,10 @@ try {
 } catch {
   Fail 'no-write' "не могу писать в $($script:work)"
 }
-# Своя раскладка «Обзора» — layouts\<вид>.json (пишет страница, кнопка «Редактировать форму»): папку с файлом-пометкой
-# создаёт этот скрипт (по пометке страница узнаёт папку в диалоге выбора), раскладки вшивает в набор (layouts.js),
-# чистка наборов её не трогает.
-$lays = Join-Path $script:work 'layouts'
+# Своя раскладка «Обзора» — coddoc-settings\layouts\<вид>.json (пишет страница, кнопка «Редактировать форму»): папку
+# с файлом-пометкой создаёт этот скрипт (по пометке страница узнаёт папку в диалоге выбора), раскладки вшивает в
+# набор (layouts.js).
+$lays = Join-Path (Join-Path (Join-Path $top '.coddoc-tmp') 'coddoc-settings') 'layouts'
 try {
   New-Item -ItemType Directory -Force -Path $lays | Out-Null
   $marker = Join-Path $lays 'to-html-layouts.txt'
@@ -281,7 +283,7 @@ try {
 # текущий — самый свежий. Не удалилось (файл занят) — не беда, сборка идёт дальше.
 try {
   Set-ItemProperty -LiteralPath $out -Name LastWriteTime -Value (Get-Date)
-  Get-ChildItem -LiteralPath $script:work -Directory | Where-Object { $_.Name -ne 'layouts' } | Sort-Object LastWriteTime -Descending |
+  Get-ChildItem -LiteralPath $script:work -Directory | Sort-Object LastWriteTime -Descending |
     Select-Object -Skip $MaxSets | Remove-Item -Recurse -Force
 } catch { }
 
