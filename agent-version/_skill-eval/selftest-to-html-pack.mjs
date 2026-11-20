@@ -244,15 +244,15 @@ function verify(engine, c) {
     check(/^image\//.test(mime), `${path}: mime ${mime}`);
     check(Buffer.from(b64, 'base64').equals(readFileSync(join(exp.root, path))), `${path}: байты картинки`);
   }
-  verifyLayoutsJs(out, work);
+  verifyLayoutsJs(out, exp.top);
   return { out, cwd, args: c.args };
 }
 
-// Раскладки «Обзора»: папка layouts/ с пометкой; layouts.js — путь к папке и файлы <вид>.json (имя из букв, цифр,
-// «_» и «-», не больше 256 КБ) байт в байт после base64.
-function verifyLayoutsJs(out, work) {
-  const lays = join(work, 'layouts');
-  check(existsSync(join(lays, 'to-html-layouts.txt')), 'layouts/ с пометкой to-html-layouts.txt');
+// Раскладки «Обзора»: папка .coddoc-tmp/coddoc-settings/layouts/ с пометкой; layouts.js — путь к папке и файлы
+// <вид>.json (имя из букв, цифр, «_» и «-», не больше 256 КБ) байт в байт после base64.
+function verifyLayoutsJs(out, top) {
+  const lays = join(top, '.coddoc-tmp', 'coddoc-settings', 'layouts');
+  if (!check(existsSync(join(lays, 'to-html-layouts.txt')), 'layouts/ с пометкой to-html-layouts.txt')) return;
   const dir = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUT_DIR');
   check(dir === lays, `layouts.js: путь к папке «${dir}», ждали «${lays}»`);
   const got = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUTS') || {};
@@ -266,7 +266,7 @@ function verifyLayoutsJs(out, work) {
 // пометку, которую поправили руками, скрипт не перезаписывает.
 function verifyLayouts(engine) {
   const cwd = resolve(box, 'fx');
-  const lays = join(cwd, '.coddoc-tmp', 'to-html', 'layouts');
+  const lays = join(cwd, '.coddoc-tmp', 'coddoc-settings', 'layouts');
   console.log(`[${engine}] свои раскладки`);
   mkdirSync(lays, { recursive: true });
   writeFileSync(join(lays, 'brd.json'), '{"format":1,"view":"brd","items":[{"k":"введение/описание проблемы","w":6}]}\n');
@@ -278,7 +278,7 @@ function verifyLayouts(engine) {
   const r = run(engine, cwd, ['TH-DOCS']);
   if (!check(r.code === 0, `вызов прошёл: ${r.last}`)) return;
   const out = dirname(fileURLToPath(r.last.split(' page=')[1]));
-  verifyLayoutsJs(out, join(cwd, '.coddoc-tmp', 'to-html'));
+  verifyLayoutsJs(out, cwd);
   const got = loadJs(join(out, 'layouts.js'), 'CODDOC_LAYOUTS') || {};
   check(JSON.stringify(Object.keys(got).sort()) === '["brd","spec"]', `вшиты только brd и spec: ${Object.keys(got).join(', ')}`);
   check(readFileSync(join(lays, 'to-html-layouts.txt'), 'utf8') === 'своя пометка', 'пометка не перезаписана');
@@ -306,7 +306,7 @@ function verifyRepeat(engine) {
 }
 
 // Чистка: в .coddoc-tmp/to-html остаются 10 последних наборов, текущий среди них, набор с точкой в имени тоже
-// считается; .gitignore и папки других скиллов в .coddoc-tmp не тронуты.
+// считается, набор с именем layouts — тоже; .gitignore, настройки и папки других скиллов в .coddoc-tmp не тронуты.
 function verifyPrune(engine) {
   const cwd = join(box, 'prune');
   const sets = join(cwd, '.coddoc-tmp', 'to-html');
@@ -321,18 +321,21 @@ function verifyPrune(engine) {
     const t = new Date(Date.now() - (13 - i) * 60_000);
     utimesSync(join(sets, old(i)), t, t);
   }
-  // Папка раскладок — старше всех наборов: чистка её всё равно не трогает.
+  // Набор с именем layouts — обычный набор, самый старый: удаляется. Раскладки — в coddoc-settings/, их чистка не видит.
   mkdirSync(join(sets, 'layouts'), { recursive: true });
-  writeFileSync(join(sets, 'layouts', 'brd.json'), '{}');
+  writeFileSync(join(sets, 'layouts', 'data.js'), '');
   utimesSync(join(sets, 'layouts'), new Date(0), new Date(0));
+  const lay = join(cwd, '.coddoc-tmp', 'coddoc-settings', 'layouts', 'brd.json');
+  mkdirSync(dirname(lay), { recursive: true });
+  writeFileSync(lay, '{}');
   console.log(`[${engine}] чистка старых наборов`);
   const r = run(engine, cwd, ['../fx/TH-DOCS']);
   if (!check(r.code === 0, `вызов прошёл: ${r.last}`)) return;
   const cur = dirname(fileURLToPath(r.last.split(' page=')[1])).split(sep).pop();
   const left = readdirSync(sets, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
-  const want = [cur, 'layouts', ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map(old)].sort();
+  const want = [cur, ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map(old)].sort();
   check(JSON.stringify(left) === JSON.stringify(want), `осталось ${left.join(', ')}, ждали ${want.join(', ')}`);
-  check(existsSync(join(sets, 'layouts', 'brd.json')), 'раскладка в layouts/ не удалена');
+  check(existsSync(lay), 'раскладка в coddoc-settings/layouts/ не удалена');
   check(existsSync(join(cwd, '.coddoc-tmp', '.gitignore')), '.gitignore не удалён');
   check(existsSync(other), 'папка другого скилла не тронута');
 }

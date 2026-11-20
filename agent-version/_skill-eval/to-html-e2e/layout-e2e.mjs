@@ -76,7 +76,7 @@ const mdFiles = {
 for (const [p, text] of Object.entries(mdFiles)) { mkdirSync(dirname(join(box, p)), { recursive: true }); writeFileSync(join(box, p), text); }
 const env = { ...process.env, GIT_CEILING_DIRECTORIES: dirname(box) };
 execFileSync('git', ['init', '-q'], { cwd: box, env });
-const lays = join(box, '.coddoc-tmp', 'to-html', 'layouts');
+const lays = join(box, '.coddoc-tmp', 'coddoc-settings', 'layouts');
 function pack() {
   const out = execFileSync('bash', [join(ref, 'pack.sh').split(sep).join('/'), '--no-open', box], { cwd: box, env }).toString('utf8');
   const last = out.trim().split(/\r?\n/).pop();
