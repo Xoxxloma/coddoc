@@ -1,6 +1,6 @@
 ---
 name: technical-spec-doc
-version: 2.1.0
+version: 2.2.0
 user-invocable: false
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Agent
 description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ONE Russian Markdown technical spec (technical_specification.md, saved next to the БТ), organized around INTERACTIONS — the new and changed contracts crossing service or FE/BE boundaries — so a frontend agent and a backend agent code against the same contracts and meet without after-the-fact stitching. You read no code yourself: NEW things are designed fully (path, schema, JSON example); anything about an EXISTING service is written only as the analyst confirmed it — inventing an endpoint of a service you cannot see is the worst failure of this skill. Requires a ready БТ (or, by orchestrator flag, a bug report, a change request or an epic-БТ for foundation node #0): given only a brief or an idea it refuses and asks for the business requirements. Use when the БТ is ready and a dev spec is needed.'
@@ -13,7 +13,7 @@ description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ON
 1. **Нет подтверждённого документа сверху → не работай** (БТ; по флагу проводника — баг-репорт,
    запрос на правку, эпик-БТ для #0): единственный ответ — просьба дать БТ. Если документ
    есть, первый ход всё равно = ТОЛЬКО вопросы по тех-гейтам; файл не пишешь.
-2. **Пиши спеку, ТОЛЬКО когда реестр (10 гейтов + номер задачи) чист:** каждый = ✅ либо
+2. **Пиши спеку, ТОЛЬКО когда реестр (10 гейтов + номер задачи + Д1…Дn, если есть) чист:** каждый = ✅ либо
    ⏭️, ни одного ❓. (Реестр — Step 3.5.)
 3. **Спрашивай гипотезой, а не пустым полем; отвеченный гейт не переспрашивай ни в какой
    форме.** Каждый гейт неси как свой конкретный вариант решения на подтверждение — аналитик
@@ -28,7 +28,7 @@ description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ON
    аналитик сказал «да». Нет выжимки — штатный режим, работай от БТ.**
 5. **Помечай провенанс везде** (🟢/🔵/🟡/❓; ⚠️ для расплывчатого) и **ставь статус
    механически:** есть хоть один 🟡 / TBD / ⚠️ → «Требуются уточнения (N)», N —
-   число таких пунктов, без суждения «блокирует ли». **Заполни КАЖДУЮ секцию шаблона.**
+   число таких пунктов, без суждения «блокирует ли». **Заполни КАЖДУЮ секцию шаблона** (§9 — по Step 0).
    Неприменимая целиком → заголовок с прежним уровнем `#` и текстом `~~номер. Точный заголовок~~`,
    тело `~~Не применимо: причина~~`;
    в смешанной зачеркни только неприменимые пункты (полное правило — у шаблона).
@@ -219,6 +219,12 @@ Read the business-requirements doc the user provides (or names a path to). Extra
 confirmed business layer (problem, end users, value, priority, roles, FR-* + acceptance
 criteria) — you will carry it into the spec and trace to it, not re-ask it. Note any
 `TBD`/`⚠️` already in the business doc: those propagate into your open questions.
+
+Открой `.coddoc-tmp/coddoc-settings/sections-spec.md` в корне репозитория — по этому пути, без поиска. Каждый его
+раздел `##` — гейт Д1…Дn («The tech-gates to cover»), ответ — подраздел §9 в порядке файла, название дословно, даже
+если совпало с базовым разделом. Файла нет — гейтов Д нет и нового §9 не заводишь; ничего об этом не говори. В §9,
+который уже есть в спеке (доработка), подразделы не удаляй, и те, которых в файле нет; ответ в подразделе меняй
+только по новому ответу аналитика.
 
 Also capture the **directory of the БТ file** (the spec is saved there, Step 4) and a **candidate
 task number** — normally the name of that folder, else the БТ filename/title/header (`ARS-123`,
@@ -470,7 +476,7 @@ question tool, as with the other gates. *(В режимах по флагу но
 
 ### Step 3.5 — Gate ledger (HARD STOP before writing)
 Before you write anything, emit a compact ledger of all **10 tech-gates plus the task
-number (item 11)** and their status. One marker per gate:
+number (item 11) plus Д1…Дn, if any (Step 0)** and their status. One marker per gate:
 - **✅ решено** — designed-and-confirmed 🟢, or an existing-system fact 🔵 confirmed by the
   analyst; либо неприменимость по общему критерию у шаблона или умолчанию режима;
 - **⏭️ отложено** — the analyst **was actually asked** and explicitly left it open (→ `TBD`),
@@ -490,6 +496,7 @@ number (item 11)** and their status. One marker per gate:
 2. Инвентарь взаимодействий — …
 … (все 10)
 11. Номер задачи (для шапки) — ✅ отвечен аналитиком | ✅ из шапки документа режима (по флагу) | ❓ ещё не спрошен
+Д1. <название раздела из файла Step 0> — ✅|⏭️|❓   (только при файле Step 0, по строке на раздел; нет файла — строк Д нет)
 ```
 
 > Пункт 11 — не «гейт дизайна», но трекается наравне: ✅ только если аналитик **явно
@@ -623,6 +630,8 @@ Check, and fix anything that fails:
 12. **Оформление неприменимого проверено по правилу у шаблона.** Перечитай файл: у целиком
    неприменимого раздела зачёркнуты заголовок и весь текст с причиной; у смешанного — только
    неприменимые пункты. Применимый текст и открытые вопросы не зачёркнуты, все заголовки на месте.
+13. **§9 — по Step 0:** у каждого раздела файла есть подраздел — с ответом, `❓ TBD` или неприменимостью с причиной;
+   подразделы, записанные раньше, на месте.
 
 ### Step 6 — Handoff
 Report concisely: the file path, «Статус готовности», and the list of open items the
@@ -682,7 +691,7 @@ that now lacks an interaction or test case.
 
 ## The tech-gates to cover
 
-Gates 1–10 are **MANDATORY** — each answered by the analyst or explicitly deferred before
+Gates 1–10 and Д1…Дn are **MANDATORY** — each answered by the analyst or explicitly deferred before
 you write (Step 3.5). Bracket = the spec section it lands in.
 
 1. **Стороны и карта сервисов** — FE-only / BE-only / fullstack, и **карта затронутых сервисов**
@@ -711,12 +720,16 @@ you write (Step 3.5). Bracket = the spec section it lands in.
    фиче-флаги, преднастройка (роли в security-сервисе, конфиги) до релиза. → §6
 10. **Трассировка приёмки** — связка FR-* из БТ → взаимодействие → тест-кейс. → §7
 
+Д1…Дn. **Дополнительные разделы** — по гейту на раздел файла Step 0. Вопрос — строка «вопрос» дословно, с гипотезой
+    по общему правилу (Step 3); предложить нечего — текстом. ✅ — ответ аналитика по строке «что писать» или его «не
+    применимо: причина». → §9.N
+
 > UX-пожелания, схемы, доп. выгрузки из БТ — переносятся в §4/§8, если были; не блокируют.
 
 ## Output template (fill in RUSSIAN — keep these sections, but do not invent to fill them)
 
 Only confirmed content is filled; unconfirmed → `TBD`/🟡-к-валидации; vague → `⚠️`.
-**Каждая секция шаблона обязана присутствовать** — заполни подтверждённым/спроектированным
+**Каждая секция шаблона обязана присутствовать** (§9 — по Step 0) — заполни подтверждённым/спроектированным
 контентом ЛИБО пометь «не применимо: причина». Молчаливый пропуск секции = дефект (как тихий TBD).
 
 **Применимость во всех режимах.** Нет работы и отдельной обязательной проверки —
@@ -744,7 +757,7 @@ Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inli
 > **Автор:** [логин того, кто пишет этот файл: вывод `whoami` (Linux, macOS, Windows); у `ДОМЕН\логин` — часть после `\`; команда не сработала — `—`. Файл уже был — список сохрани: твоего логина в нём нет (регистр не важен) — допиши через `, `; стоял `—` — замени]
 > **Источник (БТ):** [файл/название бизнес-требований, на которых основана спека]
 > **Редакция:** [N (ГГГГ-ММ-ДД): первая запись 1, доработка +1, строки не было — 2; дата этой записи — из окружения сессии или `date +%F`, не по памяти; не узнать — без скобок]
-> **Версия скилла:** [technical-spec-doc 2.1.0; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
+> **Версия скилла:** [technical-spec-doc 2.2.0; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
 >
 > **Статус готовности:** [Готово к разработке | Требуются уточнения (N)]
 > — **Заполняется последним** (Step 4). В момент записи файла здесь стоит `<ПРОСТАВЛЯЕТСЯ ПОСЛЕ ЗАПИСИ>`; значение подставляется, когда весь текст ниже уже написан и его можно перечитать. Механически, без суждения: в готовом тексте есть хоть один открытый ТЕХНИЧЕСКИЙ пункт (TBD / 🟡 / ⚠️)? → «Требуются уточнения». Ноль таких пунктов → «Готово к разработке». 🟡 ВСЕГДА даёт «Требуются уточнения» — не рассуждай, что он «не блокирует начало работ». (Два исключения, которые статус НЕ меняют: унаследованные из БТ бизнес-пробелы в §8 — они закрываются на стороне БТ; и 🔵#0 — этот контракт уже подтверждён на стороне узла-фундамента, он не открытый пункт.) 🔵 никогда не даёт «Требуются уточнения».
@@ -922,6 +935,10 @@ Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inli
 - **Технические риски:** [риск нашего 🟢-дизайна → принятая мера, без пометок; про чужой сервис или без меры — не сюда; вопроса не задаётся; нет — «—»].
 - **Унаследовано из БТ (бизнес-пробелы):** [TBD/⚠️ из БТ, в багфиксе — из баг-репорта, в мелкой правке — из запроса на правку; закрываются на стороне документа-источника; перечисляются здесь, но сами по себе НЕ переводят тех-спеку в «Требуются уточнения», если все технические решения приняты. Подтверждено отсутствие — обычное «Унаследованных бизнес-пробелов нет», без зачёркивания].
 - **Приложения из БТ:** [UX-пожелания, схемы, файлы из БТ, баг-репорта или запроса на правку. Подтверждено отсутствие — обычное «Приложений нет», без зачёркивания. Нет сведений не означает «нет». Отсутствие вопросов/рисков не закрывает весь §8 неприменимостью].
+
+## 9. Дополнительные разделы
+### 9.1. [название раздела из файла Step 0]
+[Ответ аналитика по строке «что писать» этого раздела, или «Не применимо: <причина его словами>».]
 ````
 
 ## Example (BT in → confirm tech-gates → write)
