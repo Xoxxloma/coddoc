@@ -6,11 +6,15 @@
                                        [--question …] [[--parent …] --name … --what … --question …]… [--dry-run]
     python3 settings.py edit   bt|spec --name <название> [--new-name …] [--what …] [--question … …] [--dry-run]
     python3 settings.py remove bt|spec --name <название> [--dry-run]
-    python3 settings.py check  [bt|spec]
+    python3 settings.py check  [bt|spec|watch]
+    python3 settings.py watch  --every 5m|10m|15m|20m|30m|1h|2h [--dry-run]
 
 Файлы — <корень репозитория>/.coddoc-tmp/coddoc-settings/sections-bt.md и sections-spec.md (вне репозитория — от
 текущей папки); в .coddoc-tmp/ кладётся .gitignore со строкой «*», если его нет. Порядок разделов сохраняется,
 новый дописывается в конец. --dry-run печатает итоговый файл и ничего не пишет.
+
+watch — как часто «/work-plan следи» обновляет план: файл work-plan.md там же, строки «слежка: <словами>» и
+«расписание: <cron из пяти полей>»; интервал — только из списка, чтобы шаг был ровным. Файла нет — каждые 10 минут.
 
 Раздел «##» — либо «что писать» и один или несколько «вопрос», либо подразделы «###» с тем же содержимым; то и другое
 вместе нельзя, глубже «###» нельзя. --parent кладёт подраздел в конец раздела, раздела нет — заводит его в конце файла.
@@ -25,10 +29,12 @@ remove раздела убирает и его подразделы.
 Последняя строка — для агента (sections — число разделов «##»):
   coddoc-settings: ok doc=<bt|spec> sections=N path=<файл>
   coddoc-settings: dry-run doc=<bt|spec> sections=N path=<файл>
+  coddoc-settings: ok watch=<интервал> path=<файл>
+  coddoc-settings: dry-run watch=<интервал> path=<файл>
   coddoc-settings: show
   coddoc-settings: check ok
   coddoc-settings: error usage | no-skill | base-name | duplicate | empty | question | multiline | mixed | depth |
-                          not-found | bad-file | no-write
+                          not-found | bad-file | no-write | every
 """
 
 from __future__ import annotations
@@ -43,6 +49,18 @@ DOCS = {
     "bt": ("БТ", "business-requirements-doc", "sections-bt.md"),
     "spec": ("спека", "technical-spec-doc", "sections-spec.md"),
 }
+WATCH_FILE = "work-plan.md"
+WATCH_TITLE = "# Слежка за планом работы"
+EVERY = {  # --every → (словами, расписание cron)
+    "5m": ("каждые 5 минут", "*/5 * * * *"),
+    "10m": ("каждые 10 минут", "*/10 * * * *"),
+    "15m": ("каждые 15 минут", "*/15 * * * *"),
+    "20m": ("каждые 20 минут", "*/20 * * * *"),
+    "30m": ("каждые 30 минут", "*/30 * * * *"),
+    "1h": ("каждый час", "0 * * * *"),
+    "2h": ("каждые 2 часа", "0 */2 * * *"),
+}
+DEFAULT_EVERY = "10m"
 WRAPPER = "Дополнительные разделы"
 WHAT = "- что писать: "
 ASK = "- вопрос: "
@@ -331,6 +349,39 @@ def change(command, doc, args, folder):
     return 0
 
 
+def render_watch(every):
+    words, cron = EVERY[every]
+    return f"{WATCH_TITLE}\n\nслежка: {words}\nрасписание: {cron}\n"
+
+
+def parse_watch(path):
+    """Интервал из work-plan.md; файла нет — None. Строки — только заголовок, «слежка:» и «расписание:» одной пары."""
+    if not path.exists():
+        return None
+    lines = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
+    for every in EVERY:
+        if lines == [line for line in render_watch(every).splitlines() if line]:
+            return every
+    raise Fail("bad-file", f"{path.as_posix()}: не по форме — нужны «{WATCH_TITLE}», «слежка: …» и «расписание: …» "
+                           f"одного интервала; запиши заново: watch --every <интервал>")
+
+
+def watch(args, folder):
+    path = folder / WATCH_FILE
+    opt = options(args, ("every",))
+    every = opt.get("every", "").strip().lower()
+    if every not in EVERY:
+        raise Fail("every", f"интервал «{opt.get('every', '')}» — можно: {', '.join(EVERY)}")
+    text = render_watch(every)
+    if opt["dry-run"]:
+        print(text.rstrip("\n"))
+        print(f"coddoc-settings: dry-run watch={every} path={path.as_posix()}")
+        return 0
+    write(path, text)
+    print(f"coddoc-settings: ok watch={every} path={path.as_posix()}")
+    return 0
+
+
 def summary(node):
     if node.children:
         return ""
@@ -349,12 +400,20 @@ def show(folder):
             print(f"  ## {node.name}{summary(node)}")
             for child in node.children:
                 print(f"    ### {child.name}{summary(child)}")
+    path = folder / WATCH_FILE
+    every = parse_watch(path)
+    print(f"слежка за планом: {EVERY[every or DEFAULT_EVERY][0]}{'' if every else ' — по умолчанию'} ({path.as_posix()})")
     print("coddoc-settings: show")
     return 0
 
 
 def check(folder, docs):
     for doc in docs:
+        if doc == "watch":
+            path = folder / WATCH_FILE
+            parse_watch(path)
+            print(f"слежка за планом: {'по форме' if path.exists() else 'файла нет'} ({path.as_posix()})")
+            continue
         path = folder / DOCS[doc][2]
         validate(parse(path, doc), doc)
         print(f"{DOCS[doc][0]}: {'по форме' if path.exists() else 'файла нет'} ({path.as_posix()})")
@@ -373,11 +432,13 @@ def main(argv=None):
         command = args[0] if args else None
         if command == "show" and len(args) == 1:
             return show(folder)
-        if command == "check" and len(args) <= 2 and (len(args) == 1 or args[1] in DOCS):
-            return check(folder, args[1:] or list(DOCS))
+        if command == "check" and len(args) <= 2 and (len(args) == 1 or args[1] in (*DOCS, "watch")):
+            return check(folder, args[1:] or [*DOCS, "watch"])
         if command in ("add", "edit", "remove") and len(args) >= 2 and args[1] in DOCS:
             return change(command, args[1], args[2:], folder)
-        raise Fail("usage", "команды: show | add|edit|remove bt|spec --name … | check [bt|spec]")
+        if command == "watch":
+            return watch(args[1:], folder)
+        raise Fail("usage", "команды: show | add|edit|remove bt|spec --name … | watch --every … | check [bt|spec|watch]")
     except Fail as error:
         print(error)
         print(f"coddoc-settings: error {error.code}")
