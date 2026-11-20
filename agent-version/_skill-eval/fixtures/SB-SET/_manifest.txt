@@ -1,0 +1,3 @@
+coddoc/SHT-410/technical_specification.md
+go-turn2.txt
+sb-prompt.txt
