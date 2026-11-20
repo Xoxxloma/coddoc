@@ -7,6 +7,9 @@
 // читает в виде «Текст», должно быть и в обзоре — не меньше раз, чем в документе. Лишние слова в обзоре — не ошибка.
 // Схема Mermaid в обзоре считается своим исходником.
 //
+// SET=md — вместо документов петли остальные .md (вид "md"): все прочие .md из fixtures/** (кроме /stubs/, по
+// содержимому — один раз), CHANGELOG.md набора, README.md репозитория и крайние случаи разбора (EDGE ниже).
+//
 // Запуск (из этой папки, node 20): node overview-coverage.mjs [chrome|msedge]
 //   TO_HTML_REF=<папка> — подменная reference/ вместо agent-version/to-html/reference (проверка на испорченной копии).
 // Код выхода 1 — у какого-то документа обзор не отрисовался (или открылся не тот файл), или в нём не хватает слов.
@@ -16,7 +19,7 @@
 // в начале строки цитаты-шапки и в начале пункта списка, строка заголовков таблицы, эмодзи и пунктуация,
 // картинки ![…](…) и ![[…]] — в «Тексте» это картинка, а не слова.
 
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -29,7 +32,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const evalDir = resolve(here, '..');
 const fixtures = join(evalDir, 'fixtures');
 const ref = process.env.TO_HTML_REF ? resolve(process.env.TO_HTML_REF) : resolve(evalDir, '..', 'to-html', 'reference');
-const box = join(evalDir, 'selftest', 'to-html-overview');
+const MD = process.env.SET === 'md';
+const box = join(evalDir, 'selftest', MD ? 'to-html-overview-md' : 'to-html-overview');
 const channel = process.argv[2] || 'chrome';
 const SHOW = 15;
 
@@ -39,6 +43,21 @@ const KIND = {
   'bug_report.md': 'баг-репорт',
   'change_request.md': 'запрос на правку',
 };
+const kindOf = (name) => KIND[name] || 'md';
+
+// Крайние случаи разбора остальных .md: несколько «#», нет «#», текст над «#», без заголовков, setext, «#» в коде,
+// одинаковые заголовки, уровни 5–6, цитата-шапка.
+const EDGE = {
+  'multi-h1.md': '# Первая\nТекст первой.\n## Под первой\nТекст под.\n\n# Вторая\nТекст второй.\n',
+  'no-h1.md': '## Альфа\nТекст альфы.\n### Глубже\nТекст глубже.\n\n## Бета\nТекст беты.\n',
+  'preamble.md': 'Вводный абзац над заголовком.\n\n# Заголовок\nТекст.\n## Раздел\nТекст раздела.\n',
+  'plain.md': 'Просто текст без заголовков.\n\nВторой абзац.\n',
+  'setext.md': 'Заголовок сетекст\n=================\n\nТекст под ним.\n\nПодзаголовок\n------------\nЕщё текст.\n',
+  'code-hash.md': '# Код\n## Пример\n```bash\n# комментарий в коде\necho привет\n```\nПосле кода.\n~~~\n## не заголовок\n~~~\n## После\nКонец.\n',
+  'dup.md': '# Встречи\n## Встреча\n### Итог\nПервый итог.\n## Встреча\n### Итог\nВторой итог.\n',
+  'deep.md': '# Глубина\n## Раздел\n#### Четвёртый\nТекст четвёртого.\n##### Пятый\nТекст пятого.\n###### Шестой\nТекст шестого.\n',
+  'quote-head.md': '# Шапка с цитатой\n\n> **Автор:** Иван\n> **Заметка:** важная строка\n> свободная строка цитаты\n\nТекст под шапкой.\n\n## Раздел\nТекст.\n',
+};
 
 // ---------------------------------------------------------------- документы
 
@@ -47,7 +66,7 @@ function walk(dir, out = []) {
     const p = join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) walk(p, out);
-    else if (KIND[name]) out.push(p);
+    else if (MD ? /\.md$/i.test(name) && !KIND[name] : KIND[name]) out.push(p);
   }
   return out;
 }
@@ -82,6 +101,13 @@ for (const p of walk(fixtures)) add(fixtures, p, false);
 const taskSrc = mkdtempSync(join(tmpdir(), 'to-html-task-'));
 makeTaskFixture(taskSrc);
 for (const p of walk(taskSrc)) add(taskSrc, p, true);
+if (MD) {
+  const repo = resolve(evalDir, '..', '..');
+  for (const p of [join(evalDir, '..', 'CHANGELOG.md'), join(repo, 'README.md')]) if (existsSync(p)) add(repo, p, false);
+  const edge = join(taskSrc, 'edge');
+  mkdirSync(edge);
+  for (const [name, text] of Object.entries(EDGE)) { writeFileSync(join(edge, name), text); add(taskSrc, join(edge, name), false); }
+}
 rmSync(taskSrc, { recursive: true, force: true });
 const docs = [...seen.values()];
 
@@ -226,7 +252,8 @@ function missing(dw, ow) {
 
 const browser = await chromium.launch({ channel, headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-await ctx.addInitScript(() => { try { sessionStorage.setItem('cv:mode', 'overview'); } catch (e) { /* по умолчанию и так обзор */ } });
+// По умолчанию страница открывает «Текст» — нужен «Обзор»: и у документов петли, и у остальных .md.
+await ctx.addInitScript(() => { try { sessionStorage.setItem('cv:mode', 'overview'); sessionStorage.setItem('cv:mode:md', 'overview'); } catch (e) { /* about:blank */ } });
 const page = await ctx.newPage();
 let errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
@@ -248,7 +275,8 @@ const overviewText = () => page.evaluate(() => {
     const src = el.classList.contains('diagram') ? el.getAttribute('data-src') : null;
     if (src !== null) { out.push(' ' + src + ' '); return; }
     const d = getComputedStyle(el).display;
-    const inline = d === 'inline' || d === 'contents';
+    // `код` — граница слова, как обратная кавычка в документе: «`grep`ом» — слова «grep» и «ом», а не «grepом».
+    const inline = (d === 'inline' || d === 'contents') && el.tagName !== 'CODE';
     if (!inline) out.push(' ');
     el.childNodes.forEach(walk);
     if (!inline) out.push(' ');
@@ -269,7 +297,8 @@ let bad = 0;
 // SNAP=<файл> — снимок: слова обзора и оглавление каждого документа (сравнить до и после правки движка).
 const snap = {};
 let applied = 0;
-console.log(`Обзор to-html: ${docs.length} документов из fixtures/ и TH-TASK` + (process.env.TO_HTML_REF ? ` (reference: ${ref})` : '') + '\n');
+console.log(`Обзор to-html: ${docs.length} ${MD ? 'остальных .md (fixtures/, CHANGELOG, README, крайние случаи)' : 'документов из fixtures/ и TH-TASK'}` +
+  (process.env.TO_HTML_REF ? ` (reference: ${ref})` : '') + '\n');
 for (const d of docs) {
   errors = [];
   await page.goto('about:blank');
@@ -277,26 +306,33 @@ for (const d of docs) {
   await page.waitForFunction(() => document.querySelector('#doc')?.children.length, null, { timeout: 10000 }).catch(() => {});
   // LAYOUT=random — своя раскладка на документ: блоки перемешаны, ширина 3…12, четверть скрыта (свой зерно на
   // документ — прогон повторяется). Раскладка кладётся во вкладку, как после «Сохранить», и страница перезагружается.
+  // У .md — по маске, которую страница предложила бы для этого файла; раскладки прежних документов из вкладки
+  // убираются, чтобы их маски не подошли и этому.
   if (process.env.LAYOUT === 'random') {
     const want = await page.evaluate((seed) => {
       const g = document.querySelector('#doc .cv > .cvg');
       if (!g) return null;
+      for (const k of Object.keys(sessionStorage)) if (k.startsWith('cvg:layout:')) sessionStorage.removeItem(k);
       let s = seed;
       const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
       const keys = [...document.querySelectorAll('#doc .cv .cvg-i')].map((e) => e.getAttribute('data-k'));
       for (let i = keys.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [keys[i], keys[j]] = [keys[j], keys[i]]; }
       const items = keys.map((k) => ({ k, w: 3 + Math.floor(rnd() * 10), hide: rnd() < 0.25 }));
       const view = g.getAttribute('data-view');
-      sessionStorage.setItem('cvg:layout:' + view, JSON.stringify({ made: window.MDV_DATA.made, text: JSON.stringify({ format: 1, view, items }) }));
+      const t = window.CoddocLayout.test;
+      const files = view === 'md' ? t.proposeMask(new URLSearchParams(location.hash.slice(1)).get('f')) : '';
+      const id = view === 'md' ? t.maskId(files) : view;
+      sessionStorage.setItem('cvg:layout:' + id, JSON.stringify({ made: window.MDV_DATA.made, text: JSON.stringify({ format: 1, view, ...(files ? { files } : {}), items }) }));
       return items.filter((x) => !x.hide).map((x) => x.k);
     }, docs.indexOf(d) + 7);
     await page.reload();
     await page.waitForFunction(() => document.querySelector('#doc')?.children.length, null, { timeout: 10000 }).catch(() => {});
     const got = await page.$$eval('#doc .cv > .cvg > .cvg-i', (els) => els.map((e) => e.getAttribute('data-k')));
     if (want && JSON.stringify(got) === JSON.stringify(want)) applied++;
+    else console.log(`✗ ${d.rel}: случайная раскладка не применилась\n    ждали: ${(want || []).join(' | ').slice(0, 300)}\n    вышло: ${got.join(' | ').slice(0, 300)}`);
   }
   const text = await overviewText();
-  const label = `${d.rel}  [${KIND[d.name]}]` + (d.copies ? `  (+${d.copies} копий)` : '');
+  const label = `${d.rel}  [${kindOf(d.name)}]` + (d.copies ? `  (+${d.copies} копий)` : '');
   // Файла нет в наборе — страница молча открывает первый попавшийся и переписывает адрес.
   const opened = await page.evaluate(() => new URLSearchParams(location.hash.slice(1)).get('f'));
   if (opened !== d.path) {

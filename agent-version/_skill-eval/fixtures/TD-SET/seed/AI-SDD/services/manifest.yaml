@@ -1,0 +1,10 @@
+# Слепок соседних сервисов. Собирается `service-map`, живёт рядом с документами задач.
+services:
+  - name: pass-portal
+    path: ../pass-portal
+    type: frontend
+    card: pass-portal.md
+  - name: pass-api
+    path: ../pass-api
+    type: backend
+    card: pass-api.md

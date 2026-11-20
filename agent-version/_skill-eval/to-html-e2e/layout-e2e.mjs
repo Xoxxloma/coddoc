@@ -29,6 +29,7 @@ const brd = (letter, extra) => `# Бизнес-требования: пропу�
 
 > **Задача:** T-${letter}
 > **Статус:** Готово к оценке
+> **Открытые вопросы:** Все данные подтверждены.
 
 ## 1. Введение и контекст
 ### 1.1. Описание проблемы
@@ -57,13 +58,36 @@ mkdirSync(join(box, 'B'), { recursive: true });
 writeFileSync(join(box, 'A', 'business_requirements.md'), brd('A', { sec: 'Особый раздел А', text: 'Дельта — только в А.' }));
 writeFileSync(join(box, 'B', 'business_requirements.md'), brd('B', { sec: 'Особый раздел Б', text: 'Зета — только в Б.',
   intro: '### 1.5. Новое в Б\nЭта — подраздел только в Б.\n' }));
+
+// Остальные .md: встречи под одной маской, несколько «#», без «#», большие (подразделы — в разделах; разделов
+// больше порога — без правки), имя не латиницей.
+const meeting = (n, extra) => `# Встреча ${n}\n\nВступление встречи.\n\n## Повестка\nПункт повестки.\n### Вопрос бюджета\nОбсудили бюджет.\n` +
+  `### Вопрос сроков\nОбсудили сроки.\n\n## Решения\nРешили всё.\n${extra}\n## Итоги\nИтоговый текст.\n`;
+const mdFiles = {
+  'notes/meeting-03.md': meeting(3, ''),
+  'notes/meeting-07.md': meeting(7, '\n## Риски\nРиск сорвать сроки.\n'),
+  'notes/multi.md': 'Текст над заголовками.\n\n# Первая часть\nТекст первой.\n## Подраздел первой\nТекст подраздела.\n\n# Вторая часть\nТекст второй.\n',
+  'notes/no-h1.md': '## Раздел А\nТекст А.\n\n## Раздел Б\nТекст Б.\n',
+  'big/service.md': '# Сервис\n\n' + [1, 2, 3, 4, 5].map((s) => `## Раздел ${s}\n` +
+    Array.from({ length: 12 }, (_, i) => `### Метод ${s}.${i + 1}\nОписание метода ${s}.${i + 1}.\n`).join('')).join('\n'),
+  'big/journal.md': '# Журнал\n\n' + Array.from({ length: 60 }, (_, i) => `## Запись ${i + 1}\nТекст записи ${i + 1}.\n`).join('\n'),
+  'Журнал/заметка-1.md': '# Заметка\n\n## Суть\nТекст заметки.\n',
+};
+for (const [p, text] of Object.entries(mdFiles)) { mkdirSync(dirname(join(box, p)), { recursive: true }); writeFileSync(join(box, p), text); }
 const env = { ...process.env, GIT_CEILING_DIRECTORIES: dirname(box) };
 execFileSync('git', ['init', '-q'], { cwd: box, env });
-const lays = join(box, '.coddoc-tmp', 'to-html', 'layouts');
+const lays = join(box, '.coddoc-tmp', 'coddoc-settings', 'layouts');
 function pack() {
   const out = execFileSync('bash', [join(ref, 'pack.sh').split(sep).join('/'), '--no-open', box], { cwd: box, env }).toString('utf8');
   const last = out.trim().split(/\r?\n/).pop();
   if (!/^to-html: updated /.test(last)) throw new Error('pack: ' + out);
+  return last.split(' page=')[1];
+}
+// Один файл своим путём: корень набора — его папка.
+function packPath(rel) {
+  const out = execFileSync('bash', [join(ref, 'pack.sh').split(sep).join('/'), '--no-open', join(box, rel).split(sep).join('/')], { cwd: box, env }).toString('utf8');
+  const last = out.trim().split(/\r?\n/).pop();
+  if (!/^to-html: (ok|updated) /.test(last)) throw new Error('pack: ' + out);
   return last.split(' page=')[1];
 }
 let url = pack();
@@ -77,10 +101,11 @@ check(/window\.CODDOC_LAYOUT_DIR = ".*layouts";/.test(layoutsJs) && /window\.COD
 
 const browser = await chromium.launch({ channel, headless: true });
 let ctx, page, errors, warnings;
-async function fresh(init) {
+// text — без подстановки «Обзора»: страница открывается как у человека в первый раз.
+async function fresh(init, text) {
   // Прежний контекст не закрываем: playwright-core 1.49 с Edge роняет процесс на закрытии (TargetClosedError).
   ctx = await browser.newContext({ viewport: { width: 1440, height: 1500 }, acceptDownloads: true });
-  await ctx.addInitScript(() => { try { sessionStorage.setItem('cv:mode', 'overview'); } catch (e) { /* about:blank */ } });
+  if (!text) await ctx.addInitScript(() => { try { sessionStorage.setItem('cv:mode', 'overview'); sessionStorage.setItem('cv:mode:md', 'overview'); } catch (e) { /* about:blank */ } });
   if (init) await ctx.addInitScript(init);
   page = await ctx.newPage();
   errors = []; warnings = [];
@@ -91,6 +116,12 @@ const open = async (doc) => {
   await page.goto('about:blank');
   await page.goto(url + '#f=' + encodeURIComponent(doc + '/business_requirements.md'));
   await page.waitForSelector('#doc .cv > .cvg');
+};
+// Любой файл набора; sel — чего ждать («Обзор» или полоса «Текст / Обзор»).
+const openPath = async (path, sel = '#doc .cv > .cvg') => {
+  await page.goto('about:blank');
+  await page.goto(url + '#f=' + encodeURIComponent(path));
+  await page.waitForSelector(sel);
 };
 // Ключи блоков: на сетке (в правке — и скрытые) и в полосе «Скрыто».
 const keys = () => page.$$eval('#doc .cv > .cvg > .cvg-i', (els) => els.map((e) => e.getAttribute('data-k')));
@@ -108,7 +139,7 @@ async function saveDownload() {
   return { name: d.suggestedFilename(), json: JSON.parse(readFileSync(p, 'utf8')), path: p };
 }
 
-const DOC_A = [':hero', 'введение', 'введение/описание проблемы', 'введение/как сейчас',
+const DOC_A = [':hero', ':questions', 'введение', 'введение/описание проблемы', 'введение/как сейчас',
   'бизнес-требования', 'бизнес-требования/бизнес-цель', 'особый раздел а', 'функциональные требования'];
 
 // ---------------------------------------------------------------- без раскладки
@@ -122,6 +153,9 @@ check(w0['введение/описание проблемы'] === '6' && w0['в
   'ширина по описанию вида: ряд из двух — по 6, раздел — 12');
 check(await page.locator('[data-cvg-edit]').count() === 1, 'кнопка «Редактировать форму» над обзором');
 check(await page.$eval('#doc .cv > .cvg', (g) => g.getAttribute('data-view')) === 'brd', 'сетка знает вид: brd');
+// textContent: у innerText заголовок карточки — заглавными (text-transform).
+check(eq(await tile(':questions').locator('.card h3, .card .cv-md').allTextContents(), ['Открытые вопросы', 'Все данные подтверждены.']),
+  'открытые вопросы одной пометкой — карточка с заголовком, не строка отдельно от шапки');
 
 // ---------------------------------------------------------------- правка
 
@@ -218,6 +252,108 @@ await open('A');
 check(eq(await keys(), DOC_A), 'файл чужого вида — не применяется');
 rmSync(join(lays, 'brd.json'));
 
+// ---------------------------------------------------------------- остальные .md
+
+console.log('По умолчанию — «Текст»; выбор — отдельно у документов петли и у остальных .md');
+url = pack();
+await fresh(noFsApi, true);
+const textOpen = async () => (await page.locator('#doc .cv').count()) === 0 &&
+  (await page.getAttribute('[data-cv-mode="text"]', 'aria-pressed')) === 'true';
+await openPath('A/business_requirements.md', '#doc .cv-bar');
+check(await textOpen(), 'БТ открывается «Текстом»');
+await openPath('notes/meeting-03.md', '#doc .cv-bar');
+check(await textOpen(), 'обычный .md — тоже «Текстом», над ним «Текст / Обзор»');
+await page.click('[data-cv-mode="overview"]');
+await page.waitForSelector('#doc .cv > .cvg');
+await openPath('A/business_requirements.md', '#doc .cv-bar');
+check(await textOpen(), '«Обзор» у .md не переключил БТ');
+await openPath('notes/meeting-07.md');
+check(await page.locator('#doc .cv').count() === 1, 'другой .md — «Обзором»: выбор у .md вкладка помнит');
+
+console.log('Остальные .md: блоки');
+await fresh(noFsApi);
+await openPath('notes/meeting-03.md');
+const MEET = [':hero', 'повестка', 'повестка/вопрос бюджета', 'повестка/вопрос сроков', 'решения', 'итоги'];
+check(eq(await keys(), MEET), `«#» — шапка, «##» — блок с текстом, «###» — свой блок (${(await keys()).join(' | ')})`);
+check(await page.$eval('#doc .cv > .cvg', (g) => `${g.getAttribute('data-view')}|${g.getAttribute('data-layout')}`) === 'md|', 'сетка: вид md, раскладки пока нет');
+check(await tile(':hero').locator('h1').textContent() === 'Встреча 3' && /Вступление встречи/.test(await tile(':hero').innerText()), 'шапка — заголовок и текст под ним');
+await openPath('notes/multi.md');
+check(eq(await keys(), [':hero', 'первая часть', 'первая часть/подраздел первой', 'вторая часть']), `несколько «#» — все разделами (${(await keys()).join(' | ')})`);
+check(await tile(':hero').locator('h1').textContent() === 'multi' && /Текст над заголовками/.test(await tile(':hero').innerText()),
+  'шапка — имя файла и текст над заголовками; «Текста вне документа» нет');
+await openPath('notes/no-h1.md');
+check(eq(await keys(), [':hero', 'раздел а', 'раздел б']) && await tile(':hero').locator('h1').textContent() === 'no-h1', 'без «#» — разделы «##» блоками, шапка — имя файла');
+await openPath('big/service.md');
+check((await keys()).length === 6 && /Описание метода 5\.12/.test(await tile('раздел 5').innerText()) && await page.locator('[data-cvg-edit]').count() === 1,
+  `блоков больше 50 — подразделы в своих разделах (${(await keys()).length} блоков), правка есть`);
+await openPath('big/journal.md');
+check((await keys()).length === 61 && await page.locator('[data-cvg-edit]').count() === 0, `и разделов больше 50 — обзор без «Редактировать форму» (${(await keys()).length} блоков)`);
+
+console.log('Остальные .md: раскладка по маске');
+const maskIn = '.cvg-tools input[data-mask]';
+await openPath('Журнал/заметка-1.md');
+await page.click('[data-cvg-edit]');
+check(await page.inputValue(maskIn) === '*/*-*.md', `имя не латиницей — в маске «*» (${await page.inputValue(maskIn)})`);
+await openPath('notes/meeting-03.md');
+await page.click('[data-cvg-edit]');
+check(await page.inputValue(maskIn) === 'notes/meeting-*.md', `страница предлагает маску: числа — «*» (${await page.inputValue(maskIn)})`);
+check(/для всех файлов по маске/.test(await page.locator('.cvg-tools .cvg-tt').innerText()), 'в панели — «для всех файлов по маске»');
+const badMask = async (m) => { await page.fill(maskIn, m); await page.click('.cvg-tools [data-a="save"]'); return page.locator('.cvg-tools .cvg-bad').innerText(); };
+check(/латиница/.test(await badMask('заметки/*.md')) && await page.locator('.cvg-note').count() === 0 && await page.locator('.cvg-tools').count() === 1,
+  'маска не латиницей — подсказка у поля, не сохранено');
+check(/не подходит к этому файлу/.test(await badMask('other/*.md')), 'маска мимо этого файла — подсказка');
+await page.fill(maskIn, 'notes/meeting-*.md');
+await btn('итоги', 'prev');
+await btn('решения', 'hide');
+const s3 = await saveDownload();
+const MEET_LAY = [':hero', 'повестка', 'повестка/вопрос бюджета', 'повестка/вопрос сроков', 'итоги', 'решения'];
+check(s3.name === 'md-notes_pmeeting-_s.json' && s3.json.view === 'md' && s3.json.files === 'notes/meeting-*.md' && eq(s3.json.items.map((x) => x.k), MEET_LAY),
+  `скачан ${s3.name}: вид md, маска и порядок блоков`);
+check((await page.locator('.cvg-note').innerText()).includes('notes/meeting-*.md'), 'в пометке — маска');
+await openPath('notes/meeting-07.md');
+check(eq(await keys(), [':hero', 'повестка', 'повестка/вопрос бюджета', 'повестка/вопрос сроков', 'итоги', 'риски']) && eq(await hiddenKeys(), ['решения']),
+  `другой файл под маской — по той же раскладке, свой раздел — за соседом (${(await keys()).join(' | ')})`);
+
+console.log('Остальные .md: следующая сборка, точная маска');
+writeFileSync(join(lays, s3.name), readFileSync(s3.path));
+url = pack();
+check(/"md-notes_pmeeting-_s":"/.test(readFileSync(join(box, '.coddoc-tmp', 'to-html', 'to-html-layout', 'layouts.js'), 'utf8')), 'layouts.js вшил раскладку по маске');
+await fresh(noFsApi);
+await openPath('notes/meeting-07.md');
+check(eq(await hiddenKeys(), ['решения']) && (await keys())[4] === 'итоги', 'новая вкладка: раскладка по маске — из файла папки раскладок');
+{
+  // Тот же файл, открытый своим путём: в наборе он без «notes/», маска сверяется с путём от корня репозитория.
+  const one = packPath('notes/meeting-07.md');
+  await page.goto('about:blank');
+  await page.goto(one + '#f=' + encodeURIComponent('meeting-07.md'));
+  await page.waitForSelector('#doc .cv > .cvg');
+  check(eq(await hiddenKeys(), ['решения']) && (await keys())[4] === 'итоги', 'файл, открытый своим путём, — та же раскладка по маске с папкой');
+  await page.click('[data-cvg-edit]');
+  check(await page.inputValue(maskIn) === 'notes/meeting-*.md', 'и в правке — та же маска');
+  await page.click('.cvg-tools [data-a="cancel"]');
+}
+await openPath('notes/meeting-07.md');
+await page.click('[data-cvg-edit]');
+check(await page.inputValue(maskIn) === 'notes/meeting-*.md', 'в правке — маска раскладки, по которой открыт файл');
+await page.fill(maskIn, 'notes/meeting-07.md');
+await btn(':hero', 'next');
+const s4 = await saveDownload();
+check(s4.name === 'md-notes_pmeeting-07.json' && (await keys())[1] === ':hero', 'своя маска для одного файла — отдельный файл раскладки, обзор по нему');
+await openPath('notes/meeting-03.md');
+check((await keys())[0] === ':hero' && eq(await hiddenKeys(), ['решения']), 'у остальных файлов — общая маска');
+await page.click('[data-cvg-edit]');
+await page.fill(maskIn, '*.md');
+await saveDownload();
+check(/более точной маске notes\/meeting-\*\.md/.test(await page.locator('.cvg-note').innerText()), 'сохранили маску шире действующей — пометка: файл открывается по более точной');
+writeFileSync(join(lays, 'md-notes_pmeeting-_s.json'), JSON.stringify({ format: 1, view: 'md', files: 'other/*.md', items: [] }));
+url = pack();
+await fresh(noFsApi);
+await openPath('notes/meeting-03.md');
+check(eq(await keys(), MEET) && warnings.some((w) => /md-notes_pmeeting-_s\.json не прочитана/.test(w)), 'маска в файле не по его имени — не применяется, предупреждение');
+rmSync(join(lays, 'md-notes_pmeeting-_s.json'));
+const ids = await page.evaluate(() => { const t = window.CoddocLayout.test; return ['a/b.md', 'a_pb.md', 'x.markdown', 'x_m.md', 'README.md', 'readme.md'].map((m) => t.maskId(m)); });
+check(new Set(ids.slice(0, 4)).size === 4 && ids[4] === ids[5] && ids.every((x) => /^[a-z0-9_-]+$/.test(x)), `имена файлов по маске — разные у разных масок, латиницей (${ids.join(' ')})`);
+
 // ---------------------------------------------------------------- сохранение в папку (File System Access)
 
 console.log('Сохранить — в папку раскладок (страница по http://127.0.0.1: на file:// OPFS закрыт)');
@@ -304,6 +440,18 @@ await btn(':hero', 'next');
 await btn('особый раздел а', 'hide');
 await page.click('.cvg-tools [data-a="reset"]');
 check(eq(await keys(), DOC_A) && await page.locator('.cvg-off').count() === 0, '«Сбросить» — порядок документа, ничего не скрыто');
+
+console.log('Остальные .md — в ту же папку раскладок');
+await openPath('notes/meeting-03.md');
+await page.click('[data-cvg-edit]');
+await btn('итоги', 'prev');
+await page.click('.cvg-tools [data-a="save"]');
+await page.waitForSelector('.cvg-note');
+const saved3 = JSON.parse(await opfsRead('md-notes_pmeeting-_s.json'));
+// Счётчик выбора папки — на странице: после перехода к другому файлу он с нуля.
+const picked3 = await page.evaluate(() => window.__picked ?? 0);
+check(saved3.files === 'notes/meeting-*.md' && saved3.items[4].k === 'итоги' && picked3 === 0 && !(await dlgOpen()),
+  `файл md-….json записан сразу в выбранную папку, без диалога (маска ${saved3.files}, пятый блок ${saved3.items[4].k}, выборов папки ${picked3})`);
 
 console.log('\nОшибки страницы: ' + (errors.length ? errors.join(' | ') : 'нет'));
 if (errors.length) failures++;
