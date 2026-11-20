@@ -117,16 +117,22 @@ const CR7 = 'coddoc/INV-7/change_request.md';
 const STEP3_DOCS = [BT7, SPEC7, NB];
 const step3Plan = (docs, updated = '2026-11-19') =>
   planText({ name: 'INV-7', updated, goal: GOAL_RERUN, docs, groups: datedGroups(BT7_ITEMS, []) });
+/** Раздел «Закрыто» (1.6.0): items — [[суть · откуда, оригинал, дата], …]; пусто — раздела нет. */
+const closedSection = (items) => (items.length ? '\n## Закрыто\n' +
+  items.map(([line, quote, date]) => `- ~~${line}~~ · закрыто ${date}\n  > ${quote}\n`).join('') : '');
 /** Файл плана формы 1.3.0+: groups — [[группа, [[суть · откуда, оригинал], …]], …]. */
-function planText({ name, updated, goal, docs, groups }) {
+function planText({ name, updated, goal, docs, groups, closed = [] }) {
   let k = 0;
   const n = groups.reduce((a, [, items]) => a + items.length, 0);
   return `# План: ${name}\n\nобновлён: ${updated}\nглавная: ${BASE}\nцель: ${goal}\n\n## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n` +
     `## Дела\nВсего ${n}: ${groups.map(([g, items]) => `${g} — ${items.length}`).join(' · ')}\n\n` +
-    groups.map(([g, items]) => `### ${g} — ${items.length}\n` + items.map(([line, quote]) => `${++k}. ${line}\n   > ${quote}\n`).join('')).join('\n');
+    groups.map(([g, items]) => `### ${g} — ${items.length}\n` + items.map(([line, quote]) => `${++k}. ${line}\n   > ${quote}\n`).join('')).join('\n') +
+    closedSection(closed);
 }
+// В «Складе» уже есть «Закрыто»: вопрос ноута об износе закрыт 12.11 — пункт должен переноситься дословно.
+const CLOSED_NB = [`Как считать износ · списание-запчастей 2026-11-10 №1.3`, Q.nbClosed, '2026-11-12'];
 const datedPlan = (docs, updated = '2026-11-19', bt7 = BT7_ITEMS) =>
-  planText({ name: 'Склад', updated, goal: GOAL_OWN, docs, groups: datedGroups(bt7) });
+  planText({ name: 'Склад', updated, goal: GOAL_OWN, docs, groups: datedGroups(bt7), closed: [CLOSED_NB] });
 const SETTINGS_15 = '# Слежка за планом работы\n\nслежка: каждые 15 минут\nрасписание: */15 * * * *\n';
 
 function gitIn(cwd, env, ...args) {
@@ -279,8 +285,15 @@ function parsePlan(text) {
     else if (/^\d+\.\s/.test(l)) items.push({ group, line: l, quote: '' });
     else if (items.length && /^\s+>/.test(l)) items[items.length - 1].quote += l.replace(/^\s+>\s?/, '');
   }
+  // «Закрыто» 1.6.0: «- ~~<суть> · <откуда>~~ · закрыто <дата>», под ней «  > <оригинал>».
+  const closed = [];
+  for (const l of section('Закрыто')) {
+    if (l.startsWith('- ')) closed.push({ line: l, quote: '' });
+    else if (closed.length && /^\s+>/.test(l)) closed[closed.length - 1].quote += l.replace(/^\s+>\s?/, '');
+  }
   return {
     goal: value('цель'), updated: value('обновлён'), main: value('главная'),
+    closed, closedRaw: section('Закрыто').join('\n').trim(),
     docs: section('Документы').filter((l) => l.startsWith('- ')),
     summary: section('Дела').find((l) => l.startsWith('Всего')) ?? '',
     items,
@@ -332,6 +345,13 @@ function docReads(uses) {
 const cronCalls = (uses, name) => uses.filter((u) => u.name === name);
 const asksGone = (text) => /закончили/i.test(text) && /следим/i.test(text) && text.includes('INV-9');
 const turnOf = (t) => (typeof t === 'string' ? { text: t } : t);
+// Повтор INV-7: закрылись оба вопроса БТ и вопрос ноута о подписи; открыты гарантия и «кто забирает».
+const CLOSED_KEYS = ['50 000', 'хранени', 'кладовщик'], OPEN_KEYS = ['гаранти', 'забира'];
+const closedHas = (plan, k) => plan.closed.some((c) => `${c.line} ${c.quote}`.toLowerCase().includes(k));
+const closedThree = (plan) => plan.closed.length === 3 && CLOSED_KEYS.every((k) => closedHas(plan, k))
+  && !OPEN_KEYS.some((k) => closedHas(plan, k));
+const struckToday = (plan) => plan.closed.length > 0
+  && plan.closed.every((c) => (c.line.match(/^- ~~.+~~ · закрыто (\d{4}-\d{2}-\d{2})\s*$/) ?? [])[1] === TODAY);
 
 /** run: { cmds, snaps: [планы после каждого хода], answer (последний ход), answers (по ходам), intact, loaded } */
 function grade(probe, run) {
@@ -371,6 +391,7 @@ function grade(probe, run) {
       marks['цель и главная как были'] = p.goal === GOAL_OWN && p.main === BASE;
       marks['обновлён сегодня'] = p.updated === TODAY;
       marks['отчёт: появилось'] = run.answer.toLowerCase().includes(Q.bt7c.toLowerCase());
+      marks['«Закрыто» байт в байт'] = p0.closedRaw !== '' && p.closedRaw === p0.closedRaw;
     } else if (probe.id === 'p-gone') {
       marks['спросил «закончили или следим»'] = asksGone(run.answers[0] ?? '');
       marks['план не изменён до ответа'] = untouched;
@@ -450,6 +471,7 @@ function grade(probe, run) {
     marks['источник коротко'] = has(item(Q.bt7a).line, 'БТ INV-7 п.1') && has(item(Q.nb1).line, '2026-11-10 №1.1')
       && !p.items.some((t) => has(t.line, 'coddoc/') || has(t.line, 'notebook.md'));
     marks['закрытое не взято'] = !taskWith(p, Q.nbClosed);
+    marks['нет раздела «Закрыто»'] = !(last[PLAN7] ?? '').includes('## Закрыто');
   } else if (probe.id === 'p-split' || probe.id === 'p-merge') {
     const asked = run.answers[2] ?? '';
     marks['спросил разбивку до записи'] = Object.keys(run.snaps[2] ?? {}).length === 0 && asked.includes('INV-7') && asked.includes('INV-9');
@@ -480,6 +502,8 @@ function grade(probe, run) {
     marks['второй запуск: не переспросил'] = run.snaps.length === 3 && !/закончили[^.\n]*\?|следим дальше\?/i.test(run.answer);
     marks['второй запуск: пометка осталась'] = watched(btLine(p));
     marks['второй запуск: новое дело'] = p.tasks.length === 3 && [Q.nb1, Q.nbNew, Q.nbNext].every((q) => taskWith(p, q));
+    marks['«следим»: в «Закрыто» три закрывшихся'] = closedThree(mid);
+    marks['второй запуск: «Закрыто» дословно'] = mid.closedRaw !== '' && p.closedRaw === mid.closedRaw;
     marks['цель как была'] = p.goal === GOAL_RERUN;
     marks['один план'] = Object.keys(last).length === 1;
   } else if (probe.id === 'p-add') {
@@ -527,6 +551,8 @@ function grade(probe, run) {
     // оставшейся. Конец предложения — «.» или «;» перед пробелом или в конце: точки в путях и датах не режут.
     marks['оставшееся — не «закрылось» и не «появилось»'] = !said.split(/\n|[.;](?=\s|$)/)
       .some((l) => /закрыл|появил/.test(l) && l.includes('гаранти'));
+    marks['«Закрыто»: три закрывшихся, открытых нет'] = closedThree(p);
+    marks['«Закрыто»: зачёркнуто, дата сегодня'] = struckToday(p);
     marks['список от главной из файла'] = fromBase;
     marks['главная как была'] = p.main === BASE;
     marks['влитое не в отчёте'] = !run.answer.includes('INV-3');
@@ -570,7 +596,7 @@ function selftest() {
       [`Какой сервис хранит фото · спека INV-7 п.1`, `❓ TBD: ${Q.spec7}.`]]]]);
   check('создание, хороший', grade(P('p-create'), { ...ok, snaps: [{}, {}, {}, { [PLAN7]: create }] }), true);
   const badCreate = plan('БТ', [`${BT7}`, `${BT9}`], [`${Q.nbClosed} — ждём: Голубев`, 'Кто утверждает списание'], '')
-    .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
+    .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12') + '\n## Закрыто\n';
   const bad = { cmds: ['git checkout main', 'git log --all'], answer: 'Готово.',
     answers: ['Готово.', '1. INV-3 · coddoc/INV-3/…', 'Готово.', 'Готово.'], intact: false, loaded: false };
   const many = { [PLAN7]: badCreate, [PLAN9]: 'x' };
@@ -587,9 +613,12 @@ function selftest() {
   check('в один, хороший', grade(P('p-merge'), { ...okSplit, snaps: [{}, {}, {}, {}, { [PLAN_ALL]: all }] }), true);
   checkBad('в один, плохой', [grade(P('p-merge'), { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] }),
     grade(P('p-merge'), { ...bad, snaps: [{}, {}, {}, {}, { [PLAN_ALL]: badCreate }] })]);
+  const RERUN_CLOSED = closedSection([[`Кто утверждает списание дороже 50 000 ₽ · БТ INV-7 п.1`, `${Q.bt7a} — не назван.`, TODAY],
+    [`Срок хранения списанных запчастей · БТ INV-7 п.2`, `${Q.bt7b} — не назван.`, TODAY],
+    [`Проверить, нужна ли подпись кладовщика · списание-запчастей 2026-11-10 №1.2`, Q.nb2, TODAY]]);
   const rerun = plan13(GOAL_RERUN, [`${NB} · рабочая копия · открытых: 2`], [
     ['Голубев А.', [[`Списывать ли при гарантии · списание-запчастей 2026-11-10 №1.1`, Q.nb1]]],
-    ['Сидоров П.', [[`Кто забирает списанное · списание-запчастей 2026-11-17 №1.2`, Q.nbNew]]]]);
+    ['Сидоров П.', [[`Кто забирает списанное · списание-запчастей 2026-11-17 №1.2`, Q.nbNew]]]]) + RERUN_CLOSED;
   const answer = `Закрылось: ${Q.bt7a}; ${Q.bt7b}; ${Q.nb2}. Появилось: ${Q.nbNew}. Ещё 2 документа — добавить: /work-plan INV-7 добавь`;
   check('повтор, хороший', grade(P('p-rerun'), { ...ok, answer, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
   const answerOneLine = `Убран БТ ${BT7} — его дела закрылись: «${Q.bt7a}» и «${Q.bt7b}». Ноут обновился: вопрос о подписи ` +
@@ -610,9 +639,10 @@ function selftest() {
 
   const nbTask = (q, who, n) => `${q} — ждём: ${who} · ${NB}, ${n}`;
   const watchDocs = (n) => [`${BT7} · feature/inv-7 · открытых: 0 · следим`, `${NB} · рабочая копия · открытых: ${n}`];
-  const watchMid = plan(GOAL_RERUN, watchDocs(2), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2')]);
+  const watchMid = plan(GOAL_RERUN, watchDocs(2), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2')])
+    + RERUN_CLOSED;
   const watchEnd = plan(GOAL_RERUN, watchDocs(3), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'),
-    nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2'), nbTask(Q.nbNext, 'Сидоров П.', '2026-11-18 №1.1')]);
+    nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2'), nbTask(Q.nbNext, 'Сидоров П.', '2026-11-18 №1.1')]) + RERUN_CLOSED;
   check('следим, хороший', grade(P('p-watch'), { ...ok, answer: `План обновлён. Появилось: ${Q.nbNext}.`,
     snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: watchMid }, { [PLAN7]: watchEnd }] }), true);
   const watchBad = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`], [nbTask(Q.nb1, '—', '')]);
@@ -657,7 +687,7 @@ function selftest() {
   check('изменился один, хороший', grade(P('p-one'), { ...okD, answer: `Появилось: ${Q.bt7c} — не назван.`,
     turns: [[peekUse, readPlan, readCopy(BT7)]], snaps: [{ [PLAN_ALL]: one }] }), true);
   const oneBad = datedPlan([dl[0], dl[1].replace('10:00', '11:00'), ...dl.slice(2)], '2026-01-01', [BT7_ITEMS[0]])
-    .replace(HAND, 'Списывать ли при гарантии').replace(GOAL_OWN, 'БТ');
+    .replace(HAND, 'Списывать ли при гарантии').replace(GOAL_OWN, 'БТ').replace('закрыто 2026-11-12', 'закрыто 2026-01-01');
   checkBad('изменился один, плохой', [grade(P('p-one'), { ...badD, answer: 'План обновлён.',
     turns: [[peekUse, ...DATED_DOCS.map(readCopy)]], snaps: [{ [PLAN_ALL]: oneBad }] })]);
   check('пропал документ, хороший', grade(P('p-gone'), { ...okD, answers: [gone], snaps: [{ [PLAN_ALL]: PD }] }), true);
