@@ -13,7 +13,7 @@
 // скиллы — в `me/.claude/skills/`, `.claude/` и `.coddoc-tmp/` — в `.git/info/exclude`. Оценка — по файлам плана после
 // каждого хода и по потоку, после ВСЕХ прогонов; цена прогона — максимум total_cost_usd по его потокам.
 
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, appendFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, appendFileSync, utimesSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,7 @@ const Q = {
   bt9b: 'Как часто выгружать остатки',
   cr1: 'С какой даты действует новый лимит',
   cr2: 'Распространяется ли лимит на расходники',
+  bt7c: 'Кто подписывает акт списания',
 };
 const GOAL_RERUN = 'БТ влит, спека согласована с Голубевым';
 const GOAL_OWN = 'Согласовать списание с Голубевым до 25.11';  // своя цель в ответ на гипотезу
@@ -101,6 +102,39 @@ const CR = '---\ntype: change-request\ntask: INV-8\nsource: документа �
 const PLAN9_OLD = `# План: INV-9\n\nобновлён: 2026-11-13\nглавная: ${BASE}\nцель: БТ и спека влиты\n\n## Документы\n` +
   `- ${BT9} · feature/inv-9 · открытых: 1\n\n## Дела\n1. ${Q.bt9} — не подтверждено. — ждём: — · ${BT9}, пункт 1\n`;
 
+// План с датами (1.5.0) «Склад»: четыре документа, у дела ноута — ручная правка сути человеком (HAND).
+const HAND = 'Списывать ли запчасть при действующей гарантии — дожать до пятницы';
+const BT7_ITEMS = [[`Кто утверждает списание дороже 50 000 ₽ · БТ INV-7 п.1`, `${Q.bt7a} — не назван.`],
+  [`Срок хранения списанных запчастей · БТ INV-7 п.2`, `${Q.bt7b} — не назван.`]];
+const BT9_ITEM = [`Нужна ли выгрузка остатков в 1С · БТ INV-9 п.1`, `${Q.bt9} — не подтверждено.`];
+const datedGroups = (bt7, bt9 = [BT9_ITEM]) => [
+  ['Голубев А.', [[`${HAND} · списание-запчастей 2026-11-10 №1.1`, Q.nb1]]],
+  ['Ваши дела', [[`Проверить, нужна ли подпись кладовщика на акте (сверить с актом формы) · списание-запчастей 2026-11-10 №1.2`, Q.nb2]]],
+  ['Без адресата', [...bt7, ...bt9, [`Какой сервис хранит фото списанной запчасти · спека INV-7 п.1`, `❓ TBD: ${Q.spec7}.`]]]];
+const DATED_DOCS = [BT7, BT9, SPEC7, NB];
+// p-step3: план INV-7 без БТ INV-9; в работе появился запрос на правку той же инициативы — Шаг 3 дописывает его в файл.
+const CR7 = 'coddoc/INV-7/change_request.md';
+const STEP3_DOCS = [BT7, SPEC7, NB];
+const step3Plan = (docs, updated = '2026-11-19') =>
+  planText({ name: 'INV-7', updated, goal: GOAL_RERUN, docs, groups: datedGroups(BT7_ITEMS, []) });
+/** Раздел «Закрыто» (1.6.0): items — [[суть · откуда, оригинал, дата], …]; пусто — раздела нет. */
+const closedSection = (items) => (items.length ? '\n## Закрыто\n' +
+  items.map(([line, quote, date]) => `- ~~${line}~~ · закрыто ${date}\n  > ${quote}\n`).join('') : '');
+/** Файл плана формы 1.3.0+: groups — [[группа, [[суть · откуда, оригинал], …]], …]. */
+function planText({ name, updated, goal, docs, groups, closed = [] }) {
+  let k = 0;
+  const n = groups.reduce((a, [, items]) => a + items.length, 0);
+  return `# План: ${name}\n\nобновлён: ${updated}\nглавная: ${BASE}\nцель: ${goal}\n\n## Документы\n${docs.map((d) => `- ${d}\n`).join('')}\n` +
+    `## Дела\nВсего ${n}: ${groups.map(([g, items]) => `${g} — ${items.length}`).join(' · ')}\n\n` +
+    groups.map(([g, items]) => `### ${g} — ${items.length}\n` + items.map(([line, quote]) => `${++k}. ${line}\n   > ${quote}\n`).join('')).join('\n') +
+    closedSection(closed);
+}
+// В «Складе» уже есть «Закрыто»: вопрос ноута об износе закрыт 12.11 — пункт должен переноситься дословно.
+const CLOSED_NB = [`Как считать износ · списание-запчастей 2026-11-10 №1.3`, Q.nbClosed, '2026-11-12'];
+const datedPlan = (docs, updated = '2026-11-19', bt7 = BT7_ITEMS) =>
+  planText({ name: 'Склад', updated, goal: GOAL_OWN, docs, groups: datedGroups(bt7), closed: [CLOSED_NB] });
+const SETTINGS_15 = '# Слежка за планом работы\n\nслежка: каждые 15 минут\nрасписание: */15 * * * *\n';
+
 function gitIn(cwd, env, ...args) {
   return execFileSync('git', args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
 }
@@ -148,6 +182,13 @@ function seed(box, variant) {
     commit(irina, 'Ирина', '2026-11-14T10:00:00+03:00', 'INV-9: ещё вопрос');
   }
   g(irina, 'push', '-q', 'origin', 'feature/inv-9');
+  if (variant === 'dated-cr') {
+    g(irina, 'checkout', '-q', 'dev');
+    g(irina, 'checkout', '-q', '-b', 'feature/inv-7-cr');
+    put(irina, CR7, CR.replace(/INV-8/g, 'INV-7'));
+    commit(irina, 'Ирина', '2026-11-19T11:00:00+03:00', 'INV-7: запрос на правку');
+    g(irina, 'push', '-q', 'origin', 'feature/inv-7-cr');
+  }
   if (variant === 'add') {
     g(irina, 'checkout', '-q', 'dev');
     g(irina, 'checkout', '-q', '-b', 'feature/inv-8');
@@ -162,6 +203,7 @@ function seed(box, variant) {
   g(me, 'branch', '-q', 'feature/inv-3', 'origin/feature/inv-3');
   g(me, 'branch', '-q', 'feature/inv-9', 'origin/feature/inv-9');
   if (variant === 'add') g(me, 'branch', '-q', 'feature/inv-8', 'origin/feature/inv-8');
+  if (variant === 'dated-cr') g(me, 'branch', '-q', 'feature/inv-7-cr', 'origin/feature/inv-7-cr');
   g(me, 'checkout', '-q', '-b', 'feature/inv-7', 'origin/feature/inv-7');
   if (variant === 'add') put(me, `.coddoc-tmp/work-plan/${PLAN7}`, PLAN_RERUN);
   if (variant === 'pick') {
@@ -176,6 +218,35 @@ function seed(box, variant) {
   }
   put(me, SPEC7, SPEC('INV-7', [`❓ TBD: ${Q.spec7}.`]));  // новая спека — только на диске
   appendFileSync(join(me, '.git', 'info', 'exclude'), '.claude/\n.coddoc-tmp/\n');
+  if (variant.startsWith('dated')) {
+    // План «Склад» с датами — из строк настоящего peek --list (дата — в часовом поясе машины); у спеки на диске mtime
+    // закреплён, чтобы дата не зависела от минуты засева. Потом — «за время слежки»: один документ поменялся,
+    // ветка документа удалена или есть файл настроек.
+    const t = new Date('2026-11-14T09:00:00+03:00');
+    utimesSync(join(me, ...SPEC7.split('/')), t, t);
+    const peek = resolve(here, '..', 'peek', 'reference', 'peek.py');
+    const out = execFileSync(process.platform === 'win32' ? 'python' : 'python3', [peek, '--list', '--base', 'dev'],
+      { cwd: me, env: { ...env, PYTHONIOENCODING: 'utf-8' }, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
+    const lines = {};
+    for (const l of out.split(/\r?\n/).filter((x) => x.startsWith('  '))) {
+      const [, path, where, , date, open] = l.trim().split(' · ');
+      lines[path] = `${path} · ${where} · ${date} · ${open}`;
+    }
+    if (DATED_DOCS.some((d) => !lines[d])) throw new Error(`засев dated: peek не дал всех документов:\n${out}`);
+    if (variant === 'dated-cr') {
+      if (!lines[CR7]) throw new Error(`засев dated-cr: peek не дал запрос на правку:\n${out}`);
+      put(me, `.coddoc-tmp/work-plan/${PLAN7}`, step3Plan(STEP3_DOCS.map((d) => lines[d])));
+      return me;
+    }
+    put(me, `.coddoc-tmp/work-plan/${PLAN_ALL}`, datedPlan(DATED_DOCS.map((d) => lines[d])));
+    if (variant === 'dated-one') {
+      put(me, BT7, BT('INV-7', [`${Q.bt7a} — не назван.`, `${Q.bt7b} — не назван.`, `${Q.bt7c} — не назван.`]));
+      g(me, 'add', BT7);
+      execFileSync('git', ['commit', '-q', '-m', 'INV-7: ещё вопрос'], { cwd: me, stdio: 'ignore', env: as('Я', '2026-11-19T15:00:00+03:00') });
+    }
+    if (variant === 'dated-gone') g(me, 'branch', '-q', '-D', 'feature/inv-9');
+    if (variant === 'dated-set') put(me, '.coddoc-tmp/coddoc-settings/work-plan.md', SETTINGS_15);
+  }
   return me;
 }
 
@@ -214,8 +285,15 @@ function parsePlan(text) {
     else if (/^\d+\.\s/.test(l)) items.push({ group, line: l, quote: '' });
     else if (items.length && /^\s+>/.test(l)) items[items.length - 1].quote += l.replace(/^\s+>\s?/, '');
   }
+  // «Закрыто» 1.6.0: «- ~~<суть> · <откуда>~~ · закрыто <дата>», под ней «  > <оригинал>».
+  const closed = [];
+  for (const l of section('Закрыто')) {
+    if (l.startsWith('- ')) closed.push({ line: l, quote: '' });
+    else if (closed.length && /^\s+>/.test(l)) closed[closed.length - 1].quote += l.replace(/^\s+>\s?/, '');
+  }
   return {
     goal: value('цель'), updated: value('обновлён'), main: value('главная'),
+    closed, closedRaw: section('Закрыто').join('\n').trim(),
     docs: section('Документы').filter((l) => l.startsWith('- ')),
     summary: section('Дела').find((l) => l.startsWith('Всего')) ?? '',
     items,
@@ -236,8 +314,44 @@ const PROBES = [
     turns: ['/work-plan INV-7', 'Следим дальше.', { text: '/work-plan INV-7', fresh: true, before: (me) => writeFileSync(join(me, ...NB.split('/')), NB_NEXT) }] },
   { id: 'p-add', variant: 'add', turns: ['/work-plan INV-7 добавь', '1, 2'], fallback: 'Да.', done: (p) => p[PLAN7] !== PLAN_RERUN },
   { id: 'p-pick', variant: 'pick', turns: ['/work-plan', 'INV-9'], fallback: 'Да.', done: (p) => p[PLAN9] !== PLAN9_OLD },
+  // 1.5.0 — план с датами «Склад» (4 документа). Ответа «да» нет: ход — как тик слежки.
+  { id: 'p-same', variant: 'dated', turns: ['/work-plan Склад'], done: () => true },
+  { id: 'p-one', variant: 'dated-one', turns: ['/work-plan Склад'], done: () => true },
+  { id: 'p-gone', variant: 'dated-gone', turns: ['/work-plan Склад'], done: () => true },
+  // Вопрос висит, приходит тик — та же команда в той же сессии: не ответ.
+  { id: 'p-pending', variant: 'dated-gone', turns: ['/work-plan Склад', '/work-plan Склад'], done: () => true },
+  // stream — все ходы одним процессом (`--input-format stream-json`): задачи cron живут только в процессе.
+  { id: 'p-follow', variant: 'dated', stream: true, turns: ['/work-plan Склад следи', '/work-plan Склад следи'] },
+  { id: 'p-stop', variant: 'dated', stream: true, turns: ['/work-plan Склад следи', '/work-plan стоп'] },
+  { id: 'p-follow-set', variant: 'dated-set', turns: ['/work-plan Склад следи'], done: () => true },
+  // Шаг 3 дописывает выбранный документ в существующий план INV-7 (без «добавь»): быстрого пути нет.
+  { id: 'p-step3', variant: 'dated-cr', turns: ['/work-plan', 'Новый план.', 'Да.', 'Только запрос на правку INV-7.'],
+    fallback: 'Да.', done: (p) => (p[PLAN7] ?? '').includes(CR7) },
 ];
+const DATED_PROBES = ['p-same', 'p-one', 'p-gone', 'p-pending', 'p-follow', 'p-stop', 'p-follow-set', 'p-step3'];
+
+/** Какие документы плана прочитаны из копий: Read/Grep по пути, Bash (не peek.py) с путём документа в команде. */
+function docReads(uses) {
+  const out = new Set();
+  for (const u of uses) {
+    const text = (u.name === 'Read' ? String(u.input?.file_path ?? '') : u.name === 'Grep' ? String(u.input?.path ?? '')
+      : ['Bash', 'PowerShell'].includes(u.name) ? String(u.input?.command ?? '') : '').replace(/\\/g, '/');
+    if (!text || (u.name !== 'Read' && text.includes('peek.py'))) continue;
+    for (const d of DATED_DOCS) if (text.includes(d)) out.add(d);
+    if (u.name === 'Grep' && /peek\/list\/?$/.test(text)) out.add('вся папка копий');
+  }
+  return out;
+}
+const cronCalls = (uses, name) => uses.filter((u) => u.name === name);
+const asksGone = (text) => /закончили/i.test(text) && /следим/i.test(text) && text.includes('INV-9');
 const turnOf = (t) => (typeof t === 'string' ? { text: t } : t);
+// Повтор INV-7: закрылись оба вопроса БТ и вопрос ноута о подписи; открыты гарантия и «кто забирает».
+const CLOSED_KEYS = ['50 000', 'хранени', 'кладовщик'], OPEN_KEYS = ['гаранти', 'забира'];
+const closedHas = (plan, k) => plan.closed.some((c) => `${c.line} ${c.quote}`.toLowerCase().includes(k));
+const closedThree = (plan) => plan.closed.length === 3 && CLOSED_KEYS.every((k) => closedHas(plan, k))
+  && !OPEN_KEYS.some((k) => closedHas(plan, k));
+const struckToday = (plan) => plan.closed.length > 0
+  && plan.closed.every((c) => (c.line.match(/^- ~~.+~~ · закрыто (\d{4}-\d{2}-\d{2})\s*$/) ?? [])[1] === TODAY);
 
 /** run: { cmds, snaps: [планы после каждого хода], answer (последний ход), answers (по ходам), intact, loaded } */
 function grade(probe, run) {
@@ -251,6 +365,80 @@ function grade(probe, run) {
     'репозиторий цел': run.intact,
   };
   const fromBase = run.cmds.some((c) => c.includes('peek.py') && c.includes('--base') && c.includes('dev'));
+  if (DATED_PROBES.includes(probe.id)) {
+    const before = (run.initial ?? {})[PLAN_ALL];
+    const all = (run.turns ?? []).flat();
+    const [t1 = [], t2 = []] = run.turns ?? [];
+    const untouched = last[PLAN_ALL] === before && Object.keys(last).length === 1;
+    if (probe.id === 'p-same') {
+      marks['файл не тронут'] = untouched;
+      marks['документы не читались'] = docReads(all).size === 0;
+      marks['одна строка «без изменений»'] = /без изменений/i.test(run.answer)
+        && run.answer.trim().split('\n').filter((l) => l.trim()).length <= 2;
+    } else if (probe.id === 'p-one') {
+      const p = parsePlan(last[PLAN_ALL]), p0 = parsePlan(before);
+      const reads = docReads(all);
+      marks['прочитан только изменённый'] = reads.size === 1 && reads.has(BT7);
+      marks['строка БТ INV-7: новая дата и N'] = has(p.docs[0] ?? '', BT7) && has(p.docs[0], 'открытых: 3') && has(p.docs[0], '2026-11-19');
+      marks['остальные строки документов как были'] = p.docs.length === 4 && p.docs.slice(1).join('\n') === p0.docs.slice(1).join('\n');
+      marks['дела INV-7: три, без адресата'] = [Q.bt7a, Q.bt7b, Q.bt7c]
+        .every((q) => p.items.some((t) => t.quote.includes(q) && t.group.startsWith('Без адресата')));
+      const bare = (line) => line.replace(/^\d+\.\s+/, '');
+      marks['дела остальных дословно'] = p0.items.filter((t) => ![Q.bt7a, Q.bt7b].some((q) => t.quote.includes(q)))
+        .every((o) => p.items.some((t) => t.quote === o.quote && bare(t.line) === bare(o.line) && t.group.split(' — ')[0] === o.group.split(' — ')[0]));
+      marks['ручная правка цела'] = p.items.some((t) => t.line.includes(HAND));
+      marks['всего 7'] = p.items.length === 7 && p.summary.startsWith('Всего 7');
+      marks['цель и главная как были'] = p.goal === GOAL_OWN && p.main === BASE;
+      marks['обновлён сегодня'] = p.updated === TODAY;
+      marks['отчёт: появилось'] = run.answer.toLowerCase().includes(Q.bt7c.toLowerCase());
+      marks['«Закрыто» байт в байт'] = p0.closedRaw !== '' && p.closedRaw === p0.closedRaw;
+    } else if (probe.id === 'p-gone') {
+      marks['спросил «закончили или следим»'] = asksGone(run.answers[0] ?? '');
+      marks['план не изменён до ответа'] = untouched;
+    } else if (probe.id === 'p-pending') {
+      marks['ход 1: спросил'] = asksGone(run.answers[0] ?? '');
+      marks['ход 2 (тик): спросил снова'] = asksGone(run.answers[1] ?? '');
+      marks['тик — не ответ: план не изменён'] = untouched;
+    } else if (probe.id === 'p-follow') {
+      const make = cronCalls(t1, 'CronCreate');
+      const at = (name) => t1.findIndex((u) => u.name === name);
+      marks['ход 1: CronList до CronCreate'] = at('CronList') >= 0 && at('CronList') < at('CronCreate');
+      marks['ход 1: одна задача, */10, промпт плана'] = make.length === 1 && make[0].input?.cron === '*/10 * * * *'
+        && String(make[0].input?.prompt ?? '').trim() === '/work-plan Склад' && make[0].input?.recurring !== false;
+      marks['ход 1: «Слежу …», команда стоп'] = (run.answers[0] ?? '').includes('Слежу') && (run.answers[0] ?? '').includes('/work-plan стоп');
+      marks['ход 2: «уже слежу», второй задачи нет'] = cronCalls(t2, 'CronCreate').length === 0 && /уже слежу/i.test(run.answers[1] ?? '');
+      marks['файл не тронут'] = untouched;
+    } else if (probe.id === 'p-stop') {
+      const make = cronCalls(t1, 'CronCreate');
+      const id = (String(make[0]?.result ?? '').match(/\b([0-9a-f]{8})\b/) ?? [])[1];
+      marks['ход 1: задача поставлена'] = make.length === 1 && String(make[0].input?.prompt ?? '').trim() === '/work-plan Склад';
+      marks['ход 2: найдена через CronList, снята'] = cronCalls(t2, 'CronList').length > 0 && !!id
+        && cronCalls(t2, 'CronDelete').some((u) => Object.values(u.input ?? {}).includes(id));
+      marks['ход 2: новой задачи нет'] = cronCalls(t2, 'CronCreate').length === 0;
+      marks['ход 2: «снята»'] = /снят/i.test(run.answers[1] ?? '');
+    } else if (probe.id === 'p-step3') {
+      const p = parsePlan(last[PLAN7]), p0 = parsePlan((run.initial ?? {})[PLAN7]);
+      const bare = (line) => line.replace(/^\d+\.\s+/, '');
+      marks['один план, переписан'] = Object.keys(last).join() === PLAN7 && last[PLAN7] !== (run.initial ?? {})[PLAN7];
+      marks['запрос на правку — в «Документах» в конце'] = p.docs.length === 4 && has(p.docs[3], CR7)
+        && p.docs.slice(0, 3).join('\n') === p0.docs.join('\n');
+      marks['дела запроса на правку'] = [Q.cr1, Q.cr2].every((q) => p.items.some((t) => t.quote.includes(q)));
+      marks['остальные дела дословно'] = p0.items.length === 5
+        && p0.items.every((o) => p.items.some((t) => t.quote === o.quote && bare(t.line) === bare(o.line)));
+      marks['ручная правка цела'] = p.items.some((t) => t.line.includes(HAND));
+      marks['INV-9 не взят'] = !p.docs.some((l) => has(l, BT9));
+      marks['цель как была'] = p.goal === GOAL_RERUN;
+      marks['обновлён сегодня'] = p.updated === TODAY;
+      marks['не «без изменений»'] = !/без изменений/i.test(run.answer);
+    } else {
+      const make = cronCalls(all, 'CronCreate');
+      marks['расписание из настроек дословно'] = make.length === 1 && make[0].input?.cron === '*/15 * * * *'
+        && String(make[0].input?.prompt ?? '').trim() === '/work-plan Склад';
+      marks['строка: каждые 15 минут'] = run.answer.includes('каждые 15 минут');
+      marks['файл не тронут'] = untouched;
+    }
+    return marks;
+  }
   if (['p-create', 'p-split', 'p-merge'].includes(probe.id)) {
     const first = run.answers[0] ?? '';
     marks['спросил главную ветку'] = Object.keys(run.snaps[0] ?? {}).length === 0 && first.includes('main') && first.includes('?');
@@ -283,6 +471,7 @@ function grade(probe, run) {
     marks['источник коротко'] = has(item(Q.bt7a).line, 'БТ INV-7 п.1') && has(item(Q.nb1).line, '2026-11-10 №1.1')
       && !p.items.some((t) => has(t.line, 'coddoc/') || has(t.line, 'notebook.md'));
     marks['закрытое не взято'] = !taskWith(p, Q.nbClosed);
+    marks['нет раздела «Закрыто»'] = !(last[PLAN7] ?? '').includes('## Закрыто');
   } else if (probe.id === 'p-split' || probe.id === 'p-merge') {
     const asked = run.answers[2] ?? '';
     marks['спросил разбивку до записи'] = Object.keys(run.snaps[2] ?? {}).length === 0 && asked.includes('INV-7') && asked.includes('INV-9');
@@ -313,6 +502,8 @@ function grade(probe, run) {
     marks['второй запуск: не переспросил'] = run.snaps.length === 3 && !/закончили[^.\n]*\?|следим дальше\?/i.test(run.answer);
     marks['второй запуск: пометка осталась'] = watched(btLine(p));
     marks['второй запуск: новое дело'] = p.tasks.length === 3 && [Q.nb1, Q.nbNew, Q.nbNext].every((q) => taskWith(p, q));
+    marks['«следим»: в «Закрыто» три закрывшихся'] = closedThree(mid);
+    marks['второй запуск: «Закрыто» дословно'] = mid.closedRaw !== '' && p.closedRaw === mid.closedRaw;
     marks['цель как была'] = p.goal === GOAL_RERUN;
     marks['один план'] = Object.keys(last).length === 1;
   } else if (probe.id === 'p-add') {
@@ -356,8 +547,12 @@ function grade(probe, run) {
     // План был в форме 1.2.0 (дело — одна строка): переписан в 1.3.0, и оставшееся дело не названо закрытым или новым
     // («осталось: …» — можно).
     marks['переписан в новую форму'] = p.items.length === 2 && p.items.every((t) => t.group && t.quote);
-    marks['оставшееся — не «закрылось» и не «появилось»'] = !said.split('\n')
+    // По предложениям: «…закрылся …, появился … . Вопрос про гарантию остался.» — одна строка, но гарантия названа
+    // оставшейся. Конец предложения — «.» или «;» перед пробелом или в конце: точки в путях и датах не режут.
+    marks['оставшееся — не «закрылось» и не «появилось»'] = !said.split(/\n|[.;](?=\s|$)/)
       .some((l) => /закрыл|появил/.test(l) && l.includes('гаранти'));
+    marks['«Закрыто»: три закрывшихся, открытых нет'] = closedThree(p);
+    marks['«Закрыто»: зачёркнуто, дата сегодня'] = struckToday(p);
     marks['список от главной из файла'] = fromBase;
     marks['главная как была'] = p.main === BASE;
     marks['влитое не в отчёте'] = !run.answer.includes('INV-3');
@@ -401,7 +596,7 @@ function selftest() {
       [`Какой сервис хранит фото · спека INV-7 п.1`, `❓ TBD: ${Q.spec7}.`]]]]);
   check('создание, хороший', grade(P('p-create'), { ...ok, snaps: [{}, {}, {}, { [PLAN7]: create }] }), true);
   const badCreate = plan('БТ', [`${BT7}`, `${BT9}`], [`${Q.nbClosed} — ждём: Голубев`, 'Кто утверждает списание'], '')
-    .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
+    .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12') + '\n## Закрыто\n';
   const bad = { cmds: ['git checkout main', 'git log --all'], answer: 'Готово.',
     answers: ['Готово.', '1. INV-3 · coddoc/INV-3/…', 'Готово.', 'Готово.'], intact: false, loaded: false };
   const many = { [PLAN7]: badCreate, [PLAN9]: 'x' };
@@ -418,11 +613,24 @@ function selftest() {
   check('в один, хороший', grade(P('p-merge'), { ...okSplit, snaps: [{}, {}, {}, {}, { [PLAN_ALL]: all }] }), true);
   checkBad('в один, плохой', [grade(P('p-merge'), { ...bad, snaps: [{ [PLAN7]: create }, { [PLAN7]: create }] }),
     grade(P('p-merge'), { ...bad, snaps: [{}, {}, {}, {}, { [PLAN_ALL]: badCreate }] })]);
+  const RERUN_CLOSED = closedSection([[`Кто утверждает списание дороже 50 000 ₽ · БТ INV-7 п.1`, `${Q.bt7a} — не назван.`, TODAY],
+    [`Срок хранения списанных запчастей · БТ INV-7 п.2`, `${Q.bt7b} — не назван.`, TODAY],
+    [`Проверить, нужна ли подпись кладовщика · списание-запчастей 2026-11-10 №1.2`, Q.nb2, TODAY]]);
   const rerun = plan13(GOAL_RERUN, [`${NB} · рабочая копия · открытых: 2`], [
     ['Голубев А.', [[`Списывать ли при гарантии · списание-запчастей 2026-11-10 №1.1`, Q.nb1]]],
-    ['Сидоров П.', [[`Кто забирает списанное · списание-запчастей 2026-11-17 №1.2`, Q.nbNew]]]]);
+    ['Сидоров П.', [[`Кто забирает списанное · списание-запчастей 2026-11-17 №1.2`, Q.nbNew]]]]) + RERUN_CLOSED;
   const answer = `Закрылось: ${Q.bt7a}; ${Q.bt7b}; ${Q.nb2}. Появилось: ${Q.nbNew}. Ещё 2 документа — добавить: /work-plan INV-7 добавь`;
   check('повтор, хороший', grade(P('p-rerun'), { ...ok, answer, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
+  const answerOneLine = `Убран БТ ${BT7} — его дела закрылись: «${Q.bt7a}» и «${Q.bt7b}». Ноут обновился: вопрос о подписи ` +
+    `кладовщика закрылся, появился новый вопрос «${Q.nbNew}». Вопрос про гарантию остался. Ещё 2 документа — добавить: /work-plan INV-7 добавь`;
+  check('повтор, хороший — всё одной строкой', grade(P('p-rerun'), { ...ok, answer: answerOneLine,
+    snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] }), true);
+  // Пара к нему: гарантия названа закрытой в той же строке, рядом путь с точками — красный.
+  const keptMark = 'оставшееся — не «закрылось» и не «появилось»';
+  const closedOneLine = answerOneLine.replace('Вопрос про гарантию остался.', `Ноут ${NB} от 2026-11-20: вопрос про гарантию закрылся.`);
+  if (grade(P('p-rerun'), { ...ok, answer: closedOneLine, snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: rerun }] })[keptMark] !== false) {
+    fails++; console.log(`  ✗ повтор, плохой — гарантия «закрылась» одной строкой: «${keptMark}» не пойман`);
+  }
   const badRerun = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`, `${SPEC7} · рабочая копия · открытых: 1`],
     [`${Q.nb2} — ждём: —`], '').replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-12');
   checkBad('повтор, плохой', [
@@ -431,9 +639,10 @@ function selftest() {
 
   const nbTask = (q, who, n) => `${q} — ждём: ${who} · ${NB}, ${n}`;
   const watchDocs = (n) => [`${BT7} · feature/inv-7 · открытых: 0 · следим`, `${NB} · рабочая копия · открытых: ${n}`];
-  const watchMid = plan(GOAL_RERUN, watchDocs(2), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2')]);
+  const watchMid = plan(GOAL_RERUN, watchDocs(2), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'), nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2')])
+    + RERUN_CLOSED;
   const watchEnd = plan(GOAL_RERUN, watchDocs(3), [nbTask(Q.nb1, 'Голубев А.', '2026-11-10 №1.1'),
-    nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2'), nbTask(Q.nbNext, 'Сидоров П.', '2026-11-18 №1.1')]);
+    nbTask(Q.nbNew, 'Сидоров П.', '2026-11-17 №1.2'), nbTask(Q.nbNext, 'Сидоров П.', '2026-11-18 №1.1')]) + RERUN_CLOSED;
   check('следим, хороший', grade(P('p-watch'), { ...ok, answer: `План обновлён. Появилось: ${Q.nbNext}.`,
     snaps: [{ [PLAN7]: PLAN_RERUN }, { [PLAN7]: watchMid }, { [PLAN7]: watchEnd }] }), true);
   const watchBad = plan('БТ и спека влиты', [`${BT7} · feature/inv-7 · открытых: 0`], [nbTask(Q.nb1, '—', '')]);
@@ -459,6 +668,66 @@ function selftest() {
     .replace(`обновлён: ${TODAY}`, 'обновлён: 2026-11-13');
   checkBad('выбор плана, плохой', [grade(P('p-pick'), { ...bad,
     snaps: [{ [PLAN7]: create }, { [PLAN7]: create, [PLAN9]: pickBad }, { [PLAN7]: create, [PLAN9]: pickBad }] })]);
+  // 1.5.0: план с датами, быстрый путь, выборочное обновление, слежка.
+  const dl = [`${BT7} · feature/inv-7 · 2026-11-12 10:00 · открытых: 2`, `${BT9} · feature/inv-9 · 2026-11-13 10:00 · открытых: 1`,
+    `${SPEC7} · рабочая копия · 2026-11-14 09:00 · открытых: 1`, `${NB} · origin/dev · 2026-11-10 10:00 · открытых: 2`];
+  const PD = datedPlan(dl);
+  const peekUse = { name: 'Bash', input: { command: 'python .claude/skills/work-plan/../peek/reference/peek.py --list --base dev' } };
+  const readPlan = { name: 'Read', input: { file_path: 'C:\\box\\me\\.coddoc-tmp\\work-plan\\Склад.md' } };
+  const readCopy = (d) => ({ name: 'Read', input: { file_path: `C:\\box\\me\\.coddoc-tmp\\peek\\list\\${d.replace(/\//g, '\\')}` } });
+  const okD = { ...ok, initial: { [PLAN_ALL]: PD } };
+  const badD = { ...bad, initial: { [PLAN_ALL]: PD } };
+  const gone = 'По coddoc/INV-9/business_requirements.md (INV-9) открытых вопросов в работе больше нет. Закончили с ним или следим дальше?';
+  check('без изменений, хороший', grade(P('p-same'), { ...okD, answer: 'План Склад: без изменений с 2026-11-19',
+    turns: [[peekUse, readPlan]], snaps: [{ [PLAN_ALL]: PD }] }), true);
+  checkBad('без изменений, плохой', [grade(P('p-same'), { ...badD, answer: 'План обновлён.\nДел 6.\nЗакрылось: —',
+    turns: [[peekUse, readPlan, readCopy(BT9)]], snaps: [{ [PLAN_ALL]: PD + 'x' }] })]);
+  const one = datedPlan([`${BT7} · feature/inv-7 · 2026-11-19 15:00 · открытых: 3`, ...dl.slice(1)], TODAY,
+    [...BT7_ITEMS, [`Кто подписывает акт · БТ INV-7 п.3`, `${Q.bt7c} — не назван.`]]);
+  check('изменился один, хороший', grade(P('p-one'), { ...okD, answer: `Появилось: ${Q.bt7c} — не назван.`,
+    turns: [[peekUse, readPlan, readCopy(BT7)]], snaps: [{ [PLAN_ALL]: one }] }), true);
+  const oneBad = datedPlan([dl[0], dl[1].replace('10:00', '11:00'), ...dl.slice(2)], '2026-01-01', [BT7_ITEMS[0]])
+    .replace(HAND, 'Списывать ли при гарантии').replace(GOAL_OWN, 'БТ').replace('закрыто 2026-11-12', 'закрыто 2026-01-01');
+  checkBad('изменился один, плохой', [grade(P('p-one'), { ...badD, answer: 'План обновлён.',
+    turns: [[peekUse, ...DATED_DOCS.map(readCopy)]], snaps: [{ [PLAN_ALL]: oneBad }] })]);
+  check('пропал документ, хороший', grade(P('p-gone'), { ...okD, answers: [gone], snaps: [{ [PLAN_ALL]: PD }] }), true);
+  checkBad('пропал документ, плохой', [grade(P('p-gone'), { ...badD, answers: ['План обновлён, INV-9 убран.'], snaps: [{ [PLAN_ALL]: PD + 'x' }] })]);
+  check('висящий вопрос, хороший', grade(P('p-pending'), { ...okD, answers: [gone, gone], snaps: [{ [PLAN_ALL]: PD }, { [PLAN_ALL]: PD }] }), true);
+  checkBad('висящий вопрос, плохой', [grade(P('p-pending'), { ...badD, answers: ['План обновлён.', 'Убрал INV-9.'],
+    snaps: [{ [PLAN_ALL]: PD }, { [PLAN_ALL]: PD + 'x' }] })]);
+  const make = (cron, prompt = '/work-plan Склад', result = 'Scheduled recurring job 6979cba8 (Every 10 minutes).') =>
+    ({ name: 'CronCreate', input: { cron, prompt, recurring: true }, result });
+  const list = { name: 'CronList', input: {} };
+  const follow1 = 'План Склад: без изменений с 2026-11-19\nСлежу за планом Склад каждые 10 минут, пока открыта эта сессия; ' +
+    'после перезапуска — снова /work-plan следи. Остановить — /work-plan стоп';
+  check('следи, хороший', grade(P('p-follow'), { ...okD, answers: [follow1, 'Уже слежу за планом Склад. Остановить — /work-plan стоп'],
+    turns: [[peekUse, readPlan, list, make('*/10 * * * *')], [peekUse, list]], snaps: [{ [PLAN_ALL]: PD }] }), true);
+  checkBad('следи, плохой', [grade(P('p-follow'), { ...badD, answers: ['Готово.', 'Слежу за планом.'],
+    turns: [[make('*/5 * * * *', '/work-plan'), list], [make('*/10 * * * *')]], snaps: [{ [PLAN_ALL]: PD + 'x' }] })]);
+  check('стоп, хороший', grade(P('p-stop'), { ...okD, answers: [follow1, 'Слежка за планом Склад снята'],
+    turns: [[peekUse, list, make('*/10 * * * *')], [list, { name: 'CronDelete', input: { id: '6979cba8' } }]], snaps: [{ [PLAN_ALL]: PD }] }), true);
+  checkBad('стоп, плохой', [grade(P('p-stop'), { ...badD, answers: ['', 'Готово.'],
+    turns: [[make('*/10 * * * *', '/work-plan x'), make('*/10 * * * *')], [{ name: 'CronDelete', input: { id: 'deadbeef' } }, make('*/10 * * * *')]],
+    snaps: [{ [PLAN_ALL]: PD }] })]);
+  check('следи с настройкой, хороший', grade(P('p-follow-set'), { ...okD, answer: follow1.replace('10 минут', '15 минут'),
+    turns: [[peekUse, list, make('*/15 * * * *')]], snaps: [{ [PLAN_ALL]: PD }] }), true);
+  checkBad('следи с настройкой, плохой', [grade(P('p-follow-set'), { ...badD, answer: follow1,
+    turns: [[make('*/10 * * * *')]], snaps: [{ [PLAN_ALL]: PD + 'x' }] })]);
+  const s3dl = [dl[0], dl[2], dl[3]];
+  const S3 = step3Plan(s3dl);
+  const s3Good = planText({ name: 'INV-7', updated: TODAY, goal: GOAL_RERUN,
+    docs: [...s3dl, `${CR7} · feature/inv-7-cr · 2026-11-19 11:00 · открытых: 2`],
+    groups: [datedGroups(BT7_ITEMS, [])[0], datedGroups(BT7_ITEMS, [])[1],
+      ['Без адресата', [...datedGroups(BT7_ITEMS, [])[2][1], [`С какой даты новый лимит · запрос на правку INV-7 п.1`, `${Q.cr1}`],
+        [`Лимит на расходники · запрос на правку INV-7 п.2`, `${Q.cr2}`]]]] });
+  check('Шаг 3 в существующий план, хороший', grade(P('p-step3'), { ...ok, initial: { [PLAN7]: S3 },
+    answer: 'План INV-7 обновлён: 4 документа, 7 дел. Появилось: …', snaps: [{}, {}, {}, { [PLAN7]: s3Good }] }), true);
+  checkBad('Шаг 3 в существующий план, плохой', [
+    grade(P('p-step3'), { ...bad, initial: { [PLAN7]: S3 }, answer: 'План INV-7: без изменений с 2026-11-19', snaps: [{ [PLAN7]: S3 }] }),
+    grade(P('p-step3'), { ...bad, initial: { [PLAN7]: S3 }, answer: 'Готово.', snaps: [{ [PLAN7]: S3, x: '' }] }),
+    grade(P('p-step3'), { ...bad, initial: { [PLAN7]: S3 }, answer: 'Готово.',
+      snaps: [{ [PLAN7]: planText({ name: 'INV-7', updated: '2026-01-01', goal: 'БТ', docs: [`${CR7} · x`, ...s3dl, `${BT9} · y`],
+        groups: [['Без адресата', [[`x · y`, Q.bt7a]]]] }).replace(HAND, '') }] })]);
   console.log(fails ? `оценщик: провалов ${fails}` : 'оценщик: хорошие данные — всё ✓, плохие — пойман каждый пункт');
   return fails;
 }
@@ -478,6 +747,36 @@ function runClaude(cwd, prompt, model, out, file, sid = null) {
     const timer = setTimeout(() => p.kill(), 900_000);
     p.on('close', (code) => { clearTimeout(timer); writeFileSync(join(out, file), stdout); writeFileSync(join(out, `_stderr-${file}.log`), stderr); done(code); });
   });
+}
+
+// Все ходы — одним процессом: сообщения пользователя строками stream-json в stdin (задачи cron живут, пока жив процесс).
+function runClaudeStream(cwd, texts, model, out, file) {
+  return new Promise((done) => {
+    const p = spawn('bash', ['-c', 'claude -p --input-format stream-json --model "$PROBE_MODEL" --permission-mode bypassPermissions --output-format stream-json --verbose'],
+      { cwd, env: { ...process.env, PROBE_MODEL: model, MSYS_NO_PATHCONV: '1', MSYS2_ARG_CONV_EXCL: '*' }, stdio: ['pipe', 'pipe', 'pipe'] });
+    let stdout = '', stderr = '';
+    p.stdout.on('data', (d) => { stdout += d; });
+    p.stderr.on('data', (d) => { stderr += d; });
+    p.stdin.end(texts.map((t) => JSON.stringify({ type: 'user', message: { role: 'user', content: t } })).join('\n') + '\n');
+    const timer = setTimeout(() => p.kill(), 1_200_000);
+    p.on('close', (code) => { clearTimeout(timer); writeFileSync(join(out, file), stdout); writeFileSync(join(out, `_stderr-${file}.log`), stderr); done(code); });
+  });
+}
+
+/** Вызовы инструментов ведущего по ходам (ход кончается событием result), у каждого — текст результата. */
+function turnsOf(ev) {
+  const results = {};
+  for (const e of ev) if (e.type === 'user') for (const c of e.message?.content ?? []) {
+    if (c.type === 'tool_result') results[c.tool_use_id] = typeof c.content === 'string' ? c.content : JSON.stringify(c.content);
+  }
+  const turns = [[]];
+  for (const e of ev) {
+    if (e.type === 'result') { turns.push([]); continue; }
+    if (e.type !== 'assistant' || e.parent_tool_use_id) continue;
+    for (const c of e.message?.content ?? []) if (c.type === 'tool_use') turns[turns.length - 1].push({ name: c.name, input: c.input ?? {}, result: results[c.id] ?? '' });
+  }
+  if (!turns[turns.length - 1].length) turns.pop();
+  return turns;
 }
 
 const events = (path) => readFileSync(path, 'utf8').split(/\r?\n/).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
@@ -515,8 +814,12 @@ async function main() {
       for (const s of SKILLS) cpSync(join(roundDir, '_skills', s), join(me, '.claude', 'skills', s), { recursive: true });
       let before = state(me);
       const t0 = Date.now();
-      job.snaps = []; job.codes = [];
-      const replies = [...job.probe.turns, job.probe.fallback].map(turnOf);
+      job.snaps = []; job.codes = []; job.initial = plans(me);
+      const replies = job.probe.stream ? [] : [...job.probe.turns, job.probe.fallback].map(turnOf);
+      if (job.probe.stream) {
+        job.codes.push(await runClaudeStream(me, job.probe.turns, model, out, 'stream-1.jsonl'));
+        job.snaps.push(plans(me));
+      }
       let sid = null;
       for (let t = 0; t < replies.length; t++) {
         if (t === replies.length - 1 && job.probe.done(plans(me))) break;  // «да» — только если планы не готовы
@@ -559,7 +862,7 @@ async function main() {
       const loaded = (init.skills ?? []).includes('work-plan') && cmds.length > 0 && cmds[0].includes('peek.py') && cmds[0].includes('--list');
       total += cost;
       const answers = results.map((r) => String(r.result ?? ''));
-      const marks = grade(probe, { cmds, snaps: job.snaps, answer, answers, intact: job.intact, loaded });
+      const marks = grade(probe, { cmds, snaps: job.snaps, answer, answers, intact: job.intact, loaded, initial: job.initial, turns: turnsOf(ev) });
       const bad = Object.entries(marks).filter(([, v]) => !v).map(([k]) => k);
       report.push(`run-${String(job.i).padStart(2, '0')}: ${bad.length ? '✗ ' + bad.join(', ') : '✓ всё'} · $${cost.toFixed(3)} · ходов ${job.codes.length} · ${Math.round(job.ms / 1000)} с`);
       report.push(`  ответы хода: ${results.map((r) => String(r.result ?? '').replace(/\s+/g, ' ').slice(0, 220)).join(' ⏎ ')}`);

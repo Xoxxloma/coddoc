@@ -307,6 +307,52 @@ def main():
                           script=broken / "settings.py")
     expect(code == 1 and last == "coddoc-settings: error no-skill" and "technical-spec-doc" in out, f"нет SKILL.md: {out}")
 
+    # Слежка за планом (work-plan следи): интервал из списка → строка cron; без файла — каждые 10 минут.
+    watch = folder / "work-plan.md"
+    bt.unlink()  # битый файл разделов от случаев выше
+    code, out, last = run(repo, "show")
+    expect(code == 0 and "слежка за планом: каждые 10 минут — по умолчанию" in out, f"show слежки без файла: {out}")
+    code, out, last = run(repo, "watch", "--every", "15m", "--dry-run")
+    expect(code == 0 and last.startswith("coddoc-settings: dry-run watch=15m path=") and last.endswith("/work-plan.md")
+           and "расписание: */15 * * * *" in out and not watch.exists(), f"watch --dry-run: {out}")
+    code, out, last = run(repo / "coddoc" / "AB-1", "watch", "--every", "15m")
+    expect(code == 0 and last.startswith("coddoc-settings: ok watch=15m ") and watch.read_bytes() == (
+        "# Слежка за планом работы\n\nслежка: каждые 15 минут\nрасписание: */15 * * * *\n").encode("utf-8"),
+        f"watch из подпапки — в корень: {out}")
+    code, out, last = run(repo, "show")
+    expect(code == 0 and "слежка за планом: каждые 15 минут (" in out, f"show слежки: {out}")
+    for args in (("check",), ("check", "watch")):
+        code, out, last = run(repo, *args)
+        expect(code == 0 and last == "coddoc-settings: check ok" and "слежка за планом: по форме" in out, f"{args}: {out}")
+    for every, cron in [("5m", "*/5 * * * *"), ("10m", "*/10 * * * *"), ("20m", "*/20 * * * *"),
+                        ("30m", "*/30 * * * *"), ("1h", "0 * * * *"), ("2h", "0 */2 * * *")]:
+        code, out, last = run(repo, "watch", "--every", every, "--dry-run")
+        expect(code == 0 and f"\nрасписание: {cron}\n" in out.replace("\r\n", "\n"), f"watch {every} → {cron}: {out}")
+    before = watch.read_bytes()
+    for args, code_name, label in [
+        (("--every", "7m"), "every", "интервал не из списка"),
+        (("--every", "3h"), "every", "часы не из списка"),
+        ((), "every", "без --every"),
+        (("--every",), "usage", "--every без значения"),
+        (("--every", "15m", "--name", "x"), "usage", "чужой аргумент"),
+    ]:
+        code, out, last = run(repo, "watch", *args)
+        expect(code == 1 and last == f"coddoc-settings: error {code_name}", f"watch, {label}: {out}")
+    expect(watch.read_bytes() == before, "после отказов watch файл не изменился")
+    watch.write_bytes("﻿# Слежка за планом работы\r\n\r\nслежка: каждый час\r\nрасписание: 0 * * * *\r\n".encode())
+    code, out, last = run(repo, "check", "watch")
+    expect(code == 0 and last == "coddoc-settings: check ok", f"check watch BOM/CRLF: {out}")
+    for content, label in [
+        ("# Слежка за планом работы\n\nслежка: каждые 15 минут\nрасписание: */10 * * * *\n", "пара разных интервалов"),
+        ("# Слежка за планом работы\n\nрасписание: */7 * * * *\n", "свой cron руками"),
+        ("слежка: каждые 15 минут\nрасписание: */15 * * * *\n", "нет заголовка"),
+    ]:
+        watch.write_text(content, encoding="utf-8")
+        code, out, last = run(repo, "check")
+        expect(code == 1 and last == "coddoc-settings: error bad-file", f"check watch, {label}: {out}")
+    code, out, last = run(repo, "watch", "--every", "10m")
+    expect(code == 0 and "расписание: */10 * * * *" in watch.read_text(encoding="utf-8"), f"watch поверх битого: {out}")
+
     # Без команды — подсказка.
     code, out, last = run(repo)
     expect(code == 1 and last == "coddoc-settings: error usage", f"без аргументов: {out}")
