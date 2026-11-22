@@ -1,0 +1,7 @@
+проба: ts-gaps-2t
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: yes-turn2.txt
+потолок ходов: 3
+конец диалога по файлу: /coddoc/.*/technical_specification\.md$
+прогонов: 5, параллельность: 3
