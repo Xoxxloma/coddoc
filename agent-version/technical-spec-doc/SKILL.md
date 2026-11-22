@@ -1,6 +1,6 @@
 ---
 name: technical-spec-doc
-version: 2.4.1
+version: 2.4.2
 user-invocable: false
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Agent
 description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ONE Russian Markdown technical spec (technical_specification.md, saved next to the БТ), organized around INTERACTIONS — the new and changed contracts crossing service or FE/BE boundaries — so a frontend agent and a backend agent code against the same contracts and meet without after-the-fact stitching. You read no code yourself: NEW things are designed fully (path, schema, JSON example); anything about an EXISTING service is written only as the analyst confirmed it — inventing an endpoint of a service you cannot see is the worst failure of this skill. Requires a ready БТ (or, by orchestrator flag, a bug report, a change request or an epic-БТ for foundation node #0): given only a brief or an idea it refuses and asks for the business requirements. Use when the БТ is ready and a dev spec is needed.'
@@ -12,7 +12,8 @@ description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ON
 
 1. **Нет подтверждённого документа сверху → не работай** (БТ; по флагу проводника — баг-репорт,
    запрос на правку, эпик-БТ для #0): единственный ответ — просьба дать БТ. Если документ
-   есть, первый ход всё равно = ТОЛЬКО вопросы по тех-гейтам; файл не пишешь.
+   есть, первый ход всё равно = ТОЛЬКО вопросы по тех-гейтам; файл не пишешь (доработка готовой спеки —
+   по «Refinement pass»).
 2. **Пиши спеку, ТОЛЬКО когда реестр (10 гейтов + номер задачи + Д1…Дn, если есть) чист:** каждый = ✅ либо
    ⏭️, ни одного ❓. (Реестр — Step 3.5.)
 3. **Спрашивай гипотезой, а не пустым полем; отвеченный гейт не переспрашивай ни в какой
@@ -467,8 +468,9 @@ ledger. This is what saves a wasted refinement round.
 
 **Last item of the gate — ALWAYS ask the task number (for the header),** even when you derived it
 from the БТ's folder name: the derivation only pre-fills a confirmable default («Номер задачи —
-`ARS-123` (из папки БТ)? Подтвердите или укажите верный»); nothing derivable → ask it open. Use the
-question tool, as with the other gates. *(В режимах по флагу номер берётся из шапки документа
+`ARS-123` (из папки БТ)? Подтвердите или укажите верный»); nothing derivable → ask it open, in text
+without options (see «Свободные значения» above). The derived default goes through the question tool,
+as with the other gates. *(В режимах по флагу номер берётся из шапки документа
 сверху и не спрашивается — см. файл режима.)*
 
 **Разбиения работы на этапы среди твоих гейтов нет** — его считает другой скилл по инвентарю
@@ -748,7 +750,7 @@ Only confirmed content is filled; unconfirmed → `TBD`/🟡-к-валидаци
 **Секции держи, но пустую секцию НЕ добивай выдумкой.** Нет подтверждённого/спроектированного
 контента — пиши `TBD`/🟡-к-валидации, не сочиняй правдоподобное, лишь бы заполнить. Особенно:
 не выписывай конкретные эндпоинты/поля/таймауты существующих сервисов как «предварительные» —
-это про 🟡, значит словами и «к валидации»; у 🔵 — только из источника метки.
+это про 🟡, значит словами; у 🔵 — только из источника метки.
 Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inline next to the relevant statements.
 
 ````markdown
@@ -758,7 +760,7 @@ Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inli
 > **Автор:** [логин того, кто пишет этот файл: вывод `whoami` (Linux, macOS, Windows); у `ДОМЕН\логин` — часть после `\`; команда не сработала — `—`. Файл уже был — список сохрани: твоего логина в нём нет (регистр не важен) — допиши через `, `; стоял `—` — замени]
 > **Источник (БТ):** [файл/название бизнес-требований, на которых основана спека]
 > **Редакция:** [N (ГГГГ-ММ-ДД): первая запись 1, доработка +1, строки не было — 2; дата этой записи — из окружения сессии или `date +%F`, не по памяти; не узнать — без скобок]
-> **Версия скилла:** [technical-spec-doc 2.4.1; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
+> **Версия скилла:** [technical-spec-doc 2.4.2; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
 >
 > **Статус готовности:** [Готово к разработке | Требуются уточнения (N)]
 > — **Заполняется последним** (Step 4). В момент записи файла здесь стоит `<ПРОСТАВЛЯЕТСЯ ПОСЛЕ ЗАПИСИ>`; значение подставляется, когда весь текст ниже уже написан и его можно перечитать. Механически, без суждения: в готовом тексте есть хоть один открытый ТЕХНИЧЕСКИЙ пункт (TBD / 🟡 / ⚠️)? → «Требуются уточнения». Ноль таких пунктов → «Готово к разработке». 🟡 ВСЕГДА даёт «Требуются уточнения» — не рассуждай, что он «не блокирует начало работ». (Два исключения, которые статус НЕ меняют: унаследованные из БТ бизнес-пробелы в §8 — они закрываются на стороне БТ; и 🔵#0 — этот контракт уже подтверждён на стороне узла-фундамента, он не открытый пункт.) 🔵 никогда не даёт «Требуются уточнения».

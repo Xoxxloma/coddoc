@@ -1,0 +1,50 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-22-ts242/_skills/technical-spec-doc.SKILL.md
+проба: ts-fix   фикстура: TS-FIX   скилл: technical-spec-doc
+реплика аналитика: fix-turn2.txt   ходов до 2 подряд без движения, потолок 3
+реплика хода 3: fix-yes-turn2.txt
+effort: умолчание CLI
+плечо: runs/2026-11-22-ts242/ts-fix
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-22-ts242-ts-fix-27303-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-FIX/fix-prompt.txt
+прогонов: 6, параллельно: 3
+  run-1 — уже есть, пропуск
+  run-2 — уже есть, пропуск
+  run-3 — уже есть, пропуск
+  run-5 — ходов: 3, строк в трассе: 0
+  run-5 — готов
+  run-4 — ходов: 3, строк в трассе: 0
+  run-4 — готов
+  run-6 — ходов: 3, строк в трассе: 0
+  run-6 — готов
+ГОТОВО: runs/2026-11-22-ts242/ts-fix — песочниц с ответом: 6 из 6
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-22-ts242-ts-fix-27303-skills (журнальная копия осталась в runs/2026-11-22-ts242/_skills/)
+runs/2026-11-22-ts242/ts-fix: $10.29 за 6 прогонов
+
+===== grade-fix
+node:fs:440
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open 'C:\Users\Konstantin\projects\product-skills\agent-version\_skill-eval\runs\2026-11-22-ts242\fixtures\TS-FIX\coddoc\PSS-2210\technical_specification.md'
+    at readFileSync (node:fs:440:20)
+    at file:///C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/grade-fix.mjs:127:14
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-11-22-ts242\\fixtures\\TS-FIX\\coddoc\\PSS-2210\\technical_specification.md'
+}
+
+Node.js v24.14.0
+===== grade-ent --case=fix
+
+плечо: ts-fix   кейс: fix
+  run-1: зелёный  сущностей 1 (🟢 0), полей 14 | без пометки: VisitorPass | VisitorPass [table: Поле | Тип | Обязательность | Примечание], полей 14, withdrawnAt да
+  run-2: зелёный  сущностей 1 (🟢 1), полей 13 | VisitorPass [table: Поле | Тип | Описание], полей 13, withdrawnAt да
+  run-3: зелёный  сущностей 1 (🟢 1), полей 15 | VisitorPass [table: Поле | Тип | Обязательность | Примечание], полей 15, withdrawnAt да
+  run-4: зелёный  сущностей 1 (🟢 0), полей 15 | без пометки: VisitorPass | VisitorPass [table: Поле | Тип | Обязательность | Примечание], полей 15, withdrawnAt да
+  run-5: зелёный  сущностей 1 (🟢 0), полей 15 | без пометки: VisitorPass | VisitorPass [table: Поле | Тип | Обязательность | Примечание], полей 15, withdrawnAt да
+  run-6: зелёный  сущностей 1 (🟢 0), полей 14 | без пометки: VisitorPass | VisitorPass [table: Поле | Тип | Обязательность | Примечание], полей 14, withdrawnAt да
+  ИТОГ: зелёных 6 из 6 измеренных (всего 6)
