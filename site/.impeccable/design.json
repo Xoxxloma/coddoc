@@ -1,0 +1,643 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T12:23:19.804Z",
+  "title": "Design System: coDDoc",
+  "extensions": {
+    "colorMeta": {
+      "field": {
+        "role": "neutral",
+        "displayName": "Поле",
+        "canonical": "oklch(97.7% 0.004 134.8)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#232423",
+          "#3f403e",
+          "#5c5e5c",
+          "#7f817e",
+          "#a3a5a3",
+          "#cacbc9",
+          "#eeeeee"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Лист",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "sunk": {
+        "role": "neutral",
+        "displayName": "Утопленный",
+        "canonical": "oklch(95.7% 0.008 139.4)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#232423",
+          "#3e413d",
+          "#5b5f5a",
+          "#7e817d",
+          "#a2a6a2",
+          "#c9cbc9",
+          "#eeefee"
+        ]
+      },
+      "graphite-ink": {
+        "role": "primary",
+        "displayName": "Графит",
+        "canonical": "oklch(24.1% 0.009 159.3)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3c413e",
+          "#595f5c",
+          "#7c827e",
+          "#a1a6a3",
+          "#c8cbc9",
+          "#eeefee"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Второй текст",
+        "canonical": "oklch(45.0% 0.015 156.6)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#212523",
+          "#3b423d",
+          "#57605a",
+          "#79837d",
+          "#9ea7a1",
+          "#c7ccc8",
+          "#edefee"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Третий текст",
+        "canonical": "oklch(51.6% 0.013 158.6)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#222523",
+          "#3b413e",
+          "#58605b",
+          "#7a837d",
+          "#9fa7a2",
+          "#c7ccc9",
+          "#edefee"
+        ],
+        "contrast": "5.22:1 на поле, 5.57:1 на surface, 4.92:1 на sunk"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Линейка",
+        "canonical": "oklch(91.3% 0.010 140.5)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#232522",
+          "#3d413d",
+          "#5b5f5a",
+          "#7d827c",
+          "#a2a6a1",
+          "#c9cbc8",
+          "#eeefee"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Сильная линейка",
+        "canonical": "oklch(85.0% 0.011 149.8)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3c413d",
+          "#595f5a",
+          "#7c827d",
+          "#a0a6a1",
+          "#c8cbc8",
+          "#eeefee"
+        ]
+      },
+      "link-teal": {
+        "role": "primary",
+        "displayName": "Бирюза ссылок",
+        "canonical": "oklch(49.4% 0.082 201.6)",
+        "tonalRamp": [
+          "#050d0d",
+          "#042a2c",
+          "#004a4f",
+          "#006b71",
+          "#398f95",
+          "#6cb2b7",
+          "#add3d6",
+          "#e5f1f2"
+        ],
+        "contrast": "5.55:1 на поле, 5.92:1 на surface, 5.24:1 на sunk; #0f7f86 давал 4.47:1 и не прошёл"
+      },
+      "loop-lime": {
+        "role": "secondary",
+        "displayName": "Процесс: лайм",
+        "canonical": "oklch(65.8% 0.185 133.7)",
+        "tonalRamp": [
+          "#060e03",
+          "#0f2c00",
+          "#144e00",
+          "#297100",
+          "#4e9600",
+          "#79ba48",
+          "#b2d89b",
+          "#e7f3e0"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "loop-green": {
+        "role": "secondary",
+        "displayName": "Процесс: зелёный",
+        "canonical": "oklch(59.2% 0.160 147.1)",
+        "tonalRamp": [
+          "#050e06",
+          "#002e09",
+          "#005106",
+          "#00741b",
+          "#279941",
+          "#62bc6f",
+          "#a8d9ad",
+          "#e4f3e5"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "loop-teal": {
+        "role": "secondary",
+        "displayName": "Процесс: бирюза",
+        "canonical": "oklch(54.4% 0.090 201.9)",
+        "tonalRamp": [
+          "#050d0e",
+          "#002a2d",
+          "#004b51",
+          "#006c73",
+          "#2c9097",
+          "#65b3b9",
+          "#a9d4d7",
+          "#e4f1f2"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "cursor-green": {
+        "role": "secondary",
+        "displayName": "Курсорный зелёный",
+        "canonical": "oklch(59.2% 0.160 147.1)",
+        "tonalRamp": [
+          "#050e06",
+          "#002e09",
+          "#005106",
+          "#00741b",
+          "#279941",
+          "#62bc6f",
+          "#a8d9ad",
+          "#e4f3e5"
+        ]
+      },
+      "btn-ink": {
+        "role": "neutral",
+        "displayName": "Текст главной кнопки",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "field-dark": {
+        "role": "neutral",
+        "displayName": "Поле (тёмная тема)",
+        "canonical": "oklch(24.1% 0.009 159.3)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3c413e",
+          "#595f5c",
+          "#7c827e",
+          "#a1a6a3",
+          "#c8cbc9",
+          "#eeefee"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Лист (тёмная тема)",
+        "canonical": "oklch(27.8% 0.011 156.4)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3c413e",
+          "#59605b",
+          "#7b827d",
+          "#a0a6a2",
+          "#c8ccc9",
+          "#edefee"
+        ]
+      },
+      "sunk-dark": {
+        "role": "neutral",
+        "displayName": "Утопленный (тёмная тема)",
+        "canonical": "oklch(22.6% 0.007 164.3)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3d413f",
+          "#5a5f5c",
+          "#7d827f",
+          "#a1a6a3",
+          "#c8cbca",
+          "#eeefee"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "ink (тёмная тема)",
+        "canonical": "oklch(95.4% 0.007 132.4)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#232423",
+          "#3e403d",
+          "#5c5e5a",
+          "#7e817d",
+          "#a3a5a1",
+          "#c9cbc8",
+          "#eeeeee"
+        ]
+      },
+      "ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Второй текст (тёмная тема)",
+        "canonical": "oklch(78.6% 0.014 152.5)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#222522",
+          "#3b423d",
+          "#58605a",
+          "#7a837c",
+          "#9fa7a1",
+          "#c7ccc8",
+          "#edefee"
+        ]
+      },
+      "ink-3-dark": {
+        "role": "neutral",
+        "displayName": "Третий текст (тёмная тема)",
+        "canonical": "oklch(67.3% 0.015 155.4)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#212522",
+          "#3b423d",
+          "#57605a",
+          "#79837c",
+          "#9ea7a1",
+          "#c7ccc8",
+          "#edefee"
+        ],
+        "contrast": "5.55:1 на поле, 4.98:1 на surface, 5.79:1 на sunk"
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Линейка (тёмная тема)",
+        "canonical": "oklch(34.4% 0.013 154.6)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#222523",
+          "#3c413d",
+          "#58605a",
+          "#7b837d",
+          "#9fa7a1",
+          "#c7ccc9",
+          "#edefee"
+        ]
+      },
+      "line-strong-dark": {
+        "role": "neutral",
+        "displayName": "Сильная линейка (тёмная тема)",
+        "canonical": "oklch(42.0% 0.016 159.3)",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#212523",
+          "#3a423d",
+          "#56615a",
+          "#78837d",
+          "#9ea7a1",
+          "#c6ccc9",
+          "#edefee"
+        ]
+      },
+      "link-teal-dark": {
+        "role": "primary",
+        "displayName": "Бирюза ссылок (тёмная тема)",
+        "canonical": "oklch(74.4% 0.112 205.4)",
+        "tonalRamp": [
+          "#030d0f",
+          "#002b31",
+          "#004d57",
+          "#006e7c",
+          "#0093a0",
+          "#4cb6c2",
+          "#a0d6dc",
+          "#e2f2f4"
+        ],
+        "contrast": "7.49:1 на поле, 6.71:1 на surface"
+      },
+      "loop-lime-dark": {
+        "role": "secondary",
+        "displayName": "Процесс: лайм (тёмная тема)",
+        "canonical": "oklch(87.6% 0.186 113.0)",
+        "tonalRamp": [
+          "#0b0c01",
+          "#252700",
+          "#434500",
+          "#616500",
+          "#838900",
+          "#a6ae00",
+          "#cad18a",
+          "#eef1db"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "loop-green-dark": {
+        "role": "secondary",
+        "displayName": "Процесс: зелёный (тёмная тема)",
+        "canonical": "oklch(72.2% 0.188 146.2)",
+        "tonalRamp": [
+          "#040e05",
+          "#002f01",
+          "#005300",
+          "#007600",
+          "#009c2e",
+          "#54bf62",
+          "#a3dca6",
+          "#e3f4e3"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "loop-teal-dark": {
+        "role": "secondary",
+        "displayName": "Процесс: бирюза (тёмная тема)",
+        "canonical": "oklch(66.4% 0.109 206.6)",
+        "tonalRamp": [
+          "#040d0f",
+          "#002b31",
+          "#004c58",
+          "#006e7c",
+          "#0092a1",
+          "#50b6c2",
+          "#a1d5dc",
+          "#e2f2f4"
+        ],
+        "contrast": "только линия, никогда текст"
+      },
+      "cursor-green-dark": {
+        "role": "secondary",
+        "displayName": "Курсорный зелёный (тёмная тема)",
+        "canonical": "oklch(72.2% 0.188 146.2)",
+        "tonalRamp": [
+          "#040e05",
+          "#002f01",
+          "#005300",
+          "#007600",
+          "#009c2e",
+          "#54bf62",
+          "#a3dca6",
+          "#e3f4e3"
+        ]
+      },
+      "btn-ink-dark": {
+        "role": "neutral",
+        "displayName": "Текст главной кнопки (тёмная тема)",
+        "canonical": "oklch(24.1% 0.009 159.3)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222523",
+          "#3c413e",
+          "#595f5c",
+          "#7c827e",
+          "#a1a6a3",
+          "#c8cbc9",
+          "#eeefee"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Только заголовок первого экрана главной."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Заголовок страницы-справочника."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Заголовки разделов."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Заголовки пунктов, входов и шагов."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Лид первого экрана, ink-2."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Текст, колонка до 68ch."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Легенды, подписи, подвал."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Подпись вида фрагмента, заголовок боковой колонки; без капса."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Имена скиллов, пути, команды, строки документа."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "note-reveal",
+        "value": "opacity, transform 300ms cubic-bezier(.16,1,.3,1); translateX(12px) → 0",
+        "purpose": "Пометка на полях проявляется первой. Только при prefers-reduced-motion: no-preference и с JS, один раз."
+      },
+      {
+        "name": "line-print",
+        "value": "clip-path inset(0 100% 0 0) → inset(0) 600ms cubic-bezier(.16,1,.3,1) 320ms",
+        "purpose": "Строка документа печатается после пометки. Единственное движение сайта."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "doc-stack",
+        "value": "900px"
+      },
+      {
+        "name": "ring-compact",
+        "value": "820px"
+      },
+      {
+        "name": "narrow",
+        "value": "720px"
+      },
+      {
+        "name": "phone",
+        "value": "520px"
+      }
+    ],
+    "themes": {
+      "default": "light",
+      "dark": "по prefers-color-scheme или переключателю; выбор в localStorage «coddoc-theme»"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Единственная кнопка с заливкой — главное действие.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">Поставить и пройти первую задачу</a>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-btn{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:8px;font:600 16px var(--sans);text-decoration:none;border:1.5px solid var(--ink)}.ds-btn-primary{background:var(--ink);color:var(--btn-ink)}.ds-btn-primary:hover{background:color-mix(in srgb,var(--ink) 86%,var(--bg))}.ds-btn:focus-visible{outline:2px solid var(--link);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Все прочие действия: графитовый контур без заливки.",
+      "html": "<a class=\"ds-btn ds-btn-secondary\" href=\"#\">Посмотреть пример</a>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-btn{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:8px;font:600 16px var(--sans);text-decoration:none;border:1.5px solid var(--ink)}.ds-btn-secondary{background:transparent;color:var(--ink)}.ds-btn-secondary:hover{background:var(--sunk)}.ds-btn:focus-visible{outline:2px solid var(--link);outline-offset:2px}"
+    },
+    {
+      "name": "Top Navigation",
+      "kind": "nav",
+      "refersTo": "theme-toggle",
+      "description": "Липкая шапка: логотип, ссылки без подчёркивания, блок-курсор у текущей страницы, переключатель темы.",
+      "html": "<nav class=\"ds-nav\"><b class=\"ds-logo\">coDDoc</b><span class=\"ds-links\"><a href=\"#\" aria-current=\"page\">Начать</a><a href=\"#\">Пример</a><a href=\"#\">Процесс</a><a href=\"#\">Плагины</a></span><button class=\"ds-theme\" aria-label=\"Тема\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 4v16\"/><path d=\"M12 4a8 8 0 0 1 0 16z\" fill=\"currentColor\" stroke=\"none\"/></svg></button></nav>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-nav{display:flex;align-items:center;gap:24px;min-height:64px;padding:0 24px;background:var(--bg);border-bottom:1px solid var(--line);font-family:var(--sans)}.ds-logo{font:800 20px var(--mono);color:var(--ink)}.ds-links{display:flex;gap:24px;margin-left:auto}.ds-links a{color:var(--ink);text-decoration:none;font-weight:500;font-size:16px;padding:8px 0}.ds-links a:hover{text-decoration:underline;text-underline-offset:6px}.ds-links a[aria-current=page]{font-weight:600}.ds-links a[aria-current=page]::after{content:\"\";display:inline-block;width:.42em;height:.73em;margin-left:.18em;background:var(--cursor)}.ds-theme{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}.ds-theme:hover{background:var(--sunk)}.ds-theme:focus-visible{outline:2px solid var(--link);outline-offset:2px}"
+    },
+    {
+      "name": "Text Links",
+      "kind": "custom",
+      "refersTo": "link-teal",
+      "description": "Ссылка в тексте всегда подчёркнута; ссылка на термин — цвет текста и точечная линия.",
+      "html": "<p class=\"ds-p\">Скилл сверяет ответы с <a class=\"ds-term\" href=\"#\">карточками сервисов</a> — подробнее в <a class=\"ds-a\" href=\"#\">справочнике</a>.</p>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-p{font:17px/1.6 var(--sans);color:var(--ink);max-width:68ch}.ds-a{color:var(--link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.ds-a:hover{text-decoration-thickness:2px}.ds-term{color:inherit;text-decoration:underline dotted var(--ink-3);text-underline-offset:3px}.ds-term:hover{text-decoration-style:solid}.ds-a:focus-visible,.ds-term:focus-visible{outline:2px solid var(--link);outline-offset:2px}"
+    },
+    {
+      "name": "Example Frame",
+      "kind": "card",
+      "refersTo": "frame",
+      "description": "Подпись: настоящий выход скилла — строка документа моно и пометка на полях.",
+      "html": "<div class=\"ds-frame\"><div class=\"ds-fh\"><span>Встреча → пункты · <span class=\"ds-m\">meeting-intake</span></span><span>пример</span></div><div class=\"ds-lands\"><div class=\"ds-who\">В пункты</div><div class=\"ds-line\">- [решено] Вахтёр может завести заявку на портале за жильца · L65</div><div class=\"ds-note\"><b>Источник — расшифровка</b>У пункта — кто решил и ссылка на строку.</div></div></div>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-frame{background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:24px;font-family:var(--sans);color:var(--ink)}.ds-fh{display:flex;justify-content:space-between;gap:8px;margin-bottom:16px;font-size:14px;color:var(--ink-3)}.ds-m{font-family:var(--mono);color:var(--ink-2)}.ds-lands{display:grid;grid-template-columns:120px 1fr minmax(180px,240px);gap:16px;align-items:start}.ds-who{font-size:14px;font-weight:600;color:var(--ink-2)}.ds-line{font:14.5px/1.55 var(--mono);background:var(--sunk);border-radius:4px;padding:8px 12px}.ds-note{font-size:13.5px;line-height:1.45;color:var(--ink-2);padding-top:8px}.ds-note::before{content:\"\";display:block;width:24px;border-top:1.5px solid var(--ink-3);margin-bottom:8px}.ds-note b{display:block;color:var(--ink);font-weight:600}"
+    },
+    {
+      "name": "Code Block",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Команды и фрагменты выхода; прокрутка только внутри блока.",
+      "html": "<pre class=\"ds-pre\"><code>/analyst-workspace</code></pre>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-pre{margin:0;font:14.5px/1.55 var(--mono);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:16px 24px;overflow-x:auto;color:var(--ink)}"
+    },
+    {
+      "name": "Skill Record Head",
+      "kind": "chip",
+      "refersTo": "version-pill",
+      "description": "Имя скилла моно, пилюля версии, малое кольцо «вы здесь».",
+      "html": "<div class=\"ds-sh\"><svg viewBox=\"0 0 48 48\" width=\"36\" height=\"36\"><circle cx=\"24\" cy=\"24\" r=\"16\" fill=\"none\" stroke=\"#c9d0ca\" stroke-width=\"6\"/><circle cx=\"24\" cy=\"8\" r=\"4\" fill=\"#23963f\" stroke=\"#1c211e\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"24\" r=\"4\" fill=\"#fff\" stroke=\"#626a65\" stroke-width=\"1.5\"/></svg><h3><code>technical-spec-doc</code></h3><span class=\"ds-ver\">2.4.2</span></div>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-sh{display:flex;align-items:center;gap:12px;font-family:var(--sans);color:var(--ink)}.ds-sh h3{margin:0;font-size:22px;font-weight:600}.ds-sh code{font-family:var(--mono)}.ds-ver{font:13px var(--mono);color:var(--ink-3);border:1px solid var(--line-strong);border-radius:999px;padding:2px 8px}"
+    },
+    {
+      "name": "Numbered Step",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Шаг первой задачи: номер в графитовом кружке, моно с табличными цифрами.",
+      "html": "<ol class=\"ds-steps\"><li><div><h3>Поставьте скиллы</h3><p>Скопируйте папку в проект.</p></div></li></ol>",
+      "css": ":host{--bg:#f6f8f5;--surface:#fff;--sunk:#eef2ed;--ink:#1c211e;--ink-2:#4f5852;--ink-3:#626a65;--line:#dfe4de;--line-strong:#c9d0ca;--link:#0b6f75;--cursor:#23963f;--btn-ink:#fff;--sans:system-ui,-apple-system,\"Segoe UI\",Roboto,\"Noto Sans\",Arial,sans-serif;--mono:ui-monospace,\"Cascadia Code\",\"JetBrains Mono\",\"SF Mono\",Menlo,Consolas,monospace}.ds-steps{list-style:none;margin:0;padding:0;counter-reset:s;font:17px/1.6 var(--sans);color:var(--ink)}.ds-steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:12px}.ds-steps li::before{content:counter(s);font:600 15px/28px var(--mono);width:28px;height:28px;text-align:center;border:1.5px solid var(--ink);border-radius:999px;font-variant-numeric:tabular-nums}.ds-steps h3{margin:0;font-size:18px;font-weight:600}.ds-steps p{margin:8px 0 0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Чертёж процесса",
+    "overview": "Сайт документации coDDoc выглядит как аккуратный технический лист: светлое зеленовато-серое поле, графитовый текст, строгая сетка, линейки толщиной в пиксель вместо теней. Единственная метафора — процесс, нарисованный кольцевой схемой. Она живёт только на рисунке: на главной большой схемой, на справочнике и в шагах первой задачи — маленьким кольцом-указателем «вы здесь». Цвет на странице почти отсутствует, поэтому три знака, которые его несут (логотип, линия кольца, блок-курсор), читаются сразу.\n\nПлотность — справочная, а не рекламная: колонка текста до 68 знаков, разделы разделены линейкой и сменой фона, крупный шрифт только у заголовка первого экрана. Доказательство вместо украшения: кадры примера показывают настоящий выход скиллов моноширинным шрифтом, с пометкой на полях.\n\nМир работает в закрытой сети: только системные шрифты, никаких веб-шрифтов, CDN и библиотек. Логотип — SVG в кривых с заливками из темы. По умолчанию светлая тема; тёмная — «графитовая версия» логотипа — включается по системе или переключателем, выбор запоминается.",
+    "keyCharacteristics": [
+      "Светлое поле, графит, линейки 1px; теней нет.",
+      "Градиент логотипа (лайм → зелёный → бирюза) — только в логотипе и на линии кольца, только как линия.",
+      "Блок-курсор — единственный акцентный знак.",
+      "Моно — только имена скиллов, пути и команды.",
+      "Одно движение на весь сайт.",
+      "Ссылки в тексте всегда подчёркнуты; заливка только у главного действия."
+    ],
+    "rules": [
+      {
+        "name": "The Line-Only Gradient Rule",
+        "body": "Цвета процесса — только линия: полоса кольца и логотип. Ни текст, ни фон, ни кнопка. Большое кольцо стоит один раз и только на главной.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Mark Rule",
+        "body": "Блок-курсор (0.42em × 0.73em, cursor-green) — единственный акцентный знак. Новый акцент не вводится; маркеры списков повторяют форму курсора, но в ink-3.",
+        "section": "colors"
+      },
+      {
+        "name": "The Measured Ink Rule",
+        "body": "Каждый цвет текста проверен на поле, surface и sunk в обеих темах (не ниже 4.5:1). Новое сочетание текста и фона без замера не вводится.",
+        "section": "colors"
+      },
+      {
+        "name": "The System Voice Rule",
+        "body": "Только системные стеки, никаких подключаемых шрифтов: в проме сеть закрыта. Логотип не набирается шрифтом — это SVG в кривых.",
+        "section": "typography"
+      },
+      {
+        "name": "The Artifact Mono Rule",
+        "body": "Моно — только для имён скиллов, путей, файлов и команд (и номеров версий рядом с ними). Не для заголовков, меток и украшения.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ruled Sheet Rule",
+        "body": "Слои отделяются линейкой 1px (line / line-strong) и сменой фона. Тень, свечение и размытие не вводятся.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do держать цвета процесса (loop-lime, loop-green, loop-teal) только линией: логотип и полоса кольца.",
+      "Do ставить блок-курсор как единственный акцентный знак: текущая страница, «вы здесь».",
+      "Do подчёркивать каждую ссылку в тексте и давать ей link-teal (#0b6f75), не логотипную бирюзу.",
+      "Do проверять контраст каждого нового сочетания текста и фона в обеих темах; ink-3 — нижняя граница для текста.",
+      "Do отделять блоки сменой фона и линейкой 1px; рамку — полную.",
+      "Do набирать имена скиллов, пути и команды системным моно, всё остальное — системным гротеском.",
+      "Do давать заливку только главному действию; остальные кнопки — контур.",
+      "Do держать светлую тему по умолчанию, тёмную — по системе или переключателю, с запоминанием выбора."
+    ],
+    "donts": [
+      "Don't подключать веб-шрифты, CDN или библиотеки: сеть закрыта.",
+      "Don't красить градиентом текст, фон или кнопку; исключение — сам логотип, это знак бренда.",
+      "Don't ставить второе большое кольцо или второй градиент на страницу.",
+      "Don't вводить тени, свечение, размытие.",
+      "Don't добавлять второе движение, зацикленную анимацию или движение без проверки `prefers-reduced-motion`.",
+      "Don't ставить над заголовками надзаголовки-метки капсом.",
+      "Don't заменять системные полосы прокрутки своими.",
+      "Don't отделять блок цветной полосой сбоку."
+    ],
+    "outOfScope": "to-html viewer (agent-version/to-html/reference/viewer/) и services-graph — свои стили, не этот мир."
+  }
+}

@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Процесс — coDDoc</title>
+<meta name="description" content="Справочник скиллов основного процесса coDDoc.">
+<script>try{var t=localStorage.getItem('coddoc-theme')||'auto';document.documentElement.setAttribute('data-theme-pref',t);if(t!=='auto')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<div class="wrap">
+<a class="brand" href="index.html" aria-label="coDDoc — на главную"><svg viewBox="5.54 24.36 330.22 62.16" role="img" aria-label="coDDoc"><defs><linearGradient id="lg-top-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-top-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-top-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-top-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg></a>
+<nav class="nav" aria-label="Разделы">
+<a href="start.html">Начать</a>
+<a href="example.html">Пример</a>
+<a href="loop.html" aria-current="page">Процесс</a>
+<a href="plugins.html">Плагины</a>
+</nav>
+<button class="theme-btn" type="button" aria-label="Тема: как в системе" title="Тема: как в системе">
+<svg class="ico i-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></svg>
+<svg class="ico i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+<svg class="ico i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+</button>
+</div>
+</header>
+<main id="main" class="wrap doc-page">
+
+<nav class="side" aria-label="На этой странице">
+<svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: процесс целиком" focusable="false"><title>на схеме процесса: процесс целиком</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg>
+<h2>Контекст системы</h2>
+<ul>
+<li><a href="#service-map">service-map</a></li>
+<li><a href="#context-doc">context-doc</a></li>
+</ul>
+<h2>Дискавери</h2>
+<ul>
+<li><a href="#analyst-notebook">analyst-notebook</a></li>
+<li><a href="#meeting-intake">meeting-intake</a></li>
+<li><a href="#meeting-recall">meeting-recall</a></li>
+<li><a href="#notes-to-intent">notes-to-intent</a></li>
+</ul>
+<h2>analyst-workspace и документы</h2>
+<ul>
+<li><a href="#analyst-workspace">analyst-workspace</a></li>
+<li><a href="#business-requirements-doc">business-requirements-doc</a></li>
+<li><a href="#bug-report-doc">bug-report-doc</a></li>
+<li><a href="#change-request-doc">change-request-doc</a></li>
+<li><a href="#technical-spec-doc">technical-spec-doc</a></li>
+<li><a href="#task-decomposition-doc">task-decomposition-doc</a></li>
+<li><a href="#stage-breakdown-doc">stage-breakdown-doc</a></li>
+<li><a href="#spec-review">spec-review</a></li>
+<li><a href="#rehearse">rehearse</a></li>
+<li><a href="#archive-spec">archive-spec</a></li>
+</ul>
+<h2>Термины</h2>
+<ul>
+<li><a href="#glossary">Все термины</a></li>
+</ul>
+</nav>
+
+<div>
+<header class="page-head">
+<h1>Основной процесс</h1>
+<p>Задача входит одним из трёх путей (идея, дефект или мелкая правка), её ведёт <code>analyst-workspace</code>, и после каждого документа идёт <a class="term" href="#t-review">приёмка</a>. <a class="term" href="#t-context">Контекст системы</a> снимается один раз и обновляется после релиза; как всё связано, показано на <a href="index.html#loop">схеме процесса</a>.</p>
+<p class="bridge">Примеры у скиллов — эмуляция на задаче DORM-101 «Заявки на ремонт в общежитии». Настоящий выход прогонов — на странице <a href="example.html">«Пример»</a>. DORM-101 — эпик из двух частей; спека и этапы показаны для части DORM-104. У обычной задачи всё лежит в <code>coddoc/&lt;КЛЮЧ&gt;/</code>.</p>
+</header>
+
+<!-- ============ Контекст системы ============ -->
+<section class="block" id="g-context" aria-labelledby="g-context-h">
+<h2 id="g-context-h">Контекст системы</h2>
+<p>Снимается один раз, обновляется после релиза соседнего сервиса или при добавлении нового. Это не шаг каждой задачи.</p>
+
+<article class="skill" id="service-map">
+<div class="skill-head"><h3><code>service-map</code></h3><span class="skill-ver">2.2.4</span></div>
+<p class="skill-what">Читает код соседних сервисов и пишет по каждому <a class="term" href="#t-card">карточку</a>: что сервис делает для пользователя, его бизнес-правила, контракты, роли. По карточкам скиллы <a class="term" href="#t-bt">БТ</a> и <a class="term" href="#t-spec">спеки</a> не спрашивают аналитика о том, что видно в коде.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>При первом сборе, после релиза соседнего сервиса, при добавлении нового.</dd>
+<dt>Как зовут</dt><dd><code>/service-map</code>; один или несколько сервисов по имени: <code>/service-map auth</code>.</dd>
+<dt>Вход → выход</dt><dd>Читает соседние репозитории и <code>services/manifest.yaml</code>. Пишет карточку <code>services/&lt;name&gt;.md</code> целиком. Манифест создаёт при первом сборе, потом только дописывает строку о новой соседней папке, с подтверждения. Если из прежней карточки пропала заметная часть, новая ложится в <code>services/_pending/&lt;name&gt;.md</code>: принять её или отклонить решает человек. Карточки вместе с манифестом называются <a class="term" href="#t-slepok">слепком</a>.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную; <a href="#archive-spec"><code>archive-spec</code></a> после релиза. Скиллы БТ и спеки работают без слепка и сами его не зовут.</dd>
+<dt>Что нужно</dt><dd>Клоны соседних сервисов рядом с репозиторием, подтянутые вручную: сам скилл не запускает ни shell, ни git.</dd>
+<dt>Не делает</dt><dd>Ничего не меняет в репозиториях сервисов. Секреты не копирует: имя переменной пишет, значение нет. Чего нет в коде, записывает как «не определено».</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/service-map</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Ищу соседние репозитории в /Users/zotova/projects. Нашёл два: student-portal — fullstack (package.json со скриптом сервера и vite.config.ts), notify — backend (go.mod). Черновик манифеста записан: services/manifest.yaml. Варианты: «Собрать все 2» · «Сначала уберу лишние» · «Начнём с ключевых».</p>
+<p><span class="ex-who">Аналитик</span> Собрать все 2.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">services/student-portal.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>---
+service: student-portal
+type: fullstack
+repo: ../student-portal
+scanned: 2026-10-20</code></pre><p class="ex-src">папка и тип — из ответа скилла выше; дата — день скана</p></div>
+<div class="ex-line"><pre><code>description: студенческий портал: вход по студенческому билету, профиль жильца с корпусом и комнатой
+---</code></pre><p class="ex-src">из кода ../student-portal: одной строкой из «Назначения»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>### `GET /api/v1/students/{studentId}/residence`
+Корпус и комната жильца.
+сущности: ← `studentId` · → `Student`, только `building` и `room`</code></pre><p class="ex-src">из кода ../student-portal: ручка и сущность, которую она отдаёт</p></div>
+<div class="ex-gap">…</div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#context-doc">context-doc</a>, <a href="#archive-spec">archive-spec</a>, <a href="plugins.html#services-graph">services-graph</a>, <a href="plugins.html#deep-search">deep-search</a></p>
+</article>
+
+<article class="skill" id="context-doc">
+<div class="skill-head"><h3><code>context-doc</code></h3><span class="skill-ver">1.0.0</span></div>
+<p class="skill-what">Переносит документ аналитика в папку <code>context/</code> в Markdown дословно и сочиняет строку <code>description</code>, которую утверждает человек. Без этой строки скиллы БТ и спеки файл не найдут.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Рядом с задачей появился документ, который должны прочитать другие скиллы.</dd>
+<dt>Как зовут</dt><dd><code>/context-doc &lt;файл&gt;</code>. Без аргумента <code>/context-doc</code> чинит папку: дописывает <code>description</code> файлам <code>context/*.md</code>, у которых её нет, текст не трогает.</dd>
+<dt>Вход → выход</dt><dd>Файл (txt, csv, html, json, xlsx, docx, pdf), несколько файлов, папка или текст из чата. Пишет <code>context/&lt;тема&gt;.md</code>: имя латиницей в 1–3 слова, в шапке <code>description</code>, <code>source</code> и <code>updated</code>.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Что нужно</dt><dd>Для docx, xlsx, pptx и rtf скилл пробует простое чтение, потом <code>pandoc</code>, если он установлен, потом распаковку. Не вышло, тогда просит пересохранить: Excel в «CSV UTF-8», Word в «Веб-страницу (.html)».</dd>
+<dt>Не делает</dt><dd>Не пересказывает, не сокращает и не исправляет опечатки. Сканы и картинки не принимает; текст не извлёкся, значит, файла не будет.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/context-doc "Положение о проживании.docx"</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Какую строку description ставим в шапку? 1) «положение о проживании в общежитии: обязанности жильца, порча имущества и возмещение ущерба» 2) «кто платит за ремонт, если жилец сам сломал вещь в комнате» 3) «жилец, комната, имущество общежития, возмещение ущерба».</p>
+<p><span class="ex-who">Аналитик</span> Первую.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">context/dorm-living-rules.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>---
+description: положение о проживании в общежитии: обязанности жильца, порча имущества и возмещение ущерба</code></pre><p class="ex-src">из ответа аналитика: вариант 1</p></div>
+<div class="ex-line"><pre><code>source: Положение о проживании.docx
+updated: 2026-10-22
+---</code></pre><p class="ex-src">из вызова; дата — день переноса</p></div>
+<div class="ex-gap">…</div>
+</div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>context/dorm-living-rules.md записан
+description: положение о проживании в общежитии: обязанности жильца, порча имущества и возмещение ущерба</code></pre><p class="ex-src">имя — по теме документа; строка — из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>перенесено: 6 разделов, таблица 9 строк, все 3 столбца
+выброшено: колонтитулы, нумерация страниц
+не перенеслось: —</code></pre><p class="ex-src">сверка с файлом из вызова</p></div>
+<div class="ex-line"><pre><code>виден процессу: да — Grep "^description:" path="context" нашёл его</code></pre><p class="ex-src">проверка скилла после записи</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#service-map">service-map</a>, <a href="plugins.html#say-simple">say-simple</a></p>
+</article>
+</section>
+
+<!-- ============ Дискавери ============ -->
+<section class="block" id="g-discovery" aria-labelledby="g-discovery-h">
+<h2 id="g-discovery-h">Дискавери</h2>
+<p><a class="term" href="#t-discovery">Дискавери</a> идёт до документа: встречи, переписка, мысли аналитика. Эти скиллы превращают их в <a class="term" href="#t-points">пункты</a>, а из пунктов собирают вход для БТ или спеки; вход передают в <code>/analyst-workspace</code>. Все четыре зовутся вручную.</p>
+
+<article class="skill" id="analyst-notebook">
+<div class="skill-head"><h3><code>analyst-notebook</code></h3><span class="skill-ver">2.6.1</span></div>
+<p class="skill-what">Ведёт <a class="term" href="#t-note">ноут</a> дискавери по теме. Присланное (чат, письмо, итог созвона, мысль) раскладывает на пункты четырёх видов (решено, открыто, сведение, мысль) под сегодняшней датой.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«запиши в ноут», «добавь в ноут», «собери из ноута», «что в ноуте про …».</dd>
+<dt>Как зовут</dt><dd>«запиши в ноут» и текст. <code>/analyst-notebook &lt;тема&gt; собери пункты</code> выгружает список для <code>notes-to-intent</code>; «спроси &lt;вопрос&gt;» отвечает по ноуту; «исправь &lt;номер&gt;» исправляет запись.</dd>
+<dt>Вход → выход</dt><dd>Текст в сообщении или список <code>*.points.md</code>. Пишет <code>notes/&lt;тема&gt;/notebook.md</code>; длинные вставки кладёт в <code>notes/&lt;тема&gt;/sources/</code>, выкладку в <code>notes/&lt;тема&gt;/&lt;что&gt;-&lt;дата&gt;.md</code> или в чат, выгрузку пунктов в <code>notes/&lt;тема&gt;/notebook-&lt;дата&gt;.points.md</code>.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Не делает</dt><dd>Прошлые записи не переписывает: исправление идёт новой записью. «Решено» ставит только с тем, кто решил; слова самого аналитика записывает как мысль. Расшифровки не разбирает, отправляет в <code>/meeting-intake</code>.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-notebook заявки-на-ремонт-в-общежитии coddoc/_inbox/meeting-2026-10-14.points.md</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Пишу в ноут «заявки на ремонт в общежитии» (notes/заявки-на-ремонт-в-общежитии/notebook.md), 2026-10-19 №1, встреча 2026-10-14. Спор: п.3 «Вахтёр может завести заявку на портале за жильца» (Сагитова) и 2026-10-02 №1.1 «Вахта заявки на ремонт не принимает, жилец подаёт заявку сам через портал» (Харитонова Л.). Что действует — новое, старое или спор в открытые (кто решает)? Со связью: п.2 «Обычная заявка выполняется за шесть рабочих дней» — вместо 2026-10-01 №1.4 (Ковригин передумал: было 10 рабочих дней); п.4 «Без жильца в комнату заходят только при аварии и вдвоём» — отвечает на 2026-10-02 №1.3. И ещё 19 — без находок. Записать так или поправить?</p>
+<p><span class="ex-who">Аналитик</span> Спор — в открытые. Да, записывай.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">notes/заявки-на-ремонт-в-общежитии/notebook.md</p>
+<div class="ex-lines">
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>### 1 · чат с Харитоновой Л. (комендант)
+- [решено] Вахта заявки на ремонт не принимает, жилец подаёт заявку сам через портал — решил: Харитонова Л. · 2026-10-02 №1.1 ‖ оспорен: 2026-10-19 №1.3</code></pre><p class="ex-src">пометка на старой строке — из ответа аналитика «Спор — в открытые»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## 2026-10-19
+
+### 1 · встреча 2026-10-14: как жильцы подают заявки на ремонт через портал и что происходит дальше</code></pre><p class="ex-src">из шапки списка в вызове: дата и предмет встречи</p></div>
+<div class="ex-line"><pre><code>- [решено] Вид заявки выбирает жилец; дежурный может его поменять, если это не авария — решил: Сагитова · 2026-10-19 №1.1</code></pre><p class="ex-src">из списка в вызове, пункт L44</p></div>
+<div class="ex-line"><pre><code>- [решено] Обычная заявка выполняется за шесть рабочих дней; срок настраивается — решил: Ковригин; вместо: 2026-10-01 №1.4 · 2026-10-19 №1.2</code></pre><p class="ex-src">из списка, L51; «вместо» — связь из вопроса скилла, аналитик ответил «записывай»</p></div>
+<div class="ex-line"><pre><code>- [открыто] что верно: жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л., 2026-10-02 №1.1) или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: — · 2026-10-19 №1.3</code></pre><p class="ex-src">из ответа аналитика «Спор — в открытые»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>&gt; исходник: coddoc/_inbox/meeting-2026-10-14.points.md</code></pre><p class="ex-src">из вызова</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#meeting-intake">meeting-intake</a>, <a href="#notes-to-intent">notes-to-intent</a>, <a href="plugins.html#interaction-diagram">interaction-diagram</a></p>
+</article>
+
+<article class="skill" id="meeting-intake">
+<div class="skill-head"><h3><code>meeting-intake</code></h3><span class="skill-ver">2.2.1</span></div>
+<p class="skill-what">Превращает расшифровку встречи в список пунктов (решено, открыто, сведение) и разбор с цитатами для проверки человеком. Решённое отделяет от просто сказанного, от себя ничего не добавляет.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Есть расшифровка встречи: чат, VTT/SRT, конспект, переписка.</dd>
+<dt>Как зовут</dt><dd><code>/meeting-intake &lt;путь к файлу&gt; [ключ задачи]</code></dd>
+<dt>Вход → выход</dt><dd>Текстовый файл расшифровки или текст до ~150 строк в сообщении. Пишет два файла: <code>&lt;папка&gt;/meeting-&lt;дата&gt;.points.md</code> и <code>&lt;папка&gt;/meeting-&lt;дата&gt;.razbor.md</code>. Папка там, где лежат документы задачи, иначе <code>coddoc/&lt;KEY&gt;/</code>, без ключа <code>coddoc/_inbox/</code>.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой.</dd>
+<dt>Что нужно</dt><dd>Текстовый экспорт: txt, vtt, srt. docx, pdf и аудио не принимает.</dd>
+<dt>Не делает</dt><dd>Документы задачи не правит и других скиллов не зовёт. Код или номер пишет только с опорой, иначе словами.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/meeting-intake meeting-2026-10-14.txt</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Встреча про: как жильцы подают заявки на ремонт через портал и что происходит дальше? (L15) Варианты: «как жильцы подают заявки на ремонт через портал и что происходит дальше» · «Поправить».</p>
+<p><span class="ex-who">Аналитик</span> Да, про это.</p>
+<p><span class="ex-who">Скилл</span> Список: coddoc/_inbox/meeting-2026-10-14.points.md — решено 11, открыто 1, сведений 11. Не идёт в список: отменено и не принято — 1 (три дня на подтверждение), поручения — 2 (макет экрана заявки — Бойцов, записи встречи — Зотова), «не вносим» — 0. Варианты: «Записать 23 пункта» · «Поправить».</p>
+<p><span class="ex-who">Аналитик</span> Записать 23 пункта.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/_inbox/meeting-2026-10-14.points.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Пункты: как жильцы подают заявки на ремонт через портал и что происходит дальше</code></pre><p class="ex-src">из ответа аналитика: задача встречи</p></div>
+<div class="ex-line"><pre><code>&gt; Источник: meeting-2026-10-14.txt
+&gt; Задача: —</code></pre><p class="ex-src">из вызова; ключа в вызове нет</p></div>
+<div class="ex-line"><pre><code>&gt; Встреча: 2026-10-14 15:00–15:15 · участники: руководитель проекта студенческого портала — Сагитова В. И.; начальник службы эксплуатации общежития — Ковригин С. Е.; председатель студсовета — Ширяев С.; разработка портала — Бойцов Я.; аналитик — Зотова В.</code></pre><p class="ex-src">из расшифровки, строки 1–14</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- [решено] Вахтёр может завести заявку на портале за жильца — решил: Сагитова · L65</code></pre><p class="ex-src">из расшифровки, строки 65–70</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- [решено] На подтверждение выполнения у жильца пять дней, не подтвердил — заявка закрывается сама. Причина: жильцы на выходные уезжают домой, приезжают в понедельник, а заявка уже закрыта — решил: Сагитова · L121</code></pre><p class="ex-src">из расшифровки, L121; «три дня» (L89) отменено — в сводке выше</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- [сведение] Макет экрана заявки будет показан к среде — со слов Бойцова · L127</code></pre><p class="ex-src">поручение Бойцова к среде — его срок идёт в список сведением</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#meeting-recall">meeting-recall</a>, <a href="#analyst-notebook">analyst-notebook</a>, <a href="#notes-to-intent">notes-to-intent</a></p>
+</article>
+
+<article class="skill" id="meeting-recall">
+<div class="skill-head"><h3><code>meeting-recall</code></h3><span class="skill-ver">1.3.1</span></div>
+<p class="skill-what">Помогает восстановить встречу по памяти аналитика, когда расшифровки нет: свободный пересказ, вопросы по темам, протокол и список пунктов той же формы, что у <code>meeting-intake</code>.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Расшифровки нет, встреча осталась только в памяти.</dd>
+<dt>Как зовут</dt><dd><code>/meeting-recall [ключ задачи] [название встречи]</code>; продолжить начатый протокол: <code>/meeting-recall &lt;путь к *.recall.md&gt;</code>.</dd>
+<dt>Вход → выход</dt><dd>Ваши ответы и заметки, приглашение на встречу, документ задачи, если назван ключ. Пишет протокол <code>&lt;папка&gt;/meeting-&lt;дата&gt;.recall.md</code> по ходу разговора и список <code>&lt;папка&gt;/meeting-&lt;дата&gt;.points.md</code> в конце. Папка выбирается так же, как у <code>meeting-intake</code>.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой.</dd>
+<dt>Не делает</dt><dd>Своих догадок о встрече не предлагает: у вопроса с вариантами всегда есть «Не помню». Не советует и не оценивает.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-103</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/meeting-recall DORM-103 созвон с Сагитовой</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Что есть о встрече: когда была, где, кто был (роль — имя), тема из приглашения? Свои заметки со встречи — вставьте текстом или дайте путь к файлу. Чего нет — пропустите.</p>
+<p><span class="ex-who">Аналитик</span> Созвон 19 ноября, руководитель проекта студенческого портала — Сагитова В., аналитик — Зотова В. Заметок нет. Сагитова решила: срок подтверждения выполнения — семь дней вместо пяти.</p>
+<p class="ex-gap">… (шаги 1–4 пропущены: «Записал. Вспоминается ещё что-то?», «Понял так: обсуждали — срок подтверждения выполнения. Так?», разбор темы, «Вспомните конец встречи…»)</p>
+<p><span class="ex-who">Скилл</span> Итог: «срок подтверждения выполнения» — решение: семь дней вместо пяти, принял Сагитова В. Уточнить у участников: 0. Варианты: «Записать» · «Поправить».</p>
+<p><span class="ex-who">Аналитик</span> Записать.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-103/meeting-2026-11-19.points.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Пункты: созвон с Сагитовой</code></pre><p class="ex-src">из вызова: название встречи</p></div>
+<div class="ex-line"><pre><code>&gt; Источник: coddoc/DORM-103/meeting-2026-11-19.recall.md
+&gt; Задача: DORM-103</code></pre><p class="ex-src">протокол этого прогона; ключ — из вызова</p></div>
+<div class="ex-line"><pre><code>&gt; Встреча: 2026-11-19 · участники: руководитель проекта студенческого портала — Сагитова В.; аналитик — Зотова В. · по памяти аналитика</code></pre><p class="ex-src">из ответа аналитика на первый вопрос</p></div>
+<div class="ex-line"><pre><code>
+- [решено] Срок подтверждения выполнения — семь дней вместо пяти — решил: Сагитова В. · L23</code></pre><p class="ex-src">из ответа аналитика; итог подтверждён «Записать»</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#meeting-intake">meeting-intake</a>, <a href="#notes-to-intent">notes-to-intent</a></p>
+</article>
+
+<article class="skill" id="notes-to-intent">
+<div class="skill-head"><h3><code>notes-to-intent</code></h3><span class="skill-ver">1.2.0</span></div>
+<p class="skill-what">Из списка пунктов делает вход для БТ или спеки. Ставит цель, раскладывает пункты между БТ и спекой, сверяет с документами задачи, спрашивает о спорном и о мыслях аналитика и после подтверждения пишет файл входа.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Есть <code>*.points.md</code> от <code>/meeting-intake</code>, <code>/meeting-recall</code> или <code>/analyst-notebook &lt;тема&gt; собери пункты</code>, и его надо превратить в работу над документом.</dd>
+<dt>Как зовут</dt><dd><code>/notes-to-intent &lt;список&gt; [ключ задачи] [цель]</code>. Цели: новый БТ, правки БТ, правка работающего, новая спека, правки спеки.</dd>
+<dt>Вход → выход</dt><dd>Читает <code>*.points.md</code> и документы задачи. Пишет один файл <code>&lt;основа списка&gt;-bt.md</code> или <code>-spec.md</code>, например <code>meeting-2026-10-16.points.md</code> → <code>meeting-2026-10-16-bt.md</code>. Папка там, где лежат документы задачи, иначе <code>coddoc/&lt;KEY&gt;/</code>, без ключа <code>coddoc/_inbox/</code>. Последняя строка отчёта подсказывает следующий шаг: <code>/analyst-workspace &lt;путь входа&gt;</code>.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой.</dd>
+<dt>Не делает</dt><dd>Новых фактов не добавляет: мысли аналитика попадают во вход, только если он их выбрал, и только в «Открыто». Расшифровки, протоколы, ноуты, <code>services/</code> и <code>context/</code> не читает.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/notes-to-intent notes/заявки-на-ремонт-в-общежитии/notebook-2026-10-19.points.md</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Ключ задачи? Если его ещё нет, так и напишите.</p>
+<p><span class="ex-who">Аналитик</span> Ключа ещё нет.</p>
+<p><span class="ex-who">Скилл</span> Цель. Документов задачи нет, заявки на портале ещё не работают. Рекомендую новый БТ: ключа нет, документов нет; пунктов про правила — 42, про реализацию — 0. Вход ляжет в coddoc/_inbox/notebook-2026-10-19-bt.md. Варианты: «Новый БТ» · «Правка работающего» · «Новая спека».</p>
+<p><span class="ex-who">Аналитик</span> Новый БТ.</p>
+<p class="ex-gap">… (шаг 5: «Мысли и наброски во вход не беру (4)… Взять какие-то?» — «Ни одного»; шаг 6: сводка входа — «Записать 42 пункта»)</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/_inbox/notebook-2026-10-19-bt.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Ноут заявки на ремонт в общежитии</code></pre><p class="ex-src">из шапки списка: тема ноута</p></div>
+<div class="ex-line"><pre><code>&gt; Задача: ключа ещё нет · цель: новый БТ</code></pre><p class="ex-src">из ответов аналитика: «Ключа ещё нет», «Новый БТ»</p></div>
+<div class="ex-line"><pre><code>&gt; Документ: нет</code></pre><p class="ex-src">документов задачи нет — ключа нет</p></div>
+<div class="ex-line"><pre><code>&gt; Ноут: заявки на ремонт в общежитии · записи 2026-09-30–2026-10-19 · решали: Сагитова В., Ковригин С., Бойцов
+&gt; Список: notes/заявки-на-ремонт-в-общежитии/notebook-2026-10-19.points.md</code></pre><p class="ex-src">из шапки списка и пунктов «решил:»; путь — из вызова</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## Открыто
+- Должен ли комендант узнавать о каждой заявке — ждёт: Харитонова Л.</code></pre><p class="ex-src">из списка в вызове: пункт ноута 2026-10-05 №1.3</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- Что верно: жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.) или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">из списка в вызове: пункт ноута 2026-10-19 №1.3</p></div>
+<div class="ex-gap">…</div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#analyst-workspace">analyst-workspace</a>, <a href="#business-requirements-doc">business-requirements-doc</a>, <a href="#technical-spec-doc">technical-spec-doc</a></p>
+</article>
+</section>
+
+<!-- ============ analyst-workspace и документы ============ -->
+<section class="block" id="g-workspace" aria-labelledby="g-workspace-h">
+<h2 id="g-workspace-h">analyst-workspace и документы</h2>
+<p>Задача начинается с <code>/analyst-workspace</code>. Идея идёт в БТ, эпик потом режется на части, дальше пишутся спеки. Дефект идёт в баг-репорт и спеку на починку, мелкая правка идёт в запрос на правку и спеку в режиме правки. БТ, баг-репорт и запрос на правку называются <a class="term" href="#t-source">документом-источником</a>: по нему пишут спеку.</p>
+<p>После каждого записанного документа <code>analyst-workspace</code> сам запускает приёмку <a href="#spec-review"><code>spec-review</code></a>. Она не возвращает <a class="term" href="#t-status">статус готовности</a>: его документ считает сам. В чат приходят число нарушений и список, где у каждого пункта цитата и номер строки.</p>
+<p>После БТ, баг-репорта или запроса на правку <code>analyst-workspace</code> всегда задаёт один вопрос, это <a class="term" href="#t-gate">гейт</a>. Решение за вами:</p>
+<ul class="gate-opts">
+<li><b>«Поправить документ сейчас»</b> есть, только если остались замечания или <a class="term" href="#t-open">открытые вопросы</a>. Возврат в интервью того же скилла; новую редакцию приёмка проверит снова.</li>
+<li><b>«Идти дальше»</b> — явное принятие. Открытые вопросы перейдут в раздел 8 спеки и её статус не заблокируют; замечания останутся в документе.</li>
+<li><b>«Пока остановиться»</b>: документ лежит на диске, вернуться можно через «Продолжить начатое».</li>
+</ul>
+<p>После спеки отдельного гейта нет: приёмка пишет «нарушений нет» или список, дальше идёт вопрос «Что дальше?», где есть «Доработать спеку».</p>
+
+<article class="skill" id="analyst-workspace">
+<div class="skill-head"><h3><code>analyst-workspace</code></h3><span class="skill-ver">2.2.1</span></div>
+<p class="skill-what">Точка входа на весь цикл. Спрашивает, что у вас на руках, сам выбирает следующий шаг и запускает нужный скилл; документы пишут эти скиллы, а не он.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Когда садитесь за задачу, фичу или эпик.</dd>
+<dt>Как зовут</dt><dd><code>/analyst-workspace</code>; <code>/analyst-workspace --no-review</code> выключает приёмку на всю сессию. На старте четыре варианта: «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос», «Аналитика: Создаем Спецификацию на основе готового документа», «Продолжить начатое», «Доработка готова — обновить описание сервисов».</dd>
+<dt>Вход → выход</dt><dd>Читает только документы цепочки: БТ и его раздел 4.5, <code>decomposition.md</code>, детские БТ, спеку. Проверяет, есть ли <code>services/*.md</code>. Сам ничего не пишет.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой: агент сам его не зовёт.</dd>
+<dt>Не делает</dt><dd>Карточки, <code>context/</code> и код не читает: это работа вызванных скиллов. Решений за вас (резать ли эпик, нужен ли общий узел, в каком порядке) не принимает: на каждом шаге задаёт один вопрос.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Что уже есть на руках? Варианты: «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос» · «Аналитика: Создаем Спецификацию на основе готового документа» · «Продолжить начатое» · «Доработка готова — обновить описание сервисов».</p>
+<p><span class="ex-who">Аналитик</span> Продолжить начатое.</p>
+<p><span class="ex-who">Скилл</span> Путь к артефакту?</p>
+<p><span class="ex-who">Аналитик</span> coddoc/DORM-101</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>эпик DORM-101: готово — DORM-104 «подача заявки и статусы»; осталось — DORM-105 «подтверждение выполнения и комментарий»</code></pre><p class="ex-src">из диска: decomposition.md — две части, спека есть только у DORM-104</p></div>
+<div class="ex-line"><pre><code>Продолжаем с DORM-105?
+1. Продолжаем с DORM-105</code></pre><p class="ex-src">шаблон скилла: один вопрос</p></div>
+<div class="ex-line"><pre><code>2. Сначала архивировать DORM-104 — она уже в проде?
+   archive-spec назовёт затронутые ею сервисы и перечитает их через service-map, следующая спека будет опираться на свежие карточки</code></pre><p class="ex-src">у спеки DORM-104 нет метки .archived</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#spec-review">spec-review</a>, <a href="#rehearse">rehearse</a>, <a href="#archive-spec">archive-spec</a>, <a href="start.html#first">первая задача</a></p>
+</article>
+
+<article class="skill" id="business-requirements-doc">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: документ-источник" focusable="false"><title>на схеме процесса: документ-источник</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-here" cx="8" cy="24" r="5"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>business-requirements-doc</code></h3><span class="skill-ver">1.9.1</span></div>
+<p class="skill-what">Ведёт интервью по бизнес-требованиям и пишет один файл БТ: проблема, потребители, ценность, требования <code>FR-*</code> с критериями приёмки, ролевая модель. Перед записью предлагает разбить работу на части (раздел 4.5) или пишет «не применимо» с причиной.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Нужно описать задачу, фичу, изменение или интеграцию для разработчиков.</dd>
+<dt>Как зовут</dt><dd>Через <code>/analyst-workspace</code> → «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос» → «Переводим идею в БТ». Отдельной команды нет.</dd>
+<dt>Вход → выход</dt><dd>Читает описание задачи и названные файлы; карточки <code>services/*.md</code> и документы <code>context/*.md</code>, только чтобы предлагать гипотезы; свои разделы из <code>.coddoc-tmp/coddoc-settings/sections-bt.md</code>. Пишет <code>coddoc/&lt;КЛЮЧ&gt;/business_requirements.md</code>.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>, для записи и для доработки.</dd>
+<dt>Не делает</dt><dd>Не проектирует: ни эндпоинтов, ни имён сервисов, таблиц, DTO; дословно пишет только имена ролей. Без ключа задачи файл не пишет, ключ спрашивает первым. В файл идёт только то, что вы сказали или подтвердили; явно отложенное помечается <code>TBD</code>.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace coddoc/_inbox/notebook-2026-10-19-bt.md
+→ «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос»
+→ «Переводим идею в БТ»</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Укажите ключ задачи в Jira/SberTrack — без него спека не оформляется.</p>
+<p><span class="ex-who">Аналитик</span> DORM-101.</p>
+<p class="ex-gap">… (гейты по входу — гипотезами, пачками по разделам; аналитик подтверждает)</p>
+<p><span class="ex-who">Скилл</span> Кто заводит заявку на портале? Харитонова Л.: вахта заявки не принимает, жилец подаёт сам. Сагитова на встрече 14.10: вахтёр может завести заявку за жильца. Варианты: «Жилец сам, вахта не принимает» · «Вахтёр может завести за жильца» · «Пока не знаю, отложить».</p>
+<p><span class="ex-who">Аналитик</span> Пока не знаю — спор не решён, оставьте открытым.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-101/business_requirements.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Бизнес-требования: Заявки на ремонт в общежитии</code></pre><p class="ex-src">из входа для БТ: тема ноута</p></div>
+<div class="ex-line"><pre><code>&gt; **Задача Jira/SberTrack:** DORM-101</code></pre><p class="ex-src">из ответа аналитика</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>&gt; **Статус готовности:** Требуются уточнения (5)
+&gt;
+&gt; **Открытые вопросы (требуют уточнения перед оценкой):**</code></pre><p class="ex-src">по числу открытых вопросов: 5</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>&gt; 4. Бизнес-процесс: что верно — жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.), или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">из ответа аналитика «Пока не знаю…»; формулировка — из входа для БТ, строка 27</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>### 4.2. Критерии приёмки
+- **[FR-1]** Дано жилец вошёл на портал по студенческому билету, когда он отправляет заявку с четырьмя фото, тогда заявка принята; пятое фото приложить нельзя.</code></pre><p class="ex-src">из входа для БТ, строки 19 и 35; пример на границе подтверждён в пропуске</p></div>
+<div class="ex-gap">…</div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#task-decomposition-doc">task-decomposition-doc</a>, <a href="#technical-spec-doc">technical-spec-doc</a>, <a href="#spec-review">spec-review</a>, <a href="plugins.html#coddoc-settings">coddoc-settings</a></p>
+</article>
+
+<article class="skill" id="bug-report-doc">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: документ-источник" focusable="false"><title>на схеме процесса: документ-источник</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-here" cx="8" cy="24" r="5"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>bug-report-doc</code></h3><span class="skill-ver">1.3.0</span></div>
+<p class="skill-what">Собирает описание дефекта в работающем проде и пишет <code>bug_report.md</code>, документ-источник для спеки на починку. В нём затронутый процесс, шаги воспроизведения, фактический и ожидаемый результат с источником, критичность.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Для дефекта, а не для новой возможности и не для намеренной правки.</dd>
+<dt>Как зовут</dt><dd>Только через <code>/analyst-workspace</code> → «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос» → «Баг — в баг-репорт». Отдельно не зовут.</dd>
+<dt>Вход → выход</dt><dd>Читает описание дефекта; для гипотез карточки <code>services/*.md</code>, старый документ, если его назвали, и <code>context/*.md</code>. Пишет <code>coddoc/&lt;КЛЮЧ&gt;/bug_report.md</code>.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>, когда на его первый вопрос вы ответили, что это дефект.</dd>
+<dt>Не делает</dt><dd>Причину не ищет, код не читает. Если поведение не расходится с тем, как было задумано, это не дефект: файл не пишет и называет путь через БТ.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-102</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace
+→ «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос»
+→ «Баг — в баг-репорт»</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Аналитик</span> DORM-102: жилец не получает уведомление о смене статуса заявки.</p>
+<p><span class="ex-who">Скилл</span> Понял так: процесс — уведомление жильца о смене статуса заявки на портале. Как должно быть, записано в coddoc/DORM-101/DORM-104/business_requirements.md §4.2: FR-6 — при каждой смене статуса жильцу приходит уведомление. Это оно? На каком статусе ломается?</p>
+<p><span class="ex-who">Аналитик</span> Да, это FR-6. При «принята» уведомление приходит, при «в работе» и «выполнена» — ни пуша, ни письма, хотя статус на портале меняется. Посмотри в коде, почему.</p>
+<p><span class="ex-who">Скилл</span> Причину не ищу и код не читаю: раздела «причина» в баг-репорте нет — её найдёт тот, кто будет чинить. Шаги понял так: жилец подаёт заявку, сотрудник ставит «в работе», затем «выполнена» — верно? Критичность и срочность: хотфикс или общий релиз?</p>
+<p class="ex-gap">… (ответ про шаги и критичность пропущен; файл пишется, когда на все пять гейтов есть ответ)</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-102/bug_report.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>---
+type: bug-report
+task: DORM-102</code></pre><p class="ex-src">ключ — из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>source: coddoc/DORM-101/DORM-104/business_requirements.md
+---</code></pre><p class="ex-src">из ответа аналитика: «Да, это FR-6»</p></div>
+<div class="ex-line"><pre><code># Баг-репорт: нет уведомления при смене статуса заявки</code></pre><p class="ex-src">из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>&gt; **Статус готовности:** Готово к оценке</code></pre><p class="ex-src">по числу открытых вопросов: 0</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## 3. Фактический результат
+При «принята» уведомление приходит; при «в работе» и «выполнена» — ни пуша, ни письма, хотя статус на портале меняется.</code></pre><p class="ex-src">из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>## 4. Ожидаемый результат
+- **FR-1:** При каждой смене статуса заявки жильцу приходит уведомление — 🟢 `coddoc/DORM-101/DORM-104/business_requirements.md` §4.2</code></pre><p class="ex-src">из БТ DORM-104, FR-6 — источник подтвердил аналитик</p></div>
+<div class="ex-gap">…</div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#change-request-doc">change-request-doc</a>, <a href="#technical-spec-doc">technical-spec-doc</a>, <a href="example.html#other">дефект и мелкая правка в примере</a></p>
+</article>
+
+<article class="skill" id="change-request-doc">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: документ-источник" focusable="false"><title>на схеме процесса: документ-источник</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-here" cx="8" cy="24" r="5"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>change-request-doc</code></h3><span class="skill-ver">1.4.0</span></div>
+<p class="skill-what">Собирает запрос на мелкую правку работающего прода, решение о которой уже принято: поменять текст, поднять версию, добавить поле, сменить лимит. Пишет <code>change_request.md</code>, документ-источник для спеки в режиме мелкой правки.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Решение уже есть, и оно про то, что уже работает.</dd>
+<dt>Как зовут</dt><dd>Только через <code>/analyst-workspace</code> → «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос» → «Правка — в запрос на правку». Отдельно не зовут.</dd>
+<dt>Вход → выход</dt><dd>Читает описание правки; для гипотез карточки <code>services/*.md</code>, документ, если его назвали, и <code>context/*.md</code>. Пишет <code>coddoc/&lt;КЛЮЧ&gt;/change_request.md</code>.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>, когда на его первый вопрос вы ответили, что это мелкая правка.</dd>
+<dt>Не делает</dt><dd>Если тронуто три строки таблицы «Что тронуто» и больше или появляется новая роль, потребитель, сущность, процесс, интеграция, спрашивает: идём правкой или через БТ. Идея без готового решения и дефект сюда не идут: файл не пишет и называет нужный путь. Решение не пересматривает, объём «заодно» не добавляет.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-103</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace
+→ «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос»
+→ «Правка — в запрос на правку»</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Аналитик</span> DORM-103: срок подтверждения выполнения поменять с пяти дней на семь.</p>
+<p><span class="ex-who">Скилл</span> Понял так: трогаем конфигурацию — срок подтверждения выполнения: пять дней → семь дней. Контракт, данные, интерфейс, зависимость не трогаем. Это мелкая правка, одна поставка. На границе: на седьмой день без подтверждения заявка ещё ждёт его, на восьмой — закрывается сама. Верно, и кто решил? Заявки, которые в день выпуска уже ждут подтверждения, живут под старым значением: досчитать им до семи дней или оставить пять?</p>
+<p><span class="ex-who">Аналитик</span> Верно, решила Сагитова В. на созвоне 19 ноября. Про заявки, которые уже ждут, — не знаю, оставьте открытым.</p>
+<p class="ex-gap">… (вопросы «что рядом остаётся прежним», «как проверят, что сделано», «критичность и срочность» и ответы на них пропущены)</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-103/change_request.md</p>
+<div class="ex-lines">
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code># Запрос на правку: срок подтверждения выполнения — семь дней</code></pre><p class="ex-src">из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>&gt; **Статус готовности:** Требуются уточнения (1)</code></pre><p class="ex-src">по числу открытых вопросов: 1</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>| Конфигурация | да | срок подтверждения выполнения: пять дней → семь дней |
+Вердикт: мелкая правка, одна поставка.</code></pre><p class="ex-src">из разбора скилла выше; аналитик ответил «Верно»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## 4. Как должно стать
+- **FR-1:** У жильца семь дней на подтверждение выполнения: на седьмой день без подтверждения заявка ещё ждёт его, на восьмой — закрывается сама — 🔵 решение аналитика: Сагитова В.</code></pre><p class="ex-src">из ответа аналитика: «Верно, решила Сагитова В.»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## Открытые вопросы
+- Заявки, которые в день выпуска уже ждут подтверждения: досчитать им до семи дней или оставить пять.</code></pre><p class="ex-src">из ответа аналитика: «не знаю, оставьте открытым»</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#bug-report-doc">bug-report-doc</a>, <a href="#technical-spec-doc">technical-spec-doc</a>, <a href="example.html#other">дефект и мелкая правка в примере</a></p>
+</article>
+
+<article class="skill" id="technical-spec-doc">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: спека" focusable="false"><title>на схеме процесса: спека</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-here" cx="24" cy="8" r="5"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>technical-spec-doc</code></h3><span class="skill-ver">2.4.2</span></div>
+<p class="skill-what">По принятому документу-источнику пишет одну техническую спецификацию, построенную вокруг взаимодействий: новых и изменённых контрактов между сервисами и между фронтом и бэком. Новое проектирует полностью (путь, схема, пример JSON), о существующих сервисах пишет только то, что подтвердил аналитик.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Документ-источник принят, нужна спека для разработки.</dd>
+<dt>Как зовут</dt><dd>Через <code>/analyst-workspace</code>: «Идти дальше» после приёмки документа-источника или на старте «Аналитика: Создаем Спецификацию на основе готового документа». Доработка идёт вариантом «Доработать спеку». Отдельной команды нет.</dd>
+<dt>Вход → выход</dt><dd>Читает <code>business_requirements.md</code> или документ своего режима; <code>services/*.md</code> и <code>context/*.md</code>, чтобы точнее задавать вопросы; свои разделы из <code>.coddoc-tmp/coddoc-settings/sections-spec.md</code>. Пишет <code>technical_specification.md</code> рядом с документом-источником; спека общего узла эпика ложится в <code>coddoc/&lt;EPIC-KEY&gt;/_foundation/technical_specification.md</code>.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>. Он же включает режим: починка по <code>bug_report.md</code>, мелкая правка по <code>change_request.md</code>, общий узел эпика или ребёнок эпика, который наследует контракт узла.</dd>
+<dt>Не делает</dt><dd>Без принятого документа-источника не работает, первый ход у него только вопросы. Код сам не читает; эндпоинты и поля чужого сервиса не выдумывает: конкретное пишет только из источника, иначе словами, как допущение.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace
+→ «Аналитика: Создаем Спецификацию на основе готового документа»
+→ coddoc/DORM-101/DORM-104/business_requirements.md</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> INT-1 (портал → repair-requests: подать заявку), кто вправе: в services/student-portal.md жильцы входят по студенческому билету с ролью STUDENT. Подаёт только жилец с этой ролью — верно? В БТ открыто, заводит ли вахтёр заявку за жильца: есть ли у вахтёра вход на портал? Варианты: «Только STUDENT, у вахтёра входа нет» · «У вахтёра есть вход» · «Оставить к валидации».</p>
+<p><span class="ex-who">Аналитик</span> Жилец — да, роль STUDENT. Про вахтёра не знаю — оставить к валидации.</p>
+<p class="ex-gap">… (остальные тех-гейты — следующими вопросами; файл пишется со второго хода)</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-101/DORM-104/technical_specification.md</p>
+<div class="ex-lines">
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>&gt; **Статус готовности:** Требуются уточнения (1)</code></pre><p class="ex-src">по числу открытых пунктов: один 🟡</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>&gt; 1. INT-1, авторизация: есть ли у вахтёра вход на портал, чтобы завести заявку за жильца — 🟡</code></pre><p class="ex-src">из ответа аналитика: «Про вахтёра не знаю — оставить к валидации»</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>### INT-1. Подать заявку — 🟢
+- **Вид:** новое</code></pre><p class="ex-src">из БТ DORM-104 (вызов), FR-1: такого вызова ещё нет</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- **Контракт (запрос):** `POST /api/v1/repair-requests`</code></pre><p class="ex-src">спроектировано в спеке — отсюда 🟢</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>- **Авторизация:** жилец с ролью `STUDENT` — 🔵К; заявка от вахтёра за жильца — 🟡</code></pre><p class="ex-src">из ответа аналитика «Жилец — да, роль STUDENT» по карточке student-portal</p></div>
+<div class="ex-line"><pre><code>- **Происхождение:** 🟢Н
+- **Трассировка:** FR-1, FR-3, FR-4</code></pre><p class="ex-src">из БТ DORM-104 (вызов): FR-1, FR-3, FR-4</p></div>
+</div>
+</div></div>
+</div>
+<p class="small muted">В <a href="example.html#bt-spec">примере</a> метка записана словами — так было до версии 2.0.0.</p>
+<p class="see">См. также: <a href="#spec-review">spec-review</a>, <a href="#rehearse">rehearse</a>, <a href="#stage-breakdown-doc">stage-breakdown-doc</a>, <a href="plugins.html#deep-search">deep-search</a>, <a href="plugins.html#interaction-diagram">interaction-diagram</a></p>
+</article>
+
+<article class="skill" id="task-decomposition-doc">
+<div class="skill-head"><h3><code>task-decomposition-doc</code></h3><span class="skill-ver">1.3.0</span></div>
+<p class="skill-what">Режет один принятый эпик-БТ на части, которые можно выпускать отдельно, и для каждой пишет самодостаточный детский БТ в подпапке эпика. Требования и критерии копирует дословно, ничего не придумывает.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Эпик или большую задачу надо разбить на подзадачи до того, как писать спеки.</dd>
+<dt>Как зовут</dt><dd>Через <code>analyst-workspace</code>: если в разделе 4.5 БТ есть таблица частей, на гейте появляется вариант «Идти дальше — резать на &lt;A&gt;, &lt;B&gt;». Отдельной команды нет.</dd>
+<dt>Вход → выход</dt><dd>Путь к файлу эпик-БТ, вставленный текст не подходит. Пишет <code>coddoc/&lt;EPIC-KEY&gt;/decomposition.md</code> и по файлу <code>coddoc/&lt;EPIC-KEY&gt;/&lt;CHILD-KEY&gt;/business_requirements.md</code> на каждую часть.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>.</dd>
+<dt>Что нужно</dt><dd>Настоящие ключи подзадач в трекере, по одному на часть.</dd>
+<dt>Не делает</dt><dd>Каждое требование эпика попадает ровно в одну часть, номера <code>FR</code> не меняются. Эпик-БТ не правит; файлы пишет только после того, как вы подтвердили части, ключи и порядок.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace, вопрос «БТ принят — идём дальше?»
+→ «Идти дальше — резать на «подача заявки и статусы», «подтверждение выполнения и комментарий»»</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Беру разрез из §4.5: «подача заявки и статусы» — FR-1–FR-6, от подачи заявки до уведомления о смене статуса; «подтверждение выполнения и комментарий» — FR-7 (жилец подтверждает выполнение, не подтвердил за пять дней — заявка закрывается сама) и FR-8 (комментарий к заявке). Нужны реальные ключи подзадач в трекере, по одному на часть. Порядок: сначала подача заявки и статусы, подтверждение — после неё?</p>
+<p><span class="ex-who">Аналитик</span> DORM-104 — подача заявки и статусы, DORM-105 — подтверждение выполнения и комментарий. Порядок такой.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-101/decomposition.md</p>
+<div class="ex-lines">
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code># Декомпозиция эпика DORM-101: Заявки на ремонт в общежитии</code></pre><p class="ex-src">из эпик-БТ: ключ и название</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## Дочерние части
+| # | Ключ | Название части | Владеет FR-* | Сквозные (унасл.) | Зависит от | Папка |
+|---|------|-----------------|--------------|-------------------|------------|-------|</code></pre><p class="ex-src">шаблон скилла</p></div>
+<div class="ex-line"><pre><code>| 1 | DORM-104 | подача заявки и статусы | FR-1, FR-2, FR-3, FR-4, FR-5, FR-6 | — | — | coddoc/DORM-101/DORM-104/ |</code></pre><p class="ex-src">ключ — из ответа аналитика; часть и FR — из §4.5 эпик-БТ</p></div>
+<div class="ex-line"><pre><code>| 2 | DORM-105 | подтверждение выполнения и комментарий | FR-7, FR-8 | — | DORM-104 | coddoc/DORM-101/DORM-105/ |</code></pre><p class="ex-src">ключ и зависимость — из ответа аналитика</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## Порядок сборки
+1. DORM-104 (подача заявки и статусы) — базовая часть.
+2. DORM-105 (подтверждение выполнения и комментарий) — после DORM-104 (зависимость).</code></pre><p class="ex-src">из ответа аналитика: «Порядок такой»</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#business-requirements-doc">business-requirements-doc</a>, <a href="#technical-spec-doc">technical-spec-doc</a></p>
+</article>
+
+<article class="skill" id="stage-breakdown-doc">
+<div class="skill-head"><h3><code>stage-breakdown-doc</code></h3><span class="skill-ver">1.2.0</span></div>
+<p class="skill-what">Разбивает одну готовую спеку на этапы, чтобы раздать их исполнителям параллельно: файл задачи на этап и индекс. Режет по стыкам спеки (новым взаимодействиям и новым сущностям), содержимое копирует из спеки дословно.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Спеку надо разбить на задачи или распараллелить.</dd>
+<dt>Как зовут</dt><dd>Через <code>analyst-workspace</code>, вариант «Разбить на этапы» в «Что дальше?». Отдельной команды нет.</dd>
+<dt>Вход → выход</dt><dd>Читает <code>technical_specification.md</code>. Пишет <code>&lt;папка спеки&gt;/stages/index.md</code> и <code>&lt;папка спеки&gt;/stages/stage-NN.md</code>. Если делить нечего, пишет только индекс со строкой «не применимо» и причиной.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code>.</dd>
+<dt>Не делает</dt><dd>По брифу или по одному БТ не режет: нужна готовая спека. У каждого стыка ровно один этап-владелец, поэтому разрез по слоям запрещён. Спеку не правит.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace, вопрос «Что дальше?»
+→ «Разбить на этапы»</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Предлагаю 3 этапа: 01 «подача заявки» — владеет INT-1 (портал → repair-requests: подать заявку) и сущностью «RepairRequest» (заявка на ремонт); 02 «смена статуса с уведомлением» — владеет INT-3 (сотрудник службы меняет вид или статус заявки); 03 «заявки жильца» — владеет INT-4 (жилец видит свои заявки со статусами). 02 и 03 — после 01. Заводить ключи подзадач на этапы?</p>
+<p><span class="ex-who">Аналитик</span> Годится, ключи не заводим.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-101/DORM-104/stages/index.md</p>
+<div class="ex-lines">
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code># Этапы работ по DORM-104: Подача заявки и статусы</code></pre><p class="ex-src">из спеки: ключ и название задачи</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>## Этапы
+| # | Этап | Владеет (выход-стык) | Вход (стык) | Файл | Ключ |
+|---|------|----------------------|-------------|------|------|</code></pre><p class="ex-src">шаблон скилла</p></div>
+<div class="ex-line"><pre><code>| 01 | подача заявки | INT-1, «RepairRequest» | INT-2 — API student-portal; INT-5 — API notify | stage-01.md | — |</code></pre><p class="ex-src">владение — из ответа «Годится»; вход — 🔵 INT-2 и INT-5 спеки: при «принята» уходит уведомление</p></div>
+<div class="ex-line"><pre><code>| 02 | смена статуса с уведомлением | INT-3 | «RepairRequest»; INT-5 — API notify | stage-02.md | — |</code></pre><p class="ex-src">владение — из ответа «Годится»; «RepairRequest» производит этап 01</p></div>
+<div class="ex-line"><pre><code>| 03 | заявки жильца | INT-4 | «RepairRequest» | stage-03.md | — |</code></pre><p class="ex-src">ключей нет — из ответа «ключи не заводим»</p></div>
+<div class="ex-gap">…</div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#technical-spec-doc">technical-spec-doc</a>, <a href="#spec-review">spec-review</a>, <a href="#rehearse">rehearse</a></p>
+</article>
+
+<article class="skill" id="spec-review">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: приёмка" focusable="false"><title>на схеме процесса: приёмка</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-here" cx="12.7" cy="12.7" r="5"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>spec-review</code></h3><span class="skill-ver">1.9.0</span></div>
+<p class="skill-what">Независимая приёмка записанного документа. Его читает отдельный агент с чистым контекстом по чек-листу этого типа документа и возвращает нарушения правил, записанных в шаблоне: у каждого цитата, номер строки и рекомендация.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Документ записан. Обычно звать не нужно: <code>analyst-workspace</code> запускает приёмку сам.</dd>
+<dt>Как зовут</dt><dd>Сам из <code>analyst-workspace</code>. Вручную: <code>/spec-review</code> с путём к документу, к папке <code>stages/</code> или к папке задачи.</dd>
+<dt>Вход → выход</dt><dd>Тип документа узнаёт по имени файла: <code>business_requirements.md</code>, <code>bug_report.md</code>, <code>change_request.md</code>, <code>technical_specification.md</code>, <code>stages/stage-NN.md</code>, <code>stages/index.md</code>. Для спеки берёт рядом документ-источник. Статус не возвращает: в чат приходят число нарушений и список с цитатами и строками. Файлов не пишет.</dd>
+<dt>Кто вызывает</dt><dd><code>analyst-workspace</code> после каждого записанного документа: документа-источника, детских БТ после разреза эпика, спеки общего узла, каждой спеки и папки <code>stages/</code>. Флаг <code>--no-review</code> выключает эти вызовы.</dd>
+<dt>Не делает</dt><dd>Документ не правит. Хорошо ли решение, не оценивает: пустой список значит «ни одно записанное правило не нарушено», а не «документ хороший».</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>сам: /analyst-workspace после записи БТ и после записи спеки
+вручную: запусти spec-review на coddoc/DORM-101/business_requirements.md</code></pre></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<span class="tag tag-remark"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>с замечанием</span>
+<p class="ex-file">ответ в чат — приёмка БТ</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>артефакт: coddoc/DORM-101/business_requirements.md
+тип: бизнес-требования
+нарушений: 1</code></pre><p class="ex-src">путь — из вызова; тип — по имени файла</p></div>
+<div class="ex-line"><pre><code>1. §4.2, строка 70 — одна фраза, два прочтения
+   «- **[FR-7]** Дано заявка «выполнена», когда жилец не подтвердил её за пять дней, тогда заявка закрывается сама.»
+   → «пять дней» — календарные или рабочие (в FR-4 — «шесть рабочих дней»). Спросите пользователя, какое прочтение верно, и запишите его в FR и в критерий.</code></pre><p class="ex-src">чек-лист БТ, пункт 12; цитата — из БТ, строка 70</p></div>
+</div>
+<p class="ex-file">ответ в чат — вопрос /analyst-workspace после приёмки БТ</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>документ принят, всё нужное дальше лежит на диске — здесь можно /clear</code></pre><p class="ex-src">шаблон analyst-workspace: точка очистки</p></div>
+<div class="ex-line"><pre><code>БТ принят — идём дальше? Нарушение: §4.2, строка 70 — «пять дней»: календарных или рабочих. Открытых вопросов: 5 — комендант, исполнитель, заявка на секцию, вахтёр, оплата ремонта.</code></pre><p class="ex-src">нарушение — из отчёта приёмки; вопросы — из «Открытых вопросов» БТ</p></div>
+<div class="ex-line"><pre><code>1. Поправить документ сейчас — 1 нарушение, 5 открытых вопросов
+   вернёмся в интервью по БТ, дешевле, чем чинить после разреза</code></pre><p class="ex-src">вариант есть, потому что нарушений и вопросов больше нуля</p></div>
+<div class="ex-line"><pre><code>2. Идти дальше — резать на «подача заявки и статусы», «подтверждение выполнения и комментарий»
+   запущу task-decomposition-doc, он разложит эпик на детские БТ; открытые вопросы разъедутся по детским БТ и осядут в §8 спеки, не блокируя её статус; нарушения приёмки останутся в документе</code></pre><p class="ex-src">части — из §4.5 БТ</p></div>
+<div class="ex-line"><pre><code>3. Пока остановиться
+   документ принят и лежит на диске; вернётесь через «Продолжить начатое»</code></pre><p class="ex-src">шаблон analyst-workspace</p></div>
+</div>
+<span class="tag tag-ok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>принят</span>
+<p class="ex-file">ответ в чат — приёмка спеки DORM-104</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>приёмка coddoc/DORM-101/DORM-104/technical_specification.md: нарушений нет</code></pre><p class="ex-src">из отчёта spec-review: «нарушений: 0»</p></div>
+<div class="ex-line"><pre><code>Что дальше?
+1. Проверить спеку — исполнитель, архитектор сервиса и безопасник прочтут спеку — получите список критичных вопросов, на которые она не отвечает
+2. Доработать спеку — закроем открытые пункты и находки проверок</code></pre><p class="ex-src">шаблон analyst-workspace: четыре варианта, порядок постоянный</p></div>
+<div class="ex-line"><pre><code>3. Разбить на этапы — работу делят между исполнителями — каждому свой файл задачи
+4. Начать другую задачу — вернёмся к стартовому вопросу: новая задача, продолжение эпика, обновление описания сервисов</code></pre><p class="ex-src">шаблон analyst-workspace</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#g-workspace">гейт после документа</a>, <a href="start.html#review">если приёмка вернула замечания</a>, <a href="#rehearse">rehearse</a></p>
+</article>
+
+<article class="skill" id="rehearse">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: проверка" focusable="false"><title>на схеме процесса: проверка</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-here" cx="40" cy="24" r="5"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><h3><code>rehearse</code></h3><span class="skill-ver">1.1.2</span></div>
+<p class="skill-what">Два режима. В «проверке» исполнитель, архитектор сервиса и безопасник читают документ параллельно, и в чат приходит один список критичных вопросов перед разработкой; в репетиции встречи скилл играет одну роль (заказчик, архитектор сервиса, безопасник или исполнитель) и задаёт неудобные вопросы по одному.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Проверка: «хватит ли спеки, чтобы писать код», «проверь готовность к разработке». Репетиция: «прорепетируй встречу», «что спросит заказчик», «погоняй меня по спеке», «подготовь к защите БТ».</dd>
+<dt>Как зовут</dt><dd>Проверка: вариант «Проверить спеку» в «Что дальше?» после спеки или вручную <code>/rehearse &lt;путь к спеке&gt; проверка</code>. Репетиция: <code>/rehearse &lt;путь к документу&gt; &lt;роль&gt;</code>; роль не названа, скилл спросит.</dd>
+<dt>Вход → выход</dt><dd>Читает документ, у спеки ещё документ-источник. Вопросы готовят отдельные агенты, они могут заглянуть в <code>context/</code> и <code>services/</code>. Ничего не пишет, всё приходит в чат. Проверка ответов не ждёт; её список живёт только в переписке, поэтому до «Доработать спеку» не делайте <code>/clear</code>. Репетиция ждёт ответа на каждый вопрос и в конце говорит, что решить до встречи и что вписать в документ.</dd>
+<dt>Кто вызывает</dt><dd>Проверку: <code>analyst-workspace</code> или вы. Репетицию: только вы.</dd>
+<dt>Что нужно</dt><dd>Для проверки нужен запуск отдельных агентов; без них скилл предлагает репетицию одной роли.</dd>
+<dt>Не делает</dt><dd>Документ не правит и ответы в него не вписывает. Вопрос без подтверждённой цитаты из файла не задаёт, своих вопросов не добавляет, документ не оценивает.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">проверка · эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/analyst-workspace, вопрос «Что дальше?» → «Проверить спеку»
+rehearse coddoc/DORM-101/DORM-104/technical_specification.md проверка</code></pre></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>Проверка: coddoc/DORM-101/DORM-104/technical_specification.md — исполнитель, архитектор сервиса, безопасник. Критичных вопросов: 2.</code></pre><p class="ex-src">путь и режим — из вызова</p></div>
+<div class="ex-line"><pre><code>1. Кто вправе вызвать INT-1 (подать заявку): только жилец с ролью STUDENT или ещё вахтёр за жильца — и с какой ролью он входит на портал?
+   Чем грозит: INT-1 откроют одной роли STUDENT; если БТ решит, что вахтёр заводит заявку за жильца, доступ придётся переделывать.
+   Кто спросил: исполнитель, безопасник
+   Опора: coddoc/DORM-101/DORM-104/technical_specification.md:61 — «заявка от вахтёра за жильца — 🟡»</code></pre><p class="ex-src">из спеки, строка 61: авторизация INT-1 под 🟡</p></div>
+<div class="ex-line"><pre><code>2. notify не ответил — статус заявки сменился, а уведомления нет и повтора нет: так и задумано?
+   Чем грозит: жилец не узнает, что заявку взяли в работу или выполнили, хотя FR-6 требует уведомления при каждой смене статуса.
+   Кто спросил: архитектор сервиса
+   Опора: coddoc/DORM-101/DORM-104/technical_specification.md:171 — «уведомление не уходит, повтора нет»</code></pre><p class="ex-src">из спеки, строка 171: §5.2 «Надёжность/деградация»</p></div>
+<div class="ex-line"><pre><code>Вписать ответы в документ — доработкой в `/analyst-workspace`.</code></pre><p class="ex-src">шаблон скилла</p></div>
+</div>
+</div></div>
+</div>
+<div class="ex">
+<p class="ex-cap">репетиция встречи по роли · эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>rehearse coddoc/DORM-101/business_requirements.md заказчик</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Я — заказчик. Задам 3 вопроса по одному. Скажете «хватит» — сразу итог.</p>
+<p><span class="ex-who">Скилл</span> 1/3. Журнал на вахте уходит. Что будет с заявками, которые в день запуска записаны в журнал и ещё не сделаны? Опора: coddoc/DORM-101/business_requirements.md:27 — «сантехник в восемь утра забирает журнал, переписывает себе и идёт по комнатам»</p>
+<p><span class="ex-who">Аналитик</span> Не знаю, уточню у Ковригина.</p>
+<p><span class="ex-who">Скилл</span> Записал.</p>
+<p class="ex-gap">… (вопрос 2/3 — «пять дней» на подтверждение: с выходными или без? Опора: coddoc/DORM-101/business_requirements.md:70 — ответ «не знаю»; вопрос 3/3 — что считается аварией, аналитик назвал §4.1 — снят)</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>Репетиция: coddoc/DORM-101/business_requirements.md, роль — заказчик. Задано вопросов: 3 из 3.</code></pre><p class="ex-src">путь и роль — из вызова</p></div>
+<div class="ex-line"><pre><code>Решить до встречи:
+1. Что с заявками из журнала, не сделанными в день запуска — coddoc/DORM-101/business_requirements.md:27</code></pre><p class="ex-src">из ответа на 1/3: «Не знаю»</p></div>
+<div class="ex-line"><pre><code>2. «Пять дней» на подтверждение — с выходными или без — coddoc/DORM-101/business_requirements.md:70</code></pre><p class="ex-src">из ответа на 2/3 (в пропуске): «не знаю»</p></div>
+<div class="ex-line"><pre><code>Вписать в документ:
+—</code></pre><p class="ex-src">ответов по существу не было</p></div>
+<div class="ex-line"><pre><code>Снято: 1 — ответ в документе есть или посылка неверна.</code></pre><p class="ex-src">вопрос 3/3 — ответ есть в §4.1</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#analyst-workspace">analyst-workspace</a>, <a href="#technical-spec-doc">technical-spec-doc</a>, <a href="#spec-review">spec-review</a></p>
+</article>
+
+<article class="skill" id="archive-spec">
+<div class="skill-head"><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: архив и контекст системы" focusable="false"><title>на схеме процесса: архив и контекст системы</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-here" cx="24" cy="40" r="5"/></svg><h3><code>archive-spec</code></h3><span class="skill-ver">1.4.1</span></div>
+<p class="skill-what">Когда фича вышла в прод, называет сервисы, которые затронула спека, перечитывает их через <code>service-map</code>, дописывает историю карточек и помечает спеку архивной. Работает по ключу, по нескольким ключам (релиз пачкой) или по папке; эпик архивирует целиком.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«уехало в прод», «вмержили», «выкатили», «закрыта», «можно архивировать».</dd>
+<dt>Как зовут</dt><dd><code>/archive-spec &lt;КЛЮЧ&gt;</code> или «ARS-100 уехала, архивируй»; через <code>/analyst-workspace</code> → «Доработка готова — обновить описание сервисов».</dd>
+<dt>Вход → выход</dt><dd>Читает <code>coddoc/**/&lt;KEY&gt;/**/technical_specification.md</code>: раздел 1.2 «Затронутые сервисы» и ещё шесть разделов, чтобы подсказать, что задето. Читает <code>services/manifest.yaml</code>. Пишет пустой файл <code>.archived</code> в папку каждой обработанной спеки и строки в <code>services/_history/&lt;name&gt;.md</code>. Карточки обновляет <code>service-map</code>, отчёт приходит в чат.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную или <code>analyst-workspace</code>: вариант «Доработка готова — обновить описание сервисов» или «Сначала архивировать …» в «Продолжить начатое».</dd>
+<dt>Что нужно</dt><dd>Свежие клоны репозиториев сервисов: перед сканом скилл просит их подтянуть.</dd>
+<dt>Не делает</dt><dd>Незавершённые спеки не архивирует; метку ставит только после того, как вы подтвердили состав. git не запускает и не коммитит: коммит делаете вы, и <code>.archived</code> должен попасть в тот же коммит, что карточки и история.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>DORM-101 уехала, архивируй</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Архивирую эпик DORM-101 — две спеки: coddoc/DORM-101/DORM-104/technical_specification.md и coddoc/DORM-101/DORM-105/technical_specification.md. Метки лягут в папки DORM-104 и DORM-105, в папку эпика — нет. Состав верный?</p>
+<p><span class="ex-who">Аналитик</span> Да, обе части в проде.</p>
+<p><span class="ex-who">Скилл</span> перед сканом подтяните клоны: ../student-portal. Запускаю service-map student-portal. Задето: — student-portal: экран «Заявка на ремонт» — вызов POST /api/v1/repair-requests; раздел службы эксплуатации — PATCH /api/v1/repair-requests/{id}; заявки жильца — GET /api/v1/repair-requests/my.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">services/_history/student-portal.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># student-portal — история карточки</code></pre><p class="ex-src">шаблон скилла: файла истории ещё не было</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>| 2026-11-16 | DORM-104 | Подача заявки и статусы |</code></pre><p class="ex-src">описание — название спеки DORM-104; дата — день архивации</p></div>
+<div class="ex-line"><pre><code>| 2026-11-16 | DORM-105 | Подтверждение выполнения и комментарий |</code></pre><p class="ex-src">описание — название спеки DORM-105</p></div>
+</div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>архивировано: DORM-104, DORM-105 — метки coddoc/DORM-101/DORM-104/.archived, coddoc/DORM-101/DORM-105/.archived</code></pre><p class="ex-src">из ответа аналитика: «Да, обе части в проде»</p></div>
+<div class="ex-line"><pre><code>история: services/_history/student-portal.md — 2 строки</code></pre><p class="ex-src">по §1.2 спек: student-portal — изменение</p></div>
+<div class="ex-line"><pre><code>в скан: student-portal — service-map записал карточку поверх: ключей 26, фактов нет у 3; пункты «Задето» в коде нашлись все</code></pre><p class="ex-src">числа — из отчёта service-map</p></div>
+<div class="ex-line"><pre><code>пропущены: repair-requests — нет в манифесте, добавьте строку, если он ваш;
+           notify — потребитель, контракт не менялся</code></pre><p class="ex-src">из services/manifest.yaml и §1.2 спек</p></div>
+<div class="ex-line"><pre><code>карточка честна ровно настолько, насколько свежа была рабочая копия; если клоны ../student-portal не были подтянуты, перезапустите service-map по этим сервисам</code></pre><p class="ex-src">шаблон скилла: строка про клоны — второй раз</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#service-map">service-map</a>, <a href="plugins.html#services-graph">services-graph</a>, <a href="start.html#first">первая задача, шаг 9</a></p>
+</article>
+</section>
+
+<!-- ============ Термины ============ -->
+<section class="block" id="glossary" aria-labelledby="glossary-h">
+<h2 id="glossary-h">Термины</h2>
+<dl class="glossary">
+<dt id="t-bt">БТ</dt><dd>Бизнес-требования, файл <code>coddoc/&lt;КЛЮЧ&gt;/business_requirements.md</code>. Что нужно бизнесу и как проверить, что сделано: требования <code>FR-*</code> с критериями приёмки, без технического решения.</dd>
+<dt id="t-spec">Спека</dt><dd>Техническая спецификация, файл <code>technical_specification.md</code> рядом с документом-источником. Строится вокруг взаимодействий: новых и изменённых контрактов между сервисами и между фронтом и бэком.</dd>
+<dt id="t-card">Карточка сервиса</dt><dd>Файл <code>services/&lt;name&gt;.md</code>: что сервис делает для пользователя, его бизнес-правила, контракты, роли. Её снимает <code>service-map</code> по коду; правки руками затираются при следующем сборе.</dd>
+<dt id="t-slepok">Слепок</dt><dd>Карточки сервисов вместе с манифестом <code>services/manifest.yaml</code>. Собирает его <code>service-map</code>.</dd>
+<dt id="t-context">Контекст системы</dt><dd>Карточки в <code>services/</code> и документы вне кода в <code>context/</code>. Скиллы процесса читают его, чтобы спрашивать про вашу систему, а не вообще.</dd>
+<dt id="t-source">Документ-источник</dt><dd>Документ, с которого начинается задача и по которому пишут спеку: БТ, баг-репорт или запрос на правку.</dd>
+<dt id="t-note">Ноут</dt><dd>Файл <code>notes/&lt;тема&gt;/notebook.md</code>: записи дискавери по одной теме, разложенные на пункты под датами. Ведёт его <code>analyst-notebook</code>.</dd>
+<dt id="t-points">Пункты</dt><dd>Строки вида <code>- [решено] …</code>, <code>- [открыто] …</code>, <code>- [сведение] …</code>, <code>- [мысль] …</code> со ссылкой на источник. Список пунктов лежит в файле <code>*.points.md</code>; из него <code>notes-to-intent</code> собирает вход для БТ или спеки.</dd>
+<dt id="t-discovery">Дискавери</dt><dd>Работа до документа: встречи, переписка, мысли аналитика. Её итог: пункты и вход для БТ или спеки.</dd>
+<dt id="t-review">Приёмка</dt><dd>Проверка записанного документа вторым агентом с чистым контекстом: он не видел интервью и черновиков. Сверяет документ с правилами шаблона и возвращает число нарушений и список с цитатами и номерами строк. Хорошо ли решение, не оценивает: это работа аналитика.</dd>
+<dt id="t-gate">Гейт</dt><dd>Один вопрос после БТ, баг-репорта или запроса на правку: «Поправить документ сейчас», «Идти дальше» или «Пока остановиться». Решение за аналитиком: снимать все замечания до следующего шага не обязательно. «Идти дальше» — явное принятие документа с тем, что в нём осталось.</dd>
+<dt id="t-open">Открытый вопрос</dt><dd>То, чего аналитик не знает или явно отложил. Скилл его не додумывает, а пишет в блок «Открытые вопросы» в шапке документа.</dd>
+<dt id="t-status">Статус готовности</dt><dd>Строка в шапке документа. Её не оценивают, а считают по открытым вопросам: при нуле «Готово к оценке» (у спеки «Готово к разработке»), иначе «Требуются уточнения (N)».</dd>
+</dl>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+<div class="wrap">
+<svg viewBox="5.54 24.36 330.22 62.16" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-foot-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-foot-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-foot-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-foot-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg>
+<span>Скиллы GigaCode для аналитика</span>
+<a href="start.html">Начать</a>
+<a href="loop.html#glossary">Термины</a>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Начать — coDDoc</title>
+<meta name="description" content="Установка coDDoc и первая задача от вопроса до спеки.">
+<script>try{var t=localStorage.getItem('coddoc-theme')||'auto';document.documentElement.setAttribute('data-theme-pref',t);if(t!=='auto')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<div class="wrap">
+<a class="brand" href="index.html" aria-label="coDDoc — на главную"><svg viewBox="5.54 24.36 330.22 62.16" role="img" aria-label="coDDoc"><defs><linearGradient id="lg-top-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-top-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-top-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-top-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg></a>
+<nav class="nav" aria-label="Разделы">
+<a href="start.html" aria-current="page">Начать</a>
+<a href="example.html">Пример</a>
+<a href="loop.html">Процесс</a>
+<a href="plugins.html">Плагины</a>
+</nav>
+<button class="theme-btn" type="button" aria-label="Тема: как в системе" title="Тема: как в системе">
+<svg class="ico i-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></svg>
+<svg class="ico i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+<svg class="ico i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+</button>
+</div>
+</header>
+<main id="main" class="wrap doc-page">
+
+<nav class="side" aria-label="На этой странице">
+<h2>На этой странице</h2>
+<ul>
+<li><a href="#need">Что нужно</a></li>
+<li><a href="#install">Установка и обновление</a></li>
+<li><a href="#context">Контекст системы</a></li>
+<li><a href="#first">Первая задача</a></li>
+<li><a href="#review">Если приёмка вернула замечания</a></li>
+<li><a href="#rules">Три правила</a></li>
+</ul>
+</nav>
+
+<div>
+<header class="page-head">
+<h1>Установка и первая задача</h1>
+<p>Что поставить, где взять <a class="term" href="loop.html#t-context">контекст системы</a> и как провести первую задачу до спеки.</p>
+</header>
+
+<section class="block" id="need" aria-labelledby="need-h">
+<h2 id="need-h">Что нужно</h2>
+<ul>
+<li><b>Репозиторий AI-SDD.</b> В нём живут документы задач (<code>coddoc/</code>) и контекст системы (<code>services/</code>, <code>context/</code>). Если у команды он уже есть — склонируйте его. Если нет — заведите пустой git-репозиторий и рядом склонируйте репозитории сервисов системы: их будет читать <code>service-map</code>. Работа над задачей идёт в папке AI-SDD, кодовая база не нужна.</li>
+<li><b>git</b> и <b>bash</b> (macOS, Linux) или <b>PowerShell</b> (Windows) — для обновления скиллов, <code>to-html</code> и <code>services-graph</code>.</li>
+<li><b>Python</b> — только для плагинов <code>peek</code>, <code>work-plan</code>, <code>retro</code> и <code>coddoc-settings</code>. Основному процессу он не нужен.</li>
+</ul>
+</section>
+
+<section class="block" id="install" aria-labelledby="install-h">
+<h2 id="install-h">Установка и обновление</h2>
+<ol class="steps">
+<li><div><h3>Поставить</h3><p>Скопируйте все папки скиллов в <code>.gigacode/skills/</code> — в папке AI-SDD или в глобальной. В GigaCode Desktop: Навыки → Загрузить навык → <code>SKILL.md</code>.</p></div></li>
+<li><div><h3>Обновлять</h3><p>Из чата:</p><pre><code>/analyst-skills-update</code></pre><p>Скилл <code>analyst-skills-update</code> запускает скрипт из своей папки <code>reference/</code> (<code>skills.sh</code>, на Windows — <code>skills.ps1</code>), подтягивает свежие версии в <code>.gigacode/skills/</code> и показывает список установленных. Нужен доступ к репозиторию со скиллами, как для <code>git clone</code>; если по https не пускает, скрипт пробует ssh-ключ.</p></div></li>
+</ol>
+</section>
+
+<section class="block" id="context" aria-labelledby="context-h">
+<h2 id="context-h">Контекст системы</h2>
+<p><a class="term" href="loop.html#t-card">Карточки сервисов</a> в <code>services/</code> снимаются по коду, документы вне кода лежат в <code>context/</code>. Их читают скиллы процесса, чтобы спрашивать про вашу систему, а не вообще.</p>
+<div class="fork">
+<div><b>В <code>services/</code> уже есть карточки</b>Пропустите этот шаг: их сняли коллеги. Обновляют их после релиза соседнего сервиса или когда появился новый — это делает <code>archive-spec</code> или <code>/service-map</code> по имени сервиса.</div>
+<div><b>Карточек нет — снять с нуля</b>
+<ol>
+<li>Рядом с AI-SDD склонируйте репозитории сервисов системы.</li>
+<li>В AI-SDD на ризонинг-модели: <code>/service-map</code>. До шести сервисов идут параллельно; если их больше десяти — по именам: <code>/skills service-map auth geo</code>. Плохая карточка — перечитайте сервис по имени, карточка перезапишется целиком.</li>
+<li>В <code>services/manifest.yaml</code> — состав сервисов и <code>notes</code>: договорённости вне кода, они переносятся в карточку дословно.</li>
+<li>Документы вне кода: <code>/context-doc путь/к/файлу</code> (txt, docx, pdf, xlsx, папка или текст из чата). Строка <code>description</code> обязательна — без неё файл не найдут.</li>
+<li>Запушьте AI-SDD.</li>
+</ol></div>
+</div>
+<p class="small muted" style="margin-top: var(--s3)">Без контекста скиллы работают, но вопросы будут общие, не про вашу систему, и варианты ответов агент придумает сам.</p>
+</section>
+
+<section class="block" id="first" aria-labelledby="first-h">
+<h2 id="first-h">Первая задача</h2>
+<p>Перед каждым шагом — <code>/clear</code>: переписка прошлого шага портит ответы следующего.</p>
+<ol class="steps walk" style="margin-top: var(--s5)">
+<li><span></span><div><h3><span class="n">1</span>Ветка под задачу</h3><pre><code>git checkout -b feature/DORM-101</code></pre></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: вход в процесс" focusable="false"><title>на схеме процесса: вход в процесс</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-here" cx="8" cy="24" r="5"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">2</span>Запустить процесс</h3><pre><code>/analyst-workspace</code></pre><p>На старте четыре варианта: «Бизнес: Переводим Идею в БТ, баг — в баг-репорт, правку — в запрос», «Аналитика: Создаем Спецификацию на основе готового документа», «Продолжить начатое», «Доработка готова — обновить описание сервисов». Для новой задачи — «Бизнес»; дальше скилл спросит, идея это, дефект или правка.</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: документ-источник" focusable="false"><title>на схеме процесса: документ-источник</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-here" cx="8" cy="24" r="5"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">3</span>Ответить на вопросы</h3><p>Скилл ведёт интервью и пишет <a class="term" href="loop.html#t-source">документ-источник</a> в <code>coddoc/&lt;КЛЮЧ&gt;/</code>: <code>business_requirements.md</code>, <code>bug_report.md</code> или <code>change_request.md</code>. Чего вы не знаете — попадает в <a class="term" href="loop.html#t-open">открытые вопросы</a>.</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: приёмка документа" focusable="false"><title>на схеме процесса: приёмка документа</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-here" cx="12.7" cy="12.7" r="5"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">4</span>Приёмка документа</h3><p>Запускается сама. Прочитайте документ и замечания, решите, что дальше, — варианты <a href="#review">ниже</a>.</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: спека" focusable="false"><title>на схеме процесса: спека</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-here" cx="24" cy="8" r="5"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">5</span>Спека</h3><p>«Идти дальше» после приёмки ведёт к спеке. Если спеку пишет другой человек, он берёт ветку и запускает <code>/analyst-workspace</code> → «Аналитика» с путём к документу. Скилл <code>technical-spec-doc</code> пишет <code>technical_specification.md</code> рядом с документом-источником.</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: приёмка спеки" focusable="false"><title>на схеме процесса: приёмка спеки</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-here" cx="35.3" cy="12.7" r="5"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">6</span>Приёмка спеки и «Что дальше?»</h3><p>После приёмки — четыре варианта: «Проверить спеку», «Доработать спеку», «Разбить на этапы», «Начать другую задачу».</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: проверка" focusable="false"><title>на схеме процесса: проверка</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-here" cx="40" cy="24" r="5"/><circle class="mr-node" cx="24" cy="40" r="3"/></svg><div><h3><span class="n">7</span>Проверить спеку</h3><p>Исполнитель, архитектор сервиса и безопасник читают спеку параллельно; в чат приходит один список критичных вопросов, на которые она не отвечает. Ответьте на них и выберите «Доработать спеку». Между проверкой и доработкой <code>/clear</code> не делайте: список живёт только в переписке.</p></div></li>
+<li><span></span><div><h3><span class="n">8</span>Передать исполнителю</h3><p>Запушьте ветку и передайте её разработчику — и номер этапа, если нарезали этапы.</p><pre><code>git push origin feature/DORM-101</code></pre><p>Разработчик в AI-SDD делает <code>git pull &amp;&amp; git checkout feature/DORM-101</code> и работает по <code>technical_specification.md</code> или своему <code>stages/stage-NN.md</code>. Не хватает чего-то в документе — возвращается к аналитику, сам не дописывает.</p></div></li>
+<li><svg class="mini-ring" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="на схеме процесса: архив и контекст системы" focusable="false"><title>на схеме процесса: архив и контекст системы</title><path class="mr-band" d="M24 40A16 16 0 1 1 40 24"/><path class="mr-band mr-ext" d="M40 24A16 16 0 0 1 24 40"/><circle class="mr-node" cx="8" cy="24" r="3"/><circle class="mr-node" cx="12.7" cy="12.7" r="3"/><circle class="mr-node" cx="24" cy="8" r="3"/><circle class="mr-node" cx="35.3" cy="12.7" r="3"/><circle class="mr-node" cx="40" cy="24" r="3"/><circle class="mr-here" cx="24" cy="40" r="5"/></svg><div><h3><span class="n">9</span>Когда фича вышла в прод</h3><p>Подтяните свежий код затронутых сервисов и запустите <code>/analyst-workspace</code> → «Доработка готова — обновить описание сервисов» (или <code>/archive-spec &lt;КЛЮЧ&gt;</code>). <code>archive-spec</code> перечитает затронутые сервисы, допишет историю карточек и пометит спеку архивной. Так следующая задача прочитает уже обновлённые карточки.</p></div></li>
+</ol>
+</section>
+
+<section class="block" id="review" aria-labelledby="review-h">
+<h2 id="review-h">Если приёмка вернула замечания</h2>
+<p><a class="term" href="loop.html#t-review">Приёмка</a> — второй агент с чистым контекстом: он не видел интервью и черновиков. Он сверяет документ с правилами, записанными в шаблоне, и к каждому замечанию даёт цитату и номер строки. Хорошо ли решение, он не оценивает — это ваша работа.</p>
+<p style="margin-top: var(--s4)">После БТ, баг-репорта или запроса на правку <code>analyst-workspace</code> всегда задаёт один вопрос — это <a class="term" href="loop.html#t-gate">гейт</a>. Решение за вами:</p>
+<ul class="gate-opts">
+<li><b>«Поправить документ сейчас»</b> — есть, только если остались замечания или открытые вопросы. Возврат в интервью того же скилла; новую редакцию приёмка проверит снова.</li>
+<li><b>«Идти дальше»</b> — явное принятие. Открытые вопросы перейдут в раздел 8 спеки и её статус не заблокируют; замечания останутся в документе.</li>
+<li><b>«Пока остановиться»</b> — документ лежит на диске, вернуться можно через «Продолжить начатое».</li>
+</ul>
+<p style="margin-top: var(--s4)">После спеки отдельного гейта нет: приёмка пишет «нарушений нет» или список, дальше — «Что дальше?», где есть «Доработать спеку».</p>
+</section>
+
+<section class="block" id="rules" aria-labelledby="rules-h">
+<h2 id="rules-h">Три правила</h2>
+<ul>
+<li>Перед каждым шагом — <code>/clear</code>: перед БТ, перед спекой, перед архивацией и при переключении между задачами.</li>
+<li>Список замечаний приёмки передавайте как есть, с цитатами и номерами строк. Замечаний много — выберите «Поправить документ сейчас», а не правьте руками.</li>
+<li><code>/analyst-workspace --no-review</code> выключает приёмку на всю сессию. Гейт с вопросом остаётся и считается по открытым вопросам.</li>
+</ul>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+<div class="wrap">
+<svg viewBox="5.54 24.36 330.22 62.16" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-foot-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-foot-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-foot-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-foot-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg>
+<span>Скиллы GigaCode для аналитика</span>
+<a href="start.html">Начать</a>
+<a href="loop.html#glossary">Термины</a>
+</div>
+</footer>
+</body>
+</html>
