@@ -1,0 +1,13 @@
+снимок скилла: runs/2026-11-23-occ-pilot/_skills/technical-spec-doc.SKILL.md
+проба: occ-cr-evt   фикстура: OCC-CR-EVT   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pilot/occ-cr-evt
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pilot-occ-cr-evt-32425-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-EVT/w-prompt.txt
+прогонов: 1, параллельно: 1
+  run-1 — ходов: 1, строк в трассе: 0
+  run-1 — готов
+ГОТОВО: runs/2026-11-23-occ-pilot/occ-cr-evt — песочниц с ответом: 1 из 1
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pilot-occ-cr-evt-32425-skills (журнальная копия осталась в runs/2026-11-23-occ-pilot/_skills/)
+runs/2026-11-23-occ-pilot/occ-cr-evt: $1.20 за 1 прогонов

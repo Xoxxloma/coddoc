@@ -1,0 +1,26 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: ts-cr-timeout   фикстура: TS-CR   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/ts-cr-timeout
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-cr-timeout-37096-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-CR/timeout-prompt.txt
+прогонов: 3, параллельно: 3
+  run-2 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-cr-timeout/run-2/_stderr.log
+  run-1 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-cr-timeout/run-1/_stderr.log
+  run-3 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-cr-timeout/run-3/_stderr.log
+ГОТОВО: runs/2026-11-23-occ-pool/ts-cr-timeout — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-cr-timeout-37096-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/ts-cr-timeout: $0.00 за 0 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: ts-cr-timeout   фикстура: TS-CR   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/ts-cr-timeout
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-cr-timeout-41722-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-CR/timeout-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — готов
+  run-3 — готов
+  run-2 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/ts-cr-timeout — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-cr-timeout-41722-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/ts-cr-timeout: $1.85 за 3 прогонов

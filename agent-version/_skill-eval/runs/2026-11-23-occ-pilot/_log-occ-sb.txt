@@ -1,0 +1,14 @@
+снимок скилла: runs/2026-11-23-occ-pilot/_skills/stage-breakdown-doc.SKILL.md
+манифест фикстуры заведён: /c/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-SB/_manifest.txt
+проба: occ-sb   фикстура: OCC-SB   скилл: stage-breakdown-doc
+реплика аналитика: go-turn2.txt   ходов до 2 подряд без движения, потолок 2
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pilot/occ-sb
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pilot-occ-sb-32432-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-SB/sb-prompt.txt
+прогонов: 1, параллельно: 1
+  run-1 — ходов: 2, строк в трассе: 0
+  run-1 — готов
+ГОТОВО: runs/2026-11-23-occ-pilot/occ-sb — песочниц с ответом: 1 из 1
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pilot-occ-sb-32432-skills (журнальная копия осталась в runs/2026-11-23-occ-pilot/_skills/)
+runs/2026-11-23-occ-pilot/occ-sb: $0.70 за 1 прогонов

@@ -1,0 +1,21 @@
+снимок скилла: runs/2026-11-24-occ-r2/_skills/technical-spec-doc.SKILL.md
+проба: occ-bt-evt   фикстура: OCC-BT-EVT   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-24-occ-r2/occ-bt-evt
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r2-occ-bt-evt-44980-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-BT-EVT/spec-prompt.txt
+прогонов: 5, параллельно: 3
+  run-1 — ходов: 1, строк в трассе: 0
+  run-1 — готов
+  run-3 — ходов: 1, строк в трассе: 0
+  run-3 — готов
+  run-2 — ходов: 1, строк в трассе: 0
+  run-2 — готов
+  run-4 — ходов: 1, строк в трассе: 0
+  run-4 — готов
+  run-5 — ходов: 1, строк в трассе: 0
+  run-5 — готов
+ГОТОВО: runs/2026-11-24-occ-r2/occ-bt-evt — песочниц с ответом: 5 из 5
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r2-occ-bt-evt-44980-skills (журнальная копия осталась в runs/2026-11-24-occ-r2/_skills/)
+runs/2026-11-24-occ-r2/occ-bt-evt: $5.86 за 5 прогонов
