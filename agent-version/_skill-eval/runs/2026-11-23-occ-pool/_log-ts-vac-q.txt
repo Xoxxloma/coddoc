@@ -1,0 +1,26 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: ts-vac-q   фикстура: TS-VAC   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/ts-vac-q
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-vac-q-37279-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-VAC/q-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-vac-q/run-1/_stderr.log
+  run-2 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-vac-q/run-2/_stderr.log
+  run-3 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/ts-vac-q/run-3/_stderr.log
+ГОТОВО: runs/2026-11-23-occ-pool/ts-vac-q — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-vac-q-37279-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/ts-vac-q: $0.00 за 0 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: ts-vac-q   фикстура: TS-VAC   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/ts-vac-q
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-vac-q-42057-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-VAC/q-prompt.txt
+прогонов: 3, параллельно: 3
+  run-2 — готов
+  run-3 — готов
+  run-1 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/ts-vac-q — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-ts-vac-q-42057-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/ts-vac-q: $1.25 за 3 прогонов

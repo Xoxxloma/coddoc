@@ -1,0 +1,7 @@
+проба: occ-new
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: yes-turn2.txt
+потолок ходов: 3
+конец диалога по файлу: /coddoc/.*/technical_specification\.md$
+прогонов: 3, параллельность: 3

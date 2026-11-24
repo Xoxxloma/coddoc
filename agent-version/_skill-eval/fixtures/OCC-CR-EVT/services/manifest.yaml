@@ -1,0 +1,36 @@
+services:
+  - name: wms-dispatch
+    path: ../wms-dispatch
+    type: backend
+    notes: |
+      Канонический владелец отгрузок и волн сборки склада.
+      Ручки `/inbound/v1/*` вызывают только соседи через сервисный аккаунт; пульт смены их не вызывает.
+      Справочник перевозчиков — копия из `tms-gateway`, правится только там.
+
+  - name: wms-console
+    path: ../wms-console
+    type: frontend
+
+  - name: yard-control
+    path: ../yard-control
+    type: backend
+
+  - name: tms-gateway
+    path: ../tms-gateway
+    type: backend
+
+  - name: order-hub
+    path: ../order-hub
+    type: backend
+
+  - name: billing-recon
+    path: ../billing-recon
+    type: backend
+
+  - name: carrier-portal
+    path: ../carrier-portal
+    type: fullstack
+
+  - name: catalog
+    path: ../catalog-service
+    type: backend

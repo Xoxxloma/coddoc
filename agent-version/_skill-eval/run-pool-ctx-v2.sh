@@ -177,10 +177,22 @@ is_api_failure() {
   local f="$1"
   local size; size=$(wc -c < "$f")
   if [ "$size" -lt 600 ]; then
-    grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit" "$f"
+    grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit|hit your [0-9a-z-]* ?limit" "$f"
   else
-    head -c 200 "$f" | grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit"
+    head -c 200 "$f" | grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit|hit your [0-9a-z-]* ?limit"
   fi
+}
+
+# ПОТОК ВНЕ ПЕСОЧНИЦЫ, ПОКА ИДУТ ХОДЫ. Стрим лежал в песочнице и был виден модели: в раунде 2026-11-24 три прогона
+# читали свой `stream.jsonl`. Пишется во временный каталог, в папку прогона переезжает после последнего хода —
+# грейдеры и `cost-runs.sh` находят его на прежнем месте.
+STREAM_TMP="$(mktemp -d "${TMPDIR:-/tmp}/skill-eval-streams.XXXXXX")"
+trap 'rmdir "$STREAM_TMP" 2>/dev/null' EXIT
+land_streams() {
+  local sd="$1" sb="$2" f
+  for f in "$sd"/stream*.jsonl; do [ -e "$f" ] && mv "$f" "$sb"/; done
+  rmdir "$sd" 2>/dev/null
+  return 0
 }
 
 # Состав засева на момент старта плеча — эталон для сверки перед каждым прогоном.
@@ -231,6 +243,7 @@ run_one() {
   mkdir -p "$sb"
   if [ -s "$sb/answer.md" ]; then echo "  run-$i — уже есть, пропуск"; return 0; fi
   local abs_sb; abs_sb="$(cd "$sb" && pwd)"
+  local sd="$STREAM_TMP/run-$i"; mkdir -p "$sd"
 
   if [ -n "$SEED" ]; then
     # СВЕРКА ЗАСЕВА ПЕРЕД КАЖДЫМ ПРОГОНОМ, а не один раз на плечо. Прогон, промахнувшийся мимо
@@ -328,12 +341,12 @@ $(cat "$PROMPT")
   ( cd "$sb" && timeout "${RUN_TIMEOUT:-900}" claude -p "$task" --model "${SM_MODEL:-haiku}" --permission-mode bypassPermissions \
         ${EFFORT:+--effort "$EFFORT"} \
         --session-id "$sid" --output-format stream-json --verbose ) \
-      > "$sb/stream.jsonl" 2> "$sb/_stderr.log"
+      > "$sd/stream.jsonl" 2> "$sb/_stderr.log"
   local rc=$?
-  extract_answer "$sb/stream.jsonl" "$sb/answer.md" "$sb/_stderr.log"
+  extract_answer "$sd/stream.jsonl" "$sb/answer.md" "$sb/_stderr.log"
   # Продолжаем по тому id, который вернул САМ CLI: если `--session-id` не был принят, он назначил свой,
   # и продолжение по нашему значению ушло бы в никуда.
-  local rsid; rsid="$(grep -o '"session_id":"[^"]*"' "$sb/stream.jsonl" 2>/dev/null | head -1 | cut -d'"' -f4)"
+  local rsid; rsid="$(grep -o '"session_id":"[^"]*"' "$sd/stream.jsonl" 2>/dev/null | head -1 | cut -d'"' -f4)"
   [ -n "$rsid" ] && sid="$rsid"
 
   # ─── ХОДЫ 2…K: реплика аналитика в ТУ ЖЕ сессию, ПОКА МАРШРУТ ДВИЖЕТСЯ ──────────────────────
@@ -380,9 +393,9 @@ $(cat "$PROMPT")
       ( cd "$sb" && timeout "${RUN_TIMEOUT:-900}" claude -p "$reply" --model "${SM_MODEL:-haiku}" --permission-mode bypassPermissions \
             ${EFFORT:+--effort "$EFFORT"} \
             --resume "$sid" --output-format stream-json --verbose ) \
-          > "$sb/stream-$(printf '%02d' "$turn").jsonl" 2>> "$sb/_stderr.log"
+          > "$sd/stream-$(printf '%02d' "$turn").jsonl" 2>> "$sb/_stderr.log"
       rc=$?
-      extract_answer "$sb/stream-$(printf '%02d' "$turn").jsonl" "$sb/answer-$(printf '%02d' "$turn").md" "$sb/_stderr.log"
+      extract_answer "$sd/stream-$(printf '%02d' "$turn").jsonl" "$sb/answer-$(printf '%02d' "$turn").md" "$sb/_stderr.log"
       # Отказ API на любом ходу обрывает цикл: продолжать нечего, и склейка ниже отдаст
       # грейдеру то, что успело накопиться, вместе с маркером отказа.
       # `is_api_failure` принимает ПУТЬ, а не текст. Пустой файл хода — тоже обрыв: продолжать
@@ -392,12 +405,13 @@ $(cat "$PROMPT")
       if [ $rc -ne 0 ]; then apifail=1; break; fi
       local after; after="$(trace_len "$sb")"
       if [ "$after" -gt "$before" ]; then idle=0
-      elif [ -n "$NODE_REPLY2" ] && lead_moved "$sb/stream-$(printf '%02d' "$turn").jsonl"; then idle=0
+      elif [ -n "$NODE_REPLY2" ] && lead_moved "$sd/stream-$(printf '%02d' "$turn").jsonl"; then idle=0
       else idle=$((idle + 1)); fi
     done
     # `answer.md` — склейка ВСЕХ ходов: грейдеры набора читают именно его и ищут в нём анкеры
     # (спрошен ли ключ, показано ли меню). Склейка сохраняет находки каждого хода.
     cat "$sb"/answer-*.md > "$sb/answer.md"
+    land_streams "$sd" "$sb"
     # ОТКАЗ API ПОСРЕДИ ЦИКЛА НЕ ДОЛЖЕН ВЫГЛЯДЕТЬ КАК ОБРЫВ МАРШРУТА. Проверка ниже смотрит на
     # склейку, а склейка длинная — маркер отказа в ней уезжает за первые 200 байт и не находится.
     # Прогон, потерявший API на четвёртом ходу, записался бы в «скилл встал на третьей станции».
@@ -410,6 +424,7 @@ $(cat "$PROMPT")
     echo "  run-$i — ходов: $turn, строк в трассе: $(trace_len "$sb")"
   fi
 
+  land_streams "$sd" "$sb"
   if [ -s "$sb/answer.md" ] && is_api_failure "$sb/answer.md"; then
     mv "$sb/answer.md" "$sb/_api-failure.txt"
     echo "  run-$i — ОТКАЗ API, песочница помечена и в счёт не идёт"

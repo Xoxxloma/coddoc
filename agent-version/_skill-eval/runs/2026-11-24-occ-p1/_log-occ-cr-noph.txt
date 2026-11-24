@@ -1,0 +1,30 @@
+снимок скилла: runs/2026-11-24-occ-p1/_skills/technical-spec-doc.SKILL.md
+манифест фикстуры заведён: /c/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-NOPH/_manifest.txt
+проба: occ-cr-noph   фикстура: OCC-CR-NOPH   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-24-occ-p1/occ-cr-noph
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-p1-occ-cr-noph-52702-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-NOPH/w-prompt.txt
+прогонов: 1, параллельно: 1
+  run-1 — ходов: 1, строк в трассе: 0
+  run-1 — готов
+ГОТОВО: runs/2026-11-24-occ-p1/occ-cr-noph — песочниц с ответом: 1 из 1
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-p1-occ-cr-noph-52702-skills (журнальная копия осталась в runs/2026-11-24-occ-p1/_skills/)
+runs/2026-11-24-occ-p1/occ-cr-noph: $0.95 за 1 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-24-occ-p1/_skills/technical-spec-doc.SKILL.md
+проба: occ-cr-noph   фикстура: OCC-CR-NOPH   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-24-occ-p1/occ-cr-noph
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-p1-occ-cr-noph-52906-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-NOPH/w-prompt.txt
+прогонов: 3, параллельно: 2
+  run-1 — уже есть, пропуск
+  run-3 — ходов: 1, строк в трассе: 0
+  run-3 — готов
+  run-2 — ходов: 1, строк в трассе: 0
+  run-2 — готов
+ГОТОВО: runs/2026-11-24-occ-p1/occ-cr-noph — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-p1-occ-cr-noph-52906-skills (журнальная копия осталась в runs/2026-11-24-occ-p1/_skills/)
+runs/2026-11-24-occ-p1/occ-cr-noph: $3.14 за 3 прогонов
