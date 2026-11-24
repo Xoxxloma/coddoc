@@ -1,0 +1,41 @@
+services:
+  - name: booking-core
+    path: ../booking-core
+    type: backend
+    notes: |
+      Канонический владелец записей на приём. Ведёт команда «Запись».
+      Слоты врачей не наши: их публикует doctor-schedule, у нас — только удержание и занятость.
+
+  - name: registry-web
+    path: ../registry-web
+    type: frontend
+    notes: рабочее место регистратора клиники; команда «Запись»
+
+  - name: doctor-schedule
+    path: ../doctor-schedule
+    type: backend
+    notes: |
+      Графики работы врачей и слоты; команда «Расписание».
+      Записями не владеем: переносим их только вызовом в booking-core.
+
+  - name: staff-registry
+    path: ../staff-registry
+    type: backend
+    notes: |
+      Кадровый учёт врачей — отпуска, больничные; команда «Персонал».
+      Больничные приходят из внешнего кадрового учёта hr-core, он вне манифеста.
+
+  - name: insurer-gateway
+    path: ../insurer-gateway
+    type: backend
+    notes: обмен со страховыми компаниями по ДМС; команда «Страховые интеграции»; карточки нет
+
+  - name: patient-registry
+    path: ../patient-registry
+    type: backend
+    notes: карточки пациентов и полисы ДМС; карточки нет
+
+  - name: notify
+    path: ../notify-service
+    type: backend
+    notes: SMS и push пациентам, задачи регистраторам; карточки нет

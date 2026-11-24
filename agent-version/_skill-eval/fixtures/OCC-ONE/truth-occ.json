@@ -1,0 +1,22 @@
+{
+  "probe": "occ-one",
+  "kind": "one-place",
+  "spec": "coddoc/EDU-940/technical_specification.md",
+  "places": [
+    { "id": "checks-verdict", "re": "/v1/checks(?![a-z/])" }
+  ],
+  "valued": null,
+  "valueTokens": [
+    "eduapp(-mentor)?://(?!lesson/|homework/)[a-z]",
+    "eduapp://(homework/[<{]?(?!assignmentId)|lesson/[<{]?(?!lessonId))\\w",
+    "<(submissionId|checkId|courseId|cohortId|mentorId|studentId)>",
+    "ссылк[а-яё]* на (работу|курс|модуль|разбор|проверку|карточку работы)"
+  ],
+  "trap": [
+    { "id": "handover", "re": "handover|передач[а-яё]* работы (другому )?наставнику" },
+    { "id": "cohort-reassigned", "re": "mentor\\.cohort\\.reassigned|смен[а-яё]* наставник[а-яё]* групп" },
+    { "id": "nudge-task", "re": "nudgeStaleChecks|напоминани[а-яё]* наставник" }
+  ],
+  "forbidden": [],
+  "stage": null
+}

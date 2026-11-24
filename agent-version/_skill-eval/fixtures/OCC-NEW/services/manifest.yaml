@@ -1,0 +1,26 @@
+services:
+  - name: fleet-maintenance
+    path: ../fleet-maintenance
+    type: backend
+    notes: |
+      Сервис ТО. Ведёт команда «Техобслуживание».
+
+  - name: fleet-trips
+    path: ../fleet-trips
+    type: backend
+    notes: |
+      Ведёт команда «Автопарк».
+      Релизы — по вторникам, вне пересменки диспетчеров.
+
+  - name: fleet-web
+    path: ../fleet-web
+    type: frontend
+    notes: |
+      Веб-интерфейс автопарка для диспетчеров, механиков, бухгалтерии и администраторов. Ведёт команда «Автопарк».
+
+  - name: fuel-accounting
+    path: ../fuel-accounting
+    type: backend
+    notes: |
+      Учёт ГСМ: списание топлива по путевым листам. Ведёт команда «Учётные системы».
+      Акт списания после выгрузки в 1С правится только в 1С; здесь — отмена и новый акт.

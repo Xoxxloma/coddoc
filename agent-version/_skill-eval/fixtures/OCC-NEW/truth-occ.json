@@ -1,0 +1,16 @@
+{
+  "probe": "occ-new",
+  "kind": "no-change",
+  "spec": "coddoc/FLT-830/technical_specification.md",
+  "places": [],
+  "valued": null,
+  "valueTokens": [],
+  "trap": [],
+  "forbidden": [
+    { "id": "mobile-complete", "re": "driver-mobile\\.trip\\.completed|завершени[а-яё]* рейса водител|водител[а-яё]* заверш[а-яё]* рейс" },
+    { "id": "trip-close", "re": "trips/[^\\s/`)]+/close\\b|закрыти[а-яё]* рейса вручную|ручн[а-яё]* закрыти[а-яё]* рейс|закрыва[а-яё]* рейс[а-яё]* вручную" },
+    { "id": "waybill-close", "re": "waybills/[^\\s/`)]+/close\\b|закрыти[а-яё]* путев[а-яё]* лист|закрыва[а-яё]* путев[а-яё]* лист|вместе с (путевым )?листом" },
+    { "id": "auto-close", "re": "tripAutoClose|автозакрыт|автоматическ[а-яё]* закрыт|закрыва[а-яё]* через сутки|не закрыли за сутки|system:auto-close" }
+  ],
+  "stage": null
+}

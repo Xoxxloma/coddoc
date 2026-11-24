@@ -1,0 +1,27 @@
+{
+  "probe": "occ-cr-val",
+  "kind": "positive",
+  "spec": "coddoc/LIB-720/technical_specification.md",
+  "places": [
+    { "id": "copy-card", "named": true,
+      "re": "(?<!PATCH\\s{1,3}`?)/v1/copies/(\\{[^}]*\\}|:[a-z_]+)(?![/\\w{])|карточк[а-яё]*\\s+экземпляр|страниц[а-яё]*\\s+экземпляр|экземпляр[а-яё]*\\s+по\\s+идентификатор",
+      "allow": ["temporarily_unavailable", "временно\\s+недоступ"] },
+    { "id": "title-copies", "named": true,
+      "re": "/titles/(\\{[^}]*\\}|:[a-z_]+)/copies|экземпляры\\s+издания\\s+по\\s+филиал|список[а-яё]*\\s+экземпляр",
+      "allow": ["temporarily_unavailable", "временно\\s+недоступ"] },
+    { "id": "search", "named": true,
+      "re": "/v1/search(?![\\w/-])|поиск[а-яё]*\\s+по\\s+каталог|выдач[а-яё]*\\s+поиск",
+      "allow": ["temporarily_unavailable", "временно\\s+недоступ"] },
+    { "id": "partner-feed",
+      "re": "exportPartnerFeed|regcat-sftp|(?<!реестр[а-яё]{0,3}\\s)сводн[а-яё]*\\s+каталог|выгрузк[а-яё]*\\s+(фонда|для\\s+сводн|в\\s+сводн|партн)|(^|[^а-яё])фид([аеуы]|ом|ов)?([^а-яё]|$)|partner.?feed",
+      "allow": ["\\bunknown\\b"] }
+  ],
+  "valued": { "place": "partner-feed", "re": "\\bunknown\\b" },
+  "valueTokens": [ "\\bunknown\\b", "temporarily_unavailable", "временно\\s+недоступ" ],
+  "trap": [
+    { "id": "my-holds-expected",
+      "re": "expectedAvailab|ожидаем[а-яё]*\\s+(дат[а-яё]*\\s+)?(готовност|доступност)|дат[а-яё]*\\s+ожидаем[а-яё]*\\s+(готовност|доступност)|GET\\s+`?/v1/me/holds(?![/\\w{])|мои\\s+брони" }
+  ],
+  "forbidden": [],
+  "stage": null
+}

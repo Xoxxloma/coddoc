@@ -1,0 +1,26 @@
+{
+  "probe": "occ-bt-evt",
+  "kind": "positive",
+  "spec": "coddoc/CLN-610/technical_specification.md",
+  "places": [
+    { "id": "partner-cancel", "re": "DELETE\\s+\\W?/partner/v1/bookings|(?<!GET\\s+\\W?)/partner/v1/bookings/\\{|отмен\\S*[^\\n|]{0,25}агрегатор" },
+    { "id": "cancel", "re": "DELETE\\s+\\W?/v1/appointments/\\{\\w+\\}(?!/)|отмен\\S* запис\\S* пациентом" },
+    { "id": "reschedule", "re": "PATCH\\s+\\W?/internal/v1/appointments|/internal/v1/appointments/\\{|перенос\\S*[^\\n|]{0,40}(график|расписани)" },
+    { "id": "absence", "re": "staff\\.absence\\.registered|отсутстви\\S* врач" },
+    { "id": "no-show", "named": true, "re": "markNoShows|задач\\S*[^\\n|]{0,40}неяв", "caseRe": "\\bno_show\\b|неявк", "allow": ["guaranteeLetterNo|номер\\S* гарантийн"] }
+  ],
+  "valued": { "place": "partner-cancel", "re": "externalBookingId|номер\\S* брони" },
+  "valueTokens": [
+    "externalBookingId|номер\\S* брони",
+    "guaranteeLetterNo|номер\\S* гарантийн",
+    "absenceId|(id|номер|идентификатор)\\S* отсутстви",
+    "(basisRef|основани\\S*)[^\\n|]{0,40}(appointmentId|id записи|номер\\S* записи)",
+    "policyNo|номер\\S* полиса",
+    "paymentId|номер\\S* платеж"
+  ],
+  "trap": [
+    { "id": "change-requested", "re": "appointment\\.change-requested|/change-requests|просьб\\S*[^\\n|]{0,12}перенос" }
+  ],
+  "forbidden": [],
+  "stage": null
+}
