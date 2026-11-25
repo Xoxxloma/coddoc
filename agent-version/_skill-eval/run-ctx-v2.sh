@@ -690,6 +690,9 @@ case "$PROBE" in
   # Конец — запись спеки, потолок 4 хода. Грейд — `grade-rt-count.mjs` (кейс по имени плеча). Состав — fixtures/RT-COUNT/expected.md.
   rt-count-bt)  FIXTURE=RT-COUNT; PROMPT_FILE=bt-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=count-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/[^/]+/technical_specification\.md$' ;;
   rt-count-cr)  FIXTURE=RT-COUNT; PROMPT_FILE=cr-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=count-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/[^/]+/technical_specification\.md$' ;;
+  # `rt-2b-fix` — ответ «Поправить» на гейте 2Б (5.137): один ход «ПРОДОЛЖЕНИЕ», верно — под-скилл БТ с находкой, ведущий
+  # сам БТ не правит, новая приёмка, снова вопрос гейта. Грейд — `grade-rt-fix.mjs`. Состав — fixtures/RT-FIX/README.md.
+  rt-2b-fix)    FIXTURE=RT-FIX; PROMPT_FILE=fix-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs ;;
   rt-gate)     FIXTURE=RT-GATE; PROMPT_FILE=gate-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=gate-turn2.txt NODE_FILE=node-split-turn2.txt ;;
 
   # ── приёмка баг-репорта ───────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 ---
 name: analyst-workspace
-version: 2.2.1
+version: 2.2.2
 user-invocable: true
 disable-model-invocation: true
 allowed-tools: AskUserQuestion, Skill, Read, Glob, Grep, Write, Edit, Agent
