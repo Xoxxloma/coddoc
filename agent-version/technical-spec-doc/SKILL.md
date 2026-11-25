@@ -1,6 +1,6 @@
 ---
 name: technical-spec-doc
-version: 2.5.0
+version: 2.5.1
 user-invocable: false
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Agent
 description: 'Turns a confirmed business-requirements doc (БТ/BRD/SRS) into ONE Russian Markdown technical spec (technical_specification.md, saved next to the БТ), organized around INTERACTIONS — the new and changed contracts crossing service or FE/BE boundaries — so a frontend agent and a backend agent code against the same contracts and meet without after-the-fact stitching. You read no code yourself: NEW things are designed fully (path, schema, JSON example); anything about an EXISTING service is written only as the analyst confirmed it — inventing an endpoint of a service you cannot see is the worst failure of this skill. Requires a ready БТ (or, by orchestrator flag, a bug report, a change request or an epic-БТ for foundation node #0): given only a brief or an idea it refuses and asks for the business requirements. Use when the БТ is ready and a dev spec is needed.'
@@ -718,7 +718,7 @@ you write (Step 3.5). Bracket = the spec section it lands in.
    строках изменённой таблицы, нужны ли миграции (тоже концептуально; точный DDL и синтаксис
    миграции финализирует владеющий сервис). → §3
 8. **Синхронность/производительность** — sync/async, кэш (где, на сколько живёт), частота опроса,
-   таймауты, ожидаемая нагрузка; если операция пишет у нас и вызывает другой сервис — что остаётся
+   таймауты; если операция пишет у нас и вызывает другой сервис — что остаётся
    записанным при сбое вызова. → §5.1, §5.2
 9. **Порядок выката и совместимость** — очередность деплоя сторон, обратная совместимость,
    фиче-флаги, преднастройка (роли в security-сервисе, конфиги) до релиза. → §6
@@ -762,7 +762,7 @@ Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inli
 > **Автор:** [логин того, кто пишет этот файл: вывод `whoami` (Linux, macOS, Windows); у `ДОМЕН\логин` — часть после `\`; команда не сработала — `—`. Файл уже был — список сохрани: твоего логина в нём нет (регистр не важен) — допиши через `, `; стоял `—` — замени]
 > **Источник (БТ):** [файл/название бизнес-требований, на которых основана спека]
 > **Редакция:** [N (ГГГГ-ММ-ДД): первая запись 1, доработка +1, строки не было — 2; дата этой записи — из окружения сессии или `date +%F`, не по памяти; не узнать — без скобок]
-> **Версия скилла:** [technical-spec-doc 2.5.0; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
+> **Версия скилла:** [technical-spec-doc 2.5.1; файл уже был — строку сохрани, этой версии в ней нет — допиши через `, `]
 >
 > **Статус готовности:** [Готово к разработке | Требуются уточнения (N)]
 > — **Заполняется последним** (Step 4). В момент записи файла здесь стоит `<ПРОСТАВЛЯЕТСЯ ПОСЛЕ ЗАПИСИ>`; значение подставляется, когда весь текст ниже уже написан и его можно перечитать. Механически, без суждения: в готовом тексте есть хоть один открытый ТЕХНИЧЕСКИЙ пункт (TBD / 🟡 / ⚠️)? → «Требуются уточнения». Ноль таких пунктов → «Готово к разработке». 🟡 ВСЕГДА даёт «Требуются уточнения» — не рассуждай, что он «не блокирует начало работ». (Два исключения, которые статус НЕ меняют: унаследованные из БТ бизнес-пробелы в §8 — они закрываются на стороне БТ; и 🔵#0 — этот контракт уже подтверждён на стороне узла-фундамента, он не открытый пункт.) 🔵 никогда не даёт «Требуются уточнения».
@@ -912,7 +912,7 @@ Provenance markers (🟢 / 🔵 / 🟡 / ❓, plus ⚠️ for vague) appear inli
 
 ## 5. Нефункциональные требования
 ### 5.1. Синхронность, кэш, производительность
-[sync/async; кэш — где и TTL; частота опроса/обновления; таймауты; ожидаемая нагрузка.
+[sync/async; кэш — где и TTL; частота опроса/обновления; таймауты.
 Ни один параметр не проектируется/меняется — «Не применимо: параметры не меняются, новых механизмов нет».]
 ### 5.2. Надёжность/деградация
 [Поведение при недоступности источника/зависимости — как это видит пользователь и система; если операция
