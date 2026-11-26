@@ -511,6 +511,19 @@ case "$PROBE" in
   # Замена терминов 5.35 (2026-10-06): БТ с несколькими частями → таблица §4.5 и вопрос в ответе, без «слайс»/
   # «деливербл». Одноходовая, «ПРОДОЛЖЕНИЕ». Грейдер — `grade-terms.mjs --case=cut`.
   br-cut)     FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc ;;
+  # Гейт 18 (`business-requirements-doc` 1.10.0): частей ≥2 → вопрос о составе ДО записи. Ход 1 — вопрос, файла нет;
+  # ход 2 — реплика аналитика: «Режем на эти части» (`-2t`), «Одной задачей» (`-one`), «Позже решим» (`-idk`).
+  # Конец диалога — записанный БТ: на версии без гейта файл появляется ходом 1, и второй ход не идёт.
+  # Грейд — `grade-cut18.mjs`.
+  # `br-cut-nocrit` — тот же бриф без критериев приёмки: гейт 11 открыт, поставок несколько. Один ход. Верно: вопрос о
+  # критериях, файла нет, строка 18 реестра — ❓ без вопроса о частях и без «✅ одна поставка».
+  br-cut-nocrit) FIXTURE=BR-CUT; PROMPT_FILE=cut-nocrit-prompt.txt; SKILL=business-requirements-doc ;;
+  # `br-cut-thin` — тонкий бриф с тремя видимыми поставками, гейты не закрыты. Один ход. Верно: вопросы по гейтам, файла
+  # нет, строка 18 реестра — ❓ без вопроса о частях и без «✅ одна поставка».
+  br-cut-thin) FIXTURE=BR-CUT; PROMPT_FILE=cut-thin-prompt.txt; SKILL=business-requirements-doc ;;
+  br-cut-2t)  FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-yes-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
+  br-cut-one) FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-one-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
+  br-cut-idk) FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-idk-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
   # То же, что br-nocrit, но стоп после хода 2: прод — это ход 2, ход 3 сам подсказывает исправление (2026-10-03).
   br-nocrit2) FIXTURE=BR-NOCRIT; PROMPT_FILE=brief-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=nocrit-turn2.txt; TURNS_CAP=2 ;;
   # Та же тема на других входах (2026-10-03), стоп после хода 2. `br-ncl` — отпуска: критерии по номерам у (1) и
@@ -727,6 +740,9 @@ case "$PROBE" in
   # сам БТ не правит, новая приёмка, снова вопрос гейта. Грейд — `grade-rt-fix.mjs`. Состав — fixtures/RT-FIX/README.md.
   rt-2b-fix)    FIXTURE=RT-FIX; PROMPT_FILE=fix-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs ;;
   rt-gate)     FIXTURE=RT-GATE; PROMPT_FILE=gate-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=gate-turn2.txt NODE_FILE=node-split-turn2.txt ;;
+  # `rt-cut-live` — ведущий + живой `business-requirements-doc`, вход с несколькими поставками, один ход: верно — ход
+  # кончается вопросом о частях (гейт 18), файла БТ нет, приёмка и гейт 2Б не начаты. Грейд — `grade-cut18.mjs`.
+  rt-cut-live) FIXTURE=RT-CUTLIVE; PROMPT_FILE=live-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; SEED_SUB=seed; REAL_SUBS=business-requirements-doc ;;
 
   # ── приёмка баг-репорта ───────────────────────────────────────────────────────────────────
   # Главное плечо здесь ЧИСТОЕ, а не грязное: у проверяющего инструмента худший отказ — покраснеть

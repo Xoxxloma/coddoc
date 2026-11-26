@@ -1,0 +1,7 @@
+проба: br-cut-2t
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: cut-yes-turn2.txt
+потолок ходов: 2
+конец диалога по файлу: /coddoc/[^/]+/business_requirements.md$
+прогонов: 4, параллельность: 4
