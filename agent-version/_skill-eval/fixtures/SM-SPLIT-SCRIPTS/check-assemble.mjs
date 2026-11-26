@@ -1,4 +1,4 @@
-// Проверка вывода assemble.sh и promote.sh по контракту брифа стенда (скрипты не читались).
+// Проверка вывода assemble.py и promote.py по контракту брифа стенда (скрипты не читались).
 import fs from 'node:fs'
 import path from 'node:path'
 import { parseCard, splitBlocks, tableOf, lf, normKey, blockCmp, rowCmp, isSep, BLOCK_SECTIONS, TABLE_SECTIONS } from './asm-lib.mjs'
@@ -207,7 +207,7 @@ export function checkRoundtrip (ex, d) {
   return res
 }
 
-// promote.sh: meta.json от раннера
+// promote.py: meta.json от раннера
 export function checkPromote (d) {
   const res = []
   const meta = JSON.parse(read(path.join(d, 'meta.json')))

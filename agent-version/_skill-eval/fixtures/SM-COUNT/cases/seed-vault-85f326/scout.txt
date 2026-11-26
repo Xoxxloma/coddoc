@@ -1,0 +1,7 @@
+контракт :: ^\s+override fun\b :: *.kt :: в файлах с :\s*\w+Api\b :: ключ
+контракт :: @GetMapping\b :: *.kt :: ключ
+сущности :: @Entity\b :: *.kt :: ключ
+задачи :: @Scheduled\b :: *.kt :: ключ
+контроль :: контракт :: {ROOT}/src/main/kotlin/org/seedvault/web/RequestsController.kt :: 7
+контроль :: сущности :: {ROOT}/src/main/kotlin/org/seedvault/domain/Entities.kt :: 6
+контроль :: задачи :: {ROOT}/src/main/kotlin/org/seedvault/jobs/ReservationSweeper.kt :: 1

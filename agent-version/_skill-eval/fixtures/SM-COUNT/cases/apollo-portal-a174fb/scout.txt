@@ -1,0 +1,7 @@
+контракт :: @(Get|Post|Put|Patch|Delete)Mapping\b :: *.java :: ключ
+сущности :: ^@Entity\b :: *.java :: ключ
+задачи :: \.(scheduleAtFixedRate|scheduleWithFixedDelay)\( :: *.java :: ориентир
+клиенты :: ^\s*public static class \w+ extends API\b :: *.java :: ключ
+контроль :: контракт :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/controller/PermissionController.java :: 26
+контроль :: сущности :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/entity/po/Role.java :: 1
+контроль :: клиенты :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/api/AdminServiceAPI.java :: 13

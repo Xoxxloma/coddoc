@@ -1,0 +1,4 @@
+экраны :: path:\s*['"] :: *.tsx :: ключ
+клиенты :: axios\.create\( :: *.ts :: ключ
+контроль :: экраны :: {ROOT}/src/router/routes.tsx :: 5
+контроль :: клиенты :: {ROOT}/src/api/index.ts :: 1

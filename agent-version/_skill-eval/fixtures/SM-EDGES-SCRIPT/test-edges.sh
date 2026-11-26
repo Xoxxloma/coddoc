@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Независимые тесты edges.sh (Шаг 5 service-map-2.0). Моделей не запускает.
-# edges.sh ПРАВИТ карточки на месте — поэтому каждый случай гоняется на копии во временной папке,
+# Независимые тесты edges.py (Шаг 5 service-map-2.0). Моделей не запускает.
+# edges.py ПРАВИТ карточки на месте — поэтому каждый случай гоняется на копии во временной папке,
 # фикстуры и настоящий слепок не трогаются.
-#   bash test-edges.sh [путь к edges.sh]
-# По умолчанию — agent-version/service-map-2.0/reference/edges.sh. Нужны bash и node.
+#   bash test-edges.py [путь к edges.py]
+# По умолчанию — agent-version/service-map-2.0/reference/edges.py. Нужны bash и node.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVAL="$(cd "$HERE/../.." && pwd)"
-. "$HERE/../sm-run.sh"   # SM_RUNNER=ps1 — через reference/run.ps1, как на Windows
-EDGES="${1:-$EVAL/../service-map-2.0/reference/edges.sh}"
-[ -f "$EDGES" ] || { echo "нет edges.sh: $EDGES" >&2; exit 2; }
+. "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
+EDGES="${1:-$EVAL/../service-map-2.0/reference/edges.py}"
+[ -f "$EDGES" ] || { echo "нет edges.py: $EDGES" >&2; exit 2; }
 command -v node >/dev/null 2>&1 || { echo "нужен node" >&2; exit 2; }
 
 OUT="$(mktemp -d "${TMPDIR:-/tmp}/sm-edges.XXXXXX")"
@@ -21,7 +21,7 @@ now_ms() {
   case "$t" in *N|'') echo $(( $(date +%s) * 1000 )) ;; *) echo $(( t / 1000000 )) ;; esac
 }
 
-# run_case <папка случая> <имя>: копия → edges.sh <копия>/services <манифест копии>
+# run_case <папка случая> <имя>: копия → edges.py <копия>/services <манифест копии>
 run_case() {
   local src="$1" name="$2" man t0 t1
   mkdir -p "$OUT/$name"
@@ -37,7 +37,7 @@ run_case() {
   echo $(( t1 - t0 )) >"$OUT/$name.ms"
 }
 
-echo "edges.sh: $EDGES"
+echo "edges.py: $EDGES"
 for d in "$HERE"/cases/*/; do
   d="${d%/}"
   [ -f "$d/expect.json" ] && run_case "$d" "$(basename "$d")"

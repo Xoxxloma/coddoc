@@ -1,0 +1,10 @@
+сущности :: @Entity\b :: *.java :: ключ
+задачи :: @Scheduled\b :: *.java :: ключ
+топики :: kafka\.send\( :: *.java :: ориентир
+клиенты :: @FeignClient\b :: *.java :: ключ
+клиенты :: RestClient\.builder\(\) :: *.java :: ключ
+контракт :: ^\s+operationId: :: *.yaml :: {ROOT}/src/main/resources/openapi/harvest-ledger.yaml :: ключ
+контроль :: сущности :: {ROOT}/src/main/java/org/agro/ledger/domain/Plot.java :: 1
+контроль :: задачи :: {ROOT}/src/main/java/org/agro/ledger/jobs/HandoverExpiryJob.java :: 1
+контроль :: клиенты :: {ROOT}/src/main/java/org/agro/ledger/client/AuditHubClient.java :: 1
+конфиг топиков :: {ROOT}/src/main/resources/application.yaml

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Склейка частей в assemble.sh (предметная область — условная обсерватория). Части пишут один ключ
+# Склейка частей в assemble.py (предметная область — условная обсерватория). Части пишут один ключ
 # по-разному (строка запроса, аргументы, хвост « — описание», слово и пометка в скобках вокруг топика в
 # бэктиках) и одни и те же блоки дважды; plan.tsv отдаёт папки частям.
 # Ждём: ключ по шаблону; дубль — блок владельца по плану (ручка части 01, сущности части 02), поля с новыми
@@ -11,8 +11,8 @@
 # Запуск из любого места: bash run.sh [папка reference скилла] — печатает ОК или что разошлось. Концы строк не сравниваются:
 # git на Windows отдаёт эталон с CRLF.
 HERE="$(cd "$(dirname "$0")" && pwd)"
-. "$HERE/../sm-run.sh"   # SM_RUNNER=ps1 — через reference/run.ps1, как на Windows
-ASM="${1:-$HERE/../../../service-map-2.0/reference}/assemble.sh"
+. "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
+ASM="${1:-$HERE/../../../service-map-2.0/reference}/assemble.py"
 OUT="$(mktemp -d)"; trap 'rm -rf "$OUT"' EXIT
 sm_run "$ASM" "$HERE/parts" 2 2026-10-19 "$OUT/card.md" "$OUT/opis.md" > "$OUT/log" || { cat "$OUT/log"; exit 1; }
 tr -d '\r' < "$OUT/log" > "$OUT/log.lf"
@@ -68,5 +68,34 @@ mkdir "$OUT/noplan"; cp "$HERE/parts/"*.md "$OUT/noplan/"
 sm_run "$ASM" "$OUT/noplan" 2 2026-10-19 "$OUT/card2.md" "$OUT/opis2.md" > "$OUT/log2" || { cat "$OUT/log2"; exit 1; }
 n=$(grep -c 'объединены, владельца нет: плана нет' "$OUT/log2")
 [ "$n" -eq 5 ] || { echo "без плана: объединений «плана нет» $n, ждали 5"; bad=1; }
+# Ключ сравнения (keys/): параметр пути в любой записи — один параметр (k_key); блоки разных частей сливаются при
+# том же имени параметра (k_keyn). (а) `:id` части 01 и `{id}` части 02 — один блок; (б) `{ids}` и `{observerId}`
+# разных частей — два блока и строка; (в) `{id}` и `:id` одной части — два блока и строка; (г) путь из конфига
+# `{upload.s3.public_url}` и `{name}` — два блока без строки.
+sm_run "$ASM" "$HERE/keys" 2 2026-10-19 "$OUT/card8.md" "$OUT/opis8.md" > "$OUT/log8" || { cat "$OUT/log8"; exit 1; }
+tr -d '\r' < "$OUT/log8" > "$OUT/log8.lf"
+want8() { grep -q -x -F -- "  $1" "$OUT/log8.lf" || { echo "ключи: нет строки в выводе: $1"; bad=1; }; }
+blocks8() { local n; n=$(grep -c -F -- "### \`$1" "$OUT/card8.md"); [ "$n" -eq "$2" ] || { echo "ключи: блоков «$1» $n, ждали $2"; bad=1; }; }
+blocks8 'GET /api/nights/' 1
+grep -q -x -F '### `GET /api/nights/:id`' "$OUT/card8.md" || { echo "(а) заголовок — не ключ блока владельца (часть 01)"; bad=1; }
+want8 'Публичный контракт: GET /api/nights/:id — блок части 01 (владелец по плану); у 02 строк «- » отброшено 1'
+want8 'Публичный контракт: GET /api/nights/:id ~ GET /api/nights/{id}'
+blocks8 'GET /api/observers/' 2
+want8 'Публичный контракт: GET /api/observers/{ids} (часть 01), GET /api/observers/{observerId} (часть 02) — имена параметров разные'
+blocks8 'DELETE /api/domes/' 2
+want8 'Публичный контракт: DELETE /api/domes/:id (часть 01), DELETE /api/domes/{id} (часть 01) — у части 01 один путь записан разными ключами'
+blocks8 'GET /files/' 2
+grep -q -F '/files/' "$OUT/log8.lf" && { echo "(г) путь из конфига и параметр — строка в выводе склейки, а не должно быть"; bad=1; }
+
+# (д) свежесть — по всем файлам сразу: у части 02 нет первой строки ни в черновике, ни в описи, у части 01 нет описи →
+# один ОТКАЗ называет все три файла, код 3 (раньше — только первый, и вторая попытка чинила половину)
+mkdir -p "$OUT/stale" && cp "$HERE/parts/"* "$OUT/stale/"
+sed -i '1d' "$OUT/stale/part-02.md" "$OUT/stale/part-02.opis.md"; rm -f "$OUT/stale/part-01.opis.md"
+sm_run "$ASM" "$OUT/stale" 2 2026-10-19 "$OUT/card9.md" "$OUT/opis9.md" > "$OUT/log9" 2>&1; rc9=$?
+[ "$rc9" -eq 3 ] || { echo "(д) код $rc9, ждали 3"; bad=1; }
+[ "$(grep -c '^ОТКАЗ:' "$OUT/log9")" -eq 1 ] || { echo "(д) строк ОТКАЗ не одна: $(cat "$OUT/log9")"; bad=1; }
+for want in "нет файла $OUT/stale/part-01.opis.md" "$OUT/stale/part-02.md — первая строка не" "$OUT/stale/part-02.opis.md — первая строка не"; do
+  grep -q -F -- "$want" "$OUT/log9" || { echo "(д) в ОТКАЗ нет: $want"; bad=1; }
+done
 [ "$bad" -eq 0 ] && echo "ОК"
 exit "$bad"

@@ -13,8 +13,8 @@ POST	/labels/{}	src/services/label.ts	сервис.update
 GET	/labels	src/services/label.ts	сервис.getAll
 PUT	/labels	src/services/label.ts	сервис.create
 POST	/login	src/stores/auth.ts	прямой
-POST	/migration	src/services/migrator/abstractMigration.ts	сервис.update
-PUT	/migration	src/services/migrator/abstractMigrationFile.ts	сервис.create
+POST	/migration/{}/migrate	src/services/migrator/abstractMigration.ts	сервис.update
+PUT	/migration/{}/migrate	src/services/migrator/abstractMigrationFile.ts	сервис.create
 POST	/notifications/{}	src/services/notification.ts	сервис.update
 GET	/notifications	src/services/notification.ts	сервис.getAll
 POST	/notifications	src/services/notification.ts	post()
@@ -53,7 +53,7 @@ GET	/projects	src/services/project.ts	сервис.getAll
 PUT	/projects	src/services/project.ts	сервис.create
 POST	/register	src/stores/auth.ts	прямой
 GET	/routes	src/services/apiToken.ts	прямой
-POST	/shares	src/stores/auth.ts	прямой
+POST	/shares/{}/auth	src/stores/auth.ts	прямой
 DELETE	/subscriptions/{}/{}	src/services/subscription.ts	сервис.delete
 PUT	/subscriptions/{}/{}	src/services/subscription.ts	сервис.create
 DELETE	/tasks/{}/assignees/{}	src/services/taskAssignee.ts	сервис.delete

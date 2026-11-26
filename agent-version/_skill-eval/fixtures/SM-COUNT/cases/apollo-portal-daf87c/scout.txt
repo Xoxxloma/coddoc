@@ -1,0 +1,8 @@
+контракт :: @(Get|Post|Put|Patch|Delete)Mapping\b($|[^(]|\([^"]|\("[^/]|\("/[^o]|\("/o[^p]) :: *.java :: ключ
+контракт :: ^\s+@Override\b :: *.java :: в файлах с implements\s+(\w+,\s*)*\w+Api\b :: ключ
+сущности :: ^@Entity\b :: *.java :: ключ
+клиенты :: class \w+ extends API\b :: *.java :: ключ
+задачи :: \.schedule(AtFixedRate|WithFixedDelay)?\( :: *.java :: ориентир
+контроль :: контракт :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/controller/NamespaceController.java :: 16
+контроль :: сущности :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/entity/po/Role.java :: 1
+контроль :: клиенты :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/api/AdminServiceAPI.java :: 13

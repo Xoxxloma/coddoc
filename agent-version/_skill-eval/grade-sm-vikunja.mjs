@@ -7,7 +7,9 @@ import path from 'node:path';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const FX = path.join(HERE, 'fixtures', 'SM-VIKUNJA');
-const np = (p) => p.replace(/`/g, '').trim().replace(/\$\{[^}]*\}|\{[^}]*\}|:[A-Za-z_]\w*(\([^)]*\))?\*?/g, '{}').replace(/\?.*$/, '').replace(/\/+$/, '').toLowerCase() || '/';
+// имя роута в скобках после пути (`/projects/:id/settings/edit (project.settings.edit)`) — не часть пути; ведущий `/`
+// у вызова не дописывается — его отсутствие должно быть видно
+const np = (p) => p.replace(/`/g, '').trim().replace(/\s+\([^)]*\)\s*$/, '').replace(/\$\{[^}]*\}|\{[^}]*\}|:[A-Za-z_]\w*(\([^)]*\))?\*?/g, '{}').replace(/\?.*$/, '').replace(/\/+$/, '').toLowerCase() || '/';
 const tsv = (f) => fs.readFileSync(path.join(FX, f), 'utf8').split(/\r?\n/).slice(1).filter(Boolean).map((l) => l.split('\t'));
 const SCREENS = new Set(tsv('routes.tsv').map(([p]) => p).filter((p) => !/pathMatch/.test(p)).map(np));
 const CALLS = new Set(tsv('api-calls.tsv').map(([m, p]) => `${m} ${np(p)}`));

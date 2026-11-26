@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# SM-PLAN-TYPES — plan.sh по типу сервиса и клиентская спека; таблица формы keys.awk против шаблона.
-# Моделей не запускает: дерево с содержимым файлов собирается во временной папке, plan.sh — по нему.
+# SM-PLAN-TYPES — plan.py по типу сервиса и клиентская спека; таблица формы keys.py против шаблона.
+# Моделей не запускает: дерево с содержимым файлов собирается во временной папке, plan.py — по нему.
 #   bash run.sh [папка reference скилла] — печатает ОК или что разошлось. KEEP=1 — не удалять папку.
 # Случаи: (а) frontend — «контракт» отброшен, «экраны» в итоге, нарезки нет; (б) backend вес 40 — части,
 # fullstack вес 40 — нарезки нет; (в) клиентская спека объявлена — по ней ни «СПЕКА НЕ РАЗМЕЧЕНА», ни строк
@@ -11,14 +11,17 @@
 # строка вся, (з3) поле условия — не спека; (и) нарезку решает вес ключей, ориентир — нет; (к) условие файла у
 # экранов фронта; (л) топики конфига — только из файлов, названных разведчиком (YAML, JSON, `ключ=значение`).
 HERE="$(cd "$(dirname "$0")" && pwd)"
-. "$HERE/../sm-run.sh"   # SM_RUNNER=ps1 — через reference/run.ps1, как на Windows
+. "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
 REF="${1:-$HERE/../../../service-map-2.0/reference}"
-PLAN="$REF/plan.sh"
+PLAN="$REF/plan.py"
 OUT="$(mktemp -d)"; if [ -n "${KEEP:-}" ]; then echo "временная папка: $OUT"; else trap 'rm -rf "$OUT"' EXIT; fi
 bad=0
-has() { grep -q -F -- "$1" "$2" || { echo "нет строки ($3): $1"; bad=1; }; }
-hasnt() { ! grep -q -F -- "$1" "$2" || { echo "лишняя строка ($3): $1"; bad=1; }; }
-count() { local n; n=$(grep -c -- "$1" "$2"); [ "$n" -eq "$3" ] || { echo "строк «$1» ($4): $n, ждали $3"; bad=1; }; }
+# Временная папка в форме /c/… (TMPDIR порта на Python): при путях Windows в счёте plan печатает их как C:/… —
+# строка ищется в обеих формах.
+alt() { printf '%s' "$1" | sed -E 's#(^|[^A-Za-z0-9_.])/([a-z])/#\1\U\2:/#g'; }
+has() { grep -q -F -- "$1" "$2" || grep -q -F -- "$(alt "$1")" "$2" || { echo "нет строки ($3): $1"; bad=1; }; }
+hasnt() { ! grep -q -F -- "$1" "$2" && ! grep -q -F -- "$(alt "$1")" "$2" || { echo "лишняя строка ($3): $1"; bad=1; }; }
+count() { local n; n=$(grep -c -- "$1" "$2"); [ "$n" -eq "$3" ] || n=$(grep -c -- "$(alt "$1")" "$2"); [ "$n" -eq "$3" ] || { echo "строк «$1» ($4): $n, ждали $3"; bad=1; }; }
 
 S="$OUT/svc"
 mkdir -p "$S/web/src" "$S/api/a" "$S/api/b" "$S/spec" "$S/clients"
@@ -299,19 +302,7 @@ EOF
 sm_run "$PLAN" "$OUT/tcfg3.txt" 30 1 "$S4" "$OUT/tcfg3.tsv" backend > "$OUT/tcfg3.out" 2>&1
 count "^топик" "$OUT/tcfg3.tsv" 0 "л без строки разведчика"
 
-# (ж) таблица формы keys.awk — как таблица порядка секций шаблона (секции классов пометок)
-awk "$(cat "$REF/keys.awk")"'
-  function cell(s) { gsub(/`/, "", s); gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
-  /^\| `backend` \| `frontend` \|/ { on = 1; n = split($0, h, "|"); for (i = 2; i < n; i++) ty[i] = cell(h[i]); next }
-  on && /^\|[ \t:|-]*$/ { next }
-  on && /^\|/ { n = split($0, c, "|"); for (i = 2; i < n; i++) { s = cell(c[i]); if (s != "—" && k_cls(s) ~ /^(контракт|сущности|задачи|топики|экраны|потребляет|состояние)$/) tpl[ty[i]] = tpl[ty[i]] "|" s } ; next }
-  on && !/^\|/ { on = 0 }
-  function norm(l,   a, n, i, j, t) { n = split(l, a, "|"); for (i = 2; i <= n; i++) for (j = i + 1; j <= n; j++) if (a[j] < a[i]) { t = a[i]; a[i] = a[j]; a[j] = t }; l = ""; for (i = 1; i <= n; i++) if (a[i] != "") l = l "|" a[i]; return l }
-  END {
-    split("backend frontend fullstack lib", T, " ")
-    for (i = 1; i <= 4; i++) { t = T[i]; a = norm(tpl[t]); b = norm("|" k_typesecs(t))
-      if (a != b) { printf "ж: тип %s — шаблон %s, keys.awk %s\n", t, a, b; bad = 1 } }
-    exit bad
-  }' "$REF/card.template.md" || bad=1
+# (ж) таблица формы keys.py — как таблица порядка секций шаблона (секции классов пометок)
+python "$HERE/form-table.py" "$(cygpath -m "$REF" 2>/dev/null || echo "$REF")" || bad=1
 
 [ "$bad" -eq 0 ] && echo "ОК" || { echo "разошлось — см. выше"; exit 1; }

@@ -1,8 +1,8 @@
 // Сводка test-split-scripts.sh: читает выводы скриптов из <out> и печатает таблицу.
 //   node compare.mjs <папка SM-SPLIT-SCRIPTS> <out>
-// Фазы: 0) оракул plan.sh против expect.json (проверка самого стенда); 1) plan.sh — синтетика;
-// 2) plan.sh — настоящие деревья против оракула; 3) assemble.sh — синтетика; 4) круговой случай на
-// настоящей карточке; 5) promote.sh. Код выхода 1 — есть ОШИБКА (или неисправен сам оракул).
+// Фазы: 0) оракул plan.py против expect.json (проверка самого стенда); 1) plan.py — синтетика;
+// 2) plan.py — настоящие деревья против оракула; 3) assemble.py — синтетика; 4) круговой случай на
+// настоящей карточке; 5) promote.py. Код выхода 1 — есть ОШИБКА (или неисправен сам оракул).
 import fs from 'node:fs'
 import path from 'node:path'
 import { checkPlanCase, checkPlanReal, checkOracle, checkPlanTsv } from './check-plan.mjs'

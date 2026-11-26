@@ -9,16 +9,20 @@
 
 ### `GET /api/v1/nights/{id}`
 Ночь наблюдений.
+сущности: → Night
 - ответ: дата, фаза Луны, прогноз облачности
 
 ### `GET /api/v1/nights/{id}/stats`
 Сводка броней за ночь.
+сущности: → не сущность, агрегат по Reservation
 - ответ: число броней по телескопам
 
 ### `POST /api/v1/reservations`
 Бронь ночи.
+сущности: Reservation → Reservation
 - тело: ночь и телескоп
 
 ### `POST /api/v1/reservations/{id}/cancel`
 Отмена брони.
+сущности: → Reservation
 - ошибки: `409` — бронь уже отменена

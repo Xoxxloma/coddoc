@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Независимые тесты check.sh скилла service-map-2.0. Моделей не запускает, пишет только во временную папку.
-#   bash test-check.sh [путь к check.sh]
-# По умолчанию — agent-version/service-map-2.0/reference/check.sh. Нужны bash и node.
+# Независимые тесты check.py скилла service-map-2.0. Моделей не запускает, пишет только во временную папку.
+#   bash test-check.py [путь к check.py]
+# По умолчанию — agent-version/service-map-2.0/reference/check.py. Нужны bash и node.
 # Фазы: 1) оракул (oracle.mjs) против expect.json на синтетике cases/*; 2) скрипт против expect.json;
 # 3) скрипт против оракула на настоящих файлах из real-cases.txt. Плюс время на самом крупном входе.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVAL="$(cd "$HERE/../.." && pwd)"
-. "$HERE/../sm-run.sh"   # SM_RUNNER=ps1 — через reference/run.ps1, как на Windows
-CHECK="${1:-$EVAL/../service-map-2.0/reference/check.sh}"
-[ -f "$CHECK" ] || { echo "нет check.sh: $CHECK" >&2; exit 2; }
+. "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
+CHECK="${1:-$EVAL/../service-map-2.0/reference/check.py}"
+[ -f "$CHECK" ] || { echo "нет check.py: $CHECK" >&2; exit 2; }
 command -v node >/dev/null 2>&1 || { echo "нужен node" >&2; exit 2; }
 
 OUT="$(mktemp -d "${TMPDIR:-/tmp}/sm-check.XXXXXX")"
@@ -33,7 +33,7 @@ run() {
   echo $(( t1 - t0 )) >"$OUT/$name.ms"
 }
 
-echo "check.sh: $CHECK"
+echo "check.py: $CHECK"
 
 for d in "$HERE"/cases/*/; do
   d="${d%/}"

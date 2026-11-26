@@ -1,5 +1,5 @@
-// Независимый оракул для service-map-2.0/reference/edges.sh (Шаг 5: обратные рёбра).
-// Написан по контракту координатора, БЕЗ чтения edges.sh. Ничего не пишет на диск.
+// Независимый оракул для service-map-2.0/reference/edges.py (Шаг 5: обратные рёбра).
+// Написан по контракту координатора, БЕЗ чтения edges.py. Ничего не пишет на диск.
 //   node oracle.mjs <папка services> <manifest.yaml>  → JSON: числа печати и новые тексты карточек
 //
 // Решения там, где контракт молчит (кандидаты в «неоднозначность»):
@@ -105,7 +105,7 @@ export function edges(servicesDir, manifestPath, only = null) {
     let j = i + 1;
     while (j < lines.length && !lines[j].startsWith('## ')) j++;
     const block = [HEAD, '| Сервис | Что вызывает | Зачем |', '|---|---|---|', ...(list.length ? list : ['| — | | |']), ''];
-    // концы строк секции — как у её заголовка в карточке (CRLF после выгрузки git на Windows), как в edges.sh
+    // концы строк секции — как у её заголовка в карточке (CRLF после выгрузки git на Windows), как в edges.py
     const eol = /\r\n$/.test(lines[i]) ? '\r\n' : '\n';
     const newText = lines.slice(0, i).join('') + block.map((l) => l + eol).join('') + lines.slice(j).join('');
     cards[n] = { section: true, mirrors: list.length, skipped: skipped[n], lines: block, newText };

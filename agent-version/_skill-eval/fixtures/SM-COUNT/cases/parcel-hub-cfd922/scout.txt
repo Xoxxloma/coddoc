@@ -1,0 +1,6 @@
+контракт :: \w+Router\.(get|post|put|patch|delete)\(|\bapp\.(get|post|put|patch|delete)\( :: *.ts :: ключ
+сущности :: @Entity\b :: *.ts :: ключ
+топики :: \.subscribe\( :: *.ts :: ориентир
+конфиг топиков :: {ROOT}/config/default.yaml
+контроль :: контракт :: {ROOT}/src/routes/parcels.ts :: 3
+контроль :: сущности :: {ROOT}/src/db/parcel.entity.ts :: 1
