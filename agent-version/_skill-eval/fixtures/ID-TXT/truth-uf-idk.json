@@ -1,0 +1,41 @@
+{
+  "key": "VSL-23",
+  "source": "coddoc/VSL-23/client-process.txt",
+  "nodes": [
+    {"id": "d2", "fr": 1, "kind": "decision", "stems": ["найд"]},
+    {"id": "s4", "fr": 1, "kind": "step", "stems": ["выда"]},
+    {"id": "s5", "fr": 1, "kind": "step", "stems": ["отказ"]},
+    {"id": "s1", "fr": 2, "kind": "step", "stems": ["выбир"]},
+    {"id": "s2", "fr": 2, "kind": "step", "stems": ["оплач"]},
+    {"id": "d4", "fr": 4, "kind": "decision", "stems": ["поврежд"]},
+    {"id": "s8", "fr": 4, "kind": "step", "stems": ["возвра", "депозит"]},
+    {"id": "s9", "fr": 4, "kind": "step", "stems": ["составля", "осмотр"]},
+    {"id": "d1", "fr": 5, "kind": "decision", "stems": ["погод"]},
+    {"id": "s3", "fr": 5, "kind": "step", "stems": ["приход"]},
+    {"id": "s7", "fr": 6, "kind": "step", "stems": ["шварт"]},
+    {"id": "d3", "fr": 7, "kind": "decision", "stems": ["опазд"]},
+    {"id": "s6", "fr": 7, "kind": "step", "stems": ["звон"]}
+  ],
+  "edges": [
+    ["start", "d2"],
+    ["d2", "s4"],
+    ["d2", "s5"],
+    ["s5", "end"],
+    ["s4", "s1"],
+    ["s1", "s2"],
+    ["s2", "d4"],
+    ["d4", "s8"],
+    ["d4", "s9"],
+    ["s8", "d1"],
+    ["d1", "s3"],
+    ["d1", "s1"],
+    ["s3", "s7"],
+    ["s7", "d3"],
+    ["d3", "s6"],
+    ["s6", "end"]
+  ],
+  "asks": {"order": true, "branch": [7], "end": [4], "open": []},
+  "holes": [],
+  "off": [3],
+  "thoughts": 0
+}

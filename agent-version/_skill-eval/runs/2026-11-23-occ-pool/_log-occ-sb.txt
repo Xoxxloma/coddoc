@@ -1,0 +1,37 @@
+снимок скилла: runs/2026-11-23-occ-pool/_skills/stage-breakdown-doc.SKILL.md
+проба: occ-sb   фикстура: OCC-SB   скилл: stage-breakdown-doc
+реплика аналитика: go-turn2.txt   ходов до 2 подряд без движения, потолок 2
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-sb
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-sb-33649-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-SB/sb-prompt.txt
+прогонов: 5, параллельно: 3
+  run-1 — ходов: 2, строк в трассе: 0
+  run-1 — готов
+  run-3 — ходов: 2, строк в трассе: 0
+  run-3 — готов
+  run-2 — ходов: 2, строк в трассе: 0
+  run-2 — готов
+  run-5 — ОТКАЗ API на ходу 2, песочница помечена и в счёт не идёт
+  run-4 — ОТКАЗ API на ходу 2, песочница помечена и в счёт не идёт
+ГОТОВО: runs/2026-11-23-occ-pool/occ-sb — песочниц с ответом: 5 из 5
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-sb-33649-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-sb: $2.98 за 5 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/stage-breakdown-doc.SKILL.md
+проба: occ-sb   фикстура: OCC-SB   скилл: stage-breakdown-doc
+реплика аналитика: go-turn2.txt   ходов до 2 подряд без движения, потолок 2
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-sb
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-sb-38855-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-SB/sb-prompt.txt
+прогонов: 5, параллельно: 3
+  run-1 — уже есть, пропуск
+  run-2 — уже есть, пропуск
+  run-3 — уже есть, пропуск
+  run-4 — ходов: 2, строк в трассе: 0
+  run-4 — готов
+  run-5 — ходов: 2, строк в трассе: 0
+  run-5 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/occ-sb — песочниц с ответом: 5 из 5
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-sb-38855-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-sb: $3.35 за 5 прогонов

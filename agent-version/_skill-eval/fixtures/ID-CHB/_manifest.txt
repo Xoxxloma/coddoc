@@ -1,4 +1,4 @@
-docs/ESS-31/technical_specification.md
+coddoc/ESS-31/technical_specification.md
 idk-turn2.txt
 mmd-prompt.txt
 README.md

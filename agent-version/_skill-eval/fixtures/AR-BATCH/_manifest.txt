@@ -1,0 +1,13 @@
+ar-prompt.txt
+ar-turn2.txt
+coddoc/SHP-11/technical_specification.md
+coddoc/SHP-12/technical_specification.md
+coddoc/SHP-14/technical_specification.md
+coddoc/SHP-15/technical_specification.md
+README.md
+services/_history/orders-api.md
+services/admin-web.md
+services/manifest.yaml
+services/orders-api.md
+services/shop-web.md
+stubs/service-map/SKILL.md

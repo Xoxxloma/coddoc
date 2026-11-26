@@ -7,7 +7,8 @@
 set -u
 SKILL="${1:?путь к SKILL.md}"; ROUND="${2:?папка раунда}"; N="${3:-3}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; FIX="${SM_FIX:-$HERE/fixtures/SM-ENT}"; OUT="$ROUND/${SM_OUT:-sm-ent}"
-MODEL="${SM_MODEL:-sonnet}"
+. "$HERE/model-id.sh"
+MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 ln() { grep -n -m1 -- "$1" "$SKILL" | cut -d: -f1; }
 A1=$(ln '^\*\*Второе — маркерный гейт'); A2=$(ln '^\*\*Три правила обхода')
 B1=$(ln '^- \*\*Сущности у ручек:\*\*'); B2=$(ln '^- \*\*Порядок элементов:\*\*')

@@ -1,0 +1,8 @@
+цепочка: loop-twice   фикстура: LOOP-TWICE   стадий: 5
+модель: sonnet
+стадия 1: meeting-recall — stage-1-prompt.txt; реплика —; двойник stage-1-twin-card.md (twin-analyst.md); потолок 24
+стадия 2: meeting-intake — stage-2-prompt.txt; реплика stage-2-turn2.txt; двойник — (—); потолок 20
+стадия 3: analyst-notebook — stage-3-prompt.txt; реплика stage-3-turn2.txt; двойник — (—); потолок 5
+стадия 4: analyst-notebook — stage-4-prompt.txt; реплика stage-4-turn2.txt; двойник — (—); потолок 5
+стадия 5: analyst-notebook — stage-5-prompt.txt; реплика stage-5-turn2.txt; двойник — (—); потолок 3
+прогонов: 3, параллельность: 3

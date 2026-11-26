@@ -1,0 +1,1 @@
+Проверь бизнес-требования coddoc/SHT-410/business_requirements.md. Можно отдавать дальше?

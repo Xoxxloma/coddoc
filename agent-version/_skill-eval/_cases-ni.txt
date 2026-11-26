@@ -1,0 +1,21 @@
+  # ── `notes-to-intent`: готовый список пунктов → вход для БТ или спеки (2026-10-15) ───────────────────────────
+  # Засев — `seed/`: документы задачи и список `*.points.md` там, где его кладёт производитель (без расшифровки,
+  # протокола и ноута); рядом в фикстуре — `etalon/` и README, им в песочнице не место. Реплика одна на все ходы:
+  # «Да, согласен с рекомендацией.» (у ni-nb-pick — ещё выбор одного наброска). Вопросов у скилла 2–4 (цель; спорное,
+  # другой слой и мысли — одним ходом; сводка), потолок 10 — запас на Шаг 5 по одному вопросу за ход и один круг
+  # «Поправить». Диалог кончается, когда записан вход из этого списка (основа имени — имя списка); у списков из ноута — в
+  # любой папке: вход рядом со списком в notes/ — красный у грейдера, но гонять диалог до потолка незачем. MEET_ENV — прод-модель
+  # и снятый потолок ожидания фоновых задач: Шаги 2–3 — субагенты. Грейдер — `grade-ni.mjs --fx <FX>`, ожидания —
+  # fixtures/NI-*/README.md.
+  ni-vac)     FIXTURE=NI-VAC;     PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-07-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-acc)     FIXTURE=NI-ACC;     PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-09-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-new)     FIXTURE=NI-NEW;     PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-08-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-chg)     FIXTURE=NI-CHG;     PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-15-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-cr)      FIXTURE=NI-CR;      PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-16-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-rew)     FIXTURE=NI-REW;     PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-14-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-mr-new)  FIXTURE=NI-MR-NEW;  PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-14-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-mr-chg)  FIXTURE=NI-MR-CHG;  PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/coddoc/.*/meeting-2026-10-14-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-nb-in)   FIXTURE=NI-NB-IN;   PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/notebook-2026-10-15-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-nb-ans)  FIXTURE=NI-NB-ANS;  PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/notebook-2026-10-15-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  ni-nb-pick) FIXTURE=NI-NB-PICK; PROMPT_FILE=w-prompt.txt; SKILL=notes-to-intent; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=10; IDLE_MAX=10; DONE_RE='/notebook-2026-10-15-(bt|spec)\.md$'; MEET_ENV=1 ;;
+  # В список проб в сообщении `*)` дописать: ni-vac ni-acc ni-new ni-chg ni-cr ni-rew ni-mr-new ni-mr-chg ni-nb-in ni-nb-ans ni-nb-pick

@@ -1,4 +1,4 @@
-docs/RMS-5102/business_requirements.md
+coddoc/RMS-5102/business_requirements.md
 README.md
 rework-prompt.txt
 rework-q-prompt.txt

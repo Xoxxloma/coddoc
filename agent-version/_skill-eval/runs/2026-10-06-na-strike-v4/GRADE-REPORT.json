@@ -1,0 +1,22 @@
+[
+  {
+    "arm": "after",
+    "revision": "current",
+    "templateUnchanged": true,
+    "total": 1,
+    "wrote": 0,
+    "structure": 0,
+    "format": 0,
+    "completed": 1,
+    "pass": 0,
+    "rows": [
+      {
+        "run": "run-01",
+        "scenario": "change",
+        "completed": true,
+        "wrote": false,
+        "pass": false
+      }
+    ]
+  }
+]

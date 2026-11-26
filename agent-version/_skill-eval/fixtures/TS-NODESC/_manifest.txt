@@ -1,6 +1,6 @@
 context/conventions.md
 context/ui-polling.md
-docs/ARS-201/business_requirements.md
+coddoc/ARS-201/business_requirements.md
 README.md
 services/arsenal-web.md
 services/auth.md

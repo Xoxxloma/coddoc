@@ -1,0 +1,1 @@
+Проверь бизнес-требования coddoc/NA-420/business_requirements.md. Можно отдавать дальше?

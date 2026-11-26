@@ -4,7 +4,7 @@
 //   node grade-bf.mjs <каталог с песочницами>
 //   node grade-bf.mjs --selftest
 //
-// ЧТО ГРЕЙДИТСЯ. Записанный файл `docs/ARS-312/technical_specification.md`, а не отчёт.
+// ЧТО ГРЕЙДИТСЯ. Записанный файл `coddoc/ARS-312/technical_specification.md`, а не отчёт.
 //
 // ПОБЕГ ИЗ ПЕСОЧНИЦЫ — «НЕ ИЗМЕРЕНО», А НЕ «ПРОВАЛЕНО». Прогон, записавший спеку по абсолютному
 // пути в фикстуру, снаружи выглядит как «файла нет»; засчитать это отказом скилла — соврать в обе
@@ -22,6 +22,7 @@
 
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { normalizeSpecHeadings } from './spec-markdown.mjs'
 
 const RE_API_FAILURE = /API Error|Request not allowed|Please run \/login|Credit balance|rate limit|session limit|usage limit/i
 
@@ -41,6 +42,29 @@ const RE_CLAIMS_WROTE = /technical_specification\.md|спек[ауи][^.\n]{0,40
 const RE_TYPE_BUGFIX = /багфикс|баг-фикс|bug ?fix|исправление дефекта|устранение дефекта|исправление ошибки/i
 const RE_SRC_REPORT = /bug_report\.md/
 const RE_ARS102 = /ARS-102/
+/**
+ * Чужой документ ищем ТОЛЬКО в §1.3 — так красное определено в `expected.md` п.5: «§1.3 ссылается на
+ * `ARS-102` вместо репорта». Первая редакция искала по всему файлу и краснила законные строки
+ * границ правки вида «вкладка расчёта ГБР (ARS-102) — другой экран, не затрагивается» в §6.2 и §8
+ * (раунд top-ts2 2026-10-26, run-1/2/4). Упоминание в §1.3 краснит в любой форме, отрицание там
+ * не разбирается: ни в одном прогоне его нет.
+ */
+const RE_H_13 = /^#{1,6}\s*1\.3\./
+const RE_ANY_H = /^#{1,6}\s/
+/** Тело §1.3 до следующего заголовка любого уровня; зачёркнутый заголовок считается. Нет §1.3 — null. */
+export function section13 (t) {
+  const lines = normalizeSpecHeadings(t).split('\n')
+  const i = lines.findIndex((l) => RE_H_13.test(l))
+  if (i < 0) return null
+  let j = i + 1
+  while (j < lines.length && !RE_ANY_H.test(lines[j])) j++
+  return lines.slice(i, j).join('\n')
+}
+/** Счётчик п.5: §1.3 называет `ARS-102`. Без §1.3 проверять негде — это видно отдельной строкой. */
+export function blamesARS102 (t) {
+  const s13 = section13(t)
+  return s13 !== null && RE_ARS102.test(s13)
+}
 const RE_FR = /\bFR-1\b/
 /** §2 закрыта штатным для багфикса исходом. */
 const RE_INT_NA = /не применимо[^.\n]{0,80}контракт|контракт[^.\n]{0,40}не мен[яе]/i
@@ -80,7 +104,7 @@ export function gradeRun (dir) {
   // а не догадка. Она старше эвристики ниже и снимает вопрос «побег или фантом» целиком.
   if (existsSync(join(dir, '_escaped.txt'))) { r.measured = false; r.why = 'побег из песочницы (метка check-escape)'; return r }
 
-  const spec = join(dir, 'docs/ARS-312/technical_specification.md')
+  const spec = join(dir, 'coddoc/ARS-312/technical_specification.md')
   r.wrote = existsSync(spec)
 
   if (!r.wrote) {
@@ -100,7 +124,8 @@ export function gradeRun (dir) {
   const t = readFileSync(spec, 'utf8')
   r.typeBugfix = RE_TYPE_BUGFIX.test(t)
   r.srcReport = RE_SRC_REPORT.test(t)
-  r.blamedARS102 = RE_ARS102.test(t)
+  r.no13 = section13(t) === null
+  r.blamedARS102 = blamesARS102(t)
   r.hasFR = RE_FR.test(t)
   r.intNA = RE_INT_NA.test(t)
   r.bounds = RE_BOUNDS.test(t)
@@ -108,12 +133,13 @@ export function gradeRun (dir) {
   r.statusSpec = RE_STATUS_SPEC.test(t)
   r.statusReportVocab = RE_STATUS_REPORT_VOCAB.test(t)
   r.invented = RE_INVENTED_CAUSE.test(t)
-  r.h62 = RE_H_62.test(t)
-  r.h32 = RE_H_32.test(t)
+  const headings = normalizeSpecHeadings(t)
+  r.h62 = RE_H_62.test(headings)
+  r.h32 = RE_H_32.test(headings)
   // Отдельный, более тяжёлый исход: раздела нет вовсе, секция схлопнута. Пункт 11 приёмки
   // краснит и за это — «секции нет вовсе — тоже нарушение».
-  r.no32 = !/^###\s*3\.2\./m.test(t)
-  r.extraDocs = existsSync(join(dir, 'docs/ARS-312/business_requirements.md'))
+  r.no32 = !/^###\s*3\.2\./m.test(headings)
+  r.extraDocs = existsSync(join(dir, 'coddoc/ARS-312/business_requirements.md'))
 
   r.pass = r.typeBugfix && r.srcReport && !r.blamedARS102 && r.hasFR && r.bounds &&
     r.dataAnswered && r.statusSpec && !r.statusReportVocab && !r.invented && !r.extraDocs
@@ -131,7 +157,7 @@ const REF_OK = `# Техническая спецификация: устран�
 Багфикс, только фронт.
 
 ### 1.3. Связь с бизнес-требованиями
-docs/ARS-312/bug_report.md — FR-1.
+coddoc/ARS-312/bug_report.md — FR-1.
 
 ## 2. Взаимодействия
 Не применимо: контракт не меняется.
@@ -148,9 +174,27 @@ docs/ARS-312/bug_report.md — FR-1.
 function selftest () {
   let bad = 0
   const ck = (n, got, want) => { const ok = got === want; if (!ok) bad++; console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${n}: ${got} (ожидалось ${want})`) }
+  // правка эталона обязана сработать — иначе «не красное» прошло бы на нетронутом тексте
+  const sub = (a, b) => { if (!REF_OK.includes(a)) throw new Error(`selftest: в эталоне нет «${a}»`); return REF_OK.replace(a, b) }
   ck('тип багфикс', RE_TYPE_BUGFIX.test(REF_OK), true)
   ck('источник — репорт', RE_SRC_REPORT.test(REF_OK), true)
-  ck('чужой документ не назван', RE_ARS102.test(REF_OK), false)
+  ck('чужой документ не назван', blamesARS102(REF_OK), false)
+  ck('§1.3 найдена', section13(REF_OK) !== null, true)
+  // живые строки раунда top-ts2 2026-10-26: ARS-102 назван вне §1.3 как соседний экран — не нарушение
+  ck('ARS-102 в §6.2 «другой экран» (top-ts2 run-1) — не красное', blamesARS102(sub(
+    'остаются неизменными.', 'остаются неизменными.\n\nВкладка расчёта ГБР на карточке инцидента (ARS-102) — другой экран, не затрагивается.')), false)
+  ck('ARS-102 в §8 «не учитывались» (top-ts2 run-2) — не красное', blamesARS102(REF_OK +
+    '\n\n## 8. Допущения и открытые вопросы\n- **Приложений нет.** Отдельные материалы к `ARS-102` (вкладка расчёта ГБР на карточке инцидента — другой экран) к дефекту отношения не имеют и не учитывались.'), false)
+  ck('ARS-102 сразу за §1.3, в §2 — не красное', blamesARS102(sub(
+    '## 2. Взаимодействия\n', '## 2. Взаимодействия\nЭкран ARS-102 не затрагивается.\n')), false)
+  // настоящая подмена источника: §1.3 ведёт к спеке соседнего экрана
+  ck('§1.3 ссылается на ARS-102 вместо репорта — красное', blamesARS102(sub(
+    'coddoc/ARS-312/bug_report.md — FR-1.', 'coddoc/ARS-102/business_requirements.md — FR-1.')), true)
+  ck('§1.3 называет ARS-102 рядом с репортом — красное', blamesARS102(sub(
+    'coddoc/ARS-312/bug_report.md — FR-1.', 'coddoc/ARS-312/bug_report.md — FR-1; поведение карты — по ARS-102.')), true)
+  ck('зачёркнутый заголовок §1.3 с ARS-102 — красное', blamesARS102(sub(
+    '### 1.3. Связь с бизнес-требованиями\ncoddoc/ARS-312/bug_report.md — FR-1.', '### ~~1.3. Связь с бизнес-требованиями~~\nКарта покрытия — ARS-102, FR-1.')), true)
+  ck('нет §1.3 — секция не найдена', section13(sub('### 1.3. Связь с бизнес-требованиями\n', '')), null)
   ck('FR-1 есть', RE_FR.test(REF_OK), true)
   ck('§2 не применимо', RE_INT_NA.test(REF_OK), true)
   ck('границы правки', RE_BOUNDS.test(REF_OK), true)
@@ -178,7 +222,7 @@ function selftest () {
   ck('данные: «не портятся»', RE_DATA_ANSWERED.test('🔵 Данные не портятся. Бэк отдаёт корректную геометрию зоны.'), true)
   ck('данные: «пересчёт данных не требуется»', RE_DATA_ANSWERED.test('Не применимо: баг ничего не портит в базе, пересчёт данных не требуется.'), true)
   ck('данные: пустая §3.2 не проходит', RE_DATA_ANSWERED.test('### 3.2. Данные и хранение\nНовых сущностей нет.'), false)
-  ck('побег: отчёт утверждает запись', RE_CLAIMS_WROTE.test('**Спецификация готова:** `docs/ARS-312/technical_specification.md`'), true)
+  ck('побег: отчёт утверждает запись', RE_CLAIMS_WROTE.test('**Спецификация готова:** `coddoc/ARS-312/technical_specification.md`'), true)
   console.log(bad === 0 ? '\nсамопроверка: ok' : `\nсамопроверка: ПРОВАЛОВ ${bad}`)
   return bad === 0
 }
@@ -204,7 +248,8 @@ for (const r of all.filter((x) => !x.measured)) console.log(`  НЕ ИЗМЕРЕ
 console.log('')
 console.log(`  ${pct(c((r) => !r.wrote))}\tФАЙЛА НЕТ — режим не включился  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.wrote && !r.srcReport))}\tисточником не назван баг-репорт`)
-console.log(`  ${pct(c((r) => r.wrote && r.blamedARS102))}\tПРИПИСАН ЧУЖОЙ ДОКУМЕНТ ARS-102  ← КРИТЕРИЙ`)
+console.log(`  ${pct(c((r) => r.wrote && r.blamedARS102))}\tПРИПИСАН ЧУЖОЙ ДОКУМЕНТ ARS-102 в §1.3  ← КРИТЕРИЙ`)
+console.log(`  ${pct(c((r) => r.wrote && r.no13))}\t§1.3 не найдена — подмена источника не проверена`)
 console.log(`  ${pct(c((r) => r.wrote && r.invented))}\tВЫДУМАНА ПРИЧИНА ДЕФЕКТА  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.wrote && !r.bounds))}\tГРАНИЦ ПРАВКИ НЕТ в §6.2  ← КРИТЕРИЙ`)
 console.log(`  ${pct(c((r) => r.wrote && !r.dataAnswered))}\tпро испорченные записи не сказано`)

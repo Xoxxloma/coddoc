@@ -1,6 +1,6 @@
 data-q-prompt.txt
-docs/ARS-102/business_requirements.md
-docs/ARS-102/technical_specification.md
+coddoc/ARS-102/business_requirements.md
+coddoc/ARS-102/technical_specification.md
 expected.md
 flick-ctl-prompt.txt
 flick-q-prompt.txt

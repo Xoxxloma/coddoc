@@ -1,8 +1,8 @@
-// TD-PATH — task-decomposition-doc на эпике, который лежит НЕ в `docs/<KEY>/`.
+// TD-PATH — task-decomposition-doc на эпике, который лежит НЕ в `coddoc/<KEY>/`.
 //
-// Эпик:  AI-SDD/docs/PSS-40/business_requirements.md   (в песочнице есть ещё и КОРНЕВАЯ `docs/`
-// — настоящая продуктовая документация, ловушка на шаблон `docs/<KEY>/`).
-// Правда: дети кладутся ВНУТРЬ папки эпика — AI-SDD/docs/PSS-40/PSS-41/ и /PSS-42/.
+// Эпик:  AI-SDD/coddoc/PSS-40/business_requirements.md   (в песочнице есть ещё и КОРНЕВАЯ `coddoc/`
+// — настоящая продуктовая документация, ловушка на шаблон `coddoc/<KEY>/`).
+// Правда: дети кладутся ВНУТРЬ папки эпика — AI-SDD/coddoc/PSS-40/PSS-41/ и /PSS-42/.
 //
 // Запуск: node agent-version/_skill-eval/grade-td-path.mjs <папка-плеча> [gate]
 //   без аргумента  — плечо td-path-w  (грейдится диск)
@@ -22,25 +22,25 @@ const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
 
 // Две раскладки одной пробы. `alias` — та, на которой дефект принесли с живой работы:
 // ключ эпика `T-T-M-1.2` НЕ матчит regex скилла, а у детей ключи настоящие, и рядом под
-// `docs/` лежит обычная задача — то есть шаблон «ключ задачи → своя папка под docs/» виден
+// `coddoc/` лежит обычная задача — то есть шаблон «ключ задачи → своя папка под coddoc/» виден
 // прогону на диске и тянет детей в корень.
 const LAYOUT = MODE === 'alias'
   ? {
       seed: 'seed-alias',
-      epicDir: ['docs', 'T-T-M-1.2'],
+      epicDir: ['coddoc', 'T-T-M-1.2'],
       kids: ['AAA-1', 'AAA-2', 'AAA-3', 'AAA-4'],
       owner: { 'FR-1': 'AAA-1', 'FR-2': 'AAA-1', 'FR-3': 'AAA-2', 'FR-4': 'AAA-2',
                'FR-5': 'AAA-3', 'FR-6': 'AAA-3', 'FR-7': 'AAA-4', 'FR-8': 'AAA-4' },
-      root: 'docs/',
-      seeded: [join('docs', 'OPS-77', 'business_requirements.md')],
+      root: 'coddoc/',
+      seeded: [join('coddoc', 'OPS-77', 'business_requirements.md')],
     }
   : {
       seed: 'seed',
-      epicDir: ['AI-SDD', 'docs', 'PSS-40'],
+      epicDir: ['AI-SDD', 'coddoc', 'PSS-40'],
       kids: ['PSS-41', 'PSS-42'],
       owner: { 'FR-1': 'PSS-41', 'FR-2': 'PSS-41', 'FR-3': 'PSS-41', 'FR-4': 'PSS-42', 'FR-5': 'PSS-42' },
-      root: 'AI-SDD/docs/',
-      seeded: [join('AI-SDD', 'services', 'manifest.yaml'), join('docs', 'index.md'), join('docs', 'deploy.md')],
+      root: 'AI-SDD/coddoc/',
+      seeded: [join('AI-SDD', 'services', 'manifest.yaml'), join('coddoc', 'index.md'), join('coddoc', 'deploy.md')],
     };
 const KIDS = LAYOUT.kids;
 const OWNER = LAYOUT.owner;
@@ -58,7 +58,7 @@ function walk(dir, acc = []) {
 // Файлы, которые прогон получил в засеве. Всё остальное на диске — его запись.
 const SEEDED = new Set([
   EPIC_BT,
-  join('AI-SDD', 'docs', 'PSS-12', 'business_requirements.md'),
+  join('AI-SDD', 'coddoc', 'PSS-12', 'business_requirements.md'),
   ...LAYOUT.seeded,
   'answer.md',
 ]);
@@ -97,7 +97,7 @@ function classify(rel) {
   if (inEpicDir && asFolder && p.endsWith('/business_requirements.md')) return { kid, verdict: 'ok' };
   if (inEpicDir && !asFolder) return { kid, verdict: 'flat' };          // ключ в имени файла
   if (!inEpicDir && p.startsWith(LAYOUT.root)) return { kid, verdict: 'sibling' };
-  if (p.startsWith('docs/')) return { kid, verdict: 'root-docs' };      // шаблон от корня песочницы
+  if (p.startsWith('coddoc/')) return { kid, verdict: 'root-docs' };      // шаблон от корня песочницы
   return { kid, verdict: 'elsewhere' };
 }
 
@@ -122,7 +122,8 @@ function checkWrite(run) {
     return hits.length !== 1 || hits[0] !== owner;
   }).map(([fr]) => fr);
 
-  const epicTouched = read(join(run, EPIC_BT)) !== read(join(HERE, 'fixtures', 'TD-PATH', LAYOUT.seed, EPIC_BT));
+  // `TD_FIXTURE=TD-RU` — копия засева на словах 5.35 (проба `td-ru-w`); эпик сверяется с СВОИМ засевом.
+  const epicTouched = read(join(run, EPIC_BT)) !== read(join(HERE, 'fixtures', process.env.TD_FIXTURE || 'TD-PATH', LAYOUT.seed, EPIC_BT));
   const strays = written.filter((r) => !posix(r).startsWith(posix(join(...EPIC_DIR)) + '/'));
 
   return {
@@ -130,7 +131,7 @@ function checkWrite(run) {
     [`TD.2 все ${KIDS.length} детей записаны ПО ВЕРНОМУ пути`]: ok.size === KIDS.length,
     'TD.3 ни одного файла мимо папки эпика': strays.length === 0,
     'TD.4 ключ ребёнка папкой, а не в имени файла': !placed.some((x) => x.verdict === 'flat'),
-    ...(MODE === 'alias' ? {} : { 'TD.5 корневая docs/ не тронута': !placed.some((x) => x.verdict === 'root-docs') }),
+    ...(MODE === 'alias' ? {} : { 'TD.5 корневая coddoc/ не тронута': !placed.some((x) => x.verdict === 'root-docs') }),
     'TD.6 FR разложены как в §4.5': frWrong.length === 0,
     'TD.7 эпик-БТ не переписан': !epicTouched,
     _detail: bad.length

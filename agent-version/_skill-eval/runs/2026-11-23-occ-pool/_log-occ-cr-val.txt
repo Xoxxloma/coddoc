@@ -1,0 +1,31 @@
+снимок скилла: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: occ-cr-val   фикстура: OCC-CR-VAL   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-cr-val
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-cr-val-33652-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-VAL/w-prompt.txt
+прогонов: 3, параллельно: 3
+  run-2 — ходов: 1, строк в трассе: 0
+  run-2 — готов
+  run-3 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/occ-cr-val/run-3/_stderr.log
+  run-1 — ОТКАЗ API на ходу 2, песочница помечена и в счёт не идёт
+ГОТОВО: runs/2026-11-23-occ-pool/occ-cr-val — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-cr-val-33652-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-cr-val: $2.68 за 3 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: occ-cr-val   фикстура: OCC-CR-VAL   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-cr-val
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-cr-val-40064-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-VAL/w-prompt.txt
+прогонов: 3, параллельно: 3
+  run-2 — уже есть, пропуск
+  run-1 — ходов: 1, строк в трассе: 0
+  run-1 — готов
+  run-3 — ходов: 1, строк в трассе: 0
+  run-3 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/occ-cr-val — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-cr-val-40064-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-cr-val: $3.07 за 3 прогонов

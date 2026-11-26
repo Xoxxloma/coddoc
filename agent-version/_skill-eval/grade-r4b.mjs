@@ -36,7 +36,7 @@ function runsOf(d) {
 }
 
 function check(run) {
-  const epic = join(run, 'docs', 'ARS-100');
+  const epic = join(run, 'coddoc', 'ARS-100');
   const kidPath = join(epic, 'ARS-101', 'technical_specification.md');
   const spec = read(kidPath);
   const fnd = read(join(epic, '_foundation', 'technical_specification.md'));

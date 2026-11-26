@@ -1,0 +1,139 @@
+================ meet-acc (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-acc/meet-acc --points --fx ACC)
+
+проба meet-acc (список), runs/2026-10-15-loop-pilot-meet-acc/meet-acc
+  run-1: зелёный  · ходов: 3, субагентов: 3 · пунктов: 29 · цитат: 104
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-chg (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-chg/meet-chg --points --fx CHG)
+
+проба meet-chg (список), runs/2026-10-15-loop-pilot-meet-chg/meet-chg
+  run-1: зелёный  · ходов: 2, субагентов: 3 · пунктов: 8 · цитат: 26
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-cr (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-cr/meet-cr --points --fx CR)
+
+проба meet-cr (список), runs/2026-10-15-loop-pilot-meet-cr/meet-cr
+  run-1: зелёный  · ходов: 2, субагентов: 3 · пунктов: 8 · цитат: 24
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-new (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-new/meet-new --points --fx NEW)
+
+проба meet-new (список), runs/2026-10-15-loop-pilot-meet-new/meet-new
+  run-1: зелёный  · ходов: 2, субагентов: 3 · пунктов: 26 · цитат: 76
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-out (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-out/meet-out --points --fx OUT)
+
+проба meet-out (список), runs/2026-10-15-loop-pilot-meet-out/meet-out
+  run-1: зелёный  · ходов: 2, субагентов: 3 · пунктов: 18 · цитат: 37
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-rew (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-rew/meet-rew --points --fx REW)
+
+проба meet-rew (список), runs/2026-10-15-loop-pilot-meet-rew/meet-rew
+  run-1: зелёный  · ходов: 2, субагентов: 3 · пунктов: 14 · цитат: 46
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ meet-vac (node grade-meet.mjs runs/2026-10-15-loop-pilot-meet-vac/meet-vac --points --fx VAC)
+
+проба meet-vac (список), runs/2026-10-15-loop-pilot-meet-vac/meet-vac
+  run-1: зелёный  · ходов: 3, субагентов: 3 · пунктов: 38 · цитат: 107
+
+  1/1	зелёных — список по форме и анкерам expected.md, цитаты разбора сходятся, засев не тронут  ← КРИТЕРИЙ
+
+================ nb-export (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-export/nb-export --fx EXPORT)
+
+проба nb-export, runs/2026-10-15-loop-pilot-nb-export/nb-export
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 1
+
+ИТОГ EXPORT: 1/1 зелёных
+
+================ nb-export-since (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-export-since/nb-export-since --fx EXPORT-SINCE)
+
+проба nb-export-since, runs/2026-10-15-loop-pilot-nb-export-since/nb-export-since
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 1
+
+ИТОГ EXPORT-SINCE: 1/1 зелёных
+
+================ nb-file (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-file/nb-file --fx FILE)
+
+проба nb-file, runs/2026-10-15-loop-pilot-nb-file/nb-file
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 2 · предупреждения: строка про meeting-intake — старой формой «… в ноут» (1.1.0)
+
+ИТОГ FILE: 1/1 зелёных
+
+================ nb-pts-in (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-pts-in/nb-pts-in --fx PTS-IN)
+
+проба nb-pts-in, runs/2026-10-15-loop-pilot-nb-pts-in/nb-pts-in
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 2
+
+ИТОГ PTS-IN: 1/1 зелёных
+
+================ nb-pts-new (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-pts-new/nb-pts-new --fx PTS-NEW)
+
+проба nb-pts-new, runs/2026-10-15-loop-pilot-nb-pts-new/nb-pts-new
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 2
+
+ИТОГ PTS-NEW: 1/1 зелёных
+
+================ nb-pts-rec (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-pts-rec/nb-pts-rec --fx PTS-REC)
+
+проба nb-pts-rec, runs/2026-10-15-loop-pilot-nb-pts-rec/nb-pts-rec
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 2
+
+ИТОГ PTS-REC: 1/1 зелёных
+
+================ nb-route (node grade-nb.mjs runs/2026-10-15-loop-pilot-nb-route/nb-route --fx ROUTE)
+
+проба nb-route, runs/2026-10-15-loop-pilot-nb-route/nb-route
+  run-1: ЗЕЛЁНЫЙ
+         ходов: 2
+
+ИТОГ ROUTE: 1/1 зелёных
+
+================ rec-chg (node grade-recall.mjs runs/2026-10-15-loop-pilot-rec-chg/rec-chg --fx CHG)
+
+проба rec-chg, runs/2026-10-15-loop-pilot-rec-chg/rec-chg
+  run-1: НЕ ИЗМЕРЕНО
+
+  0/0	протокол — по форме, помнит ≥4/5, без подсказок и мысли аналитика, пробел в «Уточнить»
+  0/0	список — рядом, по таблице Шага 5, без поручений, «не уверен» и мысль не потеряны, опора в протоколе
+  0/0	зелёных — протокол и список вместе  ← КРИТЕРИЙ
+  стоимость плеча: $0.00
+
+================ rec-inline (node grade-recall.mjs runs/2026-10-15-loop-pilot-rec-inline/rec-inline --fx INLINE)
+
+проба rec-inline, runs/2026-10-15-loop-pilot-rec-inline/rec-inline
+  run-1: зелёный  · ходов: 6, $1.14 · протокол зелёный, список зелёный · помнит в итоге: 3/3 · закончить попросили на ходу 5, ходов после: 2 · список: решено 1, открыто 2, сведение 1, мысль 0; «моя мысль» в протоколе: 0 (мысль из карточки двойник не назвал)
+         предупреждения: дословно в «Ответах» 2/5 реплик двойника
+
+  1/1	протокол — по форме, помнит ≥2/3, без подсказок и мысли аналитика, пробел в «Уточнить»
+  1/1	список — рядом, по таблице Шага 5, без поручений, «не уверен» и мысль не потеряны, опора в протоколе
+  1/1	зелёных — протокол и список вместе  ← КРИТЕРИЙ
+  стоимость плеча: $1.14
+
+================ rec-new (node grade-recall.mjs runs/2026-10-15-loop-pilot-rec-new/rec-new --fx NEW)
+
+проба rec-new, runs/2026-10-15-loop-pilot-rec-new/rec-new
+  run-1: зелёный  · ходов: 11, $2.72 · протокол зелёный, список зелёный · помнит в итоге: 5/5 · список: решено 3, открыто 4, сведение 1, мысль 0; «моя мысль» в протоколе: 0 (мысль из карточки двойник не назвал)
+         предупреждения: дословно в «Ответах» 7/10 реплик двойника
+
+  1/1	протокол — по форме, помнит ≥4/5, без подсказок и мысли аналитика, пробел в «Уточнить»
+  1/1	список — рядом, по таблице Шага 5, без поручений, «не уверен» и мысль не потеряны, опора в протоколе
+  1/1	зелёных — протокол и список вместе  ← КРИТЕРИЙ
+  стоимость плеча: $2.72
+
+
+# ni-* круга 1 оценены ДО обновления засевов NI-* (пометки «(на встрече: …)»); после обновления старые прогоны дают «засев тронут» — артефакт перегрейда. Итог ni-* круга 1 (пилот + пул): acc GRR, new GRG, cr RGG, остальные GGG.

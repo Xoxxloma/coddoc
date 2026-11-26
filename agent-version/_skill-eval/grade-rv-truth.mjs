@@ -169,7 +169,7 @@ const arg = process.argv[2];
 if (arg === '--self-test') {
   // Правило репы: грейдер валидируется на заведомо известном результате ДО публикации чисел.
   const base = join(process.cwd(), 'agent-version', '_skill-eval', 'fixtures');
-  const at = (f) => join(base, f, 'docs', 'RMS-4021', 'technical_specification.md');
+  const at = (f) => join(base, f, 'coddoc', 'RMS-4021', 'technical_specification.md');
   const cases = [
     ['RV-CLEAN', 0, []],
     ['RV-DIRTY', 4, ['concrete-under-tovalidate', 'no-provenance', 'fr-no-acceptance', 'status-vocab']],

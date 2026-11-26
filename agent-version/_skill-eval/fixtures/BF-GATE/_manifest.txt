@@ -1,7 +1,7 @@
-docs/ARS-102/business_requirements.md
-docs/ARS-102/technical_specification.md
-docs/ARS-320/bug_report.md
-docs/ARS-321/bug_report.md
+coddoc/ARS-102/business_requirements.md
+coddoc/ARS-102/technical_specification.md
+coddoc/ARS-320/bug_report.md
+coddoc/ARS-321/bug_report.md
 expected.md
 PROVENANCE.txt
 README.md

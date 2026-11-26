@@ -1,0 +1,13 @@
+services:
+  - name: idm
+    path: ../idm
+    type: backend
+    notes: |
+      Система управления учётками. Ведёт команда «Управление доступом» службы ИБ, не мы.
+      Новых клиентов подключают по заявке в очередь команды.
+
+  - name: request-portal
+    path: ../request-portal
+    type: fullstack
+    notes: |
+      Ведёт команда «Портал заявок».

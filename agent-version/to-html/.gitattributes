@@ -1,0 +1,2 @@
+# pack.sh — всегда с LF: с CRLF (git на Windows с autocrlf=true) bash падает на «\r».
+*.sh text eol=lf

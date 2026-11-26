@@ -1,0 +1,207 @@
+[
+  {
+    "id": "bf-spec",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\bf-spec\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "bf-spec",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\bf-spec\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "bfg-scroll",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\bfg-scroll\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "kind": "question"
+  },
+  {
+    "id": "bfg-scroll",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\bfg-scroll\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "kind": "question"
+  },
+  {
+    "id": "bfg-role",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\bfg-role\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "kind": "question"
+  },
+  {
+    "id": "bfg-role",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\bfg-role\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "kind": "question"
+  },
+  {
+    "id": "ts-conv",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ts-conv\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ts-conv",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ts-conv\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ts-ctx",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ts-ctx\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/SMSEC-420/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ts-ctx",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ts-ctx\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/SMSEC-420/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-label",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ua-label\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-label",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ua-label\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-timeout",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ua-timeout\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-timeout",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ua-timeout\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-review-reliability",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ua-review-reliability\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review"
+  },
+  {
+    "id": "ua-review-reliability",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ua-review-reliability\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review"
+  },
+  {
+    "id": "ts-conv",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ts-conv\\run-02",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 2
+  },
+  {
+    "id": "ts-conv",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ts-conv\\run-02",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 2
+  },
+  {
+    "id": "ts-conv",
+    "arm": "A",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\A\\ts-conv\\run-03",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\A\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 3
+  },
+  {
+    "id": "ts-conv",
+    "arm": "B",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\B\\ts-conv\\run-03",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\B\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 3
+  },
+  {
+    "id": "ts-conv",
+    "arm": "C",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\C\\ts-conv\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\C\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 1
+  },
+  {
+    "id": "ts-conv",
+    "arm": "C",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\C\\ts-conv\\run-02",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\C\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-201/technical_specification.md",
+    "kind": "write",
+    "repeat": 2
+  },
+  {
+    "id": "bf-spec",
+    "arm": "C",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\C\\bf-spec\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\C\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md",
+    "kind": "write",
+    "repeat": 1
+  },
+  {
+    "id": "ua-timeout",
+    "arm": "C",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\C\\ua-timeout\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\C\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write",
+    "repeat": 1
+  },
+  {
+    "id": "ts-ctx",
+    "arm": "C",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\C\\ts-ctx\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-comparison\\_skills\\C\\technical-spec-doc\\SKILL.md",
+    "target": "docs/SMSEC-420/technical_specification.md",
+    "kind": "write",
+    "repeat": 1
+  }
+]

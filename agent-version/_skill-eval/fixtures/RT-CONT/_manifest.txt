@@ -1,7 +1,7 @@
 cont-prompt.txt
-docs/ARS-102/business_requirements.md
-docs/ARS-102/technical_specification.md
-docs/ARS-312/bug_report.md
+coddoc/ARS-102/business_requirements.md
+coddoc/ARS-102/technical_specification.md
+coddoc/ARS-312/bug_report.md
 expected.md
 prebaked/bug_report.md
 prebaked/technical_specification.md
@@ -11,7 +11,7 @@ services/incident-web.md
 services/manifest.yaml
 stubs/bug-report-doc/SKILL.md
 stubs/business-requirements-doc/SKILL.md
-stubs/spec-readiness/SKILL.md
 stubs/spec-review/SKILL.md
 stubs/stage-breakdown-doc/SKILL.md
 stubs/technical-spec-doc/SKILL.md
+stubs/rehearse/SKILL.md

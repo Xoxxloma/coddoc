@@ -1,0 +1,62 @@
+[
+  {
+    "path": "analyst-workspace/reference/stage-bt.md",
+    "sha256": "2c359e404379c8b393c2c67082c0d49bac56d8468f51bb647a636cf25468bddd"
+  },
+  {
+    "path": "analyst-workspace/reference/stage-final.md",
+    "sha256": "254fe9d28431a4b68233d5d3a5ecaa79f4efc7953139f3e2049d9e1b3c64830d"
+  },
+  {
+    "path": "analyst-workspace/reference/stage-split.md",
+    "sha256": "a3c11a0895c1deea9287449bc60c132f5de289c791352d55d2381fdee32e3965"
+  },
+  {
+    "path": "analyst-workspace/reference/stage-start.md",
+    "sha256": "2f26a1c70ff9336b37b20b5533a4cc415c539812f44472807c12c6c3d6c68f54"
+  },
+  {
+    "path": "analyst-workspace/SKILL.md",
+    "sha256": "92934652c9ddc08109b8a9bf702a5a240bcc3388f06a231db02362a2896b6712"
+  },
+  {
+    "path": "spec-review/reference/checklist-bt.md",
+    "sha256": "f351dccdf3357a2743cfabbc9658fd71bd0b7c800d411bfd42024d7d6023505a"
+  },
+  {
+    "path": "spec-review/reference/checklist-bugreport.md",
+    "sha256": "3076eb12a7afa3ac71f923e52e44a1ff71a93eaaf96514c843f18e5719750fa0"
+  },
+  {
+    "path": "spec-review/reference/checklist-changerequest.md",
+    "sha256": "713716c09c60cf25010310d50fa084210ff294ce16ce2e8a7c6806d883a5e15f"
+  },
+  {
+    "path": "spec-review/reference/checklist-spec.md",
+    "sha256": "2b638275e59e552899946a94f62c6083717ad8fca9a82f9498007c4aca2e7445"
+  },
+  {
+    "path": "spec-review/reference/checklist-stage.md",
+    "sha256": "e7a7e1ff2874065d192b3a28b76165003fe0f6341fe3863a09f72fda4e6ec211"
+  },
+  {
+    "path": "spec-review/SKILL.md",
+    "sha256": "cc496aaa95e4c9233b4322fdc6b90946cb75d12afdcdad6618546020bf9a8b47"
+  },
+  {
+    "path": "technical-spec-doc/reference/bugfix-mode.md",
+    "sha256": "93c6402956331ffcf9306d4d4a021da24e8f8fc972c22e4b481bf46a3d91e58b"
+  },
+  {
+    "path": "technical-spec-doc/reference/foundation-node.md",
+    "sha256": "50739cdf9c1f19922c6563ab26ca12ee7e015dea095982694438b42f8a8c0635"
+  },
+  {
+    "path": "technical-spec-doc/reference/small-change-mode.md",
+    "sha256": "304c90098cbf60d066cffdd69b8825579b96e12b5bf7125e75287e8c4085f837"
+  },
+  {
+    "path": "technical-spec-doc/SKILL.md",
+    "sha256": "497d62549e0d8578670c4dcf45bc871731b513998c1dfc148fd22cef46b47871"
+  }
+]

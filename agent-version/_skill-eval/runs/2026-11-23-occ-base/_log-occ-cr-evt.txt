@@ -1,0 +1,14 @@
+снимок скилла: runs/2026-11-23-occ-base/_skills/technical-spec-doc.SKILL.md
+манифест фикстуры заведён: /c/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-EVT/_manifest.txt
+проба: occ-cr-evt   фикстура: OCC-CR-EVT   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-base/occ-cr-evt
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-base-occ-cr-evt-30728-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-CR-EVT/w-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — готов
+  run-3 — готов
+  run-2 — готов
+ГОТОВО: runs/2026-11-23-occ-base/occ-cr-evt — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-base-occ-cr-evt-30728-skills (журнальная копия осталась в runs/2026-11-23-occ-base/_skills/)
+runs/2026-11-23-occ-base/occ-cr-evt: $3.29 за 3 прогонов

@@ -103,6 +103,30 @@ done
 # Worktree-форма: `.git` — ФАЙЛ, и `HEAD` внутри него нет.
 printf 'gitdir: ../.gitworktrees/resonance-web\n' > "$DEST/resonance-web/.git"
 
+# SM_REAL_HELLO=1 — ещё один сосед вне манифеста: крошечный сервис, обычный клон. Прогон по
+# переданным именам не должен его ни искать, ни называть; прогон без имён — обязан назвать.
+if [ -n "${SM_REAL_HELLO:-}" ]; then
+  mkdir -p "$DEST/hello-api/src" "$DEST/hello-api/.git"
+  echo "ref: refs/heads/main" > "$DEST/hello-api/.git/HEAD"
+  cat > "$DEST/hello-api/package.json" <<'EOF'
+{
+  "name": "hello-api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.19.2" }
+}
+EOF
+  cat > "$DEST/hello-api/src/index.js" <<'EOF'
+const express = require('express')
+
+const app = express()
+app.get('/hello', (req, res) => res.json({ message: 'Hello, world' }))
+app.listen(process.env.PORT || 3000)
+EOF
+fi
+
 if [ "$ARM" = scan ] || [ "$ARM" = rescan ] || [ "$ARM" = keyed ]; then
   mkdir -p "$DEST/AI-SDD/services"
   cp "$HERE/manifest.yaml" "$DEST/AI-SDD/services/manifest.yaml"
@@ -130,7 +154,7 @@ if [ -n "${SM_EXTRA_CARDS:-}" ] && [ "$ARM" != first ]; then
 fi
 
 echo "песочница собрана: $DEST   плечо: $ARM"
-for s in repairy-api repairy-web resonance-api resonance-web; do
+for s in repairy-api repairy-web resonance-api resonance-web ${SM_REAL_HELLO:+hello-api}; do
   printf '  %-14s %4s файлов  .git: %s\n' "$s" \
     "$(find "$DEST/$s" -type f -not -path '*/.git/*' -not -name .git | wc -l)" \
     "$( [ -d "$DEST/$s/.git" ] && echo папка || echo ФАЙЛ )"

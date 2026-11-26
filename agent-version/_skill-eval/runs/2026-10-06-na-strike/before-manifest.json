@@ -1,0 +1,72 @@
+[
+  {
+    "arm": "before",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-02",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "feature",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-03",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-420/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "refine",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-04",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-05",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-06",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "feature",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-07",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-420/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "refine",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-08",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-09",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "before",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\before\\run-10",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_src-base\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  }
+]

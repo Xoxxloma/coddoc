@@ -1,0 +1,16 @@
+[
+  {
+    "name": "mixed",
+    "expected": 0,
+    "completed": true,
+    "reported": 1,
+    "pass": false
+  },
+  {
+    "name": "applied-and-open-struck",
+    "expected": 2,
+    "completed": true,
+    "reported": 4,
+    "pass": true
+  }
+]

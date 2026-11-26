@@ -15,7 +15,7 @@
 
 ## Общее для плеч `-w`
 
-Файл `docs/<КЛЮЧ>/change_request.md`, и только он. Ни `business_requirements.md`, ни
+Файл `coddoc/<КЛЮЧ>/change_request.md`, и только он. Ни `business_requirements.md`, ни
 `technical_specification.md`, ни `bug_report.md`, ни папки `stages/`.
 
 Шапка:

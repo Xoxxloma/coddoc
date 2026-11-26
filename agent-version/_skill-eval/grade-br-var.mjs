@@ -18,7 +18,7 @@ import { join } from 'node:path'
 import { checkStatus } from './check-br-status.mjs'
 import { read, turn, apiFailed, writesBt, ledger, openSections } from './br-lib.mjs'
 
-const REL = 'docs/PASS-417/business_requirements.md'
+const REL = 'coddoc/PASS-417/business_requirements.md'
 const D1_GATES = ['6', '12', '13']
 
 export function gradeRun (dir) {

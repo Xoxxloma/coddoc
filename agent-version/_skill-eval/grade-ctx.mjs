@@ -218,10 +218,10 @@ function gradeSandbox(sb, mode) {
   const g = gradeSpec(readFileSync(join(sb, specs[0]), 'utf8'))
   Object.assign(r, g)
   r.asksForm = RE_ASKS_FORM.test(answer)
+  // Свой контракт под 🟡 — перестраховка, а не выдумка: в `pass` не входит, счётчик справочный.
   r.pass =
     g.leaks.length === 0 &&
     g.hasOurPath &&
-    !g.ownYellow &&
     g.dateOk &&
     g.code403 &&
     g.hasGreen &&
@@ -283,7 +283,7 @@ function selftest() {
     ['красный: конкретика чужого шлюза поймана', gradeSpec(SPEC_LEAK).leaks.length >= 2],
     ['красный: конкретика чужого шлюза в карточке',
       gradeSpec(SPEC_GOOD.replace('### INT-1 🟢 Журнал уведомлений', '### INT-2 🟡 к валидации Отправка в СЦБ\n- **Контракт (запрос):** `POST /integration/v2/events`, заголовок `X-SCB-Token`\n\n### INT-1 🟢 Журнал уведомлений')).leaks.length >= 2],
-    ['красный: свой контракт под 🟡 пойман', gradeSpec(SPEC_OWN_YELLOW).ownYellow === true],
+    ['справка: свой контракт под 🟡 замечен', gradeSpec(SPEC_OWN_YELLOW).ownYellow === true],
     ['красный: дата без формата поймана', gradeSpec(SPEC_NO_ISO).dateOk === false],
     ['красный: статус разошёлся с содержанием', gradeSpec(SPEC_BAD_STATUS).statusConsistent === false],
     ['BR: два анкера чтения найдены', gradeAnswer(ANSWER_GOOD).anchors.length >= 2],
@@ -295,7 +295,7 @@ function selftest() {
     // Подмена артефакта: заголовок спеки в answer.md ловится, хендофф — нет.
     ['подмена артефакта поймана', RE_SPEC_IN_ANSWER.test('# Техническая спецификация: журнал\n> Задача: SMSEC-420')],
     ['обычный хендофф подменой не считается',
-      RE_SPEC_IN_ANSWER.test('**Хендофф:** спеку записал в `docs/SMSEC-420/technical_specification.md`.') === false],
+      RE_SPEC_IN_ANSWER.test('**Хендофф:** спеку записал в `coddoc/SMSEC-420/technical_specification.md`.') === false],
   ]
   let bad = 0
   for (const [name, ok] of checks) {
@@ -373,7 +373,7 @@ if (mode === 'questions') {
   console.log(`  ${count((r) => r.glossary.length > 0)}${pct(count((r) => r.glossary.length > 0))}  глоссарий открыт (больше — лучше)`)
 } else {
   console.log(`  ${count((r) => r.leaks?.length)}${pct(count((r) => r.leaks?.length))}  конкретика чужого шлюза в спеке`)
-  console.log(`  ${count((r) => r.ownYellow)}${pct(count((r) => r.ownYellow))}  свой новый контракт помечен 🟡`)
+  console.log(`  ${count((r) => r.ownYellow)}${pct(count((r) => r.ownYellow))}  свой новый контракт помечен 🟡 (справка, в зелёное не входит)`)
   console.log(`  ${count((r) => r.wrote && !r.hasOurPath)}${pct(count((r) => r.wrote && !r.hasOurPath))}  свой путь без \`/v1/\` — правило оформления не применено`)
   console.log(`  ${count((r) => r.wrote && !r.dateOk)}${pct(count((r) => r.wrote && !r.dateOk))}  поле времени без формата`)
   console.log(`  ${count((r) => r.wrote && !r.code403)}${pct(count((r) => r.wrote && !r.code403))}  нет \`403\` при отказе по роли`)

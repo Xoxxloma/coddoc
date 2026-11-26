@@ -1,6 +1,6 @@
 ar-prompt.txt
 ar-turn2.txt
-docs/ARS-57/technical_specification.md
+coddoc/ARS-57/technical_specification.md
 services/auth.md
 services/incident-web.md
 services/manifest.yaml

@@ -1,1 +1,1 @@
-Проверь бизнес-требования docs/RMS-5102/business_requirements.md. Можно отдавать дальше?
+Проверь бизнес-требования coddoc/RMS-5102/business_requirements.md. Можно отдавать дальше?

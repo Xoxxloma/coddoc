@@ -1,0 +1,35 @@
+раунд 2026-11-02-dsh-reg4 · модель claude-sonnet-5 · прогонов на пробу 1 · 2026-11-02T13:05:57.766Z
+
+## p5-nomanifest — «Как сейчас списывается сломанный инструмент?»
+run-01: ✗ ведущий код не читал · $0.472 · ходов 10 · разведчиков 1 · сверок 5 · 154 с
+  ведущий читал код: Read C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-probes/2026-11-02-dsh-reg4/p5-nomanifest/run-01/ws/tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt
+  ответ:
+    Как сейчас: при возврате инструмента сотрудник просто помечает его как повреждённый на уровне аренды; это уходит событием в депозит-сервис, который переводит залог в ревью и ставит задачу в очередь — но сам инструмент (списание/вывод из учёта) этим кодом никак не обрабатывается.
+    
+    - [в коде] При возврате аренды `returnTool` просто меняет статус аренды на `RETURNED` и помечает `damaged`/`damageNote` — отдельного состояния «списан» у инструмента здесь нет, только у статуса аренды (`BOOKED, ISSUED, RETURNED, OVERDUE`) — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-35, tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:11
+    - [в коде] Событие `RentalReturned` несёт только `toolId` и флаг `damaged` — состояние самого инструмента в этом сервисе не меняется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt
+    - [в коде] deposit-service по `damaged=true` переводит залог в `ON_REVIEW` и кладёт `ReviewTask` в очередь `damage` — дальше залог просто ждёт в очереди; код, который решает судьбу инструмента (ремонт/списание/вывод из каталога), в этом сервисе отсутствует — deposit-service/app/deposits.py:21-26, deposit-service/app/review.py:5-15
+    - [не нашёл] Самого списания инструмента (вывода из оборота/учёта) — ни в tool-rental, ни в deposit-service нет сущности с состоянием инструмента-в-каталоге, которое менялось бы при поломке.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p6-tworepos — «Как возврат инструмента доходит до освобождения залога?»
+run-01: ✗ F9 offset после обработки · $0.448 · ходов 12 · разведчиков 1 · сверок 8 · 143 с
+  ответ:
+    Как сейчас: возврат инструмента фиксируется транзакцией в tool-rental, после коммита публикуется событие в Kafka, deposit-service читает его и атомарно переводит залог в `RELEASED` (или `ON_REVIEW`, если инструмент повреждён).
+    
+    - [в коде] `POST /{id}/return` → `RentalService.returnTool`: в транзакции статус аренды становится `RETURNED`, сохраняется `damaged`/`damageNote`, затем публикуется событие `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:25-34, tool-rental/src/main/kotlin/ru/toolhire/rental/api/RentalController.kt:19-21
+    - [в коде] событие уходит в Kafka не внутри транзакции возврата, а слушателем `@TransactionalEventListener(phase = AFTER_COMMIT)` — то есть уже после коммита; при ошибке отправки — только `log.error`, откатить возврат уже нельзя — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    - [в коде] топик — из `rental.events-topic` (переменная `RENTAL_EVENTS_TOPIC`), тип сообщения `RENTAL_RETURNED` с полями `rentalId`, `toolId`, `damaged`, `depositAmount` и др. — tool-rental/src/main/resources/application.yml:22, tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:7-26
+    - [в коде] deposit-service слушает топик консьюмером с `group_id` (по умолчанию `deposit-service`), автокоммит офсета выключен, офсет коммитится после обработки события — deposit-service/app/consumer.py:12-27, deposit-service/app/config.py:5
+    - [в коде] обработка атомарна: строка `deposit_holds` блокируется `SELECT ... FOR UPDATE` по `rental_id`; если залога нет или он уже не `HELD` — выход без изменений (идемпотентность при повторной доставке); при `damaged` — статус `ON_REVIEW` и задача на разбор; иначе — `UPDATE ... SET status = 'RELEASED', released_at = now()` — это и есть освобождение залога — deposit-service/app/deposits.py:8-31
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в карточке написано, что событие шлётся внутри транзакции возврата и неотправка откатывает возврат, а в коде отправка идёт листенером `AFTER_COMMIT` уже после коммита, откатить возврат при неотправке нельзя — только логируется ошибка. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальные копии, могли отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+итого: $0.92

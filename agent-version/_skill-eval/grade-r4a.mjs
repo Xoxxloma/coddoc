@@ -35,7 +35,7 @@ function runsOf(d) {
 const KIDS = ['ARS-101', 'ARS-102', 'ARS-103'];
 
 function check(run) {
-  const epic = join(run, 'docs', 'ARS-100');
+  const epic = join(run, 'coddoc', 'ARS-100');
   const fndPath = join(epic, '_foundation', 'technical_specification.md');
   const spec = read(fndPath);
   const specs = walk(run).filter((p) => /technical_specification\.md$/.test(p));

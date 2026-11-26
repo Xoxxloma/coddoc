@@ -36,7 +36,7 @@ const KIDS = ['ARS-101', 'ARS-102', 'ARS-103'];
 const OWNER = { 'FR-1': 'ARS-101', 'FR-2': 'ARS-101', 'FR-3': 'ARS-102', 'FR-4': 'ARS-102', 'FR-5': 'ARS-103' };
 
 function check(run) {
-  const epic = join(run, 'docs', 'ARS-100');
+  const epic = join(run, 'coddoc', 'ARS-100');
   const decomp = read(join(epic, 'decomposition.md'));
   const kidFiles = Object.fromEntries(KIDS.map((k) => [k, read(join(epic, k, 'business_requirements.md'))]));
   const kidsWritten = KIDS.filter((k) => kidFiles[k].length > 0);
@@ -59,7 +59,7 @@ function check(run) {
   // Техника не протекла: узел-фундамент и микросервисы в ДЕТСКИХ БТ появиться не должны.
   const leak = KIDS.some((k) => /#0|узел-фундамент|микросервис/i.test(kidFiles[k]));
   // Плейсхолдеры вместо реальных ключей — ТОЛЬКО в детских БТ.
-  // В decomposition.md строка «по каждой папке docs/<EPIC>/<CHILD-KEY>/ запусти ...» —
+  // В decomposition.md строка «по каждой папке coddoc/<EPIC>/<CHILD-KEY>/ запусти ...» —
   // законный текст следующего шага из шаблона скилла, а не незаполненный плейсхолдер.
   const placeholder = KIDS.some((k) => /<CHILD-KEY>|XXX-\d/.test(kidFiles[k]));
 

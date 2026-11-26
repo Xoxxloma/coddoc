@@ -1,1 +1,1 @@
-Нарисуй схему взаимодействий по спецификации docs/REP-214/technical_specification.md в формате PlantUML.
+Нарисуй схему взаимодействий по спецификации coddoc/REP-214/technical_specification.md в формате PlantUML.

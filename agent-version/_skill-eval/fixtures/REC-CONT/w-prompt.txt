@@ -1,0 +1,2 @@
+/meeting-recall coddoc/ATL-58/meeting-2026-10-05.recall.md
+В прошлый раз не успели дописать — давай продолжим.

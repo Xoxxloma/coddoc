@@ -1,0 +1,9 @@
+etalon/meeting-2026-10-12.razbor.md
+etalon/meeting-2026-10-12-bt.md
+etalon-2/meeting-2026-10-12.points.md
+etalon-2/meeting-2026-10-12.razbor.md
+expected.md
+seed/coddoc/PSS-2210/business_requirements.md
+seed/meeting-2026-10-12.txt
+w-prompt.txt
+w-turn2.txt

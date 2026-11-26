@@ -1,0 +1,22 @@
+{
+  "notebook": "notes/прокат-лыж/notebook.md",
+  "stages": [
+    {
+      "mode": "write",
+      "maxNew": 0,
+      "onlyListed": true
+    }
+  ],
+  "mutations": [
+    {
+      "name": "пункты списка записаны второй раз",
+      "stage": 1,
+      "edits": [
+        [
+          "> исходник: coddoc/_inbox/meeting-2026-10-07.points.md\n",
+          "> исходник: coddoc/_inbox/meeting-2026-10-07.points.md\n\n## 2026-10-20\n\n### 1 · встреча 2026-10-07: прокат лыж\n- [решено] Прокат отмечаем в системе базы, бумажный журнал отменяем — решил: Фомичёв Р. · 2026-10-20 №1.1\n> исходник: coddoc/_inbox/meeting-2026-10-07.points.md\n"
+        ]
+      ]
+    }
+  ]
+}

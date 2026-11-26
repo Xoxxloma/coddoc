@@ -1,0 +1,1 @@
+Проверь спеку coddoc/UA-420/technical_specification.md. Достаточно ли её, чтобы писать код?

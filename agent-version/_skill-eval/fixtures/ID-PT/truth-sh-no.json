@@ -1,0 +1,24 @@
+{
+  "key": "ADP-41",
+  "list": "coddoc/ADP-41/meeting-2026-10-08.points.md",
+  "participants": [
+    ["Реестр животных"],
+    ["Сайт приюта"],
+    ["Сервис анкет"],
+    ["Календарь знакомств"]
+  ],
+  "arrows": [
+    {"from": "Реестр животных", "to": "Сайт приюта", "kind": "req", "id": 6, "token": null},
+    {"from": "Сайт приюта", "to": "Сервис анкет", "kind": "req", "id": 3, "token": "POST /v1/applications"},
+    {"from": "Сервис анкет", "to": "Реестр животных", "kind": "req", "id": 9, "token": null},
+    {"from": "Календарь знакомств", "to": "Сервис анкет", "kind": "req", "id": 7, "token": null},
+    {"from": "Календарь знакомств", "to": "Сайт приюта", "kind": "event", "id": 2, "token": "meeting.booked"},
+    {"from": "Сервис анкет", "to": "Календарь знакомств", "kind": "req", "id": 10, "token": null}
+  ],
+  "ordered": true,
+  "asks": {"order": true, "open": [5], "dir": [10], "same": ["Реестр животных", "animal-registry"]},
+  "holes": [10],
+  "notHoles": [5],
+  "glued": true,
+  "off": [1, 4, 5, 8, 11, 12]
+}

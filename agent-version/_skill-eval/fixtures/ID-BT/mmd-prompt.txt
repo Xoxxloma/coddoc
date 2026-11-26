@@ -1,0 +1,1 @@
+Нарисуй путь пользователя по бизнес-требованиям coddoc/LND-47/business_requirements.md в формате Mermaid.

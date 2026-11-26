@@ -57,7 +57,7 @@ export function ledger (answer) {
     if (!m) continue
     let last = null; let at = -1
     for (const [ch, v] of MARKS) { const i = l.lastIndexOf(ch); if (i > at) { at = i; last = v } }
-    if (last && Number(m[1]) <= 14 && !(m[1] in out)) out[m[1]] = last
+    if (last && Number(m[1]) <= 17 && !(m[1] in out)) out[m[1]] = last  // гейты 0–17 (15–17 — с business-requirements-doc 1.2.0)
   }
   return Object.keys(out).length ? out : null
 }
@@ -82,3 +82,39 @@ export function questionBlocks (answer) {
 
 /** Заранее объявленный отказ: «если не укажете — будет TBD» (прод 2). Вариант «Пока не знаю, отложить» — законен. */
 export const RE_TBD_PROMISE = /если\s+(?:вы\s+)?не\s+(?:укаж|ответ|назов|уточн|приш)[^\n]{0,120}TBD|TBD[^\n]{0,60}если\s+(?:вы\s+)?не\s+(?:укаж|ответ|назов|уточн)/i
+
+/** Тело раздела «N.M» (заголовок `##`/`###`, с «§» или без) до следующего заголовка уровня ≤ 3. */
+export function section (text, num) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const esc = num.replace('.', '\\.')
+  const re = new RegExp(`^#{2,4}\\s*§?\\s*${esc}\\.?(\\s|$)`)
+  const from = lines.findIndex((l) => re.test(l))
+  if (from < 0) return null
+  const rest = lines.slice(from + 1)
+  const to = rest.findIndex((l) => /^#{1,3}\s/.test(l))
+  return (to < 0 ? rest : rest.slice(0, to)).join('\n').trim()
+}
+
+/** Раздел по заголовку, номер любой: { num, body } или null. Номер — не опора: пилот 2026-10-07 —
+ *  Haiku написал свою нумерацию, и «§4.3 Пользовательские сценарии» засчитался бы как «Бизнес-данные». */
+export function sectionByTitle (text, titleRe) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const from = lines.findIndex((l) => /^#{2,4}\s/.test(l) && titleRe.test(l))
+  if (from < 0) return null
+  const num = (lines[from].match(/^#{2,4}\s*§?\s*(\d+(?:\.\d+)*)/) || [])[1] || null
+  const rest = lines.slice(from + 1)
+  const to = rest.findIndex((l) => /^#{1,3}\s/.test(l))
+  return { num, body: (to < 0 ? rest : rest.slice(0, to)).join('\n').trim() }
+}
+
+/** Абзацы ответа с вопросом и список вариантов сразу за таким абзацем — там гипотезы и варианты
+ *  ответа (L189–191: токен не идёт «в варианты ответа и в БТ»); пересказ окружения сюда не входит. */
+export function askedBlocks (answer) {
+  const bs = (answer || '').split(/\n\s*\n/)
+  return bs.filter((b, i) => b.includes('?') || (i > 0 && bs[i - 1].includes('?') && /^\s*([-*•]|\d+[.)]|[а-яa-z]\))\s/i.test(b))).join('\n\n')
+}
+
+/** Строки без отрицания наличия: «окружение (services/, context/) не найдено» — не ссылка на источник. */
+export const dropNegated = (s) => (s || '').split('\n').filter((l) => !/не\s+найден|не\s+нашл|отсутству|нет\s+(ни\s+)?(карточ|окружен|папк|services)|пуст/i.test(l)).join('\n')

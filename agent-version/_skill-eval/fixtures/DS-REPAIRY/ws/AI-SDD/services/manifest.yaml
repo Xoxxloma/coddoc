@@ -1,0 +1,7 @@
+services:
+  - name: repairy-api
+    path: ../repairy/apps/api
+    type: backend
+  - name: repairy-web
+    path: ../repairy/apps/web
+    type: frontend

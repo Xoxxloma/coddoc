@@ -1,0 +1,1 @@
+Напиши техническую спецификацию по БТ coddoc/ACS-208/business_requirements.md. Решения по реализации со встречи с командой учёток — в coddoc/ACS-208/meeting-2026-10-09-spec.md.

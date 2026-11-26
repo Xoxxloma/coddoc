@@ -1,0 +1,5 @@
+coddoc/SHT-411/stages/stage-01.md
+coddoc/UA-420/stages/stage-01.md
+cr-prompt.txt
+idk-prompt.txt
+README.md

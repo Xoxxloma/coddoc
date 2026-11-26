@@ -1,0 +1,223 @@
+раунд 2026-10-24-ds-fix4-c · модель sonnet · прогонов на пробу 2 · 2026-10-23T21:32:20.430Z
+
+## p1-main — «Как сейчас уходит в кафку событие о возврате инструмента?»
+run-01: ✓ всё · $0.287 · ходов 10 · разведчиков 1 · сверок 9 · 58 с
+  ответ:
+    Как сейчас: возврат в `RentalService.returnTool` ставит статус `RETURNED` и публикует внутреннее событие `RentalReturned`. Слушатель отправляет его в Kafka после коммита транзакции, асинхронно, с ключом `toolId`. Если отправка не удалась, ошибка только пишется в лог.
+    
+    - [в коде] `returnTool` в транзакции ставит статус `RETURNED`, сохраняет аренду и публикует Spring-событие `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-33
+    - [в коде] В Kafka событие уходит из `@TransactionalEventListener(phase = AFTER_COMMIT)`, то есть после коммита возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-18
+    - [в коде] Отправка: `kafka.send(topic, event.toolId, event)`, ключ партиции — `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] Отправка асинхронная. При ошибке только `log.error`, возврат не откатывается, исключение наружу не идёт — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] Тело сообщения: `type = "RENTAL_RETURNED"`, `rentalId`, `toolId`, `customerId`, `returnedAt`, `damaged`, `depositAmount` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:7-14
+    - [в коде] Ключ сериализуется как строка, значение как JSON. Продюсер настроен с `acks: all` и `retries: 0` — tool-rental/src/main/resources/application.yml:11-15
+    - [в коде] Топик берётся из свойства `rental.events-topic` = `${RENTAL_EVENTS_TOPIC}` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13; tool-rental/src/main/resources/application.yml:22
+    - [вне кода] Имя топика на каждом стенде задаёт платформа, в репозитории `platform-deploy`, папка `values/<стенд>`. Адрес брокера `KAFKA_BOOTSTRAP` и SASL-доступ (`KAFKA_SASL_USER`, `KAFKA_SASL_PASSWORD`) приходят из окружения — context/kafka-platform.md; tool-rental/src/main/resources/application.yml:10,19
+    - [не нашёл] Ретраев, outbox и DLQ на стороне отправителя в коде нет. Единственная реакция на сбой — запись в лог.
+    - [не нашёл] Потребителя события не проверял. Карточка называет потребителем `deposit-service` — services/tool-rental.md.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: ключ партиции в ней `rentalId`, в коде `toolId`. Ещё в карточке написано, что событие шлётся внутри транзакции и при неудаче возврат откатывается. В коде отправка идёт после коммита, а сбой только логируется. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog»
+run-02: ✓ всё · $0.287 · ходов 12 · разведчиков 1 · сверок 8 · 59 с
+  ответ:
+    Как сейчас: возврат инструмента сохраняется в транзакции и публикует внутреннее событие `RentalReturned`. Слушатель отправляет его в Kafka только после коммита. Если отправка не удалась, ошибка уходит в лог, а возврат остаётся в силе.
+    
+    - [в коде] `RentalService.returnTool` переводит аренду в `RETURNED`, сохраняет её и публикует Spring-событие `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:25-33
+    - [в коде] `RentalEventsPublisher.onReturned` помечен `@TransactionalEventListener(AFTER_COMMIT)`, поэтому сообщение уходит после коммита — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-18
+    - [в коде] Отправка идёт через `kafka.send(topic, event.toolId, event)`. Ключ партиции — `toolId`, не `rentalId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] При ошибке отправки пишется только `log.error`. Возврат не откатывается, повтора в коде нет — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] Тело сообщения — `RentalReturned` с полями `type="RENTAL_RETURNED"`, `rentalId`, `toolId`, `customerId`, `returnedAt`, `damaged`, `depositAmount` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:7-14
+    - [в коде] Ключ сериализуется `StringSerializer`, значение — `JsonSerializer`. Продюсер настроен на `acks: all`, `retries: 0` — tool-rental/src/main/resources/application.yml:12-15
+    - [в коде] Подключение: SASL_SSL, механизм PLAIN. Логин и пароль берутся из `KAFKA_SASL_USER` и `KAFKA_SASL_PASSWORD` — tool-rental/src/main/resources/application.yml:17-19
+    - [в коде] Имя топика читается из `rental.events-topic`, оно задаётся как `${RENTAL_EVENTS_TOPIC}` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13; tool-rental/src/main/resources/application.yml:22
+    - [вне кода] Значения `RENTAL_EVENTS_TOPIC`, `KAFKA_BOOTSTRAP` и учётных данных в коде не заданы. По регламенту топики задаются в репозитории деплоя `platform-deploy`, в папке `values/<стенд>`, свои на каждый стенд — context/kafka-platform.md
+    - [из документа] Доступ сервиса к топику выдаётся заявкой в платформенную команду, отдельно на топик и стенд. DLQ по умолчанию не создаётся — context/kafka-platform.md
+    - [не нашёл] DLQ, outbox и повторной отправки в коде `tool-rental` нет.
+    - [не нашёл] Кода потребителя события в `tool-rental` нет. Карточка называет получателем сервис залогов, его репу разведчик не читал.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней ключ партиции `rentalId`, в коде `toolId`. Обновить: `/service-map tool-rental`.
+    Карточка `services/tool-rental.md` расходится с кодом: в ней событие шлётся внутри транзакции, и при сбое возврат откатывается. В коде отправка идёт после коммита, а сбой только логируется. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p2-topic — «В какой топик пишется событие о возврате инструмента?»
+run-01: ✓ всё · $0.265 · ходов 7 · разведчиков 1 · сверок 3 · 49 с
+  ответ:
+    Как сейчас: событие `RentalReturned` уходит в Kafka-топик, имя которого берётся из свойства `rental.events-topic`. Само имя топика в коде не задано. Оно приходит из переменной окружения `RENTAL_EVENTS_TOPIC`, значения по умолчанию нет.
+    
+    - [в коде] Топик читается из свойства `rental.events-topic`, отправка идёт через `kafka.send(topic, event.toolId, event)`. Ключ партиции — `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13, :19
+    - [в коде] `rental.events-topic` = `${RENTAL_EVENTS_TOPIC}`, без значения по умолчанию — tool-rental/src/main/resources/application.yml:22
+    - [в коде] Событие `RentalReturned` публикуется после сохранения аренды при возврате — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] Отправка идёт в фазе `AFTER_COMMIT`, то есть после коммита транзакции возврата. Ошибка отправки только логируется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17, :20-22
+    - [вне кода] Конкретное имя топика задаёт платформа. По регламенту оно лежит в репозитории деплоя `platform-deploy`, в `values/<стенд>`, и на каждом стенде своё. Рядом этого репозитория нет, его не читали — context/kafka-platform.md; переменная `RENTAL_EVENTS_TOPIC` — tool-rental/src/main/resources/application.yml:22
+    - [не нашёл] Значение `RENTAL_EVENTS_TOPIC` для какого-либо стенда: в прочитанных репозиториях его нет.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней ключ партиции `rentalId`, а в коде `toolId`. Ещё в карточке событие шлётся внутри транзакции возврата и при неудаче возврат откатывается, а в коде отправка идёт после коммита и ошибка только логируется. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+run-02: ✓ всё · $0.243 · ходов 9 · разведчиков 1 · сверок 5 · 53 с
+  ответ:
+    Как сейчас: событие `RentalReturned` пишется в топик, имя которого берётся из переменной окружения `RENTAL_EVENTS_TOPIC`. В коде самого имени нет. Его задаёт платформа отдельно для каждого стенда, и значения я не видел.
+    
+    - [в коде] `RentalEventsPublisher.onReturned` отправляет событие в топик из поля `topic`: `kafka.send(topic, event.toolId, event)`. Отправка идёт после коммита транзакции (`AFTER_COMMIT`). — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] Поле `topic` берётся из настройки `rental.events-topic`. — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13
+    - [в коде] Эта настройка равна `${RENTAL_EVENTS_TOPIC}`. — tool-rental/src/main/resources/application.yml:22
+    - [в коде] Событие создаётся при возврате инструмента: `events.publishEvent(RentalReturned.from(saved))`. — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] Сервис залогов читает ту же переменную `RENTAL_EVENTS_TOPIC` и подписывается на этот топик. — deposit-service/app/config.py:4; deposit-service/app/consumer.py:13
+    - [вне кода] Значение `RENTAL_EVENTS_TOPIC` задаёт платформа в репозитории `platform-deploy`, папка `values/<стенд>`. Этого репозитория рядом нет. — tool-rental/src/main/resources/application.yml:22
+    - [из документа] Регламент платформы: имена топиков в коде сервисов не пишутся, их задаёт платформа в `platform-deploy`, `values/<стенд>`. — context/kafka-platform.md
+    - [не нашёл] Конкретное имя топика ни на одном стенде.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: ключ партиции в карточке `rentalId`, а в коде `event.toolId`. Обновить: `/service-map tool-rental`.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в карточке событие шлётся внутри транзакции возврата, и при сбое возврат откатывается. В коде отправка идёт после коммита, а сбой только пишется в лог. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальные копии, могли отстать от удалённых.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p3-retry — «Если кафка недоступна, событие о возврате потом доотправится?»
+run-01: ✓ всё · $0.231 · ходов 5 · разведчиков 1 · сверок 4 · 50 с
+  ответ:
+    Как сейчас: нет, не доотправится. Событие возврата уходит в Kafka один раз, после коммита возврата. Если отправка не удалась, в лог пишется ошибка, а повторной отправки нет.
+    
+    - [в коде] Событие возврата публикуется при сохранении возврата и отправляется в Kafka только после коммита транзакции. — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33; tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] Если отправка не удалась, код пишет в лог ошибку «Не отправлено событие возврата». Событие нигде не сохраняется и повторно не отправляется. — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] Продюсер настроен без повторов: `retries: 0`, `acks: all`. — tool-rental/src/main/resources/application.yml:14-15
+    - [в коде] Возврат к моменту отправки уже закоммичен, статус `RETURNED` остаётся в базе. Сотрудник ошибки не получит, потому что результат отправки наружу не пробрасывается. — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    - [не нашёл] Таблицы outbox, планировщика или фоновой задачи, которые повторно отправили бы потерянное событие. Поиск по `kafka|outbox|retry|KafkaTemplate` нашёл в рабочем коде только `RentalEventsPublisher`.
+    - [не нашёл] Настроек повторов на стороне клиента или брокера, кроме `retries: 0`. Что сделает платформа, не проверялось.
+    - [не нашёл] Как deposit-service поведёт себя, если событие не придёт. Смотрели только сторону отправки.
+    - [вне кода] Имя топика берётся из переменной `RENTAL_EVENTS_TOPIC`. Значения задаёт платформа в `platform-deploy`, `values/<стенд>`. — tool-rental/src/main/resources/application.yml:22; context/kafka-platform.md
+    
+    Карточка `services/tool-rental.md` расходится с кодом: там написано, что если событие не ушло, возврат откатывается и сотрудник получает ошибку. В коде отправка идёт после коммита, ошибка только логируется. Обновить: `/service-map tool-rental`.
+    
+    Ещё одно расхождение: в карточке ключ партиции `rentalId`, а в коде это `event.toolId`. — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+run-02: ✓ всё · $0.292 · ходов 11 · разведчиков 1 · сверок 10 · 59 с
+  ответ:
+    Как сейчас: нет, не доотправится. Событие уходит один раз после коммита возврата. Если Kafka недоступна, ошибка пишется в лог, повторной отправки нет, а возврат остаётся сохранённым.
+    
+    - [в коде] Событие отправляется один раз: слушатель `AFTER_COMMIT` вызывает `kafka.send` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    - [в коде] Если отправка не удалась, код только пишет в лог «Не отправлено событие возврата», повторной отправки нет — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-22
+    - [в коде] Повторы продюсера Kafka выключены (`retries: 0`) — tool-rental/src/main/resources/application.yml:15
+    - [в коде] Возврат сохраняется в транзакции со статусом `RETURNED`, и там же публикуется `RentalReturned`. Отправка идёт после коммита, поэтому недоступная Kafka возврат не откатывает, а событие теряется — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-33
+    - [не нашёл] Outbox, планировщика (`@Scheduled`), повторной публикации и перечитывания неотправленных возвратов в `src/main` нет. Поиск по `Scheduled|Retry|outbox|retries|resend` нашёл только `retries: 0`.
+    - [вне кода] Адрес брокера задаёт переменная `KAFKA_BOOTSTRAP`, имя топика — `RENTAL_EVENTS_TOPIC`. Значения лежат в `platform-deploy`, `values/<стенд>`. Эта ссылка взята из `context/kafka-platform.md`, самого репозитория рядом нет — tool-rental/src/main/resources/application.yml:10, tool-rental/src/main/resources/application.yml:22
+    - [из документа] Получатель события — `deposit-service`, он по нему решает судьбу залога. Его код не читали — services/tool-rental.md
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней написано, что событие шлётся внутри транзакции возврата и при сбое возврат откатывается, а сотрудник пункта получает ошибку. В коде отправка идёт после коммита, ошибка только логируется, возврат не откатывается. Обновить: `/service-map tool-rental`
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p4-howto — «Как сделать, чтобы при возврате ещё уходило письмо клиенту?»
+run-01: ✓ всё · $0.067 · ходов 1 · разведчиков 0 · сверок 0 · 5 с
+  ответ:
+    Это вопрос проектирования — его решают в спеке, `/analyst-workspace`. Могу рассказать, как это работает сейчас: например, что происходит при возврате и уходит ли сейчас какое-то письмо клиенту.
+run-02: ✓ всё · $0.067 · ходов 1 · разведчиков 0 · сверок 0 · 6 с
+  ответ:
+    Это вопрос проектирования — его решают в спеке, `/analyst-workspace`. Могу рассказать, как это работает сейчас: например, что происходит при возврате и уходит ли сейчас клиенту какое-нибудь письмо.
+
+## p6-tworepos — «Как возврат инструмента доходит до освобождения залога?»
+run-01: ✓ всё · $0.351 · ходов 20 · разведчиков 1 · сверок 16 · 83 с
+  ответ:
+    Как сейчас: сотрудник вызывает возврат в tool-rental. После коммита транзакции событие `RENTAL_RETURNED` уходит в Kafka. deposit-service читает его и, если инструмент не повреждён, переводит залог в `RELEASED`. Если повреждён, залог уходит в `ON_REVIEW` и создаётся задача на разбор.
+    
+    - [в коде] `POST /api/rentals/{id}/return` принимает `damaged` и `damageNote` и передаёт их в `returnTool` — tool-rental/src/main/kotlin/ru/toolhire/rental/api/RentalController.kt:19-21
+    - [в коде] `returnTool` принимает только аренду в статусе `ISSUED`. Он ставит `RETURNED`, `returnedAt` и `damaged`, сохраняет аренду и публикует внутри приложения `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:27-33
+    - [в коде] В событии есть `type = "RENTAL_RETURNED"`, `rentalId`, `toolId`, `customerId`, `returnedAt`, `damaged` и `depositAmount` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:7-14
+    - [в коде] В Kafka событие отправляет `@TransactionalEventListener(AFTER_COMMIT)`, то есть после коммита возврата. Отправка асинхронная, ключ партиции — `event.toolId`. Ошибка отправки только пишется в лог — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    - [в коде] Имя топика берётся из `rental.events-topic`, то есть из `${RENTAL_EVENTS_TOPIC}` — tool-rental/src/main/resources/application.yml:22; tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13
+    - [в коде] deposit-service требует переменные окружения `KAFKA_BOOTSTRAP` и `RENTAL_EVENTS_TOPIC`. `KAFKA_GROUP_ID` по умолчанию `deposit-service` — deposit-service/app/config.py:3-5
+    - [в коде] Консьюмер читает этот топик с выключенным автокоммитом. Для `type == "RENTAL_RETURNED"` он вызывает `deposits.on_rental_returned`. После каждого сообщения он делает `consumer.commit()`, в том числе для событий других типов, которые пропускает — deposit-service/app/consumer.py:12-16; deposit-service/app/consumer.py:23-25
+    - [в коде] `on_rental_returned` в одной транзакции блокирует запись `deposit_holds` по `rental_id` (`FOR UPDATE`) — deposit-service/app/deposits.py:11-15
+    - [в коде] Если залога для аренды нет, обработчик пишет предупреждение и пропускает событие — deposit-service/app/deposits.py:16-18
+    - [в коде] Если статус залога не `HELD`, обработчик ничего не делает, поэтому повторная доставка безопасна — deposit-service/app/deposits.py:19-20
+    - [в коде] Если `damaged` ложно, залог получает `RELEASED` и `released_at = now()`. Это и есть освобождение залога — deposit-service/app/deposits.py:27-30
+    - [в коде] Если `damaged` истинно, залог получает `ON_REVIEW` и создаётся задача `review.create_task` — deposit-service/app/deposits.py:21-26
+    - [вне кода] Значения `RENTAL_EVENTS_TOPIC` и `KAFKA_BOOTSTRAP` задаёт платформа в репозитории `platform-deploy`, папка `values/<стенд>`. Заявка на доступ к топику идёт отдельно на каждый стенд — context/kafka-platform.md; код читает их в deposit-service/app/config.py:3-4
+    - [не нашёл] Код `review.create_task` и создание записи залога в статусе `HELD`. Разведчик их не открывал, а карточка говорит, что залог создаётся не в найденном коде.
+    - [не нашёл] Повторной отправки при сбое Kafka и DLQ в прочитанном коде нет. Если отправка не удалась, залог останется `HELD`.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней событие шлётся внутри транзакции возврата, и при неудаче возврат откатывается, а в коде отправка идёт после коммита, и сбой только логируется. Обновить: `/service-map tool-rental`.
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней ключ партиции — `rentalId`, а в коде — `toolId`. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog»
+run-02: ✓ всё · $0.366 · ходов 23 · разведчиков 1 · сверок 22 · 91 с
+  ответ:
+    Как сейчас: сотрудник отмечает возврат через `POST /api/rentals/{id}/return`. `tool-rental` ставит аренде статус `RETURNED` и после коммита шлёт в Kafka событие `RENTAL_RETURNED`. `deposit-service` читает его и при `damaged=false` ставит залогу `RELEASED`. При `damaged=true` залог уходит в `ON_REVIEW` и создаётся задача на разбор.
+    
+    - [в коде] Ручка `POST /api/rentals/{id}/return` принимает `damaged` и `damageNote` и передаёт их в `RentalService.returnTool` — tool-rental/src/main/kotlin/ru/toolhire/rental/api/RentalController.kt:19-21
+    - [в коде] Событие `RentalReturned` несёт `type="RENTAL_RETURNED"`, `rentalId`, `toolId`, `customerId`, `returnedAt`, `damaged`, `depositAmount` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:7-14
+    - [в коде] В Kafka событие уходит слушателем `AFTER_COMMIT`, то есть после коммита транзакции возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    - [в коде] Ключ партиции — `event.toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] Ошибка отправки только пишется в лог, возврат не откатывается. У продюсера `retries: 0` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:20-22; tool-rental/src/main/resources/application.yml:15
+    - [в коде] Консьюмер `deposit-service` читает топик `RENTAL_EVENTS_TOPIC` с группой `KAFKA_GROUP_ID`. Автокоммит выключен, `value_deserializer` разбирает JSON. Для `type == "RENTAL_RETURNED"` вызывается `deposits.on_rental_returned` — deposit-service/app/consumer.py:12-24
+    - [в коде] Offset коммитится после обработки каждого сообщения, в том числе с другим `type` — deposit-service/app/consumer.py:25
+    - [в коде] `on_rental_returned` в транзакции берёт залог по `rental_id` через `SELECT … FOR UPDATE` — deposit-service/app/deposits.py:12-15
+    - [в коде] Залога нет: пишется предупреждение, событие пропускается. Статус не `HELD` (уже обработан): ничего не меняется, повторная доставка безопасна — deposit-service/app/deposits.py:16-20
+    - [в коде] `damaged=true`: залог получает `ON_REVIEW` и создаётся задача в очереди `damage` — deposit-service/app/deposits.py:21-26; deposit-service/app/review.py:5-14
+    - [в коде] `damaged=false`: залог получает `RELEASED` и `released_at = now()`. Это и есть освобождение — deposit-service/app/deposits.py:27-31
+    - [в коде] Запуск: `main` вызывает `db.init()`, затем `consumer.run()` — deposit-service/app/main.py:7-9
+    - [вне кода] Имя топика задаёт платформа в репозитории `platform-deploy`, папка `values/<стенд>`. Продюсер и консьюмер берут его из `RENTAL_EVENTS_TOPIC` — tool-rental/src/main/resources/application.yml:22; deposit-service/app/config.py:4
+    - [вне кода] `KAFKA_GROUP_ID` в коде необязательна, по умолчанию `deposit-service`. Реальное значение лежит в окружении деплоя — deposit-service/app/config.py:5
+    - [не нашёл] Создание залога `DepositHold` со статусом `HELD` в прочитанном коде. Консьюмер только читает и меняет залоги, а `hold is None` считает «нет залога».
+    - [не нашёл] Реальное списание или возврат денег на карту клиента. Код меняет только статус в БД, `depositAmount` из события консьюмер не читает.
+    - [не нашёл] Обработка ошибок в консьюмере, повторы и DLQ. Исключение из `on_rental_returned` выйдет из цикла `async for`, offset не закоммитится.
+    
+    1 ссылку не подтвердил — убрал: пункт про `RentalService.returnTool` (статус `ISSUED` → `RETURNED`, сохранение, публикация `RentalReturned`). В показанных строках 27-33 нет подтверждения слова «в транзакции».
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в карточке событие шлётся внутри транзакции возврата и при неудаче возврат откатывается, а в коде отправка идёт после коммита (`AFTER_COMMIT`), ошибка только логируется (tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-22). Ключ партиции в карточке `rentalId`, в коде `toolId` (tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19). Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p7-overdue — «Аренда сама становится просроченной, если инструмент не вернули в срок?»
+run-01: ✓ всё · $0.236 · ходов 5 · разведчиков 1 · сверок 4 · 55 с
+  ответ:
+    Как сейчас: нет, сама не становится. Статус `OVERDUE` в перечислении есть, но в коде его никто не присваивает. Срок возврата `plannedReturnAt` хранится в аренде, но ни с чем не сравнивается.
+    - [в коде] Статусы аренды: `BOOKED`, `ISSUED`, `RETURNED`, `OVERDUE` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:11
+    - [в коде] У аренды есть плановый срок возврата `plannedReturnAt`. Больше нигде в рабочем коде это поле не читается — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:20
+    - [в коде] Начальный статус новой аренды — `BOOKED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:19
+    - [в коде] Выдача принимает только `BOOKED` и ставит `ISSUED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:18-19
+    - [в коде] Возврат принимает только `ISSUED` и ставит `RETURNED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:27-28
+    - [из документа] Карточка согласна с кодом: «не определено: перехода в коде нет (`OVERDUE`)» — services/tool-rental.md:32
+    - [не нашёл] Фоновую задачу или планировщик, который сравнивал бы срок возврата с текущим временем. В карточке раздел «Фоновые задачи» пуст.
+    - [не нашёл] Проверку просрочки при чтении, выдаче или возврате.
+    - [не нашёл] Автоматический переход в `OVERDUE` в других сервисах. Код `deposit-service` разведчик не открывал, потому что `Rental` принадлежит `tool-rental`.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+run-02: ✓ всё · $0.250 · ходов 9 · разведчиков 1 · сверок 8 · 50 с
+  ответ:
+    Как сейчас: нет, сама аренда не становится просроченной. Статус `OVERDUE` есть в перечислении, но ничто в коде его не ставит. Плановый срок возврата хранится, но с текущим временем его никто не сравнивает.
+    - [в коде] `OVERDUE` объявлен в `RentalStatus` и больше нигде в рабочем коде не используется — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:11
+    - [в коде] Выдача ставит `ISSUED`, если аренда была в `BOOKED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:18-19
+    - [в коде] Возврат ставит `RETURNED`, если аренда была в `ISSUED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:27-28
+    - [в коде] Плановый срок возврата — поле `plannedReturnAt`; в показанных строках только объявление поля — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:20
+    - [из документа] Карточка говорит то же: перехода в `OVERDUE` в коде нет, раздел «Фоновые задачи» пуст — services/tool-rental.md
+    - [не нашёл] Фоновой задачи или планировщика, который переводит аренду в `OVERDUE` по сроку. Разведчик искал `Scheduled`, `EnableScheduling`, `Quartz`, `Timer`, `cron` и `OVERDUE` в `src/main`.
+    - [не нашёл] Ручки или другого кода, который ставит `OVERDUE`.
+    
+    Код deposit-service не читал: статусом аренды владеет tool-rental.
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+итого: $2.94

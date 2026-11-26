@@ -16,14 +16,16 @@
 
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { normalizeSpecHeadings } from './spec-markdown.mjs'
 
-const SEED = join(process.cwd(), 'fixtures/TS-FIX/docs/PSS-2210/technical_specification.md')
-const SPEC = 'docs/PSS-2210/technical_specification.md'
+const SEED = join(process.cwd(), 'fixtures/TS-FIX/coddoc/PSS-2210/technical_specification.md')
+const SPEC = 'coddoc/PSS-2210/technical_specification.md'
 
 /** Текст раздела от заголовка до следующего заголовка того же или старшего уровня. */
 export function section (text, head) {
   const lines = text.split(/\r?\n/)
-  const i = lines.findIndex((l) => l.startsWith(head))
+  const normalized = normalizeSpecHeadings(text).split('\n')
+  const i = normalized.findIndex((l) => l.startsWith(head))
   if (i < 0) return ''
   const lvl = (head.match(/^#+/) || ['#'])[0].length
   let j = i + 1
@@ -109,11 +111,11 @@ function selftest () {
   const b = gradeSpec(seed, bad1)
   ck('чужая карточка тронута', b.foreignSame, false)
   ck('новая строка-поле видна', b.newLabels, ['Повтор'])
-  const w = JSON.stringify({ type: 'assistant', parent_tool_use_id: null, message: { content: [{ type: 'tool_use', name: 'Edit', input: { file_path: 'C:/sb/docs/PSS-2210/technical_specification.md' } }] } })
-  const ws = JSON.stringify({ type: 'assistant', parent_tool_use_id: 'toolu_x', message: { content: [{ type: 'tool_use', name: 'Edit', input: { file_path: 'C:/sb/docs/PSS-2210/technical_specification.md' } }] } })
+  const w = JSON.stringify({ type: 'assistant', parent_tool_use_id: null, message: { content: [{ type: 'tool_use', name: 'Edit', input: { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' } }] } })
+  const ws = JSON.stringify({ type: 'assistant', parent_tool_use_id: 'toolu_x', message: { content: [{ type: 'tool_use', name: 'Edit', input: { file_path: 'C:/sb/coddoc/PSS-2210/technical_specification.md' } }] } })
   ck('запись ведущего видна', leadWritesSpec(w), true)
   ck('запись субагента — не ведущего', leadWritesSpec(ws), false)
-  ck('чтение — не запись', leadWritesSpec(JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Bash', input: { command: 'cat docs/PSS-2210/technical_specification.md' } }] } })), false)
+  ck('чтение — не запись', leadWritesSpec(JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Bash', input: { command: 'cat coddoc/PSS-2210/technical_specification.md' } }] } })), false)
   console.log(bad === 0 ? '\nсамопроверка: ok' : `\nсамопроверка: ПРОВАЛОВ ${bad}`)
   return bad === 0
 }

@@ -1,1 +1,1 @@
-Проверь спеку docs/RMS-5301/technical_specification.md, источник рядом — docs/RMS-5301/business_requirements.md. Можно отдавать в разработку?
+Проверь спеку coddoc/RMS-5301/technical_specification.md, источник рядом — coddoc/RMS-5301/business_requirements.md. Можно отдавать в разработку?

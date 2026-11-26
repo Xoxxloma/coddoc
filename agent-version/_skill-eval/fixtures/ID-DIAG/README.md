@@ -1,6 +1,6 @@
 # ID-DIAG — короткая схема по спеке из прогона (interaction-diagram 4.3)
 
-Вход: `docs/DSP-330/technical_specification.md` (заявка на выезд группы быстрого реагирования) — спека Haiku из раунда
+Вход: `coddoc/DSP-330/technical_specification.md` (заявка на выезд группы быстрого реагирования) — спека Haiku из раунда
 diag (`runs/2026-09-24-diag-d-v2/ts-diag/run-05`), блок `plantuml` из раздела взаимодействий вырезан. БТ и `services/` —
 из фикстуры `TS-DIAG` ветки `feat/int-diagram-1.2.0`. Скилл их не читает: `services/*.md` несут чужие пути
 (`GET /v2/objects`, `PUT /v2/objects/{id}/guard-mode`, `GET /v1/notify/{id}` и др.), путь оттуда на стрелке — красный.

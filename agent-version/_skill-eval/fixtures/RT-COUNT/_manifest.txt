@@ -1,0 +1,13 @@
+bt-prompt.txt
+count-turn2.txt
+cr-prompt.txt
+expected.md
+prebaked/business_requirements.md
+prebaked/change_request.md
+stubs/bug-report-doc/SKILL.md
+stubs/business-requirements-doc/SKILL.md
+stubs/change-request-doc/SKILL.md
+stubs/spec-review/SKILL.md
+stubs/stage-breakdown-doc/SKILL.md
+stubs/technical-spec-doc/SKILL.md
+stubs/rehearse/SKILL.md

@@ -1,4 +1,4 @@
 context/conventions.md
-docs/SMSEC-420/business_requirements.md
+coddoc/SMSEC-420/business_requirements.md
 README.md
 spec-prompt.txt

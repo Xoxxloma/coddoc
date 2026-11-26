@@ -2,10 +2,12 @@ api-w-prompt.txt
 btn-q-prompt.txt
 btn-w-prompt.txt
 bug-q-prompt.txt
-docs/ARS-102/business_requirements.md
-docs/ARS-102/technical_specification.md
+coddoc/ARS-102/business_requirements.md
+coddoc/ARS-102/technical_specification.md
 expected.md
 idea-q-prompt.txt
+lim-q-prompt.txt
+lim-w-prompt.txt
 notsmall-q-prompt.txt
 README.md
 services/auth.md

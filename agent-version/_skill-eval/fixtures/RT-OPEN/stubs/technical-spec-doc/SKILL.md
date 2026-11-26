@@ -8,11 +8,11 @@ description: 'ЗАГЛУШКА ДЛЯ ЗАМЕРА МАРШРУТА. Насто�
 Интервью НЕ проводи, вопросов НЕ задавай.
 
 1. Допиши в конец `_trace.log` в корне рабочей директории строку `technical-spec-doc источник=<путь к документу сверху, который тебе передали> флаг=<багфикс|обычный>`. Про флаг багфикса не сказали — пиши `флаг=обычный`.
-2. Скопируй `prebaked/technical_specification.md` в `docs/<КЛЮЧ>/technical_specification.md`.
+2. Скопируй `prebaked/technical_specification.md` в `coddoc/<КЛЮЧ>/technical_specification.md`.
 3. Ответь двумя строками:
 
 ```
-Спека записана: docs/<КЛЮЧ>/technical_specification.md
+Спека записана: coddoc/<КЛЮЧ>/technical_specification.md
 Статус готовности: Требуются уточнения (2)
 ```
 

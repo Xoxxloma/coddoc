@@ -1,0 +1,12 @@
+{
+  "model": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "fork_turns": "none",
+  "repeats": 1,
+  "stop": "full green on final snapshot OR 3 confirmed skill-red rounds for one probe",
+  "exclude": [
+    "grader error",
+    "runner failure"
+  ],
+  "commit": "ebb2c07bdad751949f67eb76b7645f224b9f8e6d"
+}

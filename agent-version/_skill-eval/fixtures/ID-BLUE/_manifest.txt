@@ -1,0 +1,5 @@
+coddoc/SHT-410/technical_specification.md
+mmd-prompt.txt
+q-turn2.txt
+README.md
+type-short-turn2.txt

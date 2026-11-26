@@ -8,7 +8,7 @@
 //   node grade-2t.mjs --selftest
 //
 // По прогону:
-//   - спека записана к концу 2-го хода (`docs/<KEY>/technical_specification.md`; мимо папки — отдельно);
+//   - спека записана к концу 2-го хода (`coddoc/<KEY>/technical_specification.md`; мимо папки — отдельно);
 //     записана уже на 1-м ходу — нарушение «turn 1 = questions only», видно по Write/Edit в `stream.jsonl`;
 //   - фантом: второй ход отчитался о записанном файле, файла нет;
 //   - переспрошен гейт, уже отвеченный в `conv-turn2.txt` — анкеры `REASKED_GATES` из grade-ts.mjs,
@@ -36,7 +36,7 @@ export const reasked = (turn2) =>
   REASKED_GATES.filter((g) => lines(turn2).some((l) => g.re.test(l) && l.includes('?'))).map((g) => g.label)
 
 const FOREIGN_PATH = '/v1/sessions/count'
-const RE_CLAIMS_WRITTEN = /(спек[аи]|спецификаци[ияю]|документ)[^.\n]{0,60}(записан|готов|создан|сохранён|сохранен)|(файл|путь)\s*:?\s*`?[^`\n]{0,20}docs\//i
+const RE_CLAIMS_WRITTEN = /(спек[аи]|спецификаци[ияю]|документ)[^.\n]{0,60}(записан|готов|создан|сохранён|сохранен)|(файл|путь)\s*:?\s*`?[^`\n]{0,20}coddoc\//i
 const RE_API_FAILURE = /API Error|Request not allowed|Please run \/login|Credit balance|rate limit|session limit|usage limit|hit your limit/i
 const isApiFailure = (t) => !!t && (t.length < 600 ? RE_API_FAILURE.test(t) : RE_API_FAILURE.test(t.slice(0, 200)))
 
@@ -93,9 +93,9 @@ function selftest() {
   ok('переспрос: «раз в минуту?» в одной строке', reasked('Обновляем раз в минуту?').includes('частота обновления'))
   ok('пересказ без «?» — не переспрос', reasked('Обновляем раз в минуту, прочерк при недоступности.').length === 0)
   ok('«?» в соседней строке — не переспрос (правило grade-ts)', reasked('Прочерк при недоступности\nВерно?').length === 0)
-  ok('путь в стрим-событии записи спеки опознан', wroteSpecInStream(JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Write', input: { file_path: 'C:/x/docs/ARS-201/technical_specification.md' } }] } })))
-  ok('запись субагентом не считается записью хода', !wroteSpecInStream(JSON.stringify({ type: 'assistant', parent_tool_use_id: 'x', message: { content: [{ type: 'tool_use', name: 'Write', input: { file_path: 'docs/ARS-201/technical_specification.md' } }] } })))
-  ok('фантом: «Спека записана: docs/…» опознан', RE_CLAIMS_WRITTEN.test('Спека записана: `docs/ARS-201/technical_specification.md`'))
+  ok('путь в стрим-событии записи спеки опознан', wroteSpecInStream(JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Write', input: { file_path: 'C:/x/coddoc/ARS-201/technical_specification.md' } }] } })))
+  ok('запись субагентом не считается записью хода', !wroteSpecInStream(JSON.stringify({ type: 'assistant', parent_tool_use_id: 'x', message: { content: [{ type: 'tool_use', name: 'Write', input: { file_path: 'coddoc/ARS-201/technical_specification.md' } }] } })))
+  ok('фантом: «Спека записана: coddoc/…» опознан', RE_CLAIMS_WRITTEN.test('Спека записана: `coddoc/ARS-201/technical_specification.md`'))
   // Живые строки: runs/2026-09-23-ts-comb-base-v2/ts-conv-2t
   ok('живое (base-v2 run-01, ход 2): «Вы сказали «…подтвердить не могу». …новый? Или …» в одной строке — переспрос',
     reasked('Вы сказали «я код не читаю, кто отдаёт число активных сессий — подтвердить не могу». Это означает, что в бэке Арсенала уже **существует источник** этих данных (таблица сессий, кэш, счётчик), и нужно либо использовать существующий endpoint, либо спроектировать новый? Или это **новая функциональность в бэке** — добавить подсчёт активных сессий заново?').includes('источник не подтверждён'))

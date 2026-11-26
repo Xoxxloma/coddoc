@@ -1,0 +1,9 @@
+etalon/meeting-2026-10-15.razbor.md
+etalon/meeting-2026-10-15-bt.md
+etalon-2/meeting-2026-10-15.points.md
+etalon-2/meeting-2026-10-15.razbor.md
+expected.md
+seed/coddoc/EMP-1207/business_requirements.md
+seed/meeting-2026-10-15.txt
+w-prompt.txt
+w-turn2.txt

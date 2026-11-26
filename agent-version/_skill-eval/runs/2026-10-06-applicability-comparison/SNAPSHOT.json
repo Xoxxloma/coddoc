@@ -1,0 +1,182 @@
+[
+  {
+    "path": "A/analyst-workspace/reference/stage-bt.md",
+    "sha256": "53ccb0a8f12ca19782f4aeea8dd693e05f7cb4b1ac04b89928ab33bbb1892401"
+  },
+  {
+    "path": "A/analyst-workspace/reference/stage-final.md",
+    "sha256": "a9241bc082c098eb102ddf048628961c7d687e8153701f61540b8fd5f658b7f8"
+  },
+  {
+    "path": "A/analyst-workspace/reference/stage-split.md",
+    "sha256": "266ae1ced4e9d07fa925f6c59495f17a02016653c289c8ebdbd925390e013ecd"
+  },
+  {
+    "path": "A/analyst-workspace/reference/stage-start.md",
+    "sha256": "3e1609d2ca50f5f7caf7fe624d86a403efd78d35ca9bbf2513c76092ff5ba389"
+  },
+  {
+    "path": "A/analyst-workspace/SKILL.md",
+    "sha256": "b15a7e13e269d84c184171bbcda5340165d07bb5091572c2fda210e6b4a4db93"
+  },
+  {
+    "path": "A/spec-review/reference/checklist-bt.md",
+    "sha256": "68364e2fc4821e9aeb49268e0801611451edce319be160b978c7d9de25615a9c"
+  },
+  {
+    "path": "A/spec-review/reference/checklist-bugreport.md",
+    "sha256": "351756048f9397929eca741ec3b46587c538fdd152a580a9be134acab0ca2748"
+  },
+  {
+    "path": "A/spec-review/reference/checklist-changerequest.md",
+    "sha256": "1607e8658179ed718cad11628e1191ddb0487ab5cf8f99785421b2d5abbfa45c"
+  },
+  {
+    "path": "A/spec-review/reference/checklist-spec.md",
+    "sha256": "b294c83630d539f6718408d38e2e7dd8557e921aa22b6a6e687e6fb90f6ccfd1"
+  },
+  {
+    "path": "A/spec-review/reference/checklist-stage.md",
+    "sha256": "4fb6137202636a49787ba14ca921f211425e7eacae2788f2341cb55dfd82e290"
+  },
+  {
+    "path": "A/spec-review/SKILL.md",
+    "sha256": "7ecbc395203c6e71c0450c0682b464e50c21cab03a6aa52533d83d7799b81017"
+  },
+  {
+    "path": "A/technical-spec-doc/reference/bugfix-mode.md",
+    "sha256": "aeb3ed635ca2cc6e2e154011279d9f81175c12b4e2bd6373f3a3b9c643eb0e1a"
+  },
+  {
+    "path": "A/technical-spec-doc/reference/foundation-node.md",
+    "sha256": "8d40812c0b2ca07e4ef74f37594c1c8c15e0c72b4574ae6081c385643d343558"
+  },
+  {
+    "path": "A/technical-spec-doc/reference/small-change-mode.md",
+    "sha256": "0b8b3d77cd28edf93d75f708f7826391fcc3aa43df80aac74b95724012585b3d"
+  },
+  {
+    "path": "A/technical-spec-doc/SKILL.md",
+    "sha256": "0fd4a54abc02c557bfd70c6fe033c3eb09daf8dd618004936251a4cedaa32fec"
+  },
+  {
+    "path": "B/analyst-workspace/reference/stage-bt.md",
+    "sha256": "2c359e404379c8b393c2c67082c0d49bac56d8468f51bb647a636cf25468bddd"
+  },
+  {
+    "path": "B/analyst-workspace/reference/stage-final.md",
+    "sha256": "254fe9d28431a4b68233d5d3a5ecaa79f4efc7953139f3e2049d9e1b3c64830d"
+  },
+  {
+    "path": "B/analyst-workspace/reference/stage-split.md",
+    "sha256": "a3c11a0895c1deea9287449bc60c132f5de289c791352d55d2381fdee32e3965"
+  },
+  {
+    "path": "B/analyst-workspace/reference/stage-start.md",
+    "sha256": "2f26a1c70ff9336b37b20b5533a4cc415c539812f44472807c12c6c3d6c68f54"
+  },
+  {
+    "path": "B/analyst-workspace/SKILL.md",
+    "sha256": "92934652c9ddc08109b8a9bf702a5a240bcc3388f06a231db02362a2896b6712"
+  },
+  {
+    "path": "B/spec-review/reference/checklist-bt.md",
+    "sha256": "f351dccdf3357a2743cfabbc9658fd71bd0b7c800d411bfd42024d7d6023505a"
+  },
+  {
+    "path": "B/spec-review/reference/checklist-bugreport.md",
+    "sha256": "3076eb12a7afa3ac71f923e52e44a1ff71a93eaaf96514c843f18e5719750fa0"
+  },
+  {
+    "path": "B/spec-review/reference/checklist-changerequest.md",
+    "sha256": "713716c09c60cf25010310d50fa084210ff294ce16ce2e8a7c6806d883a5e15f"
+  },
+  {
+    "path": "B/spec-review/reference/checklist-spec.md",
+    "sha256": "2b638275e59e552899946a94f62c6083717ad8fca9a82f9498007c4aca2e7445"
+  },
+  {
+    "path": "B/spec-review/reference/checklist-stage.md",
+    "sha256": "e7a7e1ff2874065d192b3a28b76165003fe0f6341fe3863a09f72fda4e6ec211"
+  },
+  {
+    "path": "B/spec-review/SKILL.md",
+    "sha256": "cc496aaa95e4c9233b4322fdc6b90946cb75d12afdcdad6618546020bf9a8b47"
+  },
+  {
+    "path": "B/technical-spec-doc/reference/bugfix-mode.md",
+    "sha256": "93c6402956331ffcf9306d4d4a021da24e8f8fc972c22e4b481bf46a3d91e58b"
+  },
+  {
+    "path": "B/technical-spec-doc/reference/foundation-node.md",
+    "sha256": "50739cdf9c1f19922c6563ab26ca12ee7e015dea095982694438b42f8a8c0635"
+  },
+  {
+    "path": "B/technical-spec-doc/reference/small-change-mode.md",
+    "sha256": "cb2568db724eea0307ffd6265037faf381c8612d08b3c226f6e6d616e6baf3ef"
+  },
+  {
+    "path": "B/technical-spec-doc/SKILL.md",
+    "sha256": "815af0a3840728fef0304431408700594000e03b504f65c954914d2a9a168578"
+  },
+  {
+    "path": "C/analyst-workspace/reference/stage-bt.md",
+    "sha256": "2c359e404379c8b393c2c67082c0d49bac56d8468f51bb647a636cf25468bddd"
+  },
+  {
+    "path": "C/analyst-workspace/reference/stage-final.md",
+    "sha256": "254fe9d28431a4b68233d5d3a5ecaa79f4efc7953139f3e2049d9e1b3c64830d"
+  },
+  {
+    "path": "C/analyst-workspace/reference/stage-split.md",
+    "sha256": "a3c11a0895c1deea9287449bc60c132f5de289c791352d55d2381fdee32e3965"
+  },
+  {
+    "path": "C/analyst-workspace/reference/stage-start.md",
+    "sha256": "2f26a1c70ff9336b37b20b5533a4cc415c539812f44472807c12c6c3d6c68f54"
+  },
+  {
+    "path": "C/analyst-workspace/SKILL.md",
+    "sha256": "92934652c9ddc08109b8a9bf702a5a240bcc3388f06a231db02362a2896b6712"
+  },
+  {
+    "path": "C/spec-review/reference/checklist-bt.md",
+    "sha256": "f351dccdf3357a2743cfabbc9658fd71bd0b7c800d411bfd42024d7d6023505a"
+  },
+  {
+    "path": "C/spec-review/reference/checklist-bugreport.md",
+    "sha256": "3076eb12a7afa3ac71f923e52e44a1ff71a93eaaf96514c843f18e5719750fa0"
+  },
+  {
+    "path": "C/spec-review/reference/checklist-changerequest.md",
+    "sha256": "713716c09c60cf25010310d50fa084210ff294ce16ce2e8a7c6806d883a5e15f"
+  },
+  {
+    "path": "C/spec-review/reference/checklist-spec.md",
+    "sha256": "2b638275e59e552899946a94f62c6083717ad8fca9a82f9498007c4aca2e7445"
+  },
+  {
+    "path": "C/spec-review/reference/checklist-stage.md",
+    "sha256": "e7a7e1ff2874065d192b3a28b76165003fe0f6341fe3863a09f72fda4e6ec211"
+  },
+  {
+    "path": "C/spec-review/SKILL.md",
+    "sha256": "cc496aaa95e4c9233b4322fdc6b90946cb75d12afdcdad6618546020bf9a8b47"
+  },
+  {
+    "path": "C/technical-spec-doc/reference/bugfix-mode.md",
+    "sha256": "93c6402956331ffcf9306d4d4a021da24e8f8fc972c22e4b481bf46a3d91e58b"
+  },
+  {
+    "path": "C/technical-spec-doc/reference/foundation-node.md",
+    "sha256": "50739cdf9c1f19922c6563ab26ca12ee7e015dea095982694438b42f8a8c0635"
+  },
+  {
+    "path": "C/technical-spec-doc/reference/small-change-mode.md",
+    "sha256": "cb2568db724eea0307ffd6265037faf381c8612d08b3c226f6e6d616e6baf3ef"
+  },
+  {
+    "path": "C/technical-spec-doc/SKILL.md",
+    "sha256": "41e5ff3bc81d2fb85f6e87fba226e0da0db568a622d1abc2c555932b3dac14d2"
+  }
+]

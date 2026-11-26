@@ -1,6 +1,6 @@
 ar-prompt.txt
 ar-turn2.txt
-docs/ARS-61/technical_specification.md
+coddoc/ARS-61/technical_specification.md
 services/billing.md
 services/manifest.yaml
 stubs/service-map/SKILL.md

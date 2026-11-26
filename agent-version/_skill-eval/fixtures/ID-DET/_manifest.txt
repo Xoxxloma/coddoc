@@ -1,4 +1,4 @@
-docs/PRK-9/technical_specification.md
+coddoc/PRK-9/technical_specification.md
 idk-turn2.txt
 mmd-prompt.txt
 o-one-turn2.txt

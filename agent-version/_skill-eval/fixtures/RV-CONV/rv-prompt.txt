@@ -1,1 +1,1 @@
-Проверь спеку docs/RMS-4021/technical_specification.md, источник рядом — docs/RMS-4021/business_requirements.md. Можно отдавать в разработку?
+Проверь спеку coddoc/RMS-4021/technical_specification.md, источник рядом — coddoc/RMS-4021/business_requirements.md. Можно отдавать в разработку?

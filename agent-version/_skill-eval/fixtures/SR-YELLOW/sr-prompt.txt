@@ -1,1 +1,1 @@
-Проверь спеку docs/SUP-702/technical_specification.md, источник рядом — docs/SUP-702/business_requirements.md. Достаточно ли её, чтобы писать код?
+Проверь спеку coddoc/SUP-702/technical_specification.md, источник рядом — coddoc/SUP-702/business_requirements.md. Достаточно ли её, чтобы писать код?

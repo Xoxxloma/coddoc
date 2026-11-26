@@ -1,0 +1,13 @@
+services:
+  - name: tool-rental
+    path: ../tool-rental
+    type: backend
+    notes: команда «Прокат», не мы
+  - name: deposit-service
+    path: ../deposit-service/app
+    type: backend
+    notes: команда «Залоги», не мы
+  - name: customer-notify
+    path: ../customer-notify
+    type: backend
+    notes: наш сервис, команда «Клиентские уведомления»; репа на другом стенде, рядом не клонирована

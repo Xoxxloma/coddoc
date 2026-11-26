@@ -1,4 +1,4 @@
-docs/DIR-7/technical_specification.md
+coddoc/DIR-7/technical_specification.md
 mmd-prompt.txt
 puml-prompt.txt
 README.md

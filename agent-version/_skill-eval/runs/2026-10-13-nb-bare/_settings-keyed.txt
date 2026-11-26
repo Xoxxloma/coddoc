@@ -1,0 +1,8 @@
+плечо: keyed
+модель: sonnet
+прогонов: 4, параллельность: 2
+текст скилла: /c/Users/Konstantin/projects/product-skills/agent-version/service-map
+источники: /c/Users/Konstantin/projects/{repairy,resonance}
+подсказка: нет; аргументы: repairy-api repairy-web; патч: /c/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/SM-REAL/patch-remind.diff
+обёртка: prompt-bare.md; сосед-заглушка: hello-api
+снимок скилла: _skills/service-map.SKILL.md (1014 строк)

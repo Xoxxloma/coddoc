@@ -132,15 +132,15 @@ case "$PROBE" in
   # записанный файл с выведенным типом изменения.
   br-open-q)  FIXTURE=BR-OPEN; PROMPT_FILE=q-prompt.txt; SKILL=business-requirements-doc ;;
   br-open-w)  FIXTURE=BR-OPEN; PROMPT_FILE=w-prompt.txt; SKILL=business-requirements-doc ;;
-  # Эпик лежит НЕ в `docs/<KEY>/`, а в спек-репе `AI-SDD/docs/PSS-40/`; в корне песочницы при этом
-  # есть настоящая `docs/` с документацией продукта. Меряется якорь пути: дети обязаны лечь ВНУТРЬ
+  # Эпик лежит НЕ в `coddoc/<KEY>/`, а в спек-репе `AI-SDD/coddoc/PSS-40/`; в корне песочницы при этом
+  # есть настоящая `coddoc/` с документацией продукта. Меряется якорь пути: дети обязаны лечь ВНУТРЬ
   # папки эпика. Второе плечо — тот же эпик ВСТАВЛЕН ТЕКСТОМ и на диске отсутствует: гейт обязан
   # отказать, а не резать по сообщению. Засевы разные, поэтому `SEED_SUB`.
   td-path-w)  FIXTURE=TD-PATH; PROMPT_FILE=w-prompt.txt;     SKILL=task-decomposition-doc; SEED_SUB=seed ;;
   td-gate)    FIXTURE=TD-PATH; PROMPT_FILE=paste-prompt.txt; SKILL=task-decomposition-doc; SEED_SUB=seed-paste ;;
   # Раскладка, принесённая с живой работы: ключ эпика `T-T-M-1.2` НЕ матчит regex гейта, у детей
-  # ключи настоящие (AAA-1..4), а рядом под `docs/` лежит обычная задача `OPS-77` — то есть
-  # шаблон «ключ задачи → своя папка под docs/» прогон видит на диске. Красный исход отсюда и
+  # ключи настоящие (AAA-1..4), а рядом под `coddoc/` лежит обычная задача `OPS-77` — то есть
+  # шаблон «ключ задачи → своя папка под coddoc/» прогон видит на диске. Красный исход отсюда и
   # приехал: дети легли СИБЛИНГАМИ папки эпика.
   td-alias)   FIXTURE=TD-PATH; PROMPT_FILE=alias-prompt.txt; SKILL=task-decomposition-doc; SEED_SUB=seed-alias ;;
   # ── `context-doc`: импорт документа человека в `context/` ─────────────────────────────────
@@ -164,7 +164,7 @@ case "$PROBE" in
   # Одно дерево, шесть плеч (как `CD-TXT` и `BR-ROLES`). Отличие плеч — только сообщение
   # аналитика; окружение у всех одно, поэтому числа сравнимы между собой.
   #
-  # В дереве лежит `docs/ARS-102/` — спека вкладки расчёта ГБР на карточке инцидента. Для
+  # В дереве лежит `coddoc/ARS-102/` — спека вкладки расчёта ГБР на карточке инцидента. Для
   # `bg-role-w` это ЯКОРЬ: ожидаемое поведение там записано (§4.4, §5.3), и скилл обязан
   # сослаться путём и разделом. Для `bg-flick-w` и `bg-form-w` это ЛОВУШКА: их дефекты живут на
   # других экранах, и приписанный им `ARS-102` — нарушение. Одно дерево ловит оба провала.
@@ -197,7 +197,7 @@ case "$PROBE" in
 
   # ── спека на багфикс: режим `technical-spec-doc` по баг-репорту ───────────────────────────
   # Флаг багфикса изображён промптом — проводник про багфикс ещё не знает (шаг 8 плана). Дерево
-  # своё, а не `BG-INC`: там `bg-flick-w` сама пишет в `docs/ARS-312/`, и готовый репорт в
+  # своё, а не `BG-INC`: там `bg-flick-w` сама пишет в `coddoc/ARS-312/`, и готовый репорт в
   # песочнице дал бы ей найти собственный выход засеянным.
   bf-spec)     FIXTURE=BF-SPEC; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc ;;
 
@@ -287,6 +287,8 @@ case "$PROBE" in
   arlate)    FIXTURE=AR-LATE;   PROMPT_FILE=ar-prompt.txt;    SKILL=archive-spec; TURN2_FILE=ar-turn2.txt; STUBS_SUB=stubs ;;
   arnocard)  FIXTURE=AR-NOCARD; PROMPT_FILE=ar-prompt.txt;    SKILL=archive-spec; TURN2_FILE=ar-turn2.txt; STUBS_SUB=stubs ;;
   artype)    FIXTURE=AR-TYPE;   PROMPT_FILE=ar-prompt.txt;    SKILL=archive-spec; TURN2_FILE=ar-turn2.txt; STUBS_SUB=stubs ;;
+  # Пачка релиза — основной путь архивации: несколько ключей, один скан, история карточек.
+  arbatch)   FIXTURE=AR-BATCH;  PROMPT_FILE=ar-prompt.txt;    SKILL=archive-spec; TURN2_FILE=ar-turn2.txt; STUBS_SUB=stubs ;;
   rv-bug-src)   FIXTURE=RV-BUG; PROMPT_FILE=src-prompt.txt;  SKILL=spec-review ;;
 
   *) echo "неизвестная проба: '$PROBE'"; echo "есть: bfg-scroll bfg-role ts-live ts-conv ts-conv2 ts-ctx ts-nodesc ts-noctx br-ctx br-real br-rework br-rework-q sb-ctx sb-ctx2 sm-graph2 rv-conv rv-clean rv-bt-clean rv-bt-dirty rv-fe rv-tpl-clean rv-tpl-dirty rv-tpl-count rv-stage-na br-roles-w br-roles-q cdoc-xlsx cdoc-txt cdoc-txt-q cdoc-docx cdoc-fix cdoc-dup sr-gap sr-verify rv-bug-clean rv-bug-dirty rv-bug-spec rv-bug-src bf-spec rt-bug rt-feature rt-menu rt-nokey rt-noreview rt-cont bg-flick-w bg-flick-q bg-form-w bg-role-w bg-data-q bg-notbug-q cr-btn-w cr-btn-q cr-api-w cr-notsmall-q cr-idea-q cr-bug-q"; exit 1 ;;
@@ -294,6 +296,10 @@ esac
 
 [ -n "$ROUND" ] || { echo "usage: ./run-ctx.sh <проба> <папка-раунда> <N> [параллельность]"; exit 1; }
 [ -f "$POOL" ]  || { echo "нет раннера: $POOL"; exit 1; }
+. "$HERE/model-id.sh"
+. "$HERE/copy-once.sh"
+SM_MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
+export SM_MODEL
 
 FIXTURE_DIR="$HERE/fixtures/$FIXTURE"
 PROMPT="$FIXTURE_DIR/$PROMPT_FILE"
@@ -304,7 +310,7 @@ SNAP_KEEP="$ROUND/_skills/$SKILL.SKILL.md"
 if [ -f "$SNAP_KEEP" ]; then
   echo "снимок скилла уже есть — прогон читает ЕГО: $SNAP_KEEP"
 else
-  cp "$HERE/../$SKILL/SKILL.md" "$SNAP_KEEP"
+  copy_once "$HERE/../$SKILL/SKILL.md" "$SNAP_KEEP"
   echo "снимок скилла: $SNAP_KEEP"
 fi
 # ПРОГОН ЧИТАЕТ КОПИЮ СНИМКА ВНЕ РЕПОЗИТОРИЯ. Единственный путь, который прогон получает внутрь
@@ -320,9 +326,11 @@ fi
 # `reference/stage-*.md` через `cat` не открыл ни один прогон.
 # `cygpath -m` даёт `C:/Users/…/Temp` — тот же каталог вне репозитория, но в форме, которую `Read`
 # принимает. Нет `cygpath` (не Windows) — прежний `/tmp`.
+# Снимок — свой на каждое плечо (проба и PID в имени): общий на раунд сносился концом соседнего плеча.
+# Подробно — у того же места в `run-ctx-v2.sh`.
 SEED_TMP="/tmp"
 command -v cygpath >/dev/null 2>&1 && SEED_TMP="$(cygpath -m /tmp)"
-SNAP_ROOT="${SKILL_EVAL_SEED_ROOT:-$SEED_TMP/skill-eval-seed}/$(basename "$ROUND")-skills"
+SNAP_ROOT="${SKILL_EVAL_SEED_ROOT:-$SEED_TMP/skill-eval-seed}/$(basename "$ROUND")-$PROBE-$$-skills"
 mkdir -p "$SNAP_ROOT/$SKILL"
 SNAP="$SNAP_ROOT/$SKILL/SKILL.md"
 cp "$SNAP_KEEP" "$SNAP"
@@ -333,9 +341,7 @@ cp "$SNAP_KEEP" "$SNAP"
 # по построению. Кладётся рядом со снимком, поэтому относительный путь `reference/…` из скилла
 # ведёт в снимок, а не в репозиторий.
 if [ -d "$HERE/../$SKILL/reference" ]; then
-  if [ ! -d "$ROUND/_skills/$SKILL.reference" ]; then
-    cp -r "$HERE/../$SKILL/reference" "$ROUND/_skills/$SKILL.reference"
-  fi
+  copy_once "$HERE/../$SKILL/reference" "$ROUND/_skills/$SKILL.reference"
   rm -rf "$SNAP_ROOT/$SKILL/reference"
   cp -r "$ROUND/_skills/$SKILL.reference" "$SNAP_ROOT/$SKILL/reference"
 fi
@@ -383,7 +389,7 @@ fi
 # ЗАСЕВ ЛЕЖИТ ВНЕ РЕПОЗИТОРИЯ, И ЭТО НЕ ГИГИЕНА, А ИЗОЛЯЦИЯ.
 #
 # Пока засев лежал в папке раунда (`<раунд>/_seed/<проба>`), он был соседом песочниц и выглядел
-# как ещё один рабочий репозиторий: та же `docs/<KEY>/business_requirements.md`, тот же
+# как ещё один рабочий репозиторий: та же `coddoc/<KEY>/business_requirements.md`, тот же
 # `context/`. Прогон, промахнувшийся мимо своей директории, писал спеку туда — и ВСЕ последующие
 # прогоны плеча копировали её себе засевом. Проба «записал ли скилл файл» отвечала «да» сама
 # себе; поймано 2026-08-14 на `_pilot-wrapper` и `loop-r1c/ts-live` — там спека стоит в
@@ -428,7 +434,7 @@ bash "$POOL" "$SNAP" "$PROMPT" "$ROUND/$PROBE" "$N" "$CONC" "$SEED" "$STUBS_DIR"
 # ─── Караул фикстуры ────────────────────────────────────────────────────────────────────────
 # Запрет в промпте изоляцией НЕ является. Замер 2026-08-14, плечо `ts-conv`: прогон получил
 # песочницу рабочей директорией — и записал спеку по АБСОЛЮТНОМУ пути в саму фикстуру
-# (`fixtures/TS-CONV/docs/ARS-201/technical_specification.md`). Инцидент того же класса, что
+# (`fixtures/TS-CONV/coddoc/ARS-201/technical_specification.md`). Инцидент того же класса, что
 # описан в `PROBES.md` правилом №2, и цена та же: следующий прогон засеялся бы уже готовой
 # спекой, а «написал сам» стало бы неотличимо от «прочитал написанное».
 #
@@ -466,3 +472,6 @@ if [ -n "${SNAP_ROOT:-}" ] && [ -d "$SNAP_ROOT" ]; then
   rm -rf "$SNAP_ROOT"
   echo "снимок из /tmp снесён: $SNAP_ROOT (журнальная копия осталась в $ROUND/_skills/)"
 fi
+
+# Цена плеча — этой строкой, не суммой руками (при `--resume` цена накопительная).
+bash "$HERE/cost-runs.sh" "$ROUND/$PROBE"

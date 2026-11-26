@@ -1,0 +1,8 @@
+etalon/stage-1/notes/горнолыжная-база/notebook-2026-10-20.points.md
+etalon/stage-1/notes/горнолыжная-база/notebook.md
+expected.md
+README.md
+seed/notes/горнолыжная-база/notebook.md
+state.json
+w-prompt.txt
+w-turn2.txt

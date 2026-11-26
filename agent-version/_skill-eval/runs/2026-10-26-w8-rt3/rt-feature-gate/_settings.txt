@@ -1,0 +1,7 @@
+проба: rt-feature-gate
+модель: sonnet
+effort: умолчание CLI
+реплика аналитика: feature-turn2.txt
+реплика на узел: node-split-turn2.txt
+потолок ходов: 8
+прогонов: 2, параллельность: 2

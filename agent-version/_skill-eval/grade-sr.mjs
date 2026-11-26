@@ -638,7 +638,7 @@ function selftest () {
 
     // ─── Форма отчёта. Первый случай — ЖИВОЙ отчёт 2026-08-21 дословно: дыры найдены, читать
     // нельзя. Он и есть известный результат, на котором счётчики формы проверены до прогонов.
-    ['живой отчёт: забор, трубы, адрес в каждом пункте', '```\n(?<![а-яё])спека: docs/ASSVODKA-2983/technical_specification.md\n(?<![а-яё])ролей ответило: 3 из 3\n(?<![а-яё])вопросов задано: 14 · закрыто цитатой: 0 · осталось: 14\n\n1. §2 INT-2 | проп polygons — валидирует ли компонент замкнутость и минимум 3 точки в контуре, что делает при нарушении\n2. §2 INT-2 | проп selectedIndex — поведение, если индекс null\n3. §4.4 | проп readOnly — рендерится ли кнопка «Удалить выделенный» при readOnly === true\n```', { fenced: true, grouped: false, items: 3, pipeItems: 3, addrItems: 3, longItems: 2 }],
+    ['живой отчёт: забор, трубы, адрес в каждом пункте', '```\n(?<![а-яё])спека: coddoc/ASSVODKA-2983/technical_specification.md\n(?<![а-яё])ролей ответило: 3 из 3\n(?<![а-яё])вопросов задано: 14 · закрыто цитатой: 0 · осталось: 14\n\n1. §2 INT-2 | проп polygons — валидирует ли компонент замкнутость и минимум 3 точки в контуре, что делает при нарушении\n2. §2 INT-2 | проп selectedIndex — поведение, если индекс null\n3. §4.4 | проп readOnly — рендерится ли кнопка «Удалить выделенный» при readOnly === true\n```', { fenced: true, grouped: false, items: 3, pipeItems: 3, addrItems: 3, longItems: 2 }],
     ['канон: заголовок группы, пункт без адреса и без труб', '§2 INT-1\n  1. POST /v1/passes — что делает повторная доставка того же запроса\n  2. POST /v1/passes — какие поля не прошли проверку при 422\n§4.4\n  3. readOnly (режим только просмотра) — видна ли кнопка «Удалить выделенный»', { fenced: false, grouped: true, items: 3, pipeItems: 0, addrItems: 0, longItems: 0 }],
     ['пункт свода адресом не начинается', '[свод]\n  8. срок рассмотрения — §4.2 его показывает, §2 такого поля не возвращает', { addrItems: 0, grouped: true }],
 
@@ -693,9 +693,9 @@ if (!['gap', 'clean', 'yellow'].includes(PROBE)) {
 
 // Спека фикстуры — для сверки цитат. Плечо → файл; нет файла → счётчик просто молчит.
 const SPECS = {
-  gap: "fixtures/SR-GAP/docs/PSS-2210/technical_specification.md",
-  clean: "fixtures/SR-CLEAN/docs/OFC-880/technical_specification.md",
-  yellow: "fixtures/SR-YELLOW/docs/SUP-702/technical_specification.md",
+  gap: "fixtures/SR-GAP/coddoc/PSS-2210/technical_specification.md",
+  clean: "fixtures/SR-CLEAN/coddoc/OFC-880/technical_specification.md",
+  yellow: "fixtures/SR-YELLOW/coddoc/SUP-702/technical_specification.md",
 }
 const specFile = SPECS[PROBE] ? join(process.cwd(), SPECS[PROBE]) : null
 const SPEC_TEXT = specFile && existsSync(specFile) ? readFileSync(specFile, "utf8") : null

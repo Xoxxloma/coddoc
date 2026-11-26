@@ -1,0 +1,612 @@
+{
+  "latestArm": "C",
+  "primaryPairs": 4,
+  "completedPairs": 4,
+  "latestRuns": 5,
+  "completedLatestRuns": 5,
+  "latestTargetPass": 5,
+  "totalRuns": 25,
+  "completedRuns": 25,
+  "afterTargetPass": 4,
+  "allPrimaryTargetsPass": true,
+  "latestScopeGreen": false,
+  "fullRegistryGreen": false,
+  "confirmedCurrentChangeDefects": 0,
+  "rows": [
+    {
+      "id": "bf-spec",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "no_extra_5_2_or_6_1_question": true,
+        "mode_urgency_accepted": true,
+        "data_check_substantive": true,
+        "changed_state_behavior_substantive": true
+      },
+      "observations": [
+        "5 checkboxes inside strikethrough in 6.5",
+        "unused rollback labels outside strikethrough",
+        "6.3 infers atomic rollout from no flag",
+        "8 closes source business gaps with NA because source is a bug report"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Artifact preserves all template headings. No new question. Both A and B strike checkbox markup; B preserves applicable rollback and replaces source-dependent NA. Single paired observation does not estimate error rates."
+    },
+    {
+      "id": "bf-spec",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "no_extra_5_2_or_6_1_question": true,
+        "mode_urgency_accepted": true,
+        "data_check_substantive": true,
+        "changed_state_behavior_substantive": true
+      },
+      "observations": [
+        "5 checkboxes inside strikethrough in 6.5"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Artifact preserves all template headings and asks no extra question. 5.2 contains unchanged degradation behavior; this is allowed and does not restore a mandatory question. 6.1 accepts general release. Rollback labels and 6.3 are struck correctly. 6.5 markup failure also occurs in A."
+    },
+    {
+      "id": "bfg-scroll",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-shared-package",
+      "targetChecks": {
+        "no_gate_8_question": true,
+        "urgency_not_reasked": true,
+        "damaged_data_question": true,
+        "boundaries_question": true,
+        "no_new_document_first_turn": true
+      },
+      "observations": [
+        "5 question packages; fifth proposes no flag/preparation and rollback, and requests confirmation"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "A already includes flag, preconfiguration and rollback in its common package. Existing seeded ARS-102 spec is unchanged, not a newly written artifact."
+    },
+    {
+      "id": "bfg-scroll",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-shared-package",
+      "targetChecks": {
+        "no_gate_8_question": true,
+        "urgency_not_reasked": true,
+        "damaged_data_question": true,
+        "boundaries_question": true,
+        "no_new_document_first_turn": true
+      },
+      "observations": [
+        "5 question packages; fifth proposes no flag/preparation and rollback, and asks whether a flag or preparation is needed"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Same fifth-package topics exist in A; this observation does not establish that current edits introduced a question. No question about order/urgency or untouched reliability. No new document."
+    },
+    {
+      "id": "bfg-role",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "changed_access_question": true,
+        "damaged_data_question": true,
+        "boundaries_question": true,
+        "no_gate_8_or_urgency_question": true,
+        "no_new_document_first_turn": true
+      },
+      "observations": [
+        "5 packages; owner combined with scope; asks existing behavior as part of boundaries"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Access affected by this bug is correctly reopened; unrelated reliability/order not reopened. Unknown owner is a legitimate missing fact, not an extra mode question."
+    },
+    {
+      "id": "bfg-role",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "changed_access_question": true,
+        "damaged_data_question": true,
+        "boundaries_question": true,
+        "no_gate_8_or_urgency_question": true,
+        "no_new_document_first_turn": true
+      },
+      "observations": [
+        "6 packages; owner asked separately; access matrix proposed for confirmation"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Same necessary scope/owner, access, boundaries and damaged-data topics as A. Different grouping does not establish an extra product question. Unrelated reliability/order not reopened."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true
+      },
+      "observations": [
+        "2 checkbox markup items struck in 6.5; unused rollback DDL item fully struck; no headings shortened"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Own GET /v1/active-users/count is green; actual existing source and semantics remain yellow/open. No foreign auth path or source schema copied. 403, null versus zero, cold 8s/warm 3s applied."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-confirmed-format-regression",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true
+      },
+      "observations": [
+        "6.3 NA heading/body not struck; DDL rollback NA item not struck; NA preparation items not struck; no headings shortened"
+      ],
+      "candidateRegression": {
+        "scope": "6.4 unused DDL rollback item formatting",
+        "reproducedPairs": 2,
+        "confirmed": true,
+        "evidence": "A strikes the entire unused DDL rollback item in 2/2 paired runs, B leaves its label outside in 2/2. C differs from B only by removing two notes at 6.4 and again strikes the whole item in 2/2.",
+        "reason": "Controlled note-removal supports attribution to the added 6.4 note. Attribution is limited to this item and these runs, not overall formatting frequency."
+      },
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": true,
+      "countForChangeStop": true,
+      "evidence": "Own GET /v1/active-users/count green; INT-2 unknown source yellow without existing path/fields/JSON. Auth described only as unconfirmed candidate. Source is open in header and 8; 403, null/zero, cold 8s/warm 3s follow conventions.",
+      "resolvedBy": {
+        "arm": "C",
+        "repeats": [
+          1,
+          2
+        ],
+        "change": "Removal of two redundant notes at 6.4"
+      }
+    },
+    {
+      "id": "ts-ctx",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "unknown_protocol_open": true,
+        "foreign_path_header_fields_codes_limits_not_copied": true,
+        "own_contract_separate": true,
+        "own_conventions_applied": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [
+        "INT-1 async response example and UI mapping marked NA without strikethrough"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Old SCB document not used as actual contract. External INT-2 yellow without concrete request/schema/codes. Own queue and GET /v1/incidents/{incidentId}/notifications green; 403, ISO 8601 UTC, lower-case enums, 8s/3s client timeouts follow conventions. No headings shortened."
+    },
+    {
+      "id": "ts-ctx",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "unknown_protocol_open": true,
+        "foreign_path_header_fields_codes_limits_not_copied": true,
+        "own_contract_separate": true,
+        "own_conventions_applied": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Foreign INT-3 stays yellow without path/header/schema/codes/limits. Own queue and GET /v1/incidents/{incidentId}/notification-attempts green, convention rules followed. All headings preserved. Prior r7 heading shortening not reproduced. All preparation items substantive; absence of NA is legitimate, not grade-na.format=false failure."
+    },
+    {
+      "id": "ua-label",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-failure-observed-on-baseline",
+      "targetChecks": {
+        "other_text_locations_question_first_turn": false,
+        "no_new_reliability_or_rollout_question": true,
+        "data_and_acceptance_substantive": true
+      },
+      "stages": {
+        "first": {
+          "question_skipped": true,
+          "artifact": "_initial/A/ua-label/technical_specification.md",
+          "answer": "answer-01.md"
+        },
+        "continuation": {
+          "same_analyst_response_as_B": true,
+          "information_added": true
+        }
+      },
+      "observations": [
+        "5 checkbox/list markup lines struck in 6.5 before and after continuation"
+      ],
+      "comparableBaseline": "paired A/B frozen stage 1 and stage 2 inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Old instructions already skip the mandatory question seen missing in r7. Initial artifact preserved; successful unsolicited continuation does not erase the initial failure. Live/source inputs were unchanged."
+    },
+    {
+      "id": "ua-label",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-header-observation",
+      "targetChecks": {
+        "other_text_locations_question_first_turn": true,
+        "no_new_reliability_or_rollout_question": true,
+        "data_and_acceptance_substantive": true,
+        "ready_na_rows_preserve_scope": true,
+        "na_format_correct": true
+      },
+      "stages": {
+        "first": {
+          "question_asked_no_document": true,
+          "answer": "answer-01.md"
+        },
+        "continuation": {
+          "same_analyst_response_as_A": true,
+          "document_written": true
+        }
+      },
+      "observations": [
+        "Artifact header omits Source and Edition fields; other heading/NA/checklist formatting correct"
+      ],
+      "comparableBaseline": "paired A/B frozen stage 1 and stage 2 inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "B asks the existing required locations question, accepts analyst answer and applies ready-made NA rows without hiding UI/data/trace. No mandatory 5.2/6.1 question. Header omission is an observed old-rule compliance failure in one pair, not established as caused by edits."
+    },
+    {
+      "id": "ua-timeout",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "baseline-misses-catalog-heading-with-format-observations",
+      "targetChecks": {
+        "timeout_3_to_10_in_4_3_1_and_5_1": true,
+        "success_at_7_and_error_at_10": true,
+        "catalog_heading_preserved": false,
+        "ui_acceptance_substantive": true
+      },
+      "observations": [
+        "Catalog heading omitted",
+        "4.3 parent heading struck with live child 4.3.1: formatting observation, not missing timeout behavior",
+        "6.5 parent unstruck although all 5 items NA"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Numeric FE timeout change 3s to 10s, old error behavior and 7s-success/10s-error acceptance are present in live 4.3.1, 5.1 and trace. B/C NA state inventory explicitly refers to 4.3.1. Duplicating a state table is not required by the corrected user-specified criterion. Catalog heading remains omitted. Struck parent heading with live child and other markup errors remain separate formatting observations. Original artifact and instructions unchanged; no new model run.",
+      "gradingCorrection": {
+        "origin": "User clarification after C control",
+        "removedRequirement": "Numeric timeout-only change must have a substantive duplicate state table in 4.3",
+        "accepted": "Unchanged state inventory may be NA with reference to complete timeout behavior in 4.3.1",
+        "history": "Explicit ban on substituting a 4.3.1 reference existed in r3-r5 and was removed in r6. General changed-condition language remains; the user clarified evaluation for numeric-only timeout changes.",
+        "previousResult": "RESULT-before-timeout-grading-correction.json",
+        "newModelRun": false
+      }
+    },
+    {
+      "id": "ua-timeout",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "timeout_3_to_10_in_4_3_1_and_5_1": true,
+        "success_at_7_and_error_at_10": true,
+        "catalog_heading_preserved": true,
+        "ui_acceptance_substantive": true
+      },
+      "observations": [
+        "4.3 parent heading struck with live child 4.3.1: formatting observation, not missing timeout behavior",
+        "2 parent heading unstruck although full section NA",
+        "Unused BE/DDL rollback labels unstruck",
+        "5 checkbox markup items struck"
+      ],
+      "comparableBaseline": "paired A/B frozen inputs, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Numeric FE timeout change 3s to 10s, old error behavior and 7s-success/10s-error acceptance are present in live 4.3.1, 5.1 and trace. B/C NA state inventory explicitly refers to 4.3.1. Duplicating a state table is not required by the corrected user-specified criterion. Catalog heading is preserved. Struck parent heading with live child and other markup errors remain separate formatting observations. Original artifact and instructions unchanged; no new model run.",
+      "gradingCorrection": {
+        "origin": "User clarification after C control",
+        "removedRequirement": "Numeric timeout-only change must have a substantive duplicate state table in 4.3",
+        "accepted": "Unchanged state inventory may be NA with reference to complete timeout behavior in 4.3.1",
+        "history": "Explicit ban on substituting a 4.3.1 reference existed in r3-r5 and was removed in r6. General changed-condition language remains; the user clarified evaluation for numeric-only timeout changes.",
+        "previousResult": "RESULT-before-timeout-grading-correction.json",
+        "newModelRun": false
+      }
+    },
+    {
+      "id": "ua-review-reliability",
+      "arm": "A",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "valid_5_2_na_not_flagged": true,
+        "mode_6_1_general_release_not_flagged": true,
+        "explicit_source_passed_to_independent_reviewer": true,
+        "full_spec_review_route_executed": true
+      },
+      "observations": [],
+      "reviewCount": 0,
+      "comparableBaseline": "paired A/B corrected frozen review fixture, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Actual child /root/cmp_a_review/ua_spec_reviewer, Luna max fork none, received explicit change_request despite neighboring legacy BT. Echo confirms checklist read, zero findings. Fixture parent 5 correctly struck."
+    },
+    {
+      "id": "ua-review-reliability",
+      "arm": "B",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "valid_5_2_na_not_flagged": true,
+        "mode_6_1_general_release_not_flagged": true,
+        "explicit_source_passed_to_independent_reviewer": true,
+        "full_spec_review_route_executed": true
+      },
+      "observations": [],
+      "reviewCount": 0,
+      "comparableBaseline": "paired A/B corrected frozen review fixture, SETTINGS.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Actual child /root/cmp_b_review/spec_artifact_review, Luna max fork none, received explicit change_request beside unrelated BT. Full route and exact four paths recorded in TRACE.md. Echo confirms checklist read, zero findings. Same result as A."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "A",
+      "repeat": 2,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true
+      },
+      "observations": [
+        "2 checkboxes struck in 6.5",
+        "5 preparation items no longer preserve all original item labels",
+        "All template section headings preserved; unused DDL rollback entire item struck"
+      ],
+      "comparableBaseline": "repeat 2 paired A/B frozen inputs, SETTINGS.json and RESUME.json",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Own API /v1/active-users/count designed as green. Existing auth is only yellow candidate; path/schema not copied. Source and activity semantics open in header and 8. Same old checkbox failure as repeat 1."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "B",
+      "repeat": 2,
+      "terminal": true,
+      "verdict": "target-pass-with-confirmed-format-regression",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true
+      },
+      "observations": [
+        "Unused DDL rollback label outside strike, unlike A in both repeats",
+        "Catalog, 4.3.1 and 6.4 headings shortened",
+        "NA flags and preparation now struck correctly, checkbox markup not struck"
+      ],
+      "candidateRegression": {
+        "scope": "6.4 unused DDL rollback item formatting",
+        "reproducedPairs": 2,
+        "confirmed": true,
+        "evidence": "A strikes the entire unused DDL rollback item in 2/2 paired runs, B leaves its label outside in 2/2. C differs from B only by removing two notes at 6.4 and again strikes the whole item in 2/2.",
+        "reason": "Controlled note-removal supports attribution to the added 6.4 note. Attribution is limited to this item and these runs, not overall formatting frequency."
+      },
+      "comparableBaseline": "repeat 2 paired A/B frozen inputs, SETTINGS.json and RESUME.json",
+      "confirmedChangeDefect": true,
+      "countForChangeStop": true,
+      "evidence": "Unknown foreign source stays yellow without concrete method/path/schema. Own API /v1/active-users/count green, null/zero and 403 conventions followed. 6.3 and 6.5 mistakes from first B run not reproduced; rollback label difference persists.",
+      "resolvedBy": {
+        "arm": "C",
+        "repeats": [
+          1,
+          2
+        ],
+        "change": "Removal of two redundant notes at 6.4"
+      }
+    },
+    {
+      "id": "ts-conv",
+      "arm": "A",
+      "repeat": 3,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true,
+        "unused_ddl_rollback_whole_item_struck": true
+      },
+      "observations": [
+        "Some unnecessary preparation answers not struck"
+      ],
+      "comparableBaseline": "Third A/B initial inputs identical; B has no artifact and an unmatched subsequent analyst continuation, so this is not a third paired format result",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "A strikes DDL label and separate reason paragraph fully; source stays one yellow question, no foreign path/schema copied. Initial artifact generated without extra analyst answers."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "B",
+      "repeat": 3,
+      "terminal": true,
+      "verdict": "question-on-incomplete-input-format-not-measured",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true
+      },
+      "observations": [
+        "No spec written: asks confirmation of new API/release, then 5xx body; source contract remains unknown"
+      ],
+      "formatMeasured": false,
+      "comparableBaseline": "third A/B frozen initial inputs; explicit analyst continuation supplied only after first-stage questions",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Cannot count a third DDL rollback formatting failure without an artifact. Missing own 5xx response confirmation is a legitimate interview question in general mode. This censored observation neither confirms nor disproves the 2/2 paired format difference."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "C",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observation",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true,
+        "unused_ddl_rollback_whole_item_struck": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [
+        "NA 6.3 body struck but heading unstruck; also observed in B repeat 1"
+      ],
+      "comparableBaseline": "Same original inputs as A/B repeat 1; C differs from B only by removal of two notes at 6.4",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "C strikes the entire unused DDL rollback item including label. All template headings preserved. Own API uses GET /v1/active-users/count, integer/null response, 403 and 8s/3s conventions; unknown existing source and semantics stay one yellow question. Foreign sessions API and fields not copied. 6.3 heading still not struck; checklist markup is outside strikethrough."
+    },
+    {
+      "id": "ts-conv",
+      "arm": "C",
+      "repeat": 2,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "unknown_source_open": true,
+        "foreign_contract_not_copied": true,
+        "own_api_separate": true,
+        "own_conventions_applied": true,
+        "unused_ddl_rollback_whole_item_struck": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [],
+      "comparableBaseline": "Same original inputs as A/B repeat 2; C differs from B only by removal of two notes at 6.4",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "C strikes the entire unused DDL rollback item including label. 6.3 and NA prep items struck, checkbox markup outside. Own API green, auth only unconfirmed candidate; source/semantics remain one yellow question. All template headings preserved."
+    },
+    {
+      "id": "bf-spec",
+      "arm": "C",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass",
+      "targetChecks": {
+        "no_extra_5_2_or_6_1_question": true,
+        "mode_urgency_accepted": true,
+        "data_check_substantive": true,
+        "changed_state_behavior_substantive": true,
+        "unused_rollback_whole_items_struck": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [],
+      "comparableBaseline": "Same original bf-spec inputs as A/B; C differs from B only by removal of two notes at 6.4",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "No questions; general release accepted; data and changed single transition substantive. Entire unused BE/DDL rollback items struck. NA headings and all 5 preparation items correct, checkbox markup outside."
+    },
+    {
+      "id": "ua-timeout",
+      "arm": "C",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observations",
+      "targetChecks": {
+        "timeout_3_to_10_in_4_3_1_and_5_1": true,
+        "success_at_7_and_error_at_10": true,
+        "catalog_heading_preserved": true,
+        "ui_acceptance_substantive": true,
+        "unused_rollback_whole_items_struck": true
+      },
+      "observations": [
+        "4.3 parent heading struck with live child 4.3.1: formatting observation, not missing timeout behavior",
+        "NA 3.1 heading unstruck",
+        "5 checklist lines include list and checkbox markup inside strikethrough"
+      ],
+      "comparableBaseline": "Same original timeout inputs as A/B; C differs from B only by removal of two notes at 6.4",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Numeric FE timeout change 3s to 10s, old error behavior and 7s-success/10s-error acceptance are present in live 4.3.1, 5.1 and trace. B/C NA state inventory explicitly refers to 4.3.1. Duplicating a state table is not required by the corrected user-specified criterion. Catalog heading is preserved. Struck parent heading with live child and other markup errors remain separate formatting observations. Original artifact and instructions unchanged; no new model run.",
+      "gradingCorrection": {
+        "origin": "User clarification after C control",
+        "removedRequirement": "Numeric timeout-only change must have a substantive duplicate state table in 4.3",
+        "accepted": "Unchanged state inventory may be NA with reference to complete timeout behavior in 4.3.1",
+        "history": "Explicit ban on substituting a 4.3.1 reference existed in r3-r5 and was removed in r6. General changed-condition language remains; the user clarified evaluation for numeric-only timeout changes.",
+        "previousResult": "RESULT-before-timeout-grading-correction.json",
+        "newModelRun": false
+      }
+    },
+    {
+      "id": "ts-ctx",
+      "arm": "C",
+      "repeat": 1,
+      "terminal": true,
+      "verdict": "target-pass-with-format-observation",
+      "targetChecks": {
+        "unknown_protocol_open": true,
+        "foreign_path_header_fields_codes_limits_not_copied": true,
+        "own_contract_separate": true,
+        "own_conventions_applied": true,
+        "all_template_headings_preserved": true
+      },
+      "observations": [
+        "One NA preparation checkbox is inside strikethrough; not reproduced on this case in B, attribution to the two removed notes is not established"
+      ],
+      "comparableBaseline": "Same original inputs as A/B; C differs from B only by removal of two notes at 6.4",
+      "confirmedChangeDefect": false,
+      "countForChangeStop": false,
+      "evidence": "Foreign SCB contract, auth, delivery confirmation and deduplication remain one yellow question; old external path/header/fields/codes/limits absent from the designed contract. Own GET /v1/incidents/{incidentId}/notifications, queue and storage are green; 403, dates, enum and 8s/3s conventions applied. All headings preserved, substantive DDL rollback retained. NA flags section struck correctly. One prep checkbox includes markup in strikethrough."
+    }
+  ]
+}

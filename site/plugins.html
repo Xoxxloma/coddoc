@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Плагины — coDDoc</title>
+<meta name="description" content="Справочник плагинов coDDoc.">
+<script>try{var t=localStorage.getItem('coddoc-theme')||'auto';document.documentElement.setAttribute('data-theme-pref',t);if(t!=='auto')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<div class="wrap">
+<a class="brand" href="index.html" aria-label="coDDoc — на главную"><svg viewBox="5.54 24.36 330.22 62.16" role="img" aria-label="coDDoc"><defs><linearGradient id="lg-top-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-top-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-top-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-top-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg></a>
+<nav class="nav" aria-label="Разделы">
+<a href="start.html">Начать</a>
+<a href="example.html">Пример</a>
+<a href="loop.html">Процесс</a>
+<a href="plugins.html" aria-current="page">Плагины</a>
+</nav>
+<button class="theme-btn" type="button" aria-label="Тема: как в системе" title="Тема: как в системе">
+<svg class="ico i-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></svg>
+<svg class="ico i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+<svg class="ico i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+</button>
+</div>
+</header>
+<main id="main" class="wrap doc-page">
+
+<nav class="side" aria-label="На этой странице">
+<h2>Плагины</h2>
+<ul>
+<li><a href="#to-html">to-html</a></li>
+<li><a href="#services-graph">services-graph</a></li>
+<li><a href="#peek">peek</a></li>
+<li><a href="#work-plan">work-plan</a></li>
+<li><a href="#deep-search">deep-search</a></li>
+<li><a href="#interaction-diagram">interaction-diagram</a></li>
+<li><a href="#say-simple">say-simple</a></li>
+<li><a href="#retro">retro</a></li>
+<li><a href="#coddoc-settings">coddoc-settings</a></li>
+</ul>
+<h2>Ещё</h2>
+<ul>
+<li><a href="#elsewhere">Есть в других разделах</a></li>
+</ul>
+</nav>
+
+<div>
+<header class="page-head">
+<h1>Плагины</h1>
+<p>Плагины не входят в основной процесс и зовутся в любой момент. Документы задачи ни один из них не правит.</p>
+<p class="bridge">Примеры у скиллов — эмуляция на задаче DORM-101 «Заявки на ремонт в общежитии». Настоящий выход прогонов — на странице <a href="example.html">«Пример»</a>. DORM-101 — эпик из двух частей; спека и этапы показаны для части DORM-104. У обычной задачи всё лежит в <code>coddoc/&lt;КЛЮЧ&gt;/</code>.</p>
+</header>
+
+<section class="block" id="all" aria-labelledby="all-h">
+<h2 id="all-h">Все плагины</h2>
+<p>Каждый плагин вызывают отдельно: командой или репликой. Свои файлы большинство из них пишет в папку <code>.coddoc-tmp/</code> в корне репозитория.</p>
+
+<article class="skill" id="to-html">
+<div class="skill-head"><h3><code>to-html</code></h3><span class="skill-ver">1.7.0</span></div>
+<p class="skill-what">Показывает markdown в браузере: файл, несколько файлов, папку или пустую страницу для перетаскивания. У <a class="term" href="loop.html#t-bt">БТ</a>, баг-репорта, запроса на правку и <a class="term" href="loop.html#t-spec">спеки</a> есть режимы «Обзор» и «Показ», у остальных <code>.md</code> «Обзор» по разделам.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«открой md в браузере», «в html», «to-browser», «покажи нормально, а не текстом».</dd>
+<dt>Как зовут</dt><dd><code>/to-html &lt;путь к .md или папке&gt;</code>; можно несколько путей, без пути откроется пустая страница.</dd>
+<dt>Вход → выход</dt><dd>Пути к <code>.md</code> или папкам. Скрипт собирает страницу <code>.coddoc-tmp/to-html/&lt;набор&gt;/index.html</code> и открывает её. На странице дерево файлов, оглавление, поиск, схемы Mermaid, экспорт в html, копирование в Confluence или Word. Форма «Обзора» («Редактировать форму») сохраняется в <code>.coddoc-tmp/coddoc-settings/layouts/</code>.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Что нужно</dt><dd>bash (macOS, Linux) или PowerShell (Windows) и браузер. Если запуск скриптов запрещён, откройте <code>reference/viewer/index.html</code> в папке скилла двойным щелчком и перетащите файлы в окно.</dd>
+<dt>Не делает</dt><dd>Сам файлы не читает и html не собирает, всё делает скрипт. В папке больше 2000 файлов: просит назвать папку поуже.</dd>
+</dl>
+<figure class="shot"><img src="assets/shots/to-html.png" width="1440" height="900" loading="lazy" alt="to-html: слева дерево файлов папки примера и поиск, в центре ноут аналитика с кнопками «Текст», «Обзор», «Показ», справа оглавление по датам"><figcaption>Папка примера про общежитие в to-html: дерево файлов, ноут, оглавление.</figcaption></figure>
+<p class="out-kind">Форма ответа в чат (шаблон скилла)</p>
+<figure class="skill-out"><pre><code>Открыл в браузере: &lt;что открыл&gt;. После правок — снова /to-html, потом F5 во вкладке.
+Если вкладка не появилась — открой: &lt;адрес из `page=` как есть&gt;</code></pre><figcaption class="src">agent-version/to-html/SKILL.md, строки 57–58 (ответ, когда страница открылась)</figcaption></figure>
+<p class="see">См. также: <a href="#services-graph">services-graph</a>, <a href="#peek">peek</a>, <a href="#interaction-diagram">interaction-diagram</a></p>
+</article>
+
+<article class="skill" id="services-graph">
+<div class="skill-head"><h3><code>services-graph</code></h3><span class="skill-ver">1.3.2</span></div>
+<p class="skill-what">Карта сервисов в браузере по <a class="term" href="loop.html#t-card">карточкам</a> <code>services/</code>: сервисы разложены слоями «кто кого вызывает», есть фильтры, путь между двумя сервисами и карточка рядом.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«карта сервисов», «граф сервисов», «покажи сервисы», «кто кого вызывает», «связи &lt;сервиса&gt; на карте», «повертеть сервисы».</dd>
+<dt>Как зовут</dt><dd><code>/services-graph [сервис] [папка слепка]</code> или «покажи на карте связи payments», «карта вокруг auth».</dd>
+<dt>Вход → выход</dt><dd>Скрипт берёт из <a class="term" href="loop.html#t-slepok">слепка</a> карточки <code>*.md</code>, <code>manifest.yaml</code> и <code>_history/</code>, собирает страницу <code>.coddoc-tmp/services-graph/index.html</code> и открывает её. Без папки слепка берёт <code>services/</code> в корне репозитория.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Что нужно</dt><dd>bash (macOS, Linux) или PowerShell (Windows), браузер и собранный слепок (<a href="loop.html#service-map"><code>/service-map</code></a>).</dd>
+<dt>Не делает</dt><dd>Карточки не собирает, это <code>service-map</code>; схем не рисует, это <code>interaction-diagram</code>.</dd>
+</dl>
+<figure class="shot"><img src="assets/shots/services-graph.png" width="1440" height="900" loading="lazy" alt="services-graph: карта трёх сервисов Apollo слоями — apollo-portal сверху вызывает apollo-adminservice, apollo-configservice и внешние системы; справа сводка слепка и обозначения"><figcaption>Карточки сервисов Apollo в services-graph: кто кого вызывает, внешние системы, сводка слепка.</figcaption></figure>
+<p class="out-kind">Форма ответа в чат (шаблон скилла)</p>
+<figure class="skill-out"><pre><code>Открыл карту сервисов: карточек &lt;cards&gt;. Клик по сервису — его связи и карточка, двойной
+клик — только его окрестность, Shift+клик по второму — путь между ними. Карточку удобнее читать широко: кнопка
+«Развернуть» в панели или потянуть её за край. После нового скана — снова /services-graph,
+потом F5 во вкладке. Если вкладка не появилась — открой: &lt;адрес из `page=` как есть&gt;</code></pre><figcaption class="src">agent-version/services-graph/SKILL.md, строки 47–50 (ответ, когда карта открылась)</figcaption></figure>
+<p class="see">См. также: <a href="loop.html#service-map">service-map</a>, <a href="#interaction-diagram">interaction-diagram</a>, <a href="#to-html">to-html</a></p>
+</article>
+
+<article class="skill" id="peek">
+<div class="skill-head"><h3><code>peek</code></h3><span class="skill-ver">1.2.2</span></div>
+<p class="skill-what">Показывает документы задачи из любой ветки, не переключая вашу: по ключу свежую папку задачи из всех веток, по словам поиск в <code>coddoc/</code> всех веток, с <code>--list</code> документы в работе с <a class="term" href="loop.html#t-open">открытыми вопросами</a>.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«что у коллеги по задаче», «в какой ветке БТ по …», «найди во всех ветках …», «что у меня в работе».</dd>
+<dt>Как зовут</dt><dd><code>/peek &lt;ключ задачи или слова&gt;</code>; <code>/peek --list [--base &lt;ветка&gt;]</code>.</dd>
+<dt>Вход → выход</dt><dd>Читает локальные ветки и origin, перед поиском делает fetch origin. Копии документов пишет в <code>.coddoc-tmp/peek/&lt;КЛЮЧ&gt;/</code> и <code>.coddoc-tmp/peek/list/</code>. В ответе подсказка: <code>/to-html &lt;путь&gt;</code>, чтобы открыть выгрузку в браузере.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную; его скрипт использует <a href="#work-plan"><code>work-plan</code></a>.</dd>
+<dt>Что нужно</dt><dd>Python 3 (<code>python3</code>, на Windows <code>python</code>) и git.</dd>
+<dt>Не делает</dt><dd>Вашу ветку и рабочую копию не трогает: никаких checkout, stash, pull, worktree. Копии в <code>.coddoc-tmp/peek/</code> править бесполезно: следующий вызов их перезапишет.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/peek завести за жильца</code></pre></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>«завести за жильца» — строк: 6 (веток: 3)</code></pre><p class="ex-src">слова — из вызова; ищет строки со всеми словами во всех ветках</p></div>
+<div class="ex-line"><pre><code>  DORM-101 · feat/DORM-101 · zotova · coddoc/DORM-101/business_requirements.md:14 · &gt; 4. Бизнес-процесс: что верно — жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.), или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">БТ DORM-101, открытый вопрос 4</p></div>
+<div class="ex-line"><pre><code>  DORM-104 · feat/DORM-101 · zotova · coddoc/DORM-101/DORM-104/business_requirements.md:21 · &gt; 4. Бизнес-процесс: что верно — жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.), или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">детский БТ DORM-104 — вопрос унаследован из эпика</p></div>
+<div class="ex-line"><pre><code>  DORM-104 · feat/DORM-101 · zotova · coddoc/DORM-101/DORM-104/technical_specification.md:20 · &gt; 1. INT-1, авторизация: есть ли у вахтёра вход на портал, чтобы завести заявку за жильца — 🟡</code></pre><p class="ex-src">спека DORM-104, 🟡 в шапке</p></div>
+<div class="ex-line"><pre><code>  DORM-104 · feat/DORM-101 · zotova · coddoc/DORM-101/DORM-104/technical_specification.md:214 · - бизнес-процесс: что верно — жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.), или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">спека DORM-104, §8 — унаследовано из БТ</p></div>
+<div class="ex-line"><pre><code>  — · main · zotova · coddoc/_inbox/meeting-2026-10-14.points.md:8 · - [решено] Вахтёр может завести заявку на портале за жильца — решил: Сагитова · L65</code></pre><p class="ex-src">список пунктов встречи 2026-10-14</p></div>
+<div class="ex-line"><pre><code>  — · main · zotova · coddoc/_inbox/notebook-2026-10-19-bt.md:27 · - Что верно: жилец подаёт заявку сам, вахта заявки не принимает (Харитонова Л.) или вахтёр может завести заявку на портале за жильца (Сагитова) — ждёт: —</code></pre><p class="ex-src">вход для БТ</p></div>
+<div class="ex-line"><pre><code>peek: found 6
+Документы задачи: /peek DORM-101</code></pre><p class="ex-src">последняя строка скрипта и подсказка скилла</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="#work-plan">work-plan</a>, <a href="#to-html">to-html</a></p>
+</article>
+
+<article class="skill" id="work-plan">
+<div class="skill-head"><h3><code>work-plan</code></h3><span class="skill-ver">1.6.0</span></div>
+<p class="skill-what">Ведёт план работы аналитика по инициативе: дела из открытых вопросов документов в невлитых ветках и в рабочей копии, сгруппированные по тому, кого ждём. Повторный запуск показывает, что закрылось и что появилось.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Нужен план по инициативе: какие документы в работе и какие дела по их открытым вопросам.</dd>
+<dt>Как зовут</dt><dd><code>/work-plan &lt;инициатива&gt;</code>; <code>/work-plan &lt;инициатива&gt; добавь</code> добавляет документы, которых нет в плане; <code>/work-plan следи</code> обновляет план сам по расписанию; <code>/work-plan стоп</code> снимает слежку.</dd>
+<dt>Вход → выход</dt><dd>Берёт список документов в работе от скрипта <code>peek</code> и их копии. Пишет <code>.coddoc-tmp/work-plan/&lt;имя&gt;.md</code>. Как часто следить, читает из <code>.coddoc-tmp/coddoc-settings/work-plan.md</code>; файла нет, значит, каждые 10 минут.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой.</dd>
+<dt>Что нужно</dt><dd>Python 3; скилл <code>peek</code> 1.2.0 или новее рядом; git. Слежка работает, пока открыта сессия.</dd>
+<dt>Не делает</dt><dd>Документы и <a class="term" href="loop.html#t-note">ноуты</a> не правит, ветку не переключает. Вопросы не закрывает, дела не ранжирует и своих не добавляет.</dd>
+</dl>
+<p class="out-kind">Форма файла плана (шаблон скилла)</p>
+<figure class="skill-out"><pre><code># План: &lt;имя&gt;
+
+обновлён: &lt;ГГГГ-ММ-ДД&gt;
+главная: &lt;ветка&gt;
+цель: &lt;цель&gt;
+
+## Документы
+- &lt;путь&gt; · &lt;ветка | рабочая копия&gt; · &lt;дата&gt; · открытых: N
+
+## Дела
+Всего N: &lt;группа&gt; — K · &lt;группа&gt; — K · …
+
+### &lt;группа&gt; — K
+1. &lt;суть&gt; · &lt;откуда&gt;
+   &gt; &lt;оригинал&gt;
+
+## Закрыто
+- ~~&lt;суть&gt; · &lt;откуда&gt;~~ · закрыто &lt;ГГГГ-ММ-ДД&gt;
+  &gt; &lt;оригинал&gt;</code></pre><figcaption class="src">agent-version/work-plan/SKILL.md, строки 133–151</figcaption></figure>
+<p class="see">См. также: <a href="#peek">peek</a>, <a href="#coddoc-settings">coddoc-settings</a></p>
+</article>
+
+<article class="skill" id="deep-search">
+<div class="skill-head"><h3><code>deep-search</code></h3><span class="skill-ver">1.3.2</span></div>
+<p class="skill-what">Отвечает, как система работает сейчас и откуда это взялось, по коду соседних сервисов и истории git. У каждого утверждения ссылка файл:строка: ищет отдельный агент, а скилл открывает и сверяет каждую его ссылку.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«как сейчас работает…», «где в коде считается…», «посмотри в коде», «глубокий поиск», «почему так сделано», «откуда это взялось», «так задумано?».</dd>
+<dt>Как зовут</dt><dd><code>/deep-search &lt;вопрос&gt;</code> или реплика «как сейчас работает …».</dd>
+<dt>Вход → выход</dt><dd>Читает вопрос, <code>services/*.md</code> и <code>services/manifest.yaml</code> (там сказано, где лежит код), код соседних репозиториев, <code>context/</code>, историю git. Ничего не пишет: ответ только в чат.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную. Ещё <a href="loop.html#technical-spec-doc"><code>technical-spec-doc</code></a>, если вы выбрали вариант «Глубокий поиск — посмотреть в коде &lt;сервис&gt;»; в режиме починки по баг-репорту такого варианта нет.</dd>
+<dt>Что нужно</dt><dd>Папка <code>services/</code> в репозитории и код сервисов рядом, как в манифесте; git для вопроса «откуда взялось». Скилл читает локальную копию, она могла отстать от удалённой.</dd>
+<dt>Не делает</dt><dd>Как сделать, не советует: «Это вопрос проектирования — его решают в спеке, <code>/analyst-workspace</code>. Могу рассказать, как это работает сейчас». Ссылку, которая не подтвердилась, убирает.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-102</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>как сейчас работает уведомление жильцу при смене статуса заявки?</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Как сейчас: notify принимает уведомление и шлёт жильцу пуш и письмо на студенческую почту; кто вызывает его при смене статуса заявки, в репах из манифеста не нашёл. Читал: notify, ветка main — локальная копия, могла отстать от удалённой. Рядом вне манифеста: repair-requests — если ответа не хватает, скажи «посмотри в repair-requests».</p>
+<p><span class="ex-who">Аналитик</span> посмотри в repair-requests</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>Как сейчас: уведомление жильцу уходит только при подаче заявки; при смене статуса на «в работе» и «выполнена» repair-requests в notify не обращается.</code></pre><p class="ex-src">из кода repair-requests — по просьбе «посмотри в repair-requests»</p></div>
+<div class="ex-line"><pre><code>- [в коде] при подаче заявки вызывает notify с текстом «Заявка принята» — repair-requests/src/main/java/ru/dorm/repair/RequestService.java:64</code></pre><p class="ex-src">ссылку скилл открыл и сверил</p></div>
+<div class="ex-line"><pre><code>- [в коде] смена статуса сохраняет новый статус и возвращает ответ, вызова notify в ней нет — repair-requests/src/main/java/ru/dorm/repair/RequestService.java:112-121</code></pre><p class="ex-src">ссылку скилл открыл и сверил</p></div>
+<div class="ex-line"><pre><code>- [из документа] notify отправляет жильцу пуш и письмо на студенческую почту — services/notify.md</code></pre><p class="ex-src">из карточки notify</p></div>
+<div class="ex-line"><pre><code>Читал: repair-requests, ветка main — локальная копия, могла отстать от удалённой.</code></pre><p class="ex-src">шаблон скилла</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="loop.html#service-map">service-map</a>, <a href="loop.html#technical-spec-doc">technical-spec-doc</a></p>
+</article>
+
+<article class="skill" id="interaction-diagram">
+<div class="skill-head"><h3><code>interaction-diagram</code></h3><span class="skill-ver">5.4.2</span></div>
+<p class="skill-what">Рисует схему в Mermaid или PlantUML по документу или тексту. По карточкам взаимодействий спеки рисует короткую схему (кто кого вызывает по времени) или сценарную (по диаграмме на действие пользователя), по разделу 4.1 БТ путь пользователя, по <a class="term" href="loop.html#t-points">списку пунктов</a> или любому тексту короткую схему или путь пользователя.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Нужна картинка: кто кого вызывает или как идёт процесс.</dd>
+<dt>Как зовут</dt><dd><code>/interaction-diagram &lt;путь&gt;</code> или текст прямо в чате.</dd>
+<dt>Вход → выход</dt><dd>Читает <code>technical_specification.md</code>, <code>business_requirements.md</code>, <code>*.points.md</code> или любой другой текст. Пишет один файл рядом с источником: короткая схема в <code>interaction_diagram.md</code>, сценарная в <code>interaction_scenarios.md</code>, путь пользователя в <code>user_flow.md</code>; в PlantUML то же с расширением <code>.puml</code>. Mermaid виден в GitHub, GitLab и JetBrains без установки, в VS Code с расширением.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную. <a href="loop.html#analyst-notebook"><code>analyst-notebook</code></a> отправляет сюда выгрузку пунктов.</dd>
+<dt>Не делает</dt><dd>Не проектирует: на схеме только то, что есть в источнике или в ваших ответах. Источник не правит, <code>services/</code> и <code>context/</code> не читает. По ноуту напрямую не рисует: сначала <code>/analyst-notebook &lt;тема&gt; собери пункты</code>.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/interaction-diagram coddoc/DORM-101/DORM-104/technical_specification.md</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Какую схему рисовать: короткую — кто кого вызывает, по времени, — или сценарную — по диаграмме на действие пользователя, с ответами и телами запросов? В каком формате нарисовать: Mermaid или PlantUML?</p>
+<p><span class="ex-who">Аналитик</span> Короткую, Mermaid.</p>
+<p><span class="ex-who">Скилл</span> INT-1 «Подать заявку»: student-portal → repair-requests; INT-2 «Корпус и комната жильца»: repair-requests → student-portal; INT-3 «Сменить вид или статус заявки»: student-portal → repair-requests; INT-4 «Заявки жильца»: student-portal → repair-requests; INT-5 «Уведомление о смене статуса»: repair-requests → notify. Участников 3: student-portal, repair-requests, notify. Считаю всех разными. Есть ли среди них один сервис под двумя именами? По времени карточки идут в том же порядке, что в списке?</p>
+<p><span class="ex-who">Аналитик</span> Все разные. По времени: INT-1, INT-2, INT-4, INT-3, INT-5.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">coddoc/DORM-101/DORM-104/interaction_diagram.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Схема взаимодействий — DORM-104</code></pre><p class="ex-src">ключ — имя папки спеки из вызова</p></div>
+<div class="ex-gap">…</div>
+<div class="ex-line"><pre><code>```mermaid
+sequenceDiagram</code></pre><p class="ex-src">из ответа аналитика: «Короткую, Mermaid»</p></div>
+<div class="ex-line"><pre><code>    participant S1 as student-portal
+    participant S2 as repair-requests
+    participant S3 as notify</code></pre><p class="ex-src">из «Граница/направление» карточек спеки; «Все разные» — ответ аналитика</p></div>
+<div class="ex-line"><pre><code>    S1-&gt;&gt;S2: INT-1 · POST /api/v1/repair-requests
+    S2-&gt;&gt;S1: INT-2 · GET /api/v1/students/{studentId}/residence</code></pre><p class="ex-src">порядок — из ответа аналитика; подписи — метод и путь из карточек</p></div>
+<div class="ex-line"><pre><code>    S1-&gt;&gt;S2: INT-4 · GET /api/v1/repair-requests/my
+    S1-&gt;&gt;S2: INT-3 · PATCH /api/v1/repair-requests/{id}
+    S2-&gt;&gt;S3: INT-5 · POST /api/v1/notifications
+```</code></pre><p class="ex-src">порядок — из ответа «По времени: INT-1, INT-2, INT-4, INT-3, INT-5»</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="loop.html#technical-spec-doc">technical-spec-doc</a>, <a href="loop.html#analyst-notebook">analyst-notebook</a>, <a href="#services-graph">services-graph</a></p>
+</article>
+
+<article class="skill" id="say-simple">
+<div class="skill-head"><h3><code>say-simple</code></h3><span class="skill-ver">1.0.0</span></div>
+<p class="skill-what">Объясняет ещё раз простым русским последний ответ агента или названный пункт, термин, вставленный текст. Смысл тот же, язык проще.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«объясни проще», «объясни ещё раз», «не понял», «переведи на человеческий».</dd>
+<dt>Как зовут</dt><dd>«объясни проще» или <code>/say-simple [пункт, термин или вставленный текст]</code>.</dd>
+<dt>Вход → выход</dt><dd>Последний ответ или то, что назвали. Значения слов берёт из разговора или из папки <code>context/</code>. Ничего не пишет.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Не делает</dt><dd>Ничего не теряет: числа, имена, команды и пути остаются слово в слово. Ничего не добавляет: ни фактов, ни выводов, ни советов. Кроме <code>context/</code>, файлов не открывает.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>объясни проще</code></pre></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат — вопрос «БТ принят — идём дальше?» из примера spec-review, простыми словами</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>Проверка БТ закончена. Всё нужное для следующих шагов уже лежит в файлах, поэтому здесь можно очистить разговор командой /clear.</code></pre><p class="ex-src">из строки «документ принят… здесь можно /clear»</p></div>
+<div class="ex-line"><pre><code>Проверка нашла одно нарушение: в §4.2, строка 70, сказано «пять дней», и непонятно, каких — календарных (с выходными) или рабочих.</code></pre><p class="ex-src">из «Нарушение: §4.2, строка 70…»</p></div>
+<div class="ex-line"><pre><code>Ещё в БТ 5 открытых вопросов, на них пока нет ответа: комендант, исполнитель, заявка на секцию, вахтёр, оплата ремонта.</code></pre><p class="ex-src">из «Открытых вопросов: 5 — …»</p></div>
+<div class="ex-line"><pre><code>Идём дальше? Можно выбрать одно из трёх:
+1. Поправить документ сейчас — 1 нарушение, 5 открытых вопросов. Вернёмся к вопросам по БТ: сейчас это дешевле, чем потом, когда задачу разрежут на части.</code></pre><p class="ex-src">из варианта 1</p></div>
+<div class="ex-line"><pre><code>2. Идти дальше — резать на «подача заявки и статусы», «подтверждение выполнения и комментарий». Агент запустит task-decomposition-doc: он разложит эпик на детские БТ, по одному на часть. Открытые вопросы перейдут в детские БТ и в §8 спеки, но статус спеки не заблокируют. Нарушение останется в документе.</code></pre><p class="ex-src">из варианта 2</p></div>
+<div class="ex-line"><pre><code>3. Пока остановиться. Документ уже лежит на диске; вернуться к нему можно через «Продолжить начатое».</code></pre><p class="ex-src">из варианта 3</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="loop.html#context-doc">context-doc</a></p>
+</article>
+
+<article class="skill" id="retro">
+<div class="skill-head"><h3><code>retro</code></h3><span class="skill-ver">1.2.0</span></div>
+<p class="skill-what">Ретро для вас самих: разбирает до десяти последних ваших сессий с агентом в этом проекте и показывает, что получается, что мешает, как исправить, и одно главное «попробовать». Без баллов.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>Когда хотите разобрать свои последние сессии.</dd>
+<dt>Как зовут</dt><dd><code>/retro</code>; если журналы не нашлись, <code>/retro &lt;папка с журналами чата&gt;</code>.</dd>
+<dt>Вход → выход</dt><dd>Журналы чата этого проекта (<code>.gigacode/projects</code> в домашней папке или папка <code>chats</code>). Рабочие файлы кладёт в <code>.coddoc-tmp/retro/</code> и в конце убирает. Отчёт только в чат.</dd>
+<dt>Кто вызывает</dt><dd>Только вы, командой.</dd>
+<dt>Что нужно</dt><dd>Python 3 (<code>python3</code>, на Windows <code>python</code>).</dd>
+<dt>Не делает</dt><dd>Не оценивает: без баллов, процентов и сравнения с другими. В отчёт идут только моменты с дословной цитатой из журнала, которую сверил скрипт.</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>/retro</code></pre></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>Разобрано 6 сессий за 19.10–23.10. Это для вас: не оценка, никуда не отправляется.</code></pre><p class="ex-src">из журналов чата этого проекта</p></div>
+<div class="ex-line"><pre><code>Что получается
+- На неизвестное отвечаете «не знаю», а не догадкой — в 4 из 6 сессий. «Пока не знаю — спор не решён, оставьте открытым» (21.10, ход 6).</code></pre><p class="ex-src">цитата сверена скриптом — это ответ из примера БТ</p></div>
+<div class="ex-line"><pre><code>Что мешает
+&gt; **Прерванную работу продолжаете пересказом — в 2 из 6 сессий.**
+&gt; «вчера остановились на спеке DORM-104, продолжаем с INT-3» (23.10, ход 1) — агент начал интервью по спеке заново.</code></pre><p class="ex-src">из журнала сессии 23.10, ход 1</p></div>
+<div class="ex-line"><pre><code>&gt; Почему важно: состояние работы лежит на диске, пересказ отстаёт от файла.
+&gt; Что сделать: `/analyst-workspace` → «Продолжить начатое» или путь к файлу, без пересказа.</code></pre><p class="ex-src">правило фреймворка из таблицы ретро</p></div>
+<div class="ex-line"><pre><code>Главное попробовать: когда возвращаюсь к начатой спеке — делаю `/analyst-workspace` → «Продолжить начатое».</code></pre><p class="ex-src">из первого пункта «Что мешает»</p></div>
+<div class="ex-line"><pre><code>Чего ретро не видит: читали ли вы документы, что правили руками вне агента, качество документов.</code></pre><p class="ex-src">шаблон отчёта</p></div>
+<div class="ex-line"><pre><code>Разобрано: 19.10 — 40 мин, 22 реплики, в скиллах 91%; …</code></pre><p class="ex-src">счёт скрипта по каждой сессии</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="loop.html#analyst-workspace">analyst-workspace</a>, <a href="loop.html#context-doc">context-doc</a></p>
+</article>
+
+<article class="skill" id="coddoc-settings">
+<div class="skill-head"><h3><code>coddoc-settings</code></h3><span class="skill-ver">1.2.0</span></div>
+<p class="skill-what">Настраивает свои разделы в БТ и спеке: показывает, что настроено, добавляет, правит и убирает раздел или подраздел. По этим разделам скиллы БТ и спеки спрашивают в интервью и пишут ответы в «Дополнительные разделы»; ещё здесь задают, как часто <code>/work-plan следи</code> обновляет план.</p>
+<dl class="skill-facts">
+<dt>Когда звать</dt><dd>«добавь свой раздел в БТ», «свой раздел в спеке», «настрой разделы», «какие разделы у меня настроены», «следи за планом раз в полчаса», «как часто обновлять план».</dd>
+<dt>Как зовут</dt><dd><code>/coddoc-settings</code> или «добавь свой раздел в БТ».</dd>
+<dt>Вход → выход</dt><dd>Скрипт пишет <code>.coddoc-tmp/coddoc-settings/sections-bt.md</code>, <code>sections-spec.md</code> и <code>work-plan.md</code>. Файлы личные, git их не видит; поделиться разделами можно, скопировав файл коллеге.</dd>
+<dt>Кто вызывает</dt><dd>Вы вручную.</dd>
+<dt>Что нужно</dt><dd>Python 3 (<code>python3</code>, на Windows <code>python</code>).</dd>
+<dt>Не делает</dt><dd>Базовые разделы БТ и спеки не убирает, не переименовывает и не ослабляет. Файл пишет только после предпросмотра и вашего «да» на вопрос «записать?».</dd>
+</dl>
+<div class="ex">
+<p class="ex-cap">эмуляция · DORM-101</p>
+<div class="ex-row"><span class="ex-k">Вызов</span><pre class="ex-call"><code>добавь свой раздел в БТ</code></pre></div>
+<div class="ex-row"><span class="ex-k">Диалог</span><div class="ex-chat">
+<p><span class="ex-who">Скилл</span> Как назвать раздел и что в нём писать?</p>
+<p><span class="ex-who">Аналитик</span> Согласование со студсоветом: кто от студсовета видел требования и что он сказал.</p>
+<p><span class="ex-who">Скилл</span> Вопрос для интервью предлагаю такой: «Кто от студсовета видел требования и что он сказал?» Итоговый файл — ниже. Записать?</p>
+<p><span class="ex-who">Аналитик</span> Да.</p>
+</div></div>
+<div class="ex-row"><span class="ex-k">Результат</span><div>
+<p class="ex-file">.coddoc-tmp/coddoc-settings/sections-bt.md</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code># Дополнительные разделы: БТ</code></pre><p class="ex-src">документ — из вызова: «в БТ»</p></div>
+<div class="ex-line"><pre><code>
+## Согласование со студсоветом
+- что писать: кто от студсовета видел требования и что он сказал</code></pre><p class="ex-src">из ответа аналитика</p></div>
+<div class="ex-line"><pre><code>- вопрос: Кто от студсовета видел требования и что он сказал?</code></pre><p class="ex-src">предложил скилл, аналитик ответил «Да»</p></div>
+</div>
+<p class="ex-file">ответ в чат</p>
+<div class="ex-lines">
+<div class="ex-line"><pre><code>coddoc-settings: ok doc=bt sections=1 path=.coddoc-tmp/coddoc-settings/sections-bt.md</code></pre><p class="ex-src">последняя строка скрипта</p></div>
+<div class="ex-line"><pre><code>Следующее интервью по БТ спросит об этом разделе и запишет ответ в §7 «Дополнительные разделы».</code></pre><p class="ex-src">шаблон скилла</p></div>
+</div>
+</div></div>
+</div>
+<p class="see">См. также: <a href="loop.html#business-requirements-doc">business-requirements-doc</a>, <a href="loop.html#technical-spec-doc">technical-spec-doc</a>, <a href="#work-plan">work-plan</a></p>
+</article>
+</section>
+
+<section class="block" id="elsewhere" aria-labelledby="elsewhere-h">
+<h2 id="elsewhere-h">Есть в других разделах</h2>
+<ul>
+<li><code>analyst-skills-update</code> устанавливает и обновляет скиллы coDDoc: <a href="start.html#install">Установка и обновление</a>.</li>
+<li>Репетицию встречи по роли (заказчик, архитектор сервиса, безопасник, исполнитель) проводит <code>rehearse</code>: <a href="loop.html#rehearse">его запись в основном процессе</a>.</li>
+</ul>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+<div class="wrap">
+<svg viewBox="5.54 24.36 330.22 62.16" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-foot-h" gradientUnits="userSpaceOnUse" x1="96.8" y1="0" x2="193.6" y2="0"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient><linearGradient id="lg-foot-v" gradientUnits="userSpaceOnUse" x1="0" y1="24.36" x2="0" y2="85.68"><stop offset="0" style="stop-color:var(--logo-g1)"/><stop offset="0.55" style="stop-color:var(--logo-g2)"/><stop offset="1" style="stop-color:var(--logo-g3)"/></linearGradient></defs><path style="fill:var(--logo-ink)" d="M25.96 86.52Q19.82 86.52 15.2 84.21Q10.58 81.9 8.06 77.74Q5.54 73.58 5.54 68.04L5.54 57.12Q5.54 51.49 8.06 47.38Q10.58 43.26 15.2 40.95Q19.82 38.64 25.96 38.64Q35.11 38.64 40.57 43.26Q46.03 47.88 46.37 55.86L34.1 55.86Q33.85 52.92 31.63 51.24Q29.4 49.56 25.96 49.56Q22.18 49.56 20.16 51.49Q18.14 53.42 18.14 57.12L18.14 68.04Q18.14 71.65 20.16 73.63Q22.18 75.6 25.96 75.6Q29.4 75.6 31.63 73.96Q33.85 72.32 34.1 69.3L46.37 69.3Q46.03 77.28 40.57 81.9Q35.11 86.52 25.96 86.52ZM73.6 86.52Q67.47 86.52 62.93 84.21Q58.4 81.9 55.92 77.74Q53.44 73.58 53.44 68.04L53.44 57.12Q53.44 51.58 55.92 47.42Q58.4 43.26 62.93 40.95Q67.47 38.64 73.6 38.64Q79.82 38.64 84.31 40.95Q88.8 43.26 91.28 47.42Q93.76 51.58 93.76 57.12L93.76 68.04Q93.76 73.58 91.28 77.74Q88.8 81.9 84.31 84.21Q79.82 86.52 73.6 86.52ZM73.6 75.6Q77.3 75.6 79.23 73.63Q81.16 71.65 81.16 68.04L81.16 57.12Q81.16 53.42 79.23 51.49Q77.3 49.56 73.6 49.56Q69.99 49.56 68.01 51.49Q66.04 53.42 66.04 57.12L66.04 68.04Q66.04 71.65 68.01 73.63Q69.99 75.6 73.6 75.6ZM218.8 86.52Q212.67 86.52 208.13 84.21Q203.6 81.9 201.12 77.74Q198.64 73.58 198.64 68.04L198.64 57.12Q198.64 51.58 201.12 47.42Q203.6 43.26 208.13 40.95Q212.67 38.64 218.8 38.64Q225.02 38.64 229.51 40.95Q234 43.26 236.48 47.42Q238.96 51.58 238.96 57.12L238.96 68.04Q238.96 73.58 236.48 77.74Q234 81.9 229.51 84.21Q225.02 86.52 218.8 86.52ZM218.8 75.6Q222.5 75.6 224.43 73.63Q226.36 71.65 226.36 68.04L226.36 57.12Q226.36 53.42 224.43 51.49Q222.5 49.56 218.8 49.56Q215.19 49.56 213.21 51.49Q211.24 53.42 211.24 57.12L211.24 68.04Q211.24 71.65 213.21 73.63Q215.19 75.6 218.8 75.6ZM267.96 86.52Q261.82 86.52 257.2 84.21Q252.58 81.9 250.06 77.74Q247.54 73.58 247.54 68.04L247.54 57.12Q247.54 51.49 250.06 47.38Q252.58 43.26 257.2 40.95Q261.82 38.64 267.96 38.64Q277.11 38.64 282.57 43.26Q288.03 47.88 288.37 55.86L276.1 55.86Q275.85 52.92 273.63 51.24Q271.4 49.56 267.96 49.56Q264.18 49.56 262.16 51.49Q260.14 53.42 260.14 57.12L260.14 68.04Q260.14 71.65 262.16 73.63Q264.18 75.6 267.96 75.6Q271.4 75.6 273.63 73.96Q275.85 72.32 276.1 69.3L288.37 69.3Q288.03 77.28 282.57 81.9Q277.11 86.52 267.96 86.52Z"/><path fill="url(#lg-foot-h)" d="M102.09 85.68L102.09 24.36L122 24.36Q128.38 24.36 133.13 26.8Q137.88 29.23 140.52 33.64Q143.17 38.05 143.17 44.02L143.17 65.94Q143.17 71.82 140.52 76.27Q137.88 80.72 133.13 83.2Q128.38 85.68 122 85.68L102.09 85.68ZM114.69 74.34L122 74.34Q125.78 74.34 128.17 71.99Q130.57 69.64 130.57 65.94L130.57 44.02Q130.57 40.32 128.17 38.01Q125.78 35.7 122 35.7L114.69 35.7L114.69 74.34ZM150.49 85.68L150.49 24.36L170.4 24.36Q176.78 24.36 181.53 26.8Q186.28 29.23 188.92 33.64Q191.57 38.05 191.57 44.02L191.57 65.94Q191.57 71.82 188.92 76.27Q186.28 80.72 181.53 83.2Q176.78 85.68 170.4 85.68L150.49 85.68ZM163.09 74.34L170.4 74.34Q174.18 74.34 176.57 71.99Q178.97 69.64 178.97 65.94L178.97 44.02Q178.97 40.32 176.57 38.01Q174.18 35.7 170.4 35.7L163.09 35.7L163.09 74.34Z"/><rect fill="url(#lg-foot-v)" x="300.48" y="24.36" width="35.28" height="61.32"/></svg>
+<span>Скиллы GigaCode для аналитика</span>
+<a href="start.html">Начать</a>
+<a href="loop.html#glossary">Термины</a>
+</div>
+</footer>
+</body>
+</html>

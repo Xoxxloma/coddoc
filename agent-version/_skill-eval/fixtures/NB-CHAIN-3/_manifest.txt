@@ -1,0 +1,16 @@
+chain.conf
+etalon/stage-1/notes/прокат-лыж/notebook.md
+etalon/stage-2/notes/прокат-лыж/notebook.md
+etalon/stage-3/notes/прокат-лыж/notebook.md
+etalon/stage-4/notes/прокат-лыж/notebook-2026-10-20.points.md
+etalon/stage-4/notes/прокат-лыж/notebook.md
+expected.md
+README.md
+seed/notes/прокат-лыж/notebook.md
+stage-1-prompt.txt
+stage-2-prompt.txt
+stage-3-prompt.txt
+stage-4-prompt.txt
+state.json
+turn2-export.txt
+turn2.txt

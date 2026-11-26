@@ -1,0 +1,18 @@
+# Строки case для run-ctx-v2.sh — meeting-intake 2.0.0 (список пунктов). Заменяют строки meet-vac|acc|long|new|chg|cr|rew
+# и добавляют meet-out. Отличие от 1.x — только DONE_RE: конец диалога по файлу списка `meeting-<дата>.points.md`,
+# а не по входу `-bt|-spec`. У meet-rew — с датой этой встречи, как было. Грейдер — `grade-meet.mjs --points --fx <X>`.
+# В строку «есть: …» (ветка `*)` в конце case) добавить `meet-out`.
+
+  # ── `meeting-intake` 2.0.0: расшифровка встречи → список пунктов и разбор ─────────────────────
+  # Засев — `seed/`; эталоны (`etalon/` — вход 1.x, `etalon-2/` — список 2.0.0) в песочницу не идут. Реплика одна на все
+  # ходы и нейтральная («согласен с рекомендацией»): выбор темы, сомнительные решения и сводка — у каждого вопроса скилла
+  # рекомендация первой. Диалог кончается, когда записан список. Грейдер — `grade-meet.mjs --points --fx VAC|…|OUT`.
+  meet-vac)  FIXTURE=MEET-VAC;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-acc)  FIXTURE=MEET-ACC;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-long) FIXTURE=MEET-LONG; PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-new)  FIXTURE=MEET-NEW;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-chg)  FIXTURE=MEET-CHG;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-cr)   FIXTURE=MEET-CR;   PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  meet-rew)  FIXTURE=MEET-REW;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-2026-10-14[^/]*\.points\.md$'; MEET_ENV=1 ;;
+  # Созвон-расспрос без решений (перенос MI-NB-OUT): ключа нет — список в coddoc/_inbox/; ждём сведения и открытые вопросы.
+  meet-out)  FIXTURE=MEET-OUT;  PROMPT_FILE=w-prompt.txt; SKILL=meeting-intake; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=20; IDLE_MAX=20; DONE_RE='/coddoc/.*/meeting-[^/]*\.points\.md$'; MEET_ENV=1 ;;

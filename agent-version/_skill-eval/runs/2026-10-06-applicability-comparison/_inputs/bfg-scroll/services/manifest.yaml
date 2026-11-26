@@ -1,0 +1,14 @@
+services:
+  - name: auth
+    path: ../auth-service
+    type: backend
+    notes: |
+      Канонический владелец сессий. Легаси /v1/session не использовать.
+
+  - name: incident-web
+    path: ../incident-web
+    type: frontend
+
+  - name: geo
+    path: ../geo-service
+    type: backend

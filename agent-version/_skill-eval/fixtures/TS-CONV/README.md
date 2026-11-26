@@ -27,7 +27,7 @@ Step 0.5 несёт два соседних правила с противопо
 ## Вход
 
 ```
-docs/ARS-201/business_requirements.md   тот же БТ, что в TS-LIVE
+coddoc/ARS-201/business_requirements.md   тот же БТ, что в TS-LIVE
 services/manifest.yaml                  auth (backend), arsenal-web (frontend)
 services/auth.md                        отдаёт GET /v1/sessions/count с count и updatedAt
 services/arsenal-web.md                 админ-панель, уже потребляет этот вызов

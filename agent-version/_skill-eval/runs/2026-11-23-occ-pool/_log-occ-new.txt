@@ -1,0 +1,31 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: occ-new   фикстура: OCC-NEW   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-new
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-new-36557-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-NEW/spec-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/occ-new/run-1/_stderr.log
+  run-3 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/occ-new/run-3/_stderr.log
+  run-2 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/occ-new/run-2/_stderr.log
+ГОТОВО: runs/2026-11-23-occ-pool/occ-new — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-new-36557-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-new: $0.00 за 0 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/technical-spec-doc.SKILL.md
+проба: occ-new   фикстура: OCC-NEW   скилл: technical-spec-doc
+реплика аналитика: yes-turn2.txt   ходов до 2 подряд без движения, потолок 3
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/occ-new
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-new-40613-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/OCC-NEW/spec-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — ходов: 1, строк в трассе: 0
+  run-1 — готов
+  run-3 — ходов: 1, строк в трассе: 0
+  run-3 — готов
+  run-2 — ходов: 1, строк в трассе: 0
+  run-2 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/occ-new — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-occ-new-40613-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/occ-new: $3.69 за 3 прогонов

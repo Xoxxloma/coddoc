@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "session-quality/findings/5",
+  "title": "Находки модели по одной сессии",
+  "description": "Ответ субагента на brief.md. merge сверяет цитату с журналом на ходу, ответ — с разделом «Проверить».",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["session", "findings", "checks"],
+  "properties": {
+    "session": {"type": "string", "minLength": 1},
+    "findings": {"type": "array", "items": {"oneOf": [{"$ref": "#/$defs/quote_finding"}, {"$ref": "#/$defs/topic_finding"}]}},
+    "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}}
+  },
+  "$defs": {
+    "turn": {"type": "integer", "minimum": 1},
+    "note": {"type": "string", "minLength": 1, "maxLength": 300},
+    "quote_finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "turn", "quote"],
+      "properties": {
+        "type": {"enum": ["deception", "bypass"]},
+        "turn": {"$ref": "#/$defs/turn"},
+        "quote": {"type": "string", "minLength": 1, "maxLength": 200},
+        "note": {"$ref": "#/$defs/note"}
+      }
+    },
+    "topic_finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "turn", "category", "turns"],
+      "properties": {
+        "type": {"const": "off_topic"},
+        "turn": {"$ref": "#/$defs/turn"},
+        "category": {"enum": ["personal", "non_work"]},
+        "turns": {"type": "integer", "minimum": 1}
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "turn", "verdict"],
+      "properties": {
+        "check": {"enum": ["decision", "ending"]},
+        "turn": {"$ref": "#/$defs/turn"},
+        "verdict": {"enum": ["no", "engaged", "accepted", "delegated", "ignored", "yes"]},
+        "note": {"$ref": "#/$defs/note"}
+      },
+      "allOf": [
+        {"if": {"properties": {"check": {"const": "decision"}}},
+         "then": {"properties": {"verdict": {"enum": ["no", "engaged", "accepted", "delegated", "ignored"]}}}},
+        {"if": {"properties": {"check": {"const": "ending"}}},
+         "then": {"properties": {"verdict": {"enum": ["yes", "no"]}}}}
+      ]
+    }
+  }
+}

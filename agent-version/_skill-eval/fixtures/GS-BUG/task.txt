@@ -1,3 +1,3 @@
 /analyst-workspace --no-review
 
-Вот баг-репорт: docs/ARS-810/bug_report.md. Что дальше?
+Вот баг-репорт: coddoc/ARS-810/bug_report.md. Что дальше?

@@ -12,10 +12,10 @@ set -u
 ARM="${1:-}"
 [ -d "$ARM" ] || { echo "usage: ./seed-sb-ctx2.sh <папка-плеча-ts-ctx>"; exit 1; }
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DST="$HERE/fixtures/SB-CTX2/docs/SMSEC-420"
+DST="$HERE/fixtures/SB-CTX2/coddoc/SMSEC-420"
 
 PICK=""
-for f in "$ARM"/run-*/docs/SMSEC-420/technical_specification.md; do
+for f in "$ARM"/run-*/coddoc/SMSEC-420/technical_specification.md; do
   [ -f "$f" ] || continue
   if grep -q "Наша сторона" "$f"; then PICK="$f"; break; fi
 done

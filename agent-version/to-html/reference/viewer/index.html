@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ru" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>to-html</title>
+<style>
+  /* ============ Токены (макет to-html-mock.html, одобрен 2026-10-20) ============ */
+  :root {
+    --bg: #f7f7f5; --paper: #ffffff; --ink: #1d1d1f; --ink-2: #55555b; --ink-3: #6e6e73;
+    --line: #e4e3df; --line-2: #eeede9; --hover: #efeeea;
+    --accent: #3b5bdb; --accent-ink: #ffffff; --accent-soft: #eef1fd; --accent-line: rgba(59, 91, 219, .35);
+    --mark: #fff1b8; --flash: #fff6d6; --code-bg: #f5f5f3;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 12px 32px rgba(0,0,0,.10);
+    --backdrop: rgba(20, 20, 24, .28);
+    --tok-key: #b4235a; --tok-str: #1f6f43; --tok-num: #8a4b00; --tok-com: #7a7a80; --tok-attr: #3b5bdb; --tok-fn: #6f42c1;
+    --ok: #1a7f37; --ok-soft: #eaf6ed; --warn: #8a5a00; --warn-soft: #fdf5e1; --danger: #c62828; --danger-soft: #fdeded;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151617; --paper: #1b1c1e; --ink: #e8e8ea; --ink-2: #b0b0b8; --ink-3: #8c8c94;
+      --line: #2e2f33; --line-2: #26272a; --hover: #26272a;
+      --accent: #8ea2ff; --accent-ink: #10121a; --accent-soft: #23283d; --accent-line: rgba(142, 162, 255, .4);
+      --mark: #4a3f10; --flash: #3a3315; --code-bg: #212225;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+      --backdrop: rgba(0, 0, 0, .55);
+      --tok-key: #ff8fb1; --tok-str: #7ee0a1; --tok-num: #f5b971; --tok-com: #8c8c94; --tok-attr: #8ea2ff; --tok-fn: #c8a6ff;
+      --ok: #57c27a; --ok-soft: #1a2a20; --warn: #e3b341; --warn-soft: #2d2615; --danger: #f47067; --danger-soft: #331d1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151617; --paper: #1b1c1e; --ink: #e8e8ea; --ink-2: #b0b0b8; --ink-3: #8c8c94;
+    --line: #2e2f33; --line-2: #26272a; --hover: #26272a;
+    --accent: #8ea2ff; --accent-ink: #10121a; --accent-soft: #23283d; --accent-line: rgba(142, 162, 255, .4);
+    --mark: #4a3f10; --flash: #3a3315; --code-bg: #212225;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+    --backdrop: rgba(0, 0, 0, .55);
+    --tok-key: #ff8fb1; --tok-str: #7ee0a1; --tok-num: #f5b971; --tok-com: #8c8c94; --tok-attr: #8ea2ff; --tok-fn: #c8a6ff;
+    --ok: #57c27a; --ok-soft: #1a2a20; --warn: #e3b341; --warn-soft: #2d2615; --danger: #f47067; --danger-soft: #331d1d;
+    color-scheme: dark;
+  }
+
+  /* ============ Основа ============ */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+  [hidden] { display: none !important; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .ico { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  kbd { font: 500 11.5px/1 var(--sans); color: var(--ink-3); border: 1px solid var(--line); border-bottom-width: 2px;
+        border-radius: 5px; padding: 3px 5px; background: var(--paper); }
+  .btn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 1px solid var(--line);
+         border-radius: 8px; background: var(--paper); font-size: 13.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+         transition: background .12s, border-color .12s; }
+  .btn:hover { background: var(--hover); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 8px;
+              background: transparent; color: var(--ink-2); cursor: pointer; }
+  .icon-btn:hover { background: var(--hover); color: var(--ink); }
+
+  /* ============ Каркас: три колонки ============ */
+  .app { display: grid; grid-template-columns: 264px minmax(0, 1fr) 232px; min-height: 100vh; }
+  .side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); border-right: 1px solid var(--line); }
+  .side-head { padding: 16px 14px 10px; }
+  .set-name { font-size: 15px; font-weight: 650; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .set-path { font: 12px/1.4 var(--mono); color: var(--ink-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .search-btn { display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; margin-top: 12px; padding: 0 8px 0 10px;
+                border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-3); font-size: 13.5px;
+                cursor: pointer; text-align: left; }
+  .search-btn span { flex: 1; }
+  .search-btn:hover { border-color: var(--accent-line); }
+
+  .tree { flex: 1; overflow: auto; padding: 6px 8px 16px; font-size: 13.5px; }
+  .tree ul { list-style: none; margin: 0; padding: 0; }
+  .row { display: flex; align-items: center; gap: 8px; width: 100%; height: 30px; padding: 0 8px 0 calc(8px + var(--d, 0) * 16px);
+         border: 0; border-radius: 7px; background: none; color: var(--ink-2); cursor: pointer; user-select: none;
+         text-decoration: none; text-align: left; font-size: 13.5px; }
+  .row:hover { background: var(--hover); color: var(--ink); }
+  .row .ico { color: var(--ink-3); }
+  .row .lbl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .meta { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .row.active { background: var(--accent-soft); color: var(--accent); font-weight: 560; }
+  .row.active .ico { color: var(--accent); }
+  .row .chev { width: 14px; height: 14px; transition: transform .15s; }
+  .row.open .chev { transform: rotate(90deg); }
+  .tree li.closed > ul { display: none; }
+  .inline-toc { display: none; margin: 2px 0 6px calc(22px + var(--d, 0) * 16px); padding-left: 10px; border-left: 1px solid var(--line); }
+  .inline-toc a { display: block; padding: 3px 8px; font-size: 12.5px; color: var(--ink-3); text-decoration: none; border-radius: 6px;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inline-toc a:hover { color: var(--ink); background: var(--hover); }
+  .inline-toc a.on { color: var(--accent); }
+  .inline-toc .lv3 { padding-left: 18px; }
+  .tree-sep { height: 1px; background: var(--line); margin: 8px; }
+  .tree-cap { font-size: 11.5px; font-weight: 600; color: var(--ink-3); padding: 6px 8px 4px; letter-spacing: .02em; }
+  .side-foot { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+  .side-foot span { flex: 1; }
+
+  /* ============ Центр ============ */
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 16px 0 24px;
+         background: color-mix(in srgb, var(--paper) 86%, transparent); backdrop-filter: saturate(1.4) blur(10px);
+         -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line-2); }
+  .crumbs { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; }
+  .crumbs b { color: var(--ink); font-weight: 560; overflow: hidden; text-overflow: ellipsis; }
+  .crumbs .sep { opacity: .6; }
+  .only-narrow { display: none; }
+  .bar-actions { position: relative; display: flex; gap: 8px; }
+  .doc { width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 48px 140px; }
+  .sec { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+  /* Раздел с content-visibility — рамка для fixed: развёрнутое внутри растягивалось бы на раздел, а не на окно. */
+  .sec:has(.full) { content-visibility: visible; }
+
+  /* ============ Типографика документа ============ */
+  .md > :first-child, .md .sec:first-child > :first-child { margin-top: 0; }
+  .md h1, .md h2, .md h3, .md h4, .md h5, .md h6 { position: relative; line-height: 1.25; letter-spacing: -.012em; scroll-margin-top: 72px; }
+  .md h1 { font-size: 30px; font-weight: 680; margin: 0 0 6px; }
+  .md h2 { font-size: 22px; font-weight: 640; margin: 48px 0 12px; }
+  .md h3 { font-size: 17.5px; font-weight: 620; margin: 32px 0 8px; }
+  .md h4 { font-size: 15.5px; font-weight: 620; margin: 24px 0 6px; }
+  .md h5, .md h6 { font-size: 14.5px; font-weight: 620; margin: 20px 0 6px; color: var(--ink-2); }
+  .md .sec > h1:not(:first-child) { margin-top: 40px; }
+  .md .anchor { position: absolute; left: -1.05em; padding-right: .3em; color: var(--ink-3); opacity: 0; text-decoration: none; font-weight: 400; user-select: none; }
+  .md h1:hover .anchor, .md h2:hover .anchor, .md h3:hover .anchor, .md h4:hover .anchor { opacity: 1; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 28px; font-size: 13px; color: var(--ink-3); }
+  .doc-meta code { font: 12.5px var(--mono); }
+  .md p { margin: 0 0 14px; }
+  .md a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-line); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .md a:hover { text-decoration-color: var(--accent); }
+  .md a.ext::after { content: "↗"; font-size: .8em; margin-left: 2px; }
+  .md a.outside { text-decoration-style: dashed; }
+  .md a.missing { color: var(--ink-3); text-decoration-style: dashed; text-decoration-color: var(--ink-3); cursor: help; }
+  .md a.code-link { text-decoration: none; }
+  .md a.code-link code { color: var(--accent); }
+  .md strong { font-weight: 640; }
+  .md ul, .md ol { margin: 0 0 16px; padding-left: 1.5em; }
+  .md li { margin: 4px 0; }
+  .md li > p { margin: 0 0 6px; }
+  .md li::marker { color: var(--ink-3); }
+  .md li.task { list-style: none; position: relative; }
+  .md li.task .box { position: absolute; left: -1.5em; top: .3em; width: 16px; height: 16px; border: 1.5px solid var(--ink-3);
+                     border-radius: 4px; display: grid; place-items: center; }
+  .md li.task.done .box { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .md li.task.done { color: var(--ink-3); }
+  .md blockquote { margin: 0 0 16px; padding: 2px 0 2px 16px; border-left: 3px solid var(--line); color: var(--ink-2); }
+  .md blockquote p { margin: 0 0 4px; }
+  .md hr { border: 0; height: 1px; background: var(--line); margin: 36px 0; }
+  .md code { font: .875em/1.5 var(--mono); background: var(--code-bg); border: 1px solid var(--line-2); border-radius: 5px; padding: .1em .36em; }
+  .md img { max-width: 100%; height: auto; border-radius: 8px; }
+  .md mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0; }
+  .md details { margin: 0 0 16px; padding: 8px 14px; border: 1px solid var(--line-2); border-radius: 10px; }
+  .md summary { cursor: pointer; font-weight: 560; }
+  .md .footnotes { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+  .md .footnotes-sep { display: none; }
+
+  .code { position: relative; margin: 0 0 18px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--code-bg); }
+  .code-head { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 0 6px 0 14px;
+               border-bottom: 1px solid var(--line-2); font: 12px var(--mono); color: var(--ink-3); }
+  .code-head .icon-btn { width: auto; height: 24px; padding: 0 8px; font: 12px var(--sans); gap: 6px; display: inline-flex;
+                         align-items: center; opacity: 0; transition: opacity .12s; }
+  .code:hover .code-head .icon-btn, .code-head .icon-btn:focus-visible { opacity: 1; }
+  .code pre { margin: 0; padding: 12px 14px 14px; overflow-x: auto; font: 13.5px/1.6 var(--mono); }
+  /* Без лигатур: Cascadia Code и подобные рисуют «->>» стрелкой — в коде это путает. */
+  .code pre, .md code { font-variant-ligatures: none; }
+  .code pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+  .hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-literal, .hljs-type { color: var(--tok-key); }
+  .hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: var(--tok-str); }
+  .hljs-number, .hljs-symbol, .hljs-bullet { color: var(--tok-num); }
+  .hljs-comment, .hljs-quote, .hljs-deletion { color: var(--tok-com); font-style: italic; }
+  .hljs-attr, .hljs-attribute, .hljs-property, .hljs-variable, .hljs-name, .hljs-tag, .hljs-selector-class { color: var(--tok-attr); }
+  .hljs-title, .hljs-function, .hljs-section { color: var(--tok-fn); }
+  .plain { white-space: pre-wrap; word-break: break-word; font-size: 15.5px; line-height: 1.65; }
+
+  .table { position: relative; margin: 0 0 20px; border: 1px solid var(--line); border-radius: 10px; overflow: auto; background: var(--paper); }
+  .table table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.5; }
+  .table th { position: sticky; top: 0; background: var(--bg); text-align: left; font-weight: 600; font-size: 13px; color: var(--ink-2);
+              padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .table td { padding: 8px 12px; border-top: 1px solid var(--line-2); vertical-align: top; }
+  .table tr:first-child td { border-top: 0; }
+  .table tbody tr:hover td { background: var(--hover); }
+  /* z-index — поверх липкой шапки: th позже в разметке и иначе перекрывает кнопку. */
+  .table .expand { position: absolute; z-index: 2; top: 4px; right: 4px; width: 26px; height: 26px; opacity: 0; background: var(--paper); }
+  .table:hover .expand, .table .expand:focus-visible { opacity: 1; }
+  .table.full { position: fixed; inset: 16px; z-index: 45; box-shadow: var(--shadow); }
+  .table.full .expand { opacity: 1; position: sticky; float: right; top: 4px; }
+
+  .figure { margin: 4px 0 22px; text-align: center; }
+  .figure img { border: 1px solid var(--line); border-radius: 10px; }
+  .figure figcaption { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+  .diagram { position: relative; padding: 18px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--paper); overflow-x: auto; text-align: left; }
+  .diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  .diagram .mm-src { margin: 8px 0 0; font: 13px/1.6 var(--mono); color: var(--ink-3); white-space: pre-wrap; font-variant-ligatures: none; }
+  .diagram .note-box { font-size: 14px; }
+  .fig-btn { width: 26px; height: 26px; }
+  .fig-btn .ico { width: 14px; height: 14px; }
+  .figure.full { position: fixed; inset: 16px; z-index: 45; margin: 0; display: flex; flex-direction: column; padding: 12px;
+                 background: var(--paper); border-radius: 12px; box-shadow: var(--shadow); }
+  .figure.full .diagram { flex: 1; min-height: 0; border: 0; overflow: auto; }
+  .figure.full .diagram svg { max-width: none !important; width: 100%; height: 100%; }
+  .img-missing { display: inline-block; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; color: var(--ink-3); font-size: 13.5px; }
+
+  /* ============ Заметки: плашки, вложения, ноут ============ */
+  .callout { --c: var(--accent); --c-bg: var(--accent-soft); margin: 0 0 18px; padding: 10px 16px 12px; border-left: 3px solid var(--c);
+             border-radius: 4px 10px 10px 4px; background: var(--c-bg); color: var(--ink); }
+  .callout.tip { --c: var(--ok); --c-bg: var(--ok-soft); }
+  .callout.warning { --c: var(--warn); --c-bg: var(--warn-soft); }
+  .callout.caution { --c: var(--danger); --c-bg: var(--danger-soft); }
+  .callout-title { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; font-size: 14px; font-weight: 620; color: var(--c); }
+  .callout-title .ico { width: 15px; height: 15px; }
+  .callout > p:last-child, .callout > :last-child { margin-bottom: 0; }
+  .md a.att { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px 1px 6px; border: 1px solid var(--line); border-radius: 7px;
+              background: var(--bg); color: var(--ink); text-decoration: none; font-size: 14px; vertical-align: 1px; }
+  .md a.att .ico { width: 14px; height: 14px; color: var(--ink-3); }
+  .md a.att small { color: var(--ink-3); font-size: 12px; }
+  .md a.nb-id { color: var(--ink-3); font-size: .9em; font-variant-numeric: tabular-nums; white-space: nowrap; text-decoration: none; }
+  .md a.nb-id:hover { text-decoration: underline; }
+  .md a.nb-ref { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .md li.nb-off { color: var(--ink-3); }
+  .md .nb-tail { font-size: .88em; }
+  .md li[id], .md h3 > span[id] { scroll-margin-top: 72px; }
+  .fm { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 28px; padding: 14px 18px;
+        border: 1px solid var(--line); border-radius: 12px; background: var(--bg); font-size: 14px; line-height: 1.5; }
+  .fm dt { color: var(--ink-3); }
+  .fm dd { margin: 0; }
+  .note-box { padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink-2); }
+  .note-box.err { border-color: var(--danger); background: var(--danger-soft); color: var(--ink); }
+  .flash { animation: flash 1.6s ease-out; }
+  @keyframes flash { from { background: var(--flash); box-shadow: 0 0 0 6px var(--flash); } to { background: transparent; box-shadow: 0 0 0 6px transparent; } }
+
+  /* ============ Оглавление справа ============ */
+  .toc { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 22px 16px 40px 8px; font-size: 13px; }
+  .toc-head { display: flex; align-items: center; justify-content: space-between; padding: 0 0 8px 12px; }
+  .toc-cap { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  .toc-act { border: 0; background: none; padding: 2px 4px; font-size: 12px; color: var(--ink-3); cursor: pointer; border-radius: 5px; }
+  .toc-act:hover { color: var(--ink); background: var(--hover); }
+  .toc ul { list-style: none; margin: 0; padding: 0; }
+  .toc > nav > ul { border-left: 1px solid var(--line); }
+  .toc a { position: relative; display: block; padding: 4px 8px 4px 12px; color: var(--ink-3); text-decoration: none; line-height: 1.4; }
+  .toc a:hover { color: var(--ink); }
+  .toc ul ul a { padding-left: 24px; font-size: 12.5px; }
+  .toc ul ul ul a { padding-left: 36px; }
+  .toc a.on { color: var(--accent); font-weight: 560; }
+  .toc a.on::before { content: ""; position: absolute; left: -1px; top: 4px; bottom: 4px; width: 2px; background: var(--accent); border-radius: 2px; }
+  .toc li.collapsed > ul { display: none; }
+  .toc .cnt { color: var(--ink-3); font-size: 11.5px; margin-left: 4px; opacity: .8; }
+
+  /* ============ Поиск ============ */
+  .search { position: fixed; inset: 0; z-index: 50; background: var(--backdrop); }
+  .search-panel { width: min(640px, calc(100vw - 32px)); margin: 12vh auto 0; background: var(--paper); border: 1px solid var(--line);
+                  border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .search-input { display: flex; align-items: center; gap: 10px; padding: 0 16px; height: 54px; border-bottom: 1px solid var(--line-2); }
+  .search-input .ico { width: 18px; height: 18px; color: var(--ink-3); }
+  .search-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--ink); font: 17px var(--sans); }
+  .search-input input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+  .search-res { max-height: 56vh; overflow: auto; padding: 6px; }
+  .s-note { padding: 14px 10px; font-size: 13.5px; color: var(--ink-3); }
+  .s-group { display: flex; align-items: center; gap: 6px; padding: 10px 10px 4px; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  .s-group .ico { width: 14px; height: 14px; }
+  .s-group small { font-weight: 400; font: 11.5px var(--mono); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .s-item { display: block; padding: 8px 10px; border-radius: 8px; color: inherit; text-decoration: none; cursor: pointer; }
+  .s-item.on { background: var(--accent-soft); }
+  .s-item b { display: block; font-size: 14px; font-weight: 580; }
+  .s-item span { display: block; font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .s-item mark, .md mark.hit { background: var(--mark); color: inherit; border-radius: 2px; padding: 0; }
+  .md mark.hit { box-shadow: 0 0 0 2px var(--mark); }
+  .search-foot { display: flex; gap: 16px; padding: 8px 16px; border-top: 1px solid var(--line-2); font-size: 12px; color: var(--ink-3); }
+  .search-foot span { display: inline-flex; align-items: center; gap: 6px; }
+  .search-foot .count { margin-left: auto; }
+
+  /* ============ Меню экспорта ============ */
+  .menu { position: absolute; right: 0; top: 40px; width: 348px; padding: 6px; background: var(--paper); border: 1px solid var(--line);
+          border-radius: 12px; box-shadow: var(--shadow); z-index: 30; }
+  .menu-item { display: flex; gap: 12px; width: 100%; padding: 10px; border: 0; border-radius: 8px; background: none; text-align: left; cursor: pointer; }
+  .menu-item:hover, .menu-item:focus-visible { background: var(--hover); }
+  .menu-ico { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
+  .menu-item b { display: block; font-size: 14px; font-weight: 580; }
+  .menu-item small { display: block; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); margin-top: 1px; }
+  .menu-sep { height: 1px; background: var(--line-2); margin: 4px 6px; }
+  .toast .btn { height: 26px; margin-left: 8px; color: var(--ink); }
+
+  /* ============ Схемы в экспорте: светлая и тёмная ============ */
+  .mm-dark { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .mm-light { display: none; }
+    :root:not([data-theme="light"]) .mm-dark { display: block; }
+  }
+  :root[data-theme="dark"] .mm-light { display: none; }
+  :root[data-theme="dark"] .mm-dark { display: block; }
+  .md .unlinked { text-decoration: underline dashed var(--ink-3); text-underline-offset: 3px; cursor: help; }
+  .app.single { grid-template-columns: minmax(0, 1fr) 232px; }
+  .toc a.l3 { padding-left: 24px; font-size: 12.5px; }
+  .toc a.l4 { padding-left: 36px; font-size: 12.5px; }
+
+  /* ============ Тост ============ */
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px;
+           padding: 10px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); font-size: 14px; box-shadow: var(--shadow); z-index: 60; }
+
+  /* ============ Инит ============ */
+  .init { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; background: var(--bg); position: relative; }
+  .init-theme { position: absolute; top: 14px; right: 14px; }
+  .init-card { width: min(580px, 100%); }
+  .init-logo { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); margin-bottom: 18px; }
+  .init-logo .ico { width: 24px; height: 24px; }
+  .init h1 { margin: 0 0 6px; font-size: 26px; font-weight: 680; letter-spacing: -.015em; }
+  .init p.lead { margin: 0 0 22px; color: var(--ink-2); }
+  .dropzone { padding: 30px 24px; border: 1.5px dashed var(--line); border-radius: 14px; background: var(--paper); text-align: center;
+              transition: border-color .15s, background .15s; }
+  .dropzone.over { border-color: var(--accent); background: var(--accent-soft); }
+  .dz-title { font-weight: 580; margin-bottom: 4px; }
+  .dz-sub { font-size: 13.5px; color: var(--ink-3); margin-bottom: 18px; }
+  .dz-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .init-feats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; margin: 22px 0 0; padding: 0; list-style: none; font-size: 13.5px; color: var(--ink-2); }
+  .init-feats li { display: flex; gap: 9px; align-items: flex-start; }
+  .init-feats .ico { margin-top: 3px; color: var(--ink-3); }
+  .init-note { display: flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 12.5px; color: var(--ink-3); }
+  .init-warn { margin: 0 0 18px; }
+  .dz-busy { margin-top: 14px; font-size: 13.5px; color: var(--ink-3); }
+  .dropover { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px; background: var(--backdrop); }
+  .dropover > div { width: min(520px, 100%); padding: 36px 24px; border: 2px dashed var(--accent); border-radius: 16px; background: var(--paper);
+                    text-align: center; font-weight: 580; box-shadow: var(--shadow); }
+  .dropover small { display: block; margin-top: 6px; font-weight: 400; font-size: 13.5px; color: var(--ink-3); }
+
+  /* ============ Ширины ============ */
+  @media (max-width: 1279px) {
+    .app { grid-template-columns: 264px minmax(0, 1fr); }
+    .app.single { grid-template-columns: minmax(0, 1fr); }
+    .toc { display: none; }
+    .inline-toc { display: block; }
+  }
+  @media (max-width: 899px) {
+    .app { grid-template-columns: minmax(0, 1fr); }
+    /* Спрятанная панель — ещё и visibility: hidden, чтобы не было тени у края и Tab в неё не попадал. */
+    .side { position: fixed; z-index: 40; inset: 0 auto 0 0; width: min(320px, 86vw); transform: translateX(-100%); visibility: hidden;
+            transition: transform .2s ease, visibility 0s linear .2s; box-shadow: var(--shadow); }
+    body.drawer .side { transform: none; visibility: visible; transition: transform .2s ease; }
+    .scrim { position: fixed; inset: 0; z-index: 35; background: var(--backdrop); }
+    body:not(.drawer) .scrim { display: none; }
+    .only-narrow { display: inline-flex; }
+    .bar { padding: 0 8px; }
+    .btn .wide-only { display: none; }
+    .menu { position: fixed; left: 8px; right: 8px; top: 56px; width: auto; }
+    .doc { padding: 24px 16px 120px; }
+    .md h1 { font-size: 25px; }
+    .md h2 { font-size: 20px; margin-top: 36px; }
+    .md .anchor { display: none; }
+    .fm { grid-template-columns: 1fr; gap: 0; }
+    .fm dd { margin-bottom: 8px; }
+    .init-feats { grid-template-columns: 1fr; }
+    .search-btn kbd { display: none; }
+    #wideBtn { display: none; }
+  }
+  @media (min-width: 900px) { .scrim { display: none; } }
+  /* Развёрнутый вид (кнопка в шапке): без дерева и оглавления, колонка шире. Уже 900px боковин и так нет. */
+  @media (min-width: 900px) {
+    body.wide .app, body.wide .app.single { grid-template-columns: minmax(0, 1fr); }
+    body.wide .side, body.wide .toc { display: none; }
+    body.wide .doc { max-width: 1100px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  /* ============ Печать ============ */
+  @media print {
+    .side, .toc, .bar, .scrim, .toast, .code-head .icon-btn, .table .expand, .fig-btn, .md .anchor { display: none !important; }
+    .app { display: block; }
+    .doc { max-width: none; padding: 0; }
+    .sec { content-visibility: visible; }
+    body { background: #fff; color: #000; }
+    .md h1, .md h2, .md h3 { break-after: avoid; }
+    .code, .table, .figure, blockquote { break-inside: avoid; }
+  }
+</style>
+<script src="vendor/markdown-it.min.js"></script>
+<script src="vendor/markdown-it-footnote.min.js"></script>
+<script src="vendor/purify.min.js"></script>
+<script src="vendor/highlight.min.js"></script>
+<script src="data.js?v=__MADE__" charset="utf-8"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-schema" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="16" width="7" height="5" rx="1.5"/><path d="M6.5 8v5.5a2 2 0 0 0 2 2H14"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M10 13l-2 2 2 2M14 13l2 2-2 2"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-8.2 8.2a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16a8 8 0 0 0 0-16z" fill="currentColor"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6"/></symbol>
+  <symbol id="i-shrink" viewBox="0 0 24 24"><path d="M14 5v5h5M10 19v-5H5M20 4l-6 6M4 20l6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-files" viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h6l4 4v10a2 2 0 0 1-2 2h-2"/><path d="M4 9a2 2 0 0 1 2-2h6l4 4v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-file-html" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M10 13l-2 2 2 2M14 13l2 2-2 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+</svg>
+
+<div class="app" id="app" hidden>
+  <aside class="side" id="side">
+    <div class="side-head">
+      <div class="set-name" id="setName"></div>
+      <div class="set-path" id="setPath"></div>
+      <button class="search-btn" data-open-search type="button">
+        <svg class="ico"><use href="#i-search"/></svg><span>Поиск</span><kbd>Ctrl K</kbd>
+      </button>
+    </div>
+    <nav class="tree" id="tree" aria-label="Файлы"></nav>
+    <div class="side-foot"><span id="snap"></span>
+      <button class="icon-btn" data-theme-btn type="button" title="Тема" aria-label="Тема"><svg class="ico"><use href="#i-auto"/></svg></button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="bar">
+      <button class="icon-btn only-narrow" id="drawerBtn" type="button" aria-label="Файлы"><svg class="ico"><use href="#i-menu"/></svg></button>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="bar-actions" id="barActions">
+        <button class="icon-btn only-narrow" data-open-search type="button" aria-label="Поиск"><svg class="ico"><use href="#i-search"/></svg></button>
+        <button class="icon-btn" id="wideBtn" type="button" title="Развернуть" aria-label="Развернуть" aria-pressed="false"><svg class="ico"><use href="#i-expand"/></svg></button>
+        <button class="btn" id="exportBtn" type="button" aria-haspopup="menu" aria-expanded="false"><svg class="ico"><use href="#i-down"/></svg><span class="wide-only">Экспорт</span><svg class="ico" style="width:14px;height:14px"><use href="#i-caret"/></svg></button>
+        <div class="menu" id="exportMenu" role="menu" hidden>
+          <button class="menu-item" type="button" role="menuitem" data-export="folder"><span class="menu-ico"><svg class="ico"><use href="#i-files"/></svg></span>
+            <span><b>Вся папка — один html</b><small id="expFolderNote">Картинки и схемы внутри. Откроется у коллеги без скилла.</small></span></button>
+          <button class="menu-item" type="button" role="menuitem" data-export="doc"><span class="menu-ico"><svg class="ico"><use href="#i-file-html"/></svg></span>
+            <span><b>Этот документ — html</b><small id="expDocNote">С оглавлением.</small></span></button>
+          <div class="menu-sep"></div>
+          <button class="menu-item" type="button" role="menuitem" data-export="office"><span class="menu-ico"><svg class="ico"><use href="#i-copy"/></svg></span>
+            <span><b>Копировать для Confluence / Word</b><small>Заголовки, таблицы, код; схемы — картинками.</small></span></button>
+        </div>
+      </div>
+    </header>
+    <article class="doc md" id="doc"></article>
+  </main>
+  <aside class="toc" id="toc" aria-label="На странице"></aside>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="init" id="init" hidden>
+  <button class="icon-btn init-theme" data-theme-btn type="button" title="Тема" aria-label="Тема"><svg class="ico"><use href="#i-auto"/></svg></button>
+  <div class="init-card">
+    <div class="init-logo"><svg class="ico"><use href="#i-files"/></svg></div>
+    <h1>Открыть markdown</h1>
+    <p class="lead">Один файл или целая папка: документация, заметки — любой markdown.</p>
+    <div class="note-box err init-warn" id="initWarn" hidden></div>
+    <div class="dropzone" id="dropzone">
+      <div class="dz-title">Перетащите папку или файлы сюда</div>
+      <div class="dz-sub">.md и .txt, схемы, картинки; docx, pdf и прочее покажутся списком</div>
+      <div class="dz-actions">
+        <button class="btn primary" id="pickDir" type="button">Выбрать папку</button>
+        <button class="btn" id="pickFiles" type="button">Выбрать файлы</button>
+      </div>
+      <div class="dz-busy" id="dzBusy" hidden>Читаю файлы…</div>
+      <input type="file" id="dirInput" webkitdirectory multiple hidden>
+      <input type="file" id="filesInput" multiple hidden>
+    </div>
+    <ul class="init-feats">
+      <li><svg class="ico"><use href="#i-files"/></svg>Дерево файлов и переходы по ссылкам между ними</li>
+      <li><svg class="ico"><use href="#i-list"/></svg>Оглавление и поиск по всем файлам</li>
+      <li><svg class="ico"><use href="#i-schema"/></svg>Схемы Mermaid картинкой, PlantUML — текстом</li>
+      <li><svg class="ico"><use href="#i-down"/></svg>Экспорт в html и копирование в Confluence / Word</li>
+      <li><svg class="ico"><use href="#i-expand"/></svg>БТ, баг-репорт, правка, спека — обзор и показ</li>
+    </ul>
+    <div class="init-note"><svg class="ico" style="width:14px;height:14px"><use href="#i-lock"/></svg>Файлы не уходят в сеть — всё читается в этом окне.</div>
+    <div class="init-note">После F5 перетащенное пропадёт: браузер не помнит выбранные файлы. Чтобы папка открывалась сама — /to-html &lt;папка&gt;.</div>
+  </div>
+</div>
+<div class="search" id="search" role="dialog" aria-modal="true" aria-label="Поиск" hidden>
+  <div class="search-panel">
+    <div class="search-input"><svg class="ico"><use href="#i-search"/></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Имя файла, заголовок или слова из текста" aria-label="Поиск по набору" aria-controls="searchRes"><kbd>Esc</kbd></div>
+    <div class="search-res" id="searchRes" role="listbox"></div>
+    <div class="search-foot"><span><kbd>↑</kbd><kbd>↓</kbd> выбрать</span><span><kbd>Enter</kbd> открыть</span><span><kbd>Esc</kbd> закрыть</span><span class="count" id="searchCount"></span></div>
+  </div>
+</div>
+<div class="dropover" id="dropover" hidden><div id="dropoverText">Отпустите — откроется вместо текущего набора<small>текущий закроется</small></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<link rel="stylesheet" href="overview.css?v=__MADE__">
+<script src="views.js?v=__MADE__" charset="utf-8"></script>
+<script src="layouts.js?v=__MADE__" charset="utf-8"></script>
+<script src="layout.js?v=__MADE__"></script>
+<script src="overview.js?v=__MADE__"></script>
+<script src="app.js?v=__MADE__"></script>
+</body>
+</html>

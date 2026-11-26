@@ -6,7 +6,7 @@
 
 ## Вход — не рукописный, а выход самой петли
 
-`docs/SMSEC-420/technical_specification.md` — спека, произведённая `technical-spec-doc` в прогоне
+`coddoc/SMSEC-420/technical_specification.md` — спека, произведённая `technical-spec-doc` в прогоне
 `runs/2026-08-14-context-r3/ts-ctx/run-01`, байт в байт. Рукописная спека здесь не годится:
 проверяется стык двух скиллов, и вход обязан быть тем, что первый реально отдаёт второму.
 

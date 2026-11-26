@@ -21,13 +21,13 @@ if (!roundDir) {
 
 // проба -> [фикстура, файл артефакта, тип, чек-лист, источник]
 const KINDS = [
-  ['spec-dirty', 'RV-DIRTY', 'docs/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'docs/RMS-4021/business_requirements.md'],
-  ['spec-clean', 'RV-CLEAN', 'docs/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'docs/RMS-4021/business_requirements.md'],
-  ['spec-loop', 'RV-LOOP', 'docs/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'docs/RMS-4021/business_requirements.md'],
-  ['bt-design', 'RV-DIRTY', 'docs/RMS-4021/business_requirements.md', 'бизнес-требования', 'checklist-bt.md', null],
-  ['bt-clean', 'RV-CLEAN', 'docs/RMS-4021/business_requirements.md', 'бизнес-требования', 'checklist-bt.md', null],
-  ['stage-cut', 'RV-DIRTY', 'docs/RMS-4021/stages/stage-01.md', 'файл задачи', 'checklist-stage.md', null],
-  ['stage-clean', 'RV-CLEAN', 'docs/RMS-4021/stages/stage-01.md', 'файл задачи', 'checklist-stage.md', null],
+  ['spec-dirty', 'RV-DIRTY', 'coddoc/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'coddoc/RMS-4021/business_requirements.md'],
+  ['spec-clean', 'RV-CLEAN', 'coddoc/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'coddoc/RMS-4021/business_requirements.md'],
+  ['spec-loop', 'RV-LOOP', 'coddoc/RMS-4021/technical_specification.md', 'тех-спецификация', 'checklist-spec.md', 'coddoc/RMS-4021/business_requirements.md'],
+  ['bt-design', 'RV-DIRTY', 'coddoc/RMS-4021/business_requirements.md', 'бизнес-требования', 'checklist-bt.md', null],
+  ['bt-clean', 'RV-CLEAN', 'coddoc/RMS-4021/business_requirements.md', 'бизнес-требования', 'checklist-bt.md', null],
+  ['stage-cut', 'RV-DIRTY', 'coddoc/RMS-4021/stages/stage-01.md', 'файл задачи', 'checklist-stage.md', null],
+  ['stage-clean', 'RV-CLEAN', 'coddoc/RMS-4021/stages/stage-01.md', 'файл задачи', 'checklist-stage.md', null],
 ];
 
 const skillDir = resolve(here, '..', 'spec-review');

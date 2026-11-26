@@ -1,0 +1,7 @@
+цепочка: nb-chain-3   фикстура: NB-CHAIN-3   стадий: 4
+модель: sonnet
+стадия 1: analyst-notebook — stage-1-prompt.txt; реплика turn2.txt; двойник — (—); потолок 5
+стадия 2: analyst-notebook — stage-2-prompt.txt; реплика turn2.txt; двойник — (—); потолок 5
+стадия 3: analyst-notebook — stage-3-prompt.txt; реплика turn2.txt; двойник — (—); потолок 5
+стадия 4: analyst-notebook — stage-4-prompt.txt; реплика turn2-export.txt; двойник — (—); потолок 3
+прогонов: 3, параллельность: 3

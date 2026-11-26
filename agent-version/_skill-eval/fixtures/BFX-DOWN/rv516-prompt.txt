@@ -1,0 +1,1 @@
+Проверь спеку coddoc/MTR-516/technical_specification.md. Можно отдавать в разработку?

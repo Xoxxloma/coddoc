@@ -7,7 +7,8 @@
 set -u
 SKILL="${1:?путь к SKILL.md}"; ROUND="${2:?папка раунда}"; N="${3:-3}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; FIX="${SM_FIX:-$HERE/fixtures/SM-FIELD/LEAD}"; OUT="$ROUND/${SM_OUT:-sm-lead}"
-MODEL="${SM_MODEL:-sonnet}"
+. "$HERE/model-id.sh"
+MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 ln() { grep -n -m1 -- "$1" "$SKILL" | cut -d: -f1; }
 L1=$(ln '^#### 3\.4 После возврата'); L2=$(ln '^### Шаг 4')
 for x in "$L1" "$L2"; do [ -n "$x" ] || { echo "не нашёл якорь 3.4 в $SKILL" >&2; exit 1; }; done

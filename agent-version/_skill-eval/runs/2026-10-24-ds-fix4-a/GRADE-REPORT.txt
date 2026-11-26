@@ -1,0 +1,108 @@
+раунд 2026-10-24-ds-fix4-a · перегрейд · 2026-10-23T21:24:25.263Z
+
+## p5-nomanifest — «Как сейчас списывается сломанный инструмент?»
+run-01: ✓ всё · $0.284 · ходов 6 · разведчиков 1 · сверок 5 · 0 с
+  ответ:
+    Как сейчас: код не списывает сломанный инструмент. Поломка фиксируется при возврате как флаг `damaged` и заметка `damageNote` у аренды. Если `damaged` истинно, залог уходит на разбор. Слов write-off, списание, decommission, retire и scrap в рабочем коде двух реп нет.
+    - [в коде] Поломка хранится как `damaged` и `damageNote` у аренды, статуса «списан» нет. — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/Rental.kt:23-24
+    - [в коде] При возврате сервис ставит `RETURNED`, записывает `damaged` и `damageNote`, затем публикует событие возврата. — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:28-33
+    - [в коде] Флаг `damaged` попадает в событие `RentalReturned`. — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:22
+    - [в коде] deposit-service получает событие. Если `damaged` истинно, залог переходит в `ON_REVIEW` и создаётся задача на разбор. — deposit-service/app/deposits.py:21-26
+    - [в коде] Задача создаётся в очереди `damage` (`REVIEW_QUEUE`). — deposit-service/app/review.py:5; deposit-service/app/review.py:10-14
+    - [в коде] Если поломки нет, залог переходит в `RELEASED`. — deposit-service/app/deposits.py:28-30
+    - [из документа] Разбор поломки — это решение отдела претензий о том, сколько удержать из залога. — context/glossary.md
+    - [не нашёл] Вывода инструмента из парка в коде нет ни в tool-rental, ни в deposit-service, и в карточках этого тоже нет.
+    - [не нашёл] Если «списывается» значит «удерживается из залога», то в коде есть только перевод залога в `ON_REVIEW` и создание задачи. Расчёта и удержания суммы нет, этим занимается отдел претензий.
+    - [не нашёл] Кода, который обрабатывает задачу на разбор после её создания, в deposit-service нет.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальная копия, могла отстать от удалённой.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog»
+    
+    Не удалось определить, какой сервис отвечает за вывод инструмента из парка. Посмотреть в tool-catalog? (да / нет)
+run-02: ✓ всё · $0.274 · ходов 11 · разведчиков 1 · сверок 10 · 0 с
+  ответ:
+    Как сейчас: в коде нет списания сломанного инструмента из парка. Есть только пометка поломки при возврате и перевод залога на разбор. Сумма удержания из залога в коде не считается.
+    
+    - [в коде] При возврате сотрудник передаёт флаг `damaged` (и `damageNote`), он записывается в аренду, статус аренды становится `RETURNED` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:30; tool-rental/src/main/kotlin/ru/toolhire/rental/api/RentalController.kt:24
+    - [в коде] Флаг `damaged` уходит в событие возврата `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:22
+    - [в коде] `deposit-service` при `damaged` переводит залог из `HELD` в `ON_REVIEW` и создаёт задачу на разбор — deposit-service/app/deposits.py:21-26
+    - [в коде] Если инструмент целый, залог становится `RELEASED` — deposit-service/app/deposits.py:28-30
+    - [из документа] Разбор поломки — решение отдела претензий, сколько удержать из залога — context/glossary.md
+    - [не нашёл] Списание инструмента из парка или смену его статуса. Поиск по `write-off`, `списан`, `decommission`, `retire`, `scrap` в двух репах ничего не дал. У `Rental` нет статуса списания: есть `BOOKED`, `ISSUED`, `RETURNED`, `OVERDUE`.
+    
+    Вопрос можно понять двояко. Если «списывается» значит «удерживается из залога», то в коде есть только перевод залога на разбор. Если значит «выводится из парка», то в двух репах из манифеста этого нет.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальные копии, могли отстать от удалённых.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+run-03: ✓ всё · $0.318 · ходов 9 · разведчиков 1 · сверок 8 · 0 с
+  ответ:
+    Как сейчас: отдельного «списания» сломанного инструмента в коде нет. Поломка отмечается при возврате аренды (`damaged`, `damageNote`). После этого залог уходит на ручной разбор в очередь `damage`, и дальше код не идёт.
+    
+    - [в коде] `returnTool` принимает `damaged` и `damageNote`, ставит аренде статус `RETURNED` и сохраняет их — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:25-32
+    - [в коде] После сохранения публикуется событие возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] В событии `RENTAL_RETURNED` есть `damaged` и `depositAmount` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:13-14
+    - [в коде] Событие уходит в Kafka после коммита транзакции, ключ партиции — `toolId`. Ошибка отправки только пишется в лог — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-22
+    - [в коде] deposit-service читает `RENTAL_RETURNED` и вызывает `on_rental_returned`. Offset коммитится после обработки — deposit-service/app/consumer.py:23-25
+    - [в коде] Залог обрабатывается только в статусе `HELD`. Если залога нет, пишется предупреждение и событие пропускается. Если статус другой, событие игнорируется — deposit-service/app/deposits.py:16-20
+    - [в коде] Если `damaged` истинно, залог получает статус `ON_REVIEW` — deposit-service/app/deposits.py:21-25
+    - [в коде] Для такого залога создаётся задача в таблице `review_tasks`, очередь `damage` — deposit-service/app/deposits.py:26; deposit-service/app/review.py:5; deposit-service/app/review.py:9-15
+    - [в коде] Если инструмент целый, залог получает статус `RELEASED` — deposit-service/app/deposits.py:28-30
+    - [не нашёл] Вывода инструмента из парка или смены его статуса в коде нет. У `Rental` статусы `BOOKED`, `ISSUED`, `RETURNED`, `OVERDUE`, статуса списания нет. Данные об инструментах (`toolId`) в этих репах не ведутся.
+    - [не нашёл] Дальше задачи в `review_tasks` код deposit-service не идёт: решения «сколько удержать» и списания денег с залога в нём нет. По глоссарию (context/glossary.md) разбор поломки делает отдел претензий, это вне кода этих реп.
+    - [вне кода] Имя топика берётся из `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22; deposit-service/app/config.py:4
+    
+    Карточка `services/tool-rental.md` расходится с кодом: в ней событие шлётся внутри транзакции, и при сбое возврат откатывается. В коде отправка идёт после коммита, сбой только логируется. Обновить: `/service-map tool-rental`.
+    Карточка `services/tool-rental.md` расходится с кодом и по ключу партиции: в карточке `rentalId`, в коде `toolId`. Обновить: `/service-map tool-rental`.
+    
+    Читал: tool-rental, ветка develop; deposit-service, ветка main — локальные копии, могли отстать от удалённых.
+    
+    Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog».
+
+## p8-choice — «Как сейчас списывается сломанный инструмент?»
+run-01: ✓ всё · $0.571 · ходов 8 · разведчиков 1 · сверок 7 · 0 с
+  ход 1:  посмотреть код? 1. `tool-rental` 2. `deposit-service` 3. папка `tool-catalog` (вне манифеста): `C:\Users\KONSTA~1\AppData\Local\Temp\deep-search-probes\2026-10-24-ds-fix4-a\p8-choice\run-01\ws\tool-catalog` Выбрать можно один вариант. Если ни один не нужен, ответь «нет», и ответ останется как есть.
+  ход 2 («Да, посмотри в tool-catalog»):
+  ответ:
+    Как сейчас: сломанный инструмент списывается в `tool-catalog`. Метод `registerDamage(toolId)` увеличивает счётчик поломок `damageCount` на 1. Когда счётчик доходит до 3, статус инструмента становится `WRITTEN_OFF`.
+    - [в коде] `registerDamage(toolId)` в одной транзакции находит инструмент, прибавляет к `damageCount` единицу и сохраняет его. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:9-12, :16
+    - [в коде] Как только `damageCount >= MAX_DAMAGES`, статус становится `WRITTEN_OFF`. Списание происходит на третьей зарегистрированной поломке. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:13-14
+    - [в коде] Порог `MAX_DAMAGES = 3` зашит константой, настройкой не меняется. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:20
+    - [в коде] Статусов два, `AVAILABLE` и `WRITTEN_OFF`. Счётчик `damageCount` начинается с 0. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/Tool.kt:9, :15
+    - [не нашёл] Вызова `registerDamage` в репе нет: ни контроллера, ни события, ни задачи. Поиск нашёл только само определение, так что откуда приходит сигнал о поломке, по коду не видно.
+    - [не нашёл] Обратного перехода из `WRITTEN_OFF` и проверки статуса при выдаче инструмента нет. Поиск по `WRITTEN_OFF` нашёл только присваивание и объявление enum.
+    - [не нашёл] Уведомлений и других побочных действий при списании нет.
+    
+    Читал: `tool-catalog`, ветка не определена (`.git` там файл, а не папка). Это локальная копия, она могла отстать от удалённой.
+run-02: ✓ всё · $0.688 · ходов 3 · разведчиков 1 · сверок 2 · 0 с
+  ход 1:  двух репах не меняется. - [не нашёл] Кода, который обрабатывает задачи в очереди `damage`. Читал: tool-rental, ветка develop; deposit-service, ветка main. Это локальные копии, они могли отстать от удалённых. Рядом вне манифеста: tool-catalog. Если ответа не хватает, скажи «посмотри в tool-catalog».
+  ход 2 («Да, посмотри в tool-catalog»):
+  ответ:
+    Как сейчас: инструмент списывается в `tool-catalog`. Метод `registerDamage` увеличивает счётчик поломок на 1, и при 3 поломках инструмент получает статус `WRITTEN_OFF`. Откуда приходит вызов, по коду непонятно. При возврате с поломкой (см. ответ выше) аренда и залог вызова `registerDamage` не делают.
+    
+    - [в коде] `registerDamage` находит инструмент по id, увеличивает `damageCount` на 1 и при достижении порога ставит `WRITTEN_OFF`. Всё идёт в одной транзакции, затем инструмент сохраняется. Если инструмента нет, `orElseThrow()` бросает исключение. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:9-17
+    - [в коде] Порог списания — константа `MAX_DAMAGES = 3`, проверка `damageCount >= MAX_DAMAGES`. Настройкой он не задаётся. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:13; tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:20
+    - [в коде] Статусов у инструмента два: `AVAILABLE` и `WRITTEN_OFF`. Счётчик `damageCount` начинается с 0. — tool-catalog/src/main/kotlin/ru/toolhire/catalog/Tool.kt:9; tool-catalog/src/main/kotlin/ru/toolhire/catalog/Tool.kt:15
+    - [не нашёл] Кто вызывает `registerDamage`. В `src` нет ни контроллера, ни обработчика события, ни другого вызова.
+    - [не нашёл] Действий при списании, кроме смены статуса: уведомлений, истории и ручного списания нет. Статус `WRITTEN_OFF` в коде нигде не проверяется, поэтому влияние на выдачу инструмента не определено.
+    
+    Читал: tool-catalog, ветку определить не удалось — `.git/HEAD` не читается. Это локальная копия, она могла отстать от удалённой.
+run-03: ✓ всё · $0.687 · ходов 6 · разведчиков 1 · сверок 5 · 0 с
+  ход 1:  задачи. Читал: tool-rental, ветка develop; deposit-service, ветка main — локальная копия, могла отстать от удалённой. Рядом вне манифеста: tool-catalog — если ответа не хватает, скажи «посмотри в tool-catalog» Не нашёл, где живёт учёт инструмента и его статусы. Посмотреть в tool-catalog? (да / нет)
+  ход 2 («Да, посмотри в tool-catalog»):
+  ответ:
+    Как сейчас: инструмент списывается по счётчику поломок в tool-catalog. На третьей зарегистрированной поломке он получает статус `WRITTEN_OFF`. По коду не видно, что вызывает `registerDamage`, так что связь с отметкой о поломке при возврате в tool-rental не подтверждена.
+    - [в коде] `registerDamage(toolId)` работает в транзакции: находит инструмент по id и увеличивает `damageCount` на 1 — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:9-12
+    - [в коде] Когда `damageCount >= MAX_DAMAGES`, инструмент получает статус `WRITTEN_OFF`, затем сохраняется — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:13-16
+    - [в коде] Порог — константа `MAX_DAMAGES = 3`, то есть списание на третьей поломке. В настройки порог не вынесен — tool-catalog/src/main/kotlin/ru/toolhire/catalog/WriteOffService.kt:20
+    - [в коде] Статусов два: `AVAILABLE` и `WRITTEN_OFF` — tool-catalog/src/main/kotlin/ru/toolhire/catalog/Tool.kt:9. По умолчанию `damageCount = 0`, `status = AVAILABLE` — tool-catalog/src/main/kotlin/ru/toolhire/catalog/Tool.kt:15-16
+    - [не нашёл] Вызов `registerDamage` в репе: что регистрирует поломку (HTTP-ручка, событие или другой сервис), по коду не видно.
+    - [не нашёл] Возврат инструмента в `AVAILABLE` после списания и проверки статуса при выдаче инструмента.
+    - [не нашёл] Уведомления и запись причины или даты списания.
+    
+    Читал: tool-catalog, ветка не определена (`.git` — файл, не папка) — локальная копия, могла отстать от удалённой.
+    
+    Остальное по вопросу (отметка `damaged` при возврате, залог `ON_REVIEW` и задача в `review_tasks`) осталось в предыдущем ответе.
+
+итого: $2.82

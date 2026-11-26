@@ -24,7 +24,7 @@ INT-3 — `POST /v1/journal/batch`. Ответ пунктиром — на ка�
 ## Пробы пула
 
 У обеих три хода: ход 1 — только вопрос о типе, ход 2 — «Сценарную.» (`type-scen-turn2.txt`) и вопросы, ход 3 — реплика и файл
-`docs/ESS-31/interaction_scenarios.md`. Промпт `mmd-prompt.txt` — Mermaid, слова «сценар» нет.
+`coddoc/ESS-31/interaction_scenarios.md`. Промпт `mmd-prompt.txt` — Mermaid, слова «сценар» нет.
 
 | Проба | Ход 3 | Что проверяет |
 |---|---|---|

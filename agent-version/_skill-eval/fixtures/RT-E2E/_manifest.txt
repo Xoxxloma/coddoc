@@ -1,5 +1,5 @@
-docs/PSS-2210/business_requirements.md
-docs/PSS-2210/technical_specification.md
+coddoc/PSS-2210/business_requirements.md
+coddoc/PSS-2210/technical_specification.md
 e2e-prompt.txt
 e2e-turn2.txt
 expected.md

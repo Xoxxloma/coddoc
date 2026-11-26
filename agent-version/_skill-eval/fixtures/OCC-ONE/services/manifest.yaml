@@ -1,0 +1,32 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: homework-service
+    path: ../homework-service
+    type: backend
+    notes: |
+      Канонический владелец домашних заданий, работ учеников и проверок.
+      Закрепление наставников за группами ведёт mentor-service; здесь — только его копия для очереди проверки.
+      Порог заимствований задаётся на курс в course-service; здесь он только читается.
+
+  - name: cabinet-web
+    path: ../cabinet-web
+    type: frontend
+
+  - name: course-service
+    path: ../course-service
+    type: backend
+
+  - name: mentor-service
+    path: ../mentor-service
+    type: backend
+
+  - name: notify-service
+    path: ../notify-service
+    type: backend
+    notes: |
+      Тексты уведомлений ведёт контент-команда через админку шаблонов.
+      Мобильные приложения ученика и наставника в манифест не входят; токены устройств они регистрируют здесь.
+
+  - name: progress-service
+    path: ../progress-service
+    type: backend

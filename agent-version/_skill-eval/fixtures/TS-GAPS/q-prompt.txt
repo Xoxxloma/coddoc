@@ -1,1 +1,1 @@
-Напиши техническую спецификацию по БТ docs/TRP-418/business_requirements.md.
+Напиши техническую спецификацию по БТ coddoc/TRP-418/business_requirements.md.

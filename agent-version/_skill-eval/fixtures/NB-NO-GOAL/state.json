@@ -1,0 +1,36 @@
+{
+  "notebook": "notes/аренда-беседок/notebook.md",
+  "stages": [
+    {
+      "mode": "write",
+      "confirmFirst": true,
+      "maxNew": 2,
+      "frontNot": [
+        "цель"
+      ],
+      "new": [
+        {
+          "as": "A",
+          "kind": "решено",
+          "has": [
+            "беседк",
+            "3 час"
+          ],
+          "decider": "мартынов"
+        }
+      ]
+    }
+  ],
+  "mutations": [
+    {
+      "name": "в шапке «цель:»",
+      "stage": 1,
+      "edits": [
+        [
+          "ключ: —\n",
+          "ключ: —\nцель: —\n"
+        ]
+      ]
+    }
+  ]
+}

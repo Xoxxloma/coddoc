@@ -2,7 +2,7 @@ q-prompt.txt
 README.md
 seed/services/tender-desk.md
 seed/services/vendor-registry.md
-seed-ts/docs/SMSEC-3120/business_requirements.md
+seed-ts/coddoc/SMSEC-3120/business_requirements.md
 seed-ts/services/tender-desk.md
 seed-ts/services/vendor-registry.md
 t1-prompt.txt

@@ -1,4 +1,4 @@
-docs/RMS-4021/business_requirements.md
-docs/RMS-4021/stages/stage-01.md
-docs/RMS-4021/technical_specification.md
+coddoc/RMS-4021/business_requirements.md
+coddoc/RMS-4021/stages/stage-01.md
+coddoc/RMS-4021/technical_specification.md
 rv-prompt.txt

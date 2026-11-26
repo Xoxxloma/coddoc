@@ -1,0 +1,26 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/stage-breakdown-doc.SKILL.md
+проба: sb-ctx   фикстура: SB-CTX   скилл: stage-breakdown-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/sb-ctx
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-sb-ctx-38192-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/SB-CTX/stage-prompt.txt
+прогонов: 3, параллельно: 3
+  run-3 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/sb-ctx/run-3/_stderr.log
+  run-2 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/sb-ctx/run-2/_stderr.log
+  run-1 — ОТКАЗ (rc=1), см. runs/2026-11-23-occ-pool/sb-ctx/run-1/_stderr.log
+ГОТОВО: runs/2026-11-23-occ-pool/sb-ctx — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-sb-ctx-38192-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/sb-ctx: $0.00 за 0 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-23-occ-pool/_skills/stage-breakdown-doc.SKILL.md
+проба: sb-ctx   фикстура: SB-CTX   скилл: stage-breakdown-doc
+effort: умолчание CLI
+плечо: runs/2026-11-23-occ-pool/sb-ctx
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-sb-ctx-44252-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/SB-CTX/stage-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — готов
+  run-2 — готов
+  run-3 — готов
+ГОТОВО: runs/2026-11-23-occ-pool/sb-ctx — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-23-occ-pool-sb-ctx-44252-skills (журнальная копия осталась в runs/2026-11-23-occ-pool/_skills/)
+runs/2026-11-23-occ-pool/sb-ctx: $0.97 за 3 прогонов

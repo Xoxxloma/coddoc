@@ -11,7 +11,8 @@ set -u
 SKILL="${1:?путь к SKILL.md}"; ROUND="${2:?папка раунда}"; N="${3:-3}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; FIX="$HERE/fixtures/SM-ADV/iso"; OUT="$ROUND/sm-adv-iso"
 KEYED="$(dirname "$SKILL")/reference/keyed-update.md"
-MODEL="${SM_MODEL:-sonnet}"
+. "$HERE/model-id.sh"
+MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 [ -f "$SKILL" ] || { echo "нет $SKILL" >&2; exit 1; }
 [ -f "$KEYED" ] || { echo "нет $KEYED" >&2; exit 1; }
 mkdir -p "$OUT"; cp "$SKILL" "$OUT/_skill-snapshot.md"; cp "$KEYED" "$OUT/_keyed-snapshot.md"

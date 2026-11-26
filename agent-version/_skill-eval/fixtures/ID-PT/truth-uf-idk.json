@@ -1,0 +1,43 @@
+{
+  "key": "ADP-41",
+  "list": "notes/пристройство-животных/notebook-2026-10-10.points.md",
+  "nodes": [
+    {"id": "d4", "fr": 1, "kind": "decision", "stems": ["подпис"]},
+    {"id": "s9", "fr": 1, "kind": "step", "stems": ["переда", "живот"]},
+    {"id": "s10", "fr": 1, "kind": "step", "stems": ["возвра"]},
+    {"id": "s7", "fr": 3, "kind": "step", "stems": ["приход"]},
+    {"id": "d3", "fr": 3, "kind": "decision", "stems": ["контакт"]},
+    {"id": "s8", "fr": 3, "kind": "step", "stems": ["готов"]},
+    {"id": "s4", "fr": 7, "kind": "step", "stems": ["звон"]},
+    {"id": "d2", "fr": 7, "kind": "decision", "stems": ["подход"]},
+    {"id": "s5", "fr": 7, "kind": "step", "stems": ["назнач"]},
+    {"id": "s6", "fr": 7, "kind": "step", "stems": ["отказ"]},
+    {"id": "s1", "fr": 9, "kind": "step", "stems": ["выбир"]},
+    {"id": "s2", "fr": 9, "kind": "step", "stems": ["отправ", "анкет"]},
+    {"id": "d1", "fr": 10, "kind": "decision", "stems": ["квартир"]},
+    {"id": "s3", "fr": 10, "kind": "step", "stems": ["соглас"]}
+  ],
+  "edges": [
+    ["start", "d4"],
+    ["d4", "s9"],
+    ["d4", "s10"],
+    ["s9", "s7"],
+    ["s7", "d3"],
+    ["d3", "s8"],
+    ["d3", "s7"],
+    ["s8", "s4"],
+    ["s4", "d2"],
+    ["d2", "s5"],
+    ["d2", "s6"],
+    ["s6", "end"],
+    ["s5", "s1"],
+    ["s1", "s2"],
+    ["s2", "d1"],
+    ["d1", "s3"],
+    ["s3", "end"]
+  ],
+  "asks": {"order": true, "branch": [10], "end": [1], "open": [8]},
+  "holes": [],
+  "off": [2, 4, 5, 6, 8],
+  "thoughts": 2
+}

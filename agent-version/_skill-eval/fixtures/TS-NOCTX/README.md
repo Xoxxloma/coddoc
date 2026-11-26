@@ -26,7 +26,7 @@
 ## Вход
 
 ```
-docs/SMSEC-420/business_requirements.md   тот же БТ, что в TS-CTX
+coddoc/SMSEC-420/business_requirements.md   тот же БТ, что в TS-CTX
 context/conventions.md                    те же правила оформления НАШЕГО
 ```
 

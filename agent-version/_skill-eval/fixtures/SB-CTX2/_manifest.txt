@@ -1,5 +1,5 @@
 context/conventions.md
 context/scb-protocol.md
-docs/SMSEC-420/business_requirements.md
+coddoc/SMSEC-420/business_requirements.md
 README.md
 stage-prompt.txt

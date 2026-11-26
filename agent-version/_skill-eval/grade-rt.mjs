@@ -125,7 +125,9 @@ export function turnLaunches (streamText, name) {
       const i = b.input ?? {}
       if (b.name === 'Skill' && (i.skill ?? '').includes(name)) return true
       if (b.name === 'Read' && read.test(i.file_path ?? '')) return true
-      if (b.name === 'Bash' && (i.command ?? '').includes(name) && /_trace/.test(i.command ?? '')) return true
+      // имя скилла — как запись трассы (`echo "<скилл> …" >> _trace.log`), не как кусок пути: путь песочницы может
+      // содержать имя скилла (ворктри `rehearse`)
+      if (b.name === 'Bash' && new RegExp(`(?:echo|printf)\\s+(?:-\\w+\\s+)?["']?${name}[\\s"']`).test(i.command ?? '') && /_trace/.test(i.command ?? '')) return true
       if ((b.name === 'Write' || b.name === 'Edit') && /_trace\.log/.test(i.file_path ?? '') &&
         ((i.content ?? '') + (i.new_string ?? '')).includes(name)) return true
     }
@@ -189,7 +191,7 @@ const REPLACEMENT = String.fromCharCode(0xFFFD)
  * ЧТЕНИЕ ТРАССЫ С ПОДБОРОМ КОДИРОВКИ.
  *
  * Поймано 2026-08-20 на прогоне base10/run-04: строка трассы пришла как
- * `technical-spec-doc ????????=docs/... ????=???????` — латиница цела, кириллица мусор.
+ * `technical-spec-doc ????????=coddoc/... ????=???????` — латиница цела, кириллица мусор.
  * Причина виндовая и не наша: заглушка велит «допиши строку в `_trace.log`», агент дописывает
  * её PowerShell'ом, а `Add-Content` по умолчанию пишет системной кодировкой (cp1251), не UTF-8.
  *
@@ -263,11 +265,11 @@ STATIONS.noreview = [
 ]
 // У пробы проверки (2.0.0) лестница — маршрут до принятой спеки и проверка готовности: аналитик в
 // узле выбрал «Проверить спеку», этапов здесь нет, и их отсутствие — верное поведение, а не обрыв.
-STATIONS.check = [...STATIONS.bug.slice(0, 4), ['готовность проверена', STATION_CALL('spec-readiness')]]
+STATIONS.check = [...STATIONS.bug.slice(0, 4), ['готовность проверена', STATION_CALL('rehearse')]]
 // У пробы «Начать другую задачу» (2.0.0) лестница — маршрут до принятой спеки; дальше только стартовый вопрос.
 STATIONS.other = STATIONS.bug.slice(0, 4)
 // У пробы эпика (2.0.0) станции — проверка каждой спеки уровня; порядок «#0 первой» меряется отдельно.
-const READ_OF = (re) => (t) => t.some((l) => l.startsWith('spec-readiness') && re.test(l))
+const READ_OF = (re) => (t) => t.some((l) => l.startsWith('rehearse') && re.test(l))
 STATIONS.epic = [
   ['проверен #0', READ_OF(/_foundation/)],
   ['проверен ARS-101', READ_OF(/ARS-101/)],
@@ -318,7 +320,7 @@ export function gradeRun (dir, probe) {
 
   // Оркестратор писать документы не должен — их пишут под-скиллы. Файл есть, а вызова нет =
   // сделал работу сам.
-  r.docs = existsSync(join(dir, 'docs')) ? readdirSync(join(dir, 'docs')) : []
+  r.docs = existsSync(join(dir, 'coddoc')) ? readdirSync(join(dir, 'coddoc')) : []
 
   r.first = r.calls[0] ?? null
   r.calledBugReport = r.calls.includes('bug-report-doc')
@@ -330,7 +332,7 @@ export function gradeRun (dir, probe) {
   Object.assign(r, ladder(r.lines, probe))
   // Разрез: заглушки `task-decomposition-doc` нет намеренно — её вызов виден только в потоке.
   // В трассе признак другой: до спеки дошёл, а лишнего документа не появилось.
-  r.decomposition = r.docs.some((d) => existsSync(join(dir, 'docs', d, 'decomposition.md')))
+  r.decomposition = r.docs.some((d) => existsSync(join(dir, 'coddoc', d, 'decomposition.md')))
 
   // Флаг багфикса и источник заглушка спеки пишет в свою строку.
   // СТРОКА СПЕКИ — ТА, ГДЕ ЕСТЬ СВЕДЕНИЯ, А НЕ ПЕРВАЯ ПОПАВШАЯСЯ. Поймано 2026-08-20 на
@@ -356,7 +358,7 @@ export function gradeRun (dir, probe) {
   r.wrongStep = RE_STEP1_NEIGHBOURS.test(ans)
   r.showsMenu = r.showsBT && r.showsBug && !r.wrongStep
   // Узел «Что дальше?» — по ходам: показан ли он и в постоянном ли порядке. Старый флоу — по склейке.
-  r.stagesDir = r.docs.some((d) => existsSync(join(dir, 'docs', d, 'stages')))
+  r.stagesDir = r.docs.some((d) => existsSync(join(dir, 'coddoc', d, 'stages')))
   const nodes = turnAnswers(dir).map(nodeIn).filter((n) => n.shown)
   r.reachedNode = nodes.length > 0
   r.nodeCount = nodes.length
@@ -366,14 +368,17 @@ export function gradeRun (dir, probe) {
   r.oldSplit = RE_OLD_SPLIT.test(ans)
   r.oldOptions = RE_OLD_OPTIONS.test(ans)
   // Проверка готовности: строка заглушки несёт путь ровно в том виде, в каком его передали.
-  const readinessLine = r.lines.find((l) => l.startsWith('spec-readiness')) ?? ''
+  const readinessLine = r.lines.find((l) => l.startsWith('rehearse')) ?? ''
   r.calledReadiness = readinessLine !== ''
   r.readinessPath = readinessLine.split(/\s+/)[1] ?? ''
   r.readinessOnSpec = /technical_specification\.md/.test(r.readinessPath)
   r.readinessAbs = /^([A-Za-z]:[\\/]|\/)/.test(r.readinessPath)
+  // analyst-workspace 2.2.0: проверка — `rehearse` в режиме «проверка»; вызов прежнего `spec-readiness` — старый маршрут.
+  r.readinessRole = r.lines.filter((l) => l.startsWith('rehearse')).every((l) => /\sпроверка\s*$/i.test(l))
+  r.oldReadiness = r.lines.some((l) => l.startsWith('spec-readiness'))
   // Отчёт проверки — хендофф, а не конец хода проводника (2.0.0, правило 3): узел — ТЕМ ЖЕ ходом. Узел
   // без одного из четырёх вариантов не засчитывается — `nodeIn` требует все. Следующий ход — справкой.
-  r.readinessTurn = skillTurn(dir, 'spec-readiness')
+  r.readinessTurn = skillTurn(dir, 'rehearse')
   r.nodeAfterReadiness = r.readinessTurn > 0 && nodeIn(answerOfTurn(dir, r.readinessTurn)).shown
   r.nodeNextTurn = r.readinessTurn > 0 && nodeIn(answerOfTurn(dir, r.readinessTurn + 1)).shown
   // Гейт 2Б по ходам: в каком ходу запущена спека и задан ли вопрос гейта ходом раньше.
@@ -389,7 +394,7 @@ export function gradeRun (dir, probe) {
   const reviewed = (re) => r.lines.some((l) => l.startsWith('spec-review') && re.test(l))
   r.reviewedTop = reviewed(/bug_report\.md|business_requirements\.md|change_request\.md/)
   r.reviewedSpec = reviewed(/technical_specification\.md/)
-  r.readinessAsReview = r.lines.some((l) => l.startsWith('spec-readiness') && /bug_report\.md|business_requirements\.md|change_request\.md|stages/.test(l)) ||
+  r.readinessAsReview = r.lines.some((l) => l.startsWith('rehearse') && /bug_report\.md|business_requirements\.md|change_request\.md|stages/.test(l)) ||
     (!['check', 'epic'].includes(probe) && r.calledReadiness)
   if (probe === 'bug' || probe === 'nokey') {
     r.wrongFirst = r.first !== null && r.first !== 'bug-report-doc'
@@ -415,7 +420,7 @@ export function gradeRun (dir, probe) {
     r.pass = r.first === 'bug-report-doc' && !r.calledBT && !r.decomposition &&
       r.calledSpec && r.flagBugfix && r.sourceIsReport &&
       r.calledReadiness && r.readinessOnSpec && r.nodeAfterReadiness && !r.calledStages && !r.stagesDir &&
-      r.reviewedTop && r.reviewedSpec && !r.readinessAsReview
+      r.reviewedTop && r.reviewedSpec && !r.readinessAsReview && r.readinessRole && !r.oldReadiness
   } else if (probe === 'other') {
     // Аналитик в узле выбрал «Начать другую задачу». Зачёт — конъюнкция: маршрут дефекта верный до принятой
     // спеки, узел показан, в каком-то ходе ПОСЛЕ первого узла — стартовый вопрос (не меньше двух его кнопок:
@@ -441,12 +446,13 @@ export function gradeRun (dir, probe) {
     r.nodeTurn1 = r.reachedNode
     r.asksWhat = false
     r.archiveOption = turnAnswers(dir).filter((t) => nodeIn(t).shown).some((t) => /Сначала архивировать/i.test(t))
-    const reads = r.lines.filter((l) => l.startsWith('spec-readiness'))
+    const reads = r.lines.filter((l) => l.startsWith('rehearse'))
     r.allChecked = r.steps === r.total
     r.foundationFirst = reads.length > 0 && /_foundation/.test(reads[0])
     r.wrongFirst = false
     r.pass = !r.rewrote && r.nodeTurn1 && !r.asksWhat && !r.archiveOption &&
-      r.allChecked && r.foundationFirst && r.nodeAfterReadiness && !r.calledStages && !r.stagesDir
+      r.allChecked && r.foundationFirst && r.nodeAfterReadiness && !r.calledStages && !r.stagesDir &&
+      r.readinessRole && !r.oldReadiness
   } else if (probe === 'fix') {
     // Аналитик в узле выбрал «Доработать спеку». Зачёт — конъюнкция: маршрут дефекта верный до спеки,
     // спека запущена второй раз (доработка), после неё приёмка (новая редакция → новая приёмка), и
@@ -493,14 +499,14 @@ export function gradeRun (dir, probe) {
 // ─── Самопроверка ───────────────────────────────────────────────────────────────────────────
 
 const REF_BUG = `bug-report-doc
-spec-review docs/ARS-312/bug_report.md
-technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс
-spec-review docs/ARS-312/technical_specification.md
+spec-review coddoc/ARS-312/bug_report.md
+technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс
+spec-review coddoc/ARS-312/technical_specification.md
 stage-breakdown-doc`
 
 const REF_FEATURE = `business-requirements-doc
-spec-review docs/SMSEC-77/business_requirements.md
-technical-spec-doc источник=docs/SMSEC-77/business_requirements.md флаг=обычный`
+spec-review coddoc/SMSEC-77/business_requirements.md
+technical-spec-doc источник=coddoc/SMSEC-77/business_requirements.md флаг=обычный`
 
 function selftest () {
   let bad = 0
@@ -552,7 +558,7 @@ function selftest () {
   // различение и есть повод завести лестницу — конъюнкция `pass` здесь даёт тот же ноль,
   // что и у прогона, вставшего сразу после репорта.
   const SKIPPED = `bug-report-doc
-technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс
+technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс
 stage-breakdown-doc`
   const ls = ladder(parseTrace(SKIPPED), 'bug')
   ck('приёмка пропущена — станций', ls.steps, 3)
@@ -569,7 +575,7 @@ stage-breakdown-doc`
 
   // Кодировка трассы: cp1251-строка обязана читаться так же, как UTF-8. Проверяем на настоящем
   // событии — строке заглушки спеки, которая и приехала битой на base10/run-04.
-  const LINE = 'technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс'
+  const LINE = 'technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс'
   const tmp1 = join(tmpdir(), 'rt-trace-utf8.log')
   const tmp2 = join(tmpdir(), 'rt-trace-cp1251.log')
   writeFileSync(tmp1, LINE, 'utf8')
@@ -597,7 +603,7 @@ stage-breakdown-doc`
   // Двойной вызов заглушки: сведения во ВТОРОЙ строке, первая голая.
   const DOUBLE = `bug-report-doc
 technical-spec-doc
-technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс
+technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс
 stage-breakdown-doc`
   const dl = parseTrace(DOUBLE).filter((l) => l.startsWith('technical-spec-doc'))
   ck('строка спеки выбрана со сведениями', /=/.test(dl.find((l) => /=/.test(l)) ?? dl[0]), true)
@@ -605,12 +611,12 @@ stage-breakdown-doc`
   // Проба флага: зачёт — конъюнкция «приёмки не было» И «маршрут доехал». Обе половины проверяем
   // порознь, иначе прогон, вставший на репорте, выглядел бы образцовым: приёмку он тоже не звал.
   const NR_OK = `bug-report-doc
-technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс
+technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс
 stage-breakdown-doc`
   const nr = ladder(parseTrace(NR_OK), 'noreview')
   ck('лестница флага — три станции', nr.total, 3)
   ck('маршрут без приёмки — полный', nr.reach, 3)
-  const NR_LEAK = NR_OK + '\nspec-review docs/ARS-312/technical_specification.md'
+  const NR_LEAK = NR_OK + '\nspec-review coddoc/ARS-312/technical_specification.md'
   ck('просочившаяся приёмка видна', parseTrace(NR_LEAK).some((l) => l.startsWith('spec-review')), true)
   ck('встал на репорте — не полный маршрут', ladder(parseTrace('bug-report-doc'), 'noreview').reach, 1)
 
@@ -625,23 +631,23 @@ stage-breakdown-doc`
   ck('старый вопрос про этапы — НЕ узел', nodeIn('Разбить спеку на этапы? Да, разбить на этапы / Нет, спеки достаточно').shown, false)
   ck('старый вопрос про этапы опознан', RE_OLD_SPLIT.test('Разбить спеку на этапы?'), true)
   ck('подпись узла — НЕ старый вопрос', RE_OLD_SPLIT.test(NODE), false)
-  ck('старая станция опознана', RE_OLD_STATION.test('спека принята; перед раздачей исполнителям запустите `/spec-readiness docs/ARS-312/technical_specification.md`'), true)
-  ck('отчёт проверки — НЕ старая станция', RE_OLD_STATION.test('спека: docs/ARS-312/technical_specification.md\nролей ответило: 3 из 3'), false)
+  ck('старая станция опознана', RE_OLD_STATION.test('спека принята; перед раздачей исполнителям запустите `/spec-readiness coddoc/ARS-312/technical_specification.md`'), true)
+  ck('отчёт проверки — НЕ старая станция', RE_OLD_STATION.test('спека: coddoc/ARS-312/technical_specification.md\nролей ответило: 3 из 3'), false)
   ck('старая развилка опознана', RE_OLD_OPTIONS.test('Что дальше? Начать другую задачу / Доработать спеку / На сегодня закончить'), true)
   ck('новый узел — НЕ старая развилка', RE_OLD_OPTIONS.test(NODE), false)
   // Проба проверки: лестница до принятой спеки плюс станция готовности.
-  const REF_CHECK = REF_BUG.replace(/\nstage-breakdown-doc$/, '\nspec-readiness C:/sb/run-01/docs/ARS-312/technical_specification.md')
+  const REF_CHECK = REF_BUG.replace(/\nstage-breakdown-doc$/, '\nrehearse C:/sb/run-01/coddoc/ARS-312/technical_specification.md')
   const lc = ladder(parseTrace(REF_CHECK), 'check')
   ck('лестница проверки — пять станций', lc.total, 5)
   ck('маршрут до проверки — полный', lc.reach, 5)
-  ck('проверка без спеки — обрыв на первой', ladder(parseTrace('bug-report-doc\nspec-readiness x'), 'check').reach, 1)
+  ck('проверка без спеки — обрыв на первой', ladder(parseTrace('bug-report-doc\nrehearse x'), 'check').reach, 1)
   // Проба эпика: проверка каждой спеки уровня — четыре станции; порядок не входит в лестницу.
-  const EPIC = 'spec-readiness C:/sb/docs/ARS-100/_foundation/technical_specification.md\nspec-readiness C:/sb/docs/ARS-100/ARS-101/technical_specification.md\nspec-readiness C:/sb/docs/ARS-100/ARS-102/technical_specification.md\nspec-readiness C:/sb/docs/ARS-100/ARS-103/technical_specification.md'
+  const EPIC = 'rehearse C:/sb/coddoc/ARS-100/_foundation/technical_specification.md\nrehearse C:/sb/coddoc/ARS-100/ARS-101/technical_specification.md\nrehearse C:/sb/coddoc/ARS-100/ARS-102/technical_specification.md\nrehearse C:/sb/coddoc/ARS-100/ARS-103/technical_specification.md'
   ck('эпик — все четыре проверены', ladder(parseTrace(EPIC), 'epic').steps, 4)
   ck('эпик без #0 — три', ladder(parseTrace(EPIC.split('\n').slice(1).join('\n')), 'epic').steps, 3)
   // Проба доработки: второй вызов спеки и приёмка ПОСЛЕ него; приёмка до второго вызова не считается.
-  const SPEC2 = 'technical-spec-doc источник=docs/ARS-312/bug_report.md флаг=багфикс'
-  const REF_FIX = REF_BUG.replace(/\nstage-breakdown-doc$/, `\n${SPEC2}\nspec-review docs/ARS-312/technical_specification.md`)
+  const SPEC2 = 'technical-spec-doc источник=coddoc/ARS-312/bug_report.md флаг=багфикс'
+  const REF_FIX = REF_BUG.replace(/\nstage-breakdown-doc$/, `\n${SPEC2}\nspec-review coddoc/ARS-312/technical_specification.md`)
   const lx = ladder(parseTrace(REF_FIX), 'fix')
   ck('лестница доработки — шесть станций', lx.total, 6)
   ck('маршрут доработки — полный', lx.reach, 6)
@@ -650,40 +656,40 @@ stage-breakdown-doc`
   // Гейт 2Б: анкер ловит обе формы из текста скилла и не ловит хендофф заглушки.
   ck('вопрос гейта опознан', RE_GATE.test('БТ SMSEC-77 принят — идём дальше?'), true)
   ck('подпись варианта опознана', RE_GATE.test('1. Идти дальше — писать тех-спеку по SMSEC-77'), true)
-  ck('хендофф заглушки — НЕ гейт', RE_GATE.test('БТ записан: docs/SMSEC-77/business_requirements.md\nСтатус готовности: Готово к оценке'), false)
+  ck('хендофф заглушки — НЕ гейт', RE_GATE.test('БТ записан: coddoc/SMSEC-77/business_requirements.md\nСтатус готовности: Готово к оценке'), false)
   // Ход запуска спеки — по потоку, любой из следов.
   const ev = (name, input) => JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name, input }] } })
-  ck('запуск через Skill', turnLaunchesSpec(ev('Skill', { skill: 'technical-spec-doc', args: 'docs/SMSEC-77/business_requirements.md' })), true)
+  ck('запуск через Skill', turnLaunchesSpec(ev('Skill', { skill: 'technical-spec-doc', args: 'coddoc/SMSEC-77/business_requirements.md' })), true)
   ck('запуск через чтение заглушки', turnLaunchesSpec(ev('Read', { file_path: 'C:/sb/.claude/skills/technical-spec-doc/SKILL.md' })), true)
-  ck('запуск через запись трассы', turnLaunchesSpec(ev('Bash', { command: 'echo "technical-spec-doc источник=docs/SMSEC-77/business_requirements.md флаг=обычный" >> _trace.log' })), true)
-  ck('приёмка — НЕ запуск спеки', turnLaunchesSpec(ev('Skill', { skill: 'spec-review', args: 'docs/SMSEC-77/technical_specification.md' })), false)
-  ck('чтение готовой спеки — НЕ запуск', turnLaunchesSpec(ev('Read', { file_path: 'docs/SMSEC-77/technical_specification.md' })), false)
+  ck('запуск через запись трассы', turnLaunchesSpec(ev('Bash', { command: 'echo "technical-spec-doc источник=coddoc/SMSEC-77/business_requirements.md флаг=обычный" >> _trace.log' })), true)
+  ck('приёмка — НЕ запуск спеки', turnLaunchesSpec(ev('Skill', { skill: 'spec-review', args: 'coddoc/SMSEC-77/technical_specification.md' })), false)
+  ck('чтение готовой спеки — НЕ запуск', turnLaunchesSpec(ev('Read', { file_path: 'coddoc/SMSEC-77/technical_specification.md' })), false)
   // Ход и ответ на диске: остановка = спека в ходе 2, вопрос гейта в ответе хода 1.
   const sb = join(tmpdir(), 'rt-gate-selftest')
   rmSync(sb, { recursive: true, force: true })  // остатки прошлой самопроверки исказили бы счёт ходов
   mkdirSync(sb, { recursive: true })
-  writeFileSync(join(sb, 'stream.jsonl'), ev('Skill', { skill: 'spec-review', args: 'docs/SMSEC-77/business_requirements.md' }))
-  writeFileSync(join(sb, 'stream-02.jsonl'), ev('Skill', { skill: 'technical-spec-doc', args: 'docs/SMSEC-77/business_requirements.md' }))
+  writeFileSync(join(sb, 'stream.jsonl'), ev('Skill', { skill: 'spec-review', args: 'coddoc/SMSEC-77/business_requirements.md' }))
+  writeFileSync(join(sb, 'stream-02.jsonl'), ev('Skill', { skill: 'technical-spec-doc', args: 'coddoc/SMSEC-77/business_requirements.md' }))
   writeFileSync(join(sb, 'answer-01.md'), 'приёмка: нарушений нет. БТ SMSEC-77 принят — идём дальше?\n1. Идти дальше — писать тех-спеку\n2. Пока остановиться')
   writeFileSync(join(sb, 'answer-02.md'), 'Спека записана.')
   ck('спека запущена в ходе 2', specTurn(sb), 2)
   ck('ответ хода 1 содержит гейт', RE_GATE.test(answerOfTurn(sb, 1)), true)
   // Спека в ходе 1 — остановки нет, даже если вопрос где-то произнесён.
-  writeFileSync(join(sb, 'stream.jsonl'), ev('Skill', { skill: 'technical-spec-doc', args: 'docs/SMSEC-77/business_requirements.md' }))
+  writeFileSync(join(sb, 'stream.jsonl'), ev('Skill', { skill: 'technical-spec-doc', args: 'coddoc/SMSEC-77/business_requirements.md' }))
   ck('спека в ходе 1 опознана', specTurn(sb), 1)
   // Проверка готовности в ходе 3, и в ответе ТОГО ЖЕ хода — узел снова.
-  ck('приёмка — НЕ запуск проверки', turnLaunches(ev('Skill', { skill: 'spec-review', args: 'docs/ARS-312/technical_specification.md' }), 'spec-readiness'), false)
-  writeFileSync(join(sb, 'stream-03.jsonl'), ev('Skill', { skill: 'spec-readiness', args: 'C:/sb/docs/SMSEC-77/technical_specification.md' }))
-  writeFileSync(join(sb, 'answer-03.md'), 'спека: C:/sb/docs/SMSEC-77/technical_specification.md\nвопросов задано: 4 · осталось: 2\n\n' + NODE)
-  ck('проверка запущена в ходе 3', skillTurn(sb, 'spec-readiness'), 3)
+  ck('приёмка — НЕ запуск проверки', turnLaunches(ev('Skill', { skill: 'spec-review', args: 'coddoc/ARS-312/technical_specification.md' }), 'rehearse'), false)
+  writeFileSync(join(sb, 'stream-03.jsonl'), ev('Skill', { skill: 'rehearse', args: 'C:/sb/coddoc/SMSEC-77/technical_specification.md проверка' }))
+  writeFileSync(join(sb, 'answer-03.md'), 'спека: C:/sb/coddoc/SMSEC-77/technical_specification.md\nвопросов задано: 4 · осталось: 2\n\n' + NODE)
+  ck('проверка запущена в ходе 3', skillTurn(sb, 'rehearse'), 3)
   ck('узел в ходе проверки', nodeIn(answerOfTurn(sb, 3)).shown, true)
   ck('узлы по ходам — один', turnAnswers(sb).map(nodeIn).filter((n) => n.shown).length, 1)
   // Узел следующим ходом — засчитывается; узел из трёх вариантов — нет.
-  writeFileSync(join(sb, 'answer-03.md'), 'спека: C:/sb/docs/SMSEC-77/technical_specification.md\nвопросов задано: 4 · осталось: 2')
+  writeFileSync(join(sb, 'answer-03.md'), 'спека: C:/sb/coddoc/SMSEC-77/technical_specification.md\nвопросов задано: 4 · осталось: 2')
   writeFileSync(join(sb, 'answer-04.md'), 'Какой вариант?\n1. Доработать спеку\n2. Разбить на этапы\n3. Начать другую задачу')
   ck('узел из трёх — НЕ узел', nodeIn(answerOfTurn(sb, 4)).shown, false)
   writeFileSync(join(sb, 'answer-04.md'), NODE)
-  ck('узел следующим ходом виден (справка)', nodeIn(answerOfTurn(sb, skillTurn(sb, 'spec-readiness') + 1)).shown, true)
+  ck('узел следующим ходом виден (справка)', nodeIn(answerOfTurn(sb, skillTurn(sb, 'rehearse') + 1)).shown, true)
   // Гейт живой формулировкой Haiku — только вопрос.
   ck('гейт «Продолжаем …?» опознан', RE_GATE.test('Приёмка БТ: нарушений нет. Продолжаем писать техническую спеку на SMSEC-77?'), true)
   ck('«Продолжаем.» без вопроса — НЕ гейт', RE_GATE.test('Продолжаем: запускаю technical-spec-doc.'), false)
@@ -804,7 +810,9 @@ if (PROBE === 'bug' || PROBE === 'nokey') {
   console.log(`  ${pct(c((r) => !r.calledSpec))}\tмаршрут не дошёл до спеки`)
   console.log(`  ход запуска спеки по прогонам: ${ok.map((r) => r.specTurn || '—').join(' ')}  (норма — ≥2)`)
 } else if (PROBE === 'check') {
-  console.log(`  ${pct(c((r) => !r.calledReadiness))}\tПРОВЕРКА НЕ ЗАПУЩЕНА — spec-readiness не вызван  ← КРИТЕРИЙ`)
+  console.log(`  ${pct(c((r) => !r.calledReadiness))}\tПРОВЕРКА НЕ ЗАПУЩЕНА — rehearse не вызван  ← КРИТЕРИЙ`)
+  console.log(`  ${pct(c((r) => r.calledReadiness && !r.readinessRole))}\trehearse вызван не в режиме «проверка»  ← КРИТЕРИЙ`)
+  console.log(`  ${pct(c((r) => r.oldReadiness))}\tвызван прежний spec-readiness  ← КРИТЕРИЙ`)
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.readinessOnSpec))}\tпроверке передан не путь спеки  ← КРИТЕРИЙ`)
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.readinessAbs))}\tпуть спеки не абсолютный (справка)`)
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.nodeAfterReadiness))}\tПОСЛЕ ОТЧЁТА НЕТ УЗЛА из четырёх тем же ходом  ← КРИТЕРИЙ`)
@@ -825,7 +833,9 @@ if (PROBE === 'bug' || PROBE === 'nokey') {
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.foundationFirst))}\t#0 проверен не первым  ← КРИТЕРИЙ`)
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.nodeAfterReadiness))}\tпосле отчётов нет узла из четырёх тем же ходом  ← КРИТЕРИЙ`)
   console.log(`  ${pct(c((r) => r.calledReadiness && !r.nodeAfterReadiness && r.nodeNextTurn))}	— из них узел пришёл следующим ходом (справка)`)
-  console.log(`  вызовов проверки на прогон: ${ok.map((r) => r.lines.filter((l) => l.startsWith('spec-readiness')).length).join(' ')}  (норма — 4)`)
+  console.log(`  ${pct(c((r) => r.calledReadiness && !r.readinessRole))}\trehearse вызван не в режиме «проверка»  ← КРИТЕРИЙ`)
+  console.log(`  ${pct(c((r) => r.oldReadiness))}\tвызван прежний spec-readiness  ← КРИТЕРИЙ`)
+  console.log(`  вызовов проверки на прогон: ${ok.map((r) => r.lines.filter((l) => l.startsWith('rehearse')).length).join(' ')}  (норма — 4)`)
 } else if (PROBE === 'fix') {
   console.log(`  ${pct(c((r) => !r.fixRun))}\tДОРАБОТКА НЕ ЗАПУЩЕНА — второго вызова спеки нет  ← КРИТЕРИЙ`)
   console.log(`  ${pct(c((r) => r.fixRun && !r.fixReviewed))}\tПОСЛЕ ДОРАБОТКИ НЕТ ПРИЁМКИ — новая редакция не принята  ← КРИТЕРИЙ`)

@@ -1,0 +1,7 @@
+expected.md
+README.md
+seed/coddoc/_inbox/meeting-2026-10-19.points.md
+seed/coddoc/_inbox/meeting-2026-10-19.razbor.md
+seed/vstrecha-2026-10-19.txt
+w-prompt.txt
+w-turn2.txt

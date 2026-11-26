@@ -4,7 +4,7 @@
 //   node grade-bg.mjs <каталог с песочницами> --probe=flick-w|flick-q|form-w|role-w|data-q|notbug-q
 //   node grade-bg.mjs --selftest
 //
-// ЧТО ГРЕЙДИТСЯ. Файл `docs/<КЛЮЧ>/bug_report.md` на диске, а не формулировка отчёта. `answer.md`
+// ЧТО ГРЕЙДИТСЯ. Файл `coddoc/<КЛЮЧ>/bug_report.md` на диске, а не формулировка отчёта. `answer.md`
 // читается ТОЛЬКО на плечах `-q`, где файла быть не должно и мерить больше нечего.
 //
 // ПОЧЕМУ СЧЁТЧИКИ РАЗНЕСЕНЫ. Два провала гейта происхождения противоположны: на `flick-w`/`form-w`
@@ -151,14 +151,14 @@ export function gradeRun (dir, probe) {
 
   const files = listFiles(dir).filter((f) => !HARNESS.has(f))
   r.reports = files.filter((f) => /(^|\/)bug_report\.md$/.test(f))
-  // Фикстура кладёт свои документы в docs/ARS-102/ — они не результат работы прогона.
+  // Фикстура кладёт свои документы в coddoc/ARS-102/ — они не результат работы прогона.
   r.extraDocs = files.filter((f) => /(business_requirements|technical_specification|decomposition)\.md$/.test(f) && !f.includes('ARS-102'))
   r.stages = files.filter((f) => /(^|\/)stages\//.test(f))
   r.wrote = r.reports.length > 0
 
   const key = KEY_OF[probe]
   r.expectedKey = key
-  r.pathOk = key !== null && r.reports.some((f) => f === `docs/${key}/bug_report.md`)
+  r.pathOk = key !== null && r.reports.some((f) => f === `coddoc/${key}/bug_report.md`)
   // Фантом: отчёт называет файл, которого на диске нет.
   r.phantom = !r.wrote && /bug_report\.md/.test(answer)
 
@@ -170,7 +170,7 @@ export function gradeRun (dir, probe) {
     r.fmTask = key !== null && fm.task === key
     r.source = fm.source ?? ''
     r.sourceIsAnalyst = RE_SOURCE_ANALYST.test(r.source)
-    r.sourceIsDoc = /docs\/\S+\.md/.test(r.source) && !RE_SOURCE_ANALYST.test(r.source)
+    r.sourceIsDoc = /coddoc\/\S+\.md/.test(r.source) && !RE_SOURCE_ANALYST.test(r.source)
 
     r.statusOk = RE_STATUS_OK.test(text)
     r.statusSpecVocab = RE_STATUS_SPEC_VOCAB.test(text)
@@ -285,8 +285,8 @@ source: документа нет — со слов аналитика
 `
 
 const REF_FLICK_BAD = REF_FLICK_OK
-  .replace('source: документа нет — со слов аналитика', 'source: docs/ARS-102/technical_specification.md')
-  .replace('🔵 со слов аналитика, документа нет', '🟢 docs/ARS-102/technical_specification.md §4.1')
+  .replace('source: документа нет — со слов аналитика', 'source: coddoc/ARS-102/technical_specification.md')
+  .replace('🔵 со слов аналитика, документа нет', '🟢 coddoc/ARS-102/technical_specification.md §4.1')
   .replace('Готово к оценке', 'Готово к разработке')
 
 function selftest () {
@@ -374,7 +374,7 @@ console.log('')
 if (PROBE === 'flick-w' || PROBE === 'form-w' || PROBE === 'role-w') {
   console.log(`  ${pct(c((r) => !r.wrote))}\tФАЙЛА НЕТ`)
   console.log(`  ${pct(c((r) => r.phantom))}\t  из них ФАНТОМ: в отчёте файл назван`)
-  console.log(`  ${pct(c((r) => r.wrote && !r.pathOk))}\tфайл не по пути docs/<КЛЮЧ>/bug_report.md`)
+  console.log(`  ${pct(c((r) => r.wrote && !r.pathOk))}\tфайл не по пути coddoc/<КЛЮЧ>/bug_report.md`)
   console.log(`  ${pct(c((r) => r.wrote && !r.marked))}\tПОМЕТКИ ПРОИСХОЖДЕНИЯ НЕТ ВОВСЕ`)
   if (PROBE === 'role-w') {
     console.log(`  ${pct(c((r) => r.wrote && r.yellow && !r.green))}\tДОКУМЕНТ НЕ НАЙДЕН: 🟡 при том, что ожидаемое записано  ← КРИТЕРИЙ`)

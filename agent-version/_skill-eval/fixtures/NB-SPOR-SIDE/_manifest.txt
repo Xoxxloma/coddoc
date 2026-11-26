@@ -1,0 +1,8 @@
+etalon/stage-1/answer-01.md
+etalon/stage-1/notes/прокат-лыж/notebook.md
+expected.md
+README.md
+seed/notes/прокат-лыж/notebook.md
+state.json
+w-prompt.txt
+w-turn2.txt

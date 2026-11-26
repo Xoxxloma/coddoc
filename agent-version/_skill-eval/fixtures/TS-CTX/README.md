@@ -11,7 +11,7 @@
 ## Вход
 
 ```
-docs/SMSEC-420/business_requirements.md   БТ: уведомление в СЦБ при закрытии инцидента, журнал в карточке
+coddoc/SMSEC-420/business_requirements.md   БТ: уведомление в СЦБ при закрытии инцидента, журнал в карточке
 context/conventions.md                    правила оформления НАШЕГО: /v1/, 403, null, iso8601+At, camelCase
 context/scb-protocol.md                   ЧУЖАЯ система: POST /integration/v2/events, X-SCB-Token, 409 на дубль,
                                           10 событий/сек, окно 5 минут; в шапке сказано, что записано

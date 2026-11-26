@@ -1,0 +1,14 @@
+снимок скилла: runs/2026-11-21-ent-pool/_skills/stage-breakdown-doc.SKILL.md
+проба: sb-set-t   фикстура: SB-SET-T   скилл: stage-breakdown-doc
+реплика аналитика: go-turn2.txt   ходов до 2 подряд без движения, потолок 2
+effort: умолчание CLI
+плечо: runs/2026-11-21-ent-pool/sb-set-t
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-21-ent-pool-sb-set-t-8048-skills/stage-breakdown-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/SB-SET-T/sb-prompt.txt
+прогонов: 2, параллельно: 2
+  run-1 — ОТКАЗ (rc=127), см. runs/2026-11-21-ent-pool/sb-set-t/run-1/_stderr.log
+  run-2 — ходов: 2, строк в трассе: 0
+  run-2 — готов
+ГОТОВО: runs/2026-11-21-ent-pool/sb-set-t — песочниц с ответом: 1 из 2
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-21-ent-pool-sb-set-t-8048-skills (журнальная копия осталась в runs/2026-11-21-ent-pool/_skills/)
+runs/2026-11-21-ent-pool/sb-set-t: $0.61 за 1 прогонов

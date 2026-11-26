@@ -1,0 +1,12 @@
+services:
+  - name: incident-api
+    path: ../incident-api
+    type: backend
+
+  - name: incident-web
+    path: ../incident-web
+    type: frontend
+
+  - name: geo
+    path: ../geo-service
+    type: backend

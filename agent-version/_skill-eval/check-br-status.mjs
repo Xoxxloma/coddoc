@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // check-br-status.mjs — сторож статуса БТ (PLAN-BR-COMB §1): шапка сходится с телом.
 //
-//   node check-br-status.mjs <каталог>     ← обходит все run-*/docs/*/business_requirements.md
+//   node check-br-status.mjs <каталог>     ← обходит все run-*/coddoc/*/business_requirements.md
 //   node check-br-status.mjs --selftest
 //
 // Правило скилла (Step 4, правка 3.2): блок «Открытые вопросы» собирается из `TBD` и `⚠️` тела,
@@ -58,7 +58,7 @@ function findDocs (dir) {
     if (e.name.startsWith('.') || e.name === '_skills') continue
     const p = join(dir, e.name)
     if (e.isDirectory()) out.push(...findDocs(p))
-    else if (e.name === 'business_requirements.md' && /[\\/]docs[\\/]/.test(p)) out.push(p)
+    else if (e.name === 'business_requirements.md' && /[\\/]coddoc[\\/]/.test(p)) out.push(p)
   }
   return out
 }

@@ -1,1 +1,1 @@
-Вот готовые бизнес-требования: docs/ARS-200/business_requirements.md. Что дальше?
+Вот готовые бизнес-требования: coddoc/ARS-200/business_requirements.md. Что дальше?

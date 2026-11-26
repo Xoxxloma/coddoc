@@ -42,7 +42,7 @@ const CASES = {
 const CASE = (process.argv.find((a) => a.startsWith('--case=')) || '--case=nocrit').slice(7)
 if (!CASES[CASE]) { console.error('неизвестный --case: ' + CASE); process.exit(1) }
 const WRITE = !!CASES[CASE].expectWrite
-const REL = `docs/${CASES[CASE].key}/business_requirements.md`
+const REL = `coddoc/${CASES[CASE].key}/business_requirements.md`
 const RE_LIST = CASES[CASE].re
 const RE_OPEN = /TBD|⚠|не\s+получ|не\s+сформулир|не\s+определ|не\s+дан|отложен/i
 const RE_FR = /FR-?(\d+)/

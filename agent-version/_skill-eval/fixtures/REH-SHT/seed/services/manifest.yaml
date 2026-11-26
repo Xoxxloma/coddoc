@@ -1,0 +1,17 @@
+services:
+  - name: shuttle-api
+    path: ../shuttle-api
+    type: backend
+
+  - name: shuttle-web
+    path: ../shuttle-web
+    type: frontend
+
+  - name: badge-service
+    path: ../badge-service
+    type: backend
+
+  - name: org-directory
+    path: ../org-directory
+    type: backend
+    notes: чужой справочник сотрудников, команда «Кадровые системы»; карточки нет

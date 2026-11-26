@@ -30,7 +30,7 @@ services:
 
 ## `/work/specs/services/auth.md` — как он лежит сейчас
 
-Позавчера сюда влили `docs/ARS-57` (та же спека, что в фикстуре `AR-BASIC`). Метка `.archived`
+Позавчера сюда влили `coddoc/ARS-57` (та же спека, что в фикстуре `AR-BASIC`). Метка `.archived`
 в её папке лежит. Дата `scanned` не двигалась — `archive-spec` фронтматтер не трогает.
 
 ```markdown

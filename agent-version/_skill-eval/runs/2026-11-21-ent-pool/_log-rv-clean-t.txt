@@ -1,0 +1,12 @@
+снимок скилла: runs/2026-11-21-ent-pool/_skills/spec-review.SKILL.md
+проба: rv-clean-t   фикстура: RV-CLEAN-T   скилл: spec-review
+effort: умолчание CLI
+плечо: runs/2026-11-21-ent-pool/rv-clean-t
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-21-ent-pool-rv-clean-t-8208-skills/spec-review/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/RV-CLEAN-T/rv-prompt.txt
+прогонов: 2, параллельно: 2
+  run-1 — готов
+  run-2 — готов
+ГОТОВО: runs/2026-11-21-ent-pool/rv-clean-t — песочниц с ответом: 2 из 2
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-21-ent-pool-rv-clean-t-8208-skills (журнальная копия осталась в runs/2026-11-21-ent-pool/_skills/)
+runs/2026-11-21-ent-pool/rv-clean-t: $0.91 за 2 прогонов

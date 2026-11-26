@@ -1,0 +1,12 @@
+services:
+  - name: orders-api
+    path: ../orders-api
+    type: backend
+
+  - name: shop-web
+    path: ../shop-web
+    type: frontend
+
+  - name: admin-web
+    path: ../admin-web
+    type: frontend

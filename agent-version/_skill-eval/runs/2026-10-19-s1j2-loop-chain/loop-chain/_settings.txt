@@ -1,0 +1,7 @@
+цепочка: loop-chain   фикстура: LOOP-CHAIN   стадий: 4
+модель: sonnet
+стадия 1: meeting-intake — stage-1-prompt.txt; реплика stage-1-turn2.txt; двойник — (—); потолок 20
+стадия 2: analyst-notebook — stage-2-prompt.txt; реплика —; двойник stage-2-twin-card.md (twin-objector.md); потолок 5
+стадия 3: analyst-notebook — stage-3-prompt.txt; реплика stage-3-turn2.txt; двойник — (—); потолок 3
+стадия 4: notes-to-intent — stage-4-prompt.txt; реплика —; двойник stage-4-twin-card.md (twin-objector.md); потолок 10
+прогонов: 1, параллельность: 1

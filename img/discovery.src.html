@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>discovery</title>
+<style>
+  html,body{margin:0;background:#fff}
+  #c{position:relative;width:1780px;height:1290px;background:#fff;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1d2725}
+  .sec{position:absolute;left:18px;width:1744px;background:#eef1ee;border-radius:26px}
+  .role{position:absolute;left:36px;width:220px;background:#e3e9e6;border:2px solid #9aa8a2;border-radius:14px;text-align:center;padding:16px 10px;box-sizing:border-box}
+  .role b{display:block;font-size:22px;line-height:28px}
+  .role span{display:block;font-size:19px;color:#3b4744}
+  .box{position:absolute;box-sizing:border-box;border:2.5px solid;border-radius:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8px 20px}
+  .box .t{font-size:26px;font-weight:700;line-height:32px}
+  .box .m{font-family:Menlo,"SF Mono",Consolas,monospace;font-size:24px;font-weight:700;line-height:30px}
+  .box .s{font-size:19px;line-height:25px;color:#5f6d69;margin-top:4px}
+  .box .p{font-family:Menlo,"SF Mono",Consolas,monospace;font-size:16px;color:#7a5a2a;margin-bottom:6px}
+  .g{background:#dce9e3;border-color:#2f6b5a}
+  .a{background:#f3ebdd;border-color:#b39a68}
+  .q{background:#e3e9e6;border-color:#5f6d69}
+  .hub{background:#f3ebdd;border:3.5px solid #7a5a2a}
+  .lbl{position:absolute;font-size:19px;color:#3b4744}
+  svg{position:absolute;left:0;top:0}
+</style></head><body>
+<div id="c">
+  <!-- section 1: встреча → список -->
+  <div class="sec" style="top:30px;height:330px"></div>
+  <div class="role" style="top:60px"><b>Встреча с записью</b><span>txt, vtt, srt, чат встречи</span></div>
+  <div class="box g" style="left:310px;top:60px;width:650px;height:115px"><div class="m">/meeting-intake &lt;файл&gt;</div><div class="s">агенты извлекают пункты с цитатами, другой агент проверяет</div></div>
+  <div class="box a" style="left:995px;top:60px;width:705px;height:115px"><div class="p">coddoc/&lt;KEY&gt;/</div><div class="m">meeting-&lt;дата&gt;.points.md</div><div class="s">+ meeting-&lt;дата&gt;.razbor.md — цитаты для проверки</div></div>
+
+  <div class="role" style="top:215px"><b>Встреча без записи</b><span>по памяти, в тот же день</span></div>
+  <div class="box g" style="left:310px;top:215px;width:650px;height:115px"><div class="m">/meeting-recall</div><div class="s">пересказ, потом вопросы по каждой теме</div></div>
+  <div class="box a" style="left:995px;top:215px;width:705px;height:115px"><div class="p">coddoc/&lt;KEY&gt;/</div><div class="m">meeting-&lt;дата&gt;.points.md</div><div class="s">+ meeting-&lt;дата&gt;.recall.md — протокол ответов</div></div>
+
+  <!-- хаб: список пунктов -->
+  <div class="role" style="top:428px"><b>Список пунктов</b><span>один формат</span></div>
+  <div class="box hub" style="left:310px;top:420px;width:1390px;height:125px"><div class="p">кто бы ни писал список — форма одна</div><div class="m" style="font-size:30px;line-height:36px">*.points.md</div><div class="s" style="color:#3b4744">строка пункта: - [решено | открыто | сведение | мысль] текст — кто · ссылка на источник</div></div>
+
+  <!-- section 2: куда список -->
+  <div class="sec" style="top:575px;height:685px"></div>
+  <div class="lbl" style="left:650px;top:593px">в ноут — копить по дням</div>
+  <div class="lbl" style="left:1390px;top:593px">во вход для БТ или спеки</div>
+
+  <div class="role" style="top:640px"><b>Чат, письмо, своя мысль</b><span>текстом в вызове</span></div>
+  <div class="box g" style="left:310px;top:640px;width:650px;height:115px"><div class="m">/analyst-notebook &lt;тема&gt; &lt;список&gt;</div><div class="s">запись под сегодняшней датой, сверка с прошлыми</div></div>
+  <div class="box a" style="left:310px;top:805px;width:650px;height:105px"><div class="p">notes/&lt;тема&gt;/</div><div class="m">notebook.md</div><div class="s">журнал дискавери по дням</div></div>
+  <div class="box g" style="left:310px;top:960px;width:650px;height:115px"><div class="m">/analyst-notebook &lt;тема&gt; собери пункты</div><div class="s">выгрузка: всё, что в ноуте сейчас действует</div></div>
+  <div class="box a" style="left:310px;top:1125px;width:650px;height:105px"><div class="p">notes/&lt;тема&gt;/</div><div class="m">notebook-&lt;дата&gt;.points.md</div></div>
+  <div class="lbl" style="left:1022px;top:1165px">из ноута — снова список</div>
+
+  <div class="box g" style="left:1050px;top:640px;width:650px;height:115px"><div class="m">/notes-to-intent &lt;список&gt;</div><div class="s">цель, слой БТ или спека, сверка с документами задачи</div></div>
+  <div class="box a" style="left:1050px;top:805px;width:650px;height:105px"><div class="p">coddoc/&lt;KEY&gt;/</div><div class="m">&lt;основа&gt;-bt.md | -spec.md</div><div class="s">вход: решено, открыто, не входит, сведения</div></div>
+  <div class="box q" style="left:1050px;top:960px;width:650px;height:115px"><div class="m">/analyst-workspace &lt;вход&gt;</div><div class="s" style="color:#3b4744">дальше — БТ, правка или спека по основному туториалу</div></div>
+
+  <svg width="1780" height="1290" fill="none" stroke="#3f4a47" stroke-width="3">
+    <defs>
+      <marker id="ah" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,6 L0,12 z" fill="#3f4a47" stroke="none"/></marker>
+    </defs>
+    <!-- section 1: скилл → файл -->
+    <path d="M960,117 H985" marker-end="url(#ah)"/>
+    <path d="M960,272 H985" marker-end="url(#ah)"/>
+    <!-- списки встреч → хаб -->
+    <path d="M1700,117 H1735 V385 H1660 V410" marker-end="url(#ah)"/>
+    <path d="M1700,272 H1735"/><circle cx="1735" cy="272" r="5" fill="#3f4a47" stroke="none"/>
+    <!-- хаб → ноут и вход -->
+    <path d="M635,545 V630" marker-end="url(#ah)"/>
+    <path d="M1375,545 V630" marker-end="url(#ah)"/>
+    <!-- ноут -->
+    <path d="M256,697 H300" marker-end="url(#ah)"/>
+    <path d="M635,755 V795" marker-end="url(#ah)"/>
+    <path d="M635,910 V950" marker-end="url(#ah)"/>
+    <path d="M635,1075 V1115" marker-end="url(#ah)"/>
+    <!-- выгрузка ноута → хаб -->
+    <path d="M960,1177 H1005 V555" marker-end="url(#ah)"/>
+    <!-- вход -->
+    <path d="M1375,755 V795" marker-end="url(#ah)"/>
+    <path d="M1375,910 V950" marker-end="url(#ah)"/>
+  </svg>
+</div>
+</body></html>

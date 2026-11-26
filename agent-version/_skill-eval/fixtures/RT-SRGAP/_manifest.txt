@@ -1,4 +1,4 @@
-docs/PSS-2210/business_requirements.md
+coddoc/PSS-2210/business_requirements.md
 expected.md
 node-check-turn2.txt
 prebaked/technical_specification.md

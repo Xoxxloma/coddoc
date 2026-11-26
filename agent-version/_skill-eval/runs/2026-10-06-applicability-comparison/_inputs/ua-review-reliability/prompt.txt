@@ -1,0 +1,1 @@
+Проведи приёмку технической спецификации docs/UA-410/technical_specification.md. Источник docs/UA-410/change_request.md, режим мелкой правки. Выполни spec-review.

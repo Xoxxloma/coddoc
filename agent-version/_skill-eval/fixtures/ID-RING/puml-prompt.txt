@@ -1,1 +1,1 @@
-Нарисуй схему взаимодействий по спецификации docs/RET-512/technical_specification.md в формате PlantUML.
+Нарисуй схему взаимодействий по спецификации coddoc/RET-512/technical_specification.md в формате PlantUML.

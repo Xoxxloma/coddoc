@@ -1,0 +1,1 @@
+Прорепетируй со мной спеку coddoc/PSS-2210/technical_specification.md, источник рядом — coddoc/PSS-2210/business_requirements.md. Роль — исполнитель.

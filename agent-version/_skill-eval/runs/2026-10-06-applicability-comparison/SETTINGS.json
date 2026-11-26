@@ -1,0 +1,31 @@
+{
+  "model": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "fork_turns": "none",
+  "repeats": 1,
+  "arms": {
+    "A": {
+      "source": "Git HEAD",
+      "commit": "ebb2c07bdad751949f67eb76b7645f224b9f8e6d"
+    },
+    "B": {
+      "source": "final working tree"
+    }
+  },
+  "scope": [
+    "bf-spec",
+    "bfg-scroll",
+    "bfg-role",
+    "ts-conv",
+    "ts-ctx",
+    "ua-label",
+    "ua-timeout",
+    "ua-review-reliability"
+  ],
+  "inputChanges": [
+    "same previously confirmed missing owner answers appended to bf-spec and ts-conv",
+    "review fixture parent 5 struck in both arms; same neighboring legacy BT"
+  ],
+  "attribution": "paired observation; a one-sample difference is a candidate, not causal proof",
+  "stop": "only confirmed current-change defects count; fixtures, graders, runners and un-attributed historical failures excluded"
+}

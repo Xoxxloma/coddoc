@@ -1,0 +1,7 @@
+services:
+  - name: tool-rental
+    path: ../tool-rental
+    type: backend
+  - name: deposit-service
+    path: ../deposit-service/app
+    type: backend

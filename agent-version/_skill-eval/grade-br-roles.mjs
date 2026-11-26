@@ -210,7 +210,7 @@ function gradeSandbox(sb, mode) {
   r.createdCount = created.length
   r.brdPaths = brds
   r.wrote = brds.length > 0
-  r.pathOk = brds.some((p) => p === 'docs/SMSEC-3120/business_requirements.md')
+  r.pathOk = brds.some((p) => p === 'coddoc/SMSEC-3120/business_requirements.md')
 
   if (mode === 'cards') {
     // Контроль «ходит ли скилл в services/ сам». Скилл здесь ЧУЖОЙ (тех-спека), артефакт у

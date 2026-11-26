@@ -1,6 +1,6 @@
 context/conventions.md
 conv-turn2.txt
-docs/ARS-201/business_requirements.md
+coddoc/ARS-201/business_requirements.md
 opt-prompt.txt
 README.md
 services/arsenal-web.md

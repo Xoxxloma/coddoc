@@ -1,0 +1,12 @@
+coddoc/ARS-201/technical_specification.md
+coddoc/ARS-211/technical_specification.md
+coddoc/SHT-410/technical_specification.md
+coddoc/SHT-411/technical_specification.md
+coddoc/UA-420/technical_specification.md
+cr-prompt.txt
+go-turn2.txt
+idk-prompt.txt
+na-prompt.txt
+new-prompt.txt
+README.md
+yes-prompt.txt

@@ -1,0 +1,9 @@
+services:
+  - name: laundry-api
+    path: ../laundry-api
+    type: backend
+    notes: наш сервис, команда «Прачечные»
+  - name: laundry-app
+    path: ../laundry-app
+    type: frontend
+    notes: наш, та же команда

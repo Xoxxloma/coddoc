@@ -1,1 +1,1 @@
-Проверь спеку docs/PSS-2210/technical_specification.md, источник рядом — docs/PSS-2210/business_requirements.md. Можно отдавать в разработку?
+Проверь спеку coddoc/PSS-2210/technical_specification.md, источник рядом — coddoc/PSS-2210/business_requirements.md. Можно отдавать в разработку?

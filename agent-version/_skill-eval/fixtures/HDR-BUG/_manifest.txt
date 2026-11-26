@@ -1,0 +1,3 @@
+coddoc/ARS-411/bug_report.md
+README.md
+rework-w-prompt.txt

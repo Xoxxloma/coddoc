@@ -1,0 +1,11 @@
+coddoc/SHT-410/technical_specification.md
+coddoc/SHT-411/technical_specification.md
+coddoc/SHT-412/technical_specification.md
+coddoc/SHT-413/technical_specification.md
+coddoc/UA-420/technical_specification.md
+p410-prompt.txt
+p411-prompt.txt
+p412-prompt.txt
+p413-prompt.txt
+p420-prompt.txt
+README.md

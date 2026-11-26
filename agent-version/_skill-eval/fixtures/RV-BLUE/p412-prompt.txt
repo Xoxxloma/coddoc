@@ -1,0 +1,1 @@
+Проверь спеку coddoc/SHT-412/technical_specification.md. Можно отдавать в разработку?

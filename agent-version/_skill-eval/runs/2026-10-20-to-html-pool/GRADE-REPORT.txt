@@ -1,0 +1,73 @@
+раунд 2026-10-20-to-html-pool · модель sonnet · прогонов на пробу 3 · 2026-10-20T17:16:54.502Z
+
+## p-dir — «/to-html handbook»
+run-01: ✓ всё · $0.071 · ходов 2 · 11 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "handbook"
+  путь: ["handbook"]
+  ответ: Открыл в браузере: handbook (3 файла: 2 текстовых и 1 картинка). После правок — снова /to-html, потом F5 во вкладке.
+run-02: ✓ всё · $0.068 · ходов 2 · 7 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/to-html/reference/pack.ps1 "handbook"
+  путь: ["handbook"]
+  ответ: Открыл в браузере: handbook. После правок — снова /to-html, потом F5 во вкладке.
+run-03: ✓ всё · $0.070 · ходов 2 · 10 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "handbook"
+  путь: ["handbook"]
+  ответ: Открыл в браузере: `handbook` (3 файла: 2 текстовых и 1 картинка). После правок — снова /to-html, потом F5 во вкладке.
+
+## p-file — «/to-html notes/дача/Дневник.md»
+run-01: ✓ всё · $0.071 · ходов 2 · 14 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "notes/дача/Дневник.md"
+  путь: ["notes/дача/Дневник.md"]
+  ответ: Открыл в браузере: `notes/дача` (3 файла: `Дневник.md`, ещё один текстовый и одна картинка). После правок снова запусти /to-html, потом F5 во вкладке.
+run-02: ✓ всё · $0.069 · ходов 2 · 23 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/to-html/reference/pack.ps1 "notes/дача/Дневник.md"
+  путь: ["notes/дача/Дневник.md"]
+  ответ: Открыл в браузере: `notes/дача/Дневник.md` (на странице ещё два соседних файла из папки). После правок — снова /to-html, потом F5 во вкладке.
+run-03: ✓ всё · $0.073 · ходов 3 · 20 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/to-html/reference/pack.ps1 "notes/дача/Дневник.md"
+  путь: ["notes/дача/Дневник.md"]
+  ответ: Открыл в браузере: notes/дача/Дневник.md (в набор вошли 3 файла: 2 текстовых и 1 картинка). После правок — снова /to-html, потом F5 во вкладке.
+
+## p-words-notes — «Хочу посмотреть в браузере свои записи про дачу.»
+run-01: ✓ всё · $0.079 · ходов 6 · 17 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "notes/дача"
+  путь: ["notes/дача"]
+  ответ: Открыл в браузере папку `notes/дача`. В ней два файла с записями, «Дневник» и «Посадки», и картинка `теплица.png`. После правок снова запустите /to-html, потом нажмите F5 во вкладке.
+run-02: ✓ всё · $0.079 · ходов 6 · 24 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "notes/дача"
+  путь: ["notes/дача"]
+  ответ: Открыл в браузере папку `notes/дача`. В ней два файла с записями, «Дневник» и «Посадки», и картинка `теплица.png`. После правок снова запустите /to-html, потом нажмите F5 во вкладке.
+run-03: ✓ всё · $0.079 · ходов 6 · 15 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "notes/дача"
+  путь: ["notes/дача"]
+  ответ: Открыл в браузере папку `notes/дача`: «Дневник», «Посадки» и картинку с теплицей. После правок снова запусти /to-html, потом нажми F5 во вкладке.
+
+## p-words-readme — «Выведи в браузер описание сервиса billing, текстом читать тяжело.»
+run-01: ✓ всё · $0.077 · ходов 5 · 18 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1 "services/billing/README.md"
+  путь: ["services/billing/README.md"]
+  ответ: Открыл в браузере описание сервиса billing (`services/billing/README.md`). После правок запустите /to-html снова и нажмите F5 во вкладке.
+run-02: ✓ всё · $0.076 · ходов 5 · 12 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/to-html/reference/pack.ps1 "services/billing/README.md"
+  путь: ["services/billing/README.md"]
+  ответ: Открыл в браузере описание сервиса billing (`services/billing/README.md`). После правок снова запусти /to-html, потом нажми F5 во вкладке.
+run-03: ✓ всё · $0.080 · ходов 7 · 16 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .gigacode/skills/to-html/reference/pack.ps1 "services/billing"
+  путь: ["services/billing"]
+  ответ: Открыл в браузере описание сервиса billing (`services/billing`, файл README.md). После правок снова запусти /to-html и нажми F5 во вкладке.
+
+## p-empty — «/to-html»
+run-01: ✓ всё · $0.070 · ходов 2 · 7 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1
+  путь: []
+  ответ: Открыл в браузере: пустую страницу, на которую можно перетащить папку или файлы. После правок — снова /to-html, потом F5 во вкладке.
+run-02: ✓ всё · $0.069 · ходов 2 · 9 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1
+  путь: []
+  ответ: Открыл пустую страницу в браузере. Перетащите в неё папку или файлы. После правок снова запустите /to-html, потом нажмите F5 во вкладке.
+run-03: ✓ всё · $0.069 · ходов 2 · 10 с
+  команда: powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/to-html/reference/pack.ps1
+  путь: []
+  ответ: Открыл в браузере пустую страницу: перетащи в неё папку или файлы. После правок — снова /to-html, потом F5 во вкладке.
+
+итого: $1.10

@@ -1,0 +1,6 @@
+etalon-2/meeting-2026-10-10.points.md
+etalon-2/meeting-2026-10-10.razbor.md
+expected.md
+seed/calls/2026-10-10-pvz-kak-seychas.txt
+w-prompt.txt
+w-turn2.txt

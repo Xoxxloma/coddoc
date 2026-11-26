@@ -1,5 +1,5 @@
-docs/RET-512/business_requirements.md
-docs/RET-512/technical_specification.md
+coddoc/RET-512/business_requirements.md
+coddoc/RET-512/technical_specification.md
 mmd-prompt.txt
 one-turn2.txt
 puml-prompt.txt

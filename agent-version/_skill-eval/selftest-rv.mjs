@@ -29,7 +29,7 @@ const put = (evalDir, run, body) => {
 // ---------------------------------------------------------------- spec-dirty
 
 put('eval-0-spec-dirty', 'perfect', `чек-лист прочитан, тип: тех-спецификация
-артефакт: fixtures/RV-DIRTY/docs/RMS-4021/technical_specification.md
+артефакт: fixtures/RV-DIRTY/coddoc/RMS-4021/technical_specification.md
 нарушений: 4
 
 1. §2 INT-3, строка 65 — конкретный путь под меткой «🟡 к валидации»
@@ -61,7 +61,7 @@ put('eval-0-spec-dirty', 'broken', `Посмотрел спеку, выгляд�
 // ---------------------------------------------------------------- spec-clean
 
 put('eval-1-spec-clean', 'perfect', `чек-лист прочитан, тип: тех-спецификация
-артефакт: fixtures/RV-CLEAN/docs/RMS-4021/technical_specification.md
+артефакт: fixtures/RV-CLEAN/coddoc/RMS-4021/technical_specification.md
 нарушений: 0
 
 нарушений записанных правил нет; это не значит, что решение верное — содержание проверяет аналитик.
@@ -80,7 +80,7 @@ put('eval-1-spec-clean', 'broken', `чек-лист прочитан, тип: т
 // ---------------------------------------------------------------- spec-loop
 
 put('eval-2-spec-loop', 'perfect', `чек-лист прочитан, тип: тех-спецификация
-артефакт: fixtures/RV-LOOP/docs/RMS-4021/technical_specification.md
+артефакт: fixtures/RV-LOOP/coddoc/RMS-4021/technical_specification.md
 нарушений: 4
 
 1. шапка, строка 3 — статус вне словаря спеки
@@ -102,7 +102,7 @@ put('eval-2-spec-loop', 'broken', `Спека в порядке, отдавай�
 // ---------------------------------------------------------------- bt-design
 
 put('eval-3-bt-design', 'perfect', `чек-лист прочитан, тип: бизнес-требования
-артефакт: fixtures/RV-DIRTY/docs/RMS-4021/business_requirements.md
+артефакт: fixtures/RV-DIRTY/coddoc/RMS-4021/business_requirements.md
 нарушений: 2
 
 1. §3.3 + §4.1 — проектирование в бизнес-требованиях
@@ -122,7 +122,7 @@ put('eval-3-bt-design', 'broken', `чек-лист прочитан, тип: б�
 // ---------------------------------------------------------------- bt-clean
 
 put('eval-4-bt-clean', 'perfect', `чек-лист прочитан, тип: бизнес-требования
-артефакт: fixtures/RV-CLEAN/docs/RMS-4021/business_requirements.md
+артефакт: fixtures/RV-CLEAN/coddoc/RMS-4021/business_requirements.md
 нарушений: 0
 
 нарушений записанных правил нет; содержание проверяет аналитик.
@@ -139,7 +139,7 @@ put('eval-4-bt-clean', 'broken', `чек-лист прочитан, тип: би
 // ---------------------------------------------------------------- stage-cut
 
 put('eval-5-stage-cut', 'perfect', `чек-лист прочитан, тип: файл задачи
-артефакт: fixtures/RV-DIRTY/docs/RMS-4021/stages/stage-01.md
+артефакт: fixtures/RV-DIRTY/coddoc/RMS-4021/stages/stage-01.md
 ответов из файла: 7 из 10
 
 без ответа:
@@ -158,7 +158,7 @@ put('eval-5-stage-cut', 'broken', `чек-лист прочитан, тип: ф�
 // ---------------------------------------------------------------- stage-clean
 
 put('eval-6-stage-clean', 'perfect', `чек-лист прочитан, тип: файл задачи
-артефакт: fixtures/RV-CLEAN/docs/RMS-4021/stages/stage-01.md
+артефакт: fixtures/RV-CLEAN/coddoc/RMS-4021/stages/stage-01.md
 ответов из файла: 10 из 10
 
 без ответа: нет

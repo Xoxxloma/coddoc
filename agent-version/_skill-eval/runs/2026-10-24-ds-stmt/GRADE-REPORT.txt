@@ -1,0 +1,202 @@
+раунд 2026-10-24-ds-stmt · модель sonnet · прогонов 3
+
+## e1-statement
+run-01: ✓ всё · $0.151
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    - [в коде] Возврат в `returnTool` идёт в транзакции (`@Transactional`) и публикует внутреннее событие `RentalReturned` через `ApplicationEventPublisher`, а не пишет в Kafka напрямую — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] В Kafka событие уходит только после коммита: слушатель помечен `@TransactionalEventListener(phase = AFTER_COMMIT)` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] Отправка асинхронная (`kafka.send(...).whenComplete`). При ошибке пишется только `log.error`, исключение не пробрасывается, возврат не откатывается — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-22
+    - [в коде] Ключ партиции — `event.toolId`, не `rentalId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [вне кода] Имя топика берётся из переменной окружения `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    - [не нашёл] Повторной отправки, outbox или другой гарантии доставки при ошибке отправки в коде нет: событие при сбое теряется, остаётся только запись в лог.
+    
+    Карточка services/tool-rental.md расходится с кодом: в карточке событие «шлётся внутри транзакции возврата: не ушло — возврат откатывается, сотрудник пункта получает ошибку», в коде отправка после коммита, ошибка только логируется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-22
+    Карточка services/tool-rental.md расходится с кодом: в карточке ключ партиции `rentalId`, в коде `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1-statement/run-01/ws/tool-rental, ветка develop; файлов кода открыто: 2
+run-02: ✓ всё · $0.150
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    - [в коде] возврат — транзакционный метод; он сохраняет аренду и лишь публикует внутрипроцессное Spring-событие `RentalReturned`, в Kafka сам ничего не шлёт — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] в Kafka событие уходит из слушателя с фазой `AFTER_COMMIT`, то есть после коммита транзакции возврата, а не внутри неё — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    - [в коде] отправка асинхронная: ошибка только пишется в лог, исключение не пробрасывается, возврат не откатывается (к этому моменту он уже закоммичен) — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] у продюсера `retries: 0`, повторных попыток отправки нет — tool-rental/src/main/resources/application.yml:15
+    - [вне кода] имя топика — переменная `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    - [из документа] в карточке сказано, что событие «шлётся внутри транзакции возврата: не ушло — возврат откатывается, сотрудник пункта получает ошибку» — services/tool-rental.md:77
+    Карточка services/tool-rental.md расходится с кодом: в карточке отправка внутри транзакции и откат возврата при ошибке, в коде отправка после коммита, ошибка только логируется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1-statement/run-02/ws/tool-rental, ветка develop; файлов кода открыто: 3
+run-03: ✓ всё · $0.152
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    - [в коде] возврат выполняется в `@Transactional`-методе; он сохраняет аренду и только публикует локальное Spring-событие `RentalReturned`. В Kafka метод ничего не отправляет — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] в Kafka событие уходит из слушателя `@TransactionalEventListener(phase = AFTER_COMMIT)`, то есть после коммита транзакции возврата, а не внутри неё — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    - [в коде] отправка асинхронная (`kafka.send(...).whenComplete`). Ошибка только пишется в лог и наружу не выбрасывается, поэтому возврат не откатывается и сотрудник ошибки не получает — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] у продюсера `retries: 0`, так что при сбое отправка не повторяется. Сообщение теряется, в коде нет ни outbox, ни повторной отправки — tool-rental/src/main/resources/application.yml:15
+    - [в коде] ключ партиции — `toolId`, не `rentalId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [вне кода] имя топика — переменная окружения `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    - [из документа] в карточке сказано, что событие шлётся внутри транзакции возврата и при неудаче возврат откатывается — services/tool-rental.md:77
+    Карточка services/tool-rental.md расходится с кодом: в карточке событие шлётся внутри транзакции и возврат откатывается при ошибке, в коде отправка идёт после коммита, а ошибка только логируется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    Карточка services/tool-rental.md расходится с кодом: в карточке ключ партиции — `rentalId`, в коде — `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1-statement/run-03/ws/tool-rental, ветка develop; файлов кода открыто: 3
+
+## e1b-statement-true
+run-01: ✓ всё · $0.146
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: подтверждается
+    - [в коде] Возврат идёт в транзакционном методе `returnTool`. Он ставит статус RETURNED, сохраняет аренду и публикует внутреннее событие `RentalReturned` — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] В Kafka событие отправляет слушатель с фазой `AFTER_COMMIT`, то есть после коммита транзакции возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] Ключ сообщения — `event.toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] `toolId` берётся из аренды при создании события — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:19
+    - [в коде] Ошибка отправки только пишется в лог, возврат уже закоммичен и не откатывается. Повторов у продюсера нет (`retries: 0`) — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:20-22; tool-rental/src/main/resources/application.yml:15
+    - [вне кода] Имя топика берётся из переменной `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    Карточка services/tool-rental.md расходится с кодом по двум пунктам:
+    - Ключ партиции. В карточке `rentalId`, в коде `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - Момент отправки. В карточке «шлётся внутри транзакции возврата: не ушло — возврат откатывается», в коде отправка после коммита и ошибка не откатывает возврат — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-22
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1b-statement-true/run-01/ws/tool-rental, ветка develop; файлов кода открыто: 4
+run-02: ✓ всё · $0.149
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: подтверждается
+    - [в коде] Возврат идёт в транзакции, событие `RentalReturned` публикуется внутри неё — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] В кафку событие уходит слушателем `AFTER_COMMIT`, то есть после коммита транзакции возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    - [в коде] Ключ сообщения — `event.toolId`, вторым аргументом `kafka.send` (топик, ключ, значение) — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] `toolId` берётся из аренды при сборке события — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:19
+    - [в коде] Ошибка отправки только пишется в лог, возврат не откатывается: к этому моменту транзакция уже закоммичена — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [вне кода] Имя топика — переменная окружения `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    Карточка services/tool-rental.md расходится с кодом: в карточке ключ партиции `rentalId`, а событие «шлётся внутри транзакции возврата: не ушло — возврат откатывается». В коде ключ `toolId`, отправка идёт после коммита, и сбой возврат не откатывает — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-19
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1b-statement-true/run-02/ws/tool-rental, ветка develop; файлов кода открыто: 4
+run-03: ✓ всё · $0.144
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: подтверждается
+    - [в коде] Событие уходит в Kafka из слушателя `@TransactionalEventListener` с фазой `AFTER_COMMIT`, то есть после коммита транзакции — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] Ключом сообщения служит `event.toolId`: `kafka.send(topic, event.toolId, event)` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] Возврат идёт в методе `returnTool` с `@Transactional`. Он сохраняет аренду и вызывает `events.publishEvent(RentalReturned...)`, а сам Kafka не вызывает — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] Ошибка отправки только логируется. Возврат не откатывается, потому что к этому моменту транзакция уже закоммичена — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [вне кода] Имя топика берётся из переменной окружения `RENTAL_EVENTS_TOPIC`, значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    Карточка services/tool-rental.md расходится с кодом в двух местах:
+    - В карточке ключ партиции `rentalId`, в коде `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - В карточке событие шлётся внутри транзакции, и при сбое возврат откатывается. В коде отправка идёт после коммита, а сбой только пишется в лог — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1b-statement-true/run-03/ws/tool-rental, ветка develop; файлов кода открыто: 3
+
+## e1c-statement-partial
+run-01: ✓ всё · $0.147
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    - [в коде] событие отправляется после коммита: слушатель помечен `AFTER_COMMIT` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] `returnTool` выполняется в транзакции и публикует `RentalReturned` как событие Spring. В Kafka оно уходит только через этот слушатель — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] ключ сообщения — `toolId`, не `rentalId`: `kafka.send(topic, event.toolId, event)` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] `rentalId` попадает только в текст лога при ошибке отправки — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:21
+    - [в коде] топик берётся из свойства `rental.events-topic`, которое задаётся как `${RENTAL_EVENTS_TOPIC}` — tool-rental/src/main/resources/application.yml:22
+    - [вне кода] значение `RENTAL_EVENTS_TOPIC` задаётся при деплое. Где именно, я не искал — tool-rental/src/main/resources/application.yml:22
+    Карточка services/tool-rental.md расходится с кодом по двум пунктам:
+    - Ключ. В карточке ключ партиции — `rentalId` (строка 76), в коде — `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19.
+    - Момент отправки. В карточке событие «шлётся внутри транзакции возврата: не ушло — возврат откатывается» (строка 77). В коде отправка идёт после коммита, а сбой отправки только пишется в лог, откат не происходит — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23.
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1c-statement-partial/run-01/ws/tool-rental, ветка develop; файлов кода открыто: 3
+run-02: ✓ всё · $0.154
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    
+    - [в коде] Первая половина верна: событие уходит после коммита транзакции возврата. Слушатель стоит на фазе `AFTER_COMMIT` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] Возврат идёт в транзакционном методе. Внутри него публикуется внутреннее событие `RentalReturned`, а слушатель получает его только после коммита — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-25; tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:33
+    - [в коде] Вторая половина неверна. Ключ сообщения — `event.toolId`, а не `rentalId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] Сбой отправки в Kafka только пишется в лог. Возврат к этому моменту уже закоммичен и не откатывается — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [в коде] Имя топика берётся из настройки `rental.events-topic` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:13; tool-rental/src/main/resources/application.yml:22
+    - [вне кода] Само значение топика задаётся переменной окружения `RENTAL_EVENTS_TOPIC` при деплое — tool-rental/src/main/resources/application.yml:22
+    - [из документа] В карточке ключ партиции — `rentalId` — services/tool-rental.md:76
+    - [из документа] В карточке событие шлётся внутри транзакции возврата, и при неудаче отправки возврат откатывается — services/tool-rental.md:77
+    
+    Карточка services/tool-rental.md расходится с кодом по трём пунктам:
+    - Ключ: в карточке `rentalId`, в коде `toolId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - Момент отправки: в карточке внутри транзакции, в коде после коммита — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - Откат при ошибке: в карточке возврат откатывается, в коде ошибка только логируется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1c-statement-partial/run-02/ws/tool-rental, ветка develop; файлов кода открыто: 3
+run-03: ✓ всё · $0.165
+    ## ОТВЕТ ПО КОДУ
+    Вердикт: в коде иначе
+    - [в коде] Первая часть подтверждается. Событие слушает `@TransactionalEventListener(phase = AFTER_COMMIT)`, значит в Kafka оно уходит после коммита — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] `returnTool` помечена `@Transactional` и публикует `RentalReturned` внутри транзакции возврата — tool-rental/src/main/kotlin/ru/toolhire/rental/domain/RentalService.kt:24-33
+    - [в коде] Вторая часть не подтверждается. Ключом сообщения служит `event.toolId`, а не `rentalId` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19
+    - [в коде] `rentalId` лежит только в теле события, ключом он не используется — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalReturned.kt:9
+    - [в коде] Ошибка отправки после коммита только пишется в лог. Возврат уже закоммичен и не откатывается — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:19-23
+    - [вне кода] Имя топика берётся из переменной `RENTAL_EVENTS_TOPIC`. Её значение задаётся при деплое — tool-rental/src/main/resources/application.yml:22
+    Карточка services/tool-rental.md расходится с кодом (строки 76-77): в карточке ключ партиции — `rentalId`, и событие шлётся внутри транзакции, так что при ошибке отправки возврат откатывается. В коде ключ — `toolId`, отправка идёт после коммита, и при ошибке возврат остаётся — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17-23
+    
+    ## ПРОЧИТАНО
+    карточки: services/tool-rental.md; репа: tool-rental — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e1c-statement-partial/run-03/ws/tool-rental, ветка develop; файлов кода открыто: 3
+
+## e2-service-nocode
+run-01: ✗ блока выбора нет, строки «вне манифеста» нет · $0.113
+    ## ОТВЕТ ПО КОДУ
+    - [не нашёл] кода pickup-points рядом нет: в манифесте путь `../pickup-points`, то есть `<Родитель>/pickup-points`, а такой папки нет. Карточки `services/pickup-points.md` тоже нет. В `services/` лежат только `tool-rental.md` и `deposit-service.md`. Ответить, как сейчас выдаётся инструмент через постамат, не по чему.
+    
+    ## НУЖЕН ВЫБОР
+    причина: кода нет
+    варианты: tool-catalog — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e2-service-nocode/run-01/ws/tool-catalog
+    
+    ## ПРОЧИТАНО
+    карточки: —; репа: —; файлов кода открыто: 0
+    вне манифеста: tool-catalog — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e2-service-nocode/run-01/ws/tool-catalog
+run-02: ✗ блока выбора нет, строки «вне манифеста» нет · $0.117
+    ## ОТВЕТ ПО КОДУ
+    - [не нашёл] кода pickup-points рядом нет: сервис есть в манифесте (`path: ../pickup-points`), но папки `<Родитель>/pickup-points` не существует — services/manifest.yaml
+    - [не нашёл] карточки `services/pickup-points.md` нет. В `services/` лежат только tool-rental.md и deposit-service.md.
+    - [не нашёл] слова «постамат», «pickup» и «пункт выдачи» не встречаются в карточках `services/` и документах `context/`, так что ответа «из документа» тоже нет.
+    
+    ## НУЖЕН ВЫБОР
+    причина: кода нет
+    варианты: tool-catalog — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e2-service-nocode/run-02/ws/tool-catalog
+    
+    ## ПРОЧИТАНО
+    карточки: —; репа: —; файлов кода открыто: 0
+    вне манифеста: tool-catalog — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e2-service-nocode/run-02/ws/tool-catalog
+run-03: ✗ блока выбора нет · $0.111
+    ## ОТВЕТ ПО КОДУ
+    - [не нашёл] кода pickup-points рядом нет: сервис есть в манифесте (`path: ../pickup-points`, services/manifest.yaml:8-10), но папки `<Родитель>/pickup-points` нет
+    - [не нашёл] карточки services/pickup-points.md нет, в `services/` только tool-rental.md и deposit-service.md. Ответа «как сейчас выдаётся инструмент через постамат» нет ни в карточках, ни в коде
+    
+    ## НУЖЕН ВЫБОР
+    причина: кода нет
+    варианты: tool-catalog — C:/Users/KONSTA~1/AppData/Local/Temp/deep-search-edge/2026-10-24-ds-stmt/e2-service-nocode/run-03/ws/tool-catalog
+    
+    ## ПРОЧИТАНО
+    карточки: —; репа: —; файлов кода открыто: 0
+
+## e3-composite
+run-01: ✗ подтверждённая часть осталась · $0.111
+    Как сейчас: топик для события берётся из настройки `rental.events-topic`. Остальное в ответе разведчика не подтвердилось по коду.
+    - [в коде] топик берётся из настройки `rental.events-topic` — tool-rental/src/main/resources/application.yml:22
+    1 ссылок не подтвердил — убрал
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+run-02: ✓ всё · $0.112
+    Как сейчас: после коммита транзакции слушатель отправляет в Kafka событие `RentalReturned`. Топик берётся из настройки `rental.events-topic`.
+    - [в коде] событие отправляет слушатель `@TransactionalEventListener(phase = AFTER_COMMIT)`, метод `onReturned(event: RentalReturned)` — tool-rental/src/main/kotlin/ru/toolhire/rental/events/RentalEventsPublisher.kt:17
+    - [в коде] топик берётся из настройки `rental.events-topic`, её значение задаёт переменная окружения `RENTAL_EVENTS_TOPIC` — tool-rental/src/main/resources/application.yml:22
+    - [не нашёл] ключ сообщения: по проверенным строкам он не подтверждён (см. ниже).
+    
+    1 ссылку не подтвердил — убрал. Это утверждение, что ключ сообщения — `rentalId`. Ссылка `RentalService.kt:4` ведёт на строку с импортом `@Service`. В соседней строке `RentalEventsPublisher.kt:19` видно `kafka.send(topic, event.toolId, event)`, то есть в этой строке ключом выступает `toolId`, а не `rentalId`. Остальные строки вызова я не открывал.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+run-03: ✗ подтверждённая часть осталась · $0.096
+    Как сейчас: топик события берётся из настройки `rental.events-topic`, а ее значение приходит из переменной окружения `RENTAL_EVENTS_TOPIC`. Остальное в ответе разведчика не подтвердилось (см. ниже).
+    - [в коде] топик берётся из настройки `rental.events-topic` (значение `${RENTAL_EVENTS_TOPIC}`) — tool-rental/src/main/resources/application.yml:22
+    
+    2 ссылки не подтвердил — убрал.
+    
+    Читал: tool-rental, ветка develop — локальная копия, могла отстать от удалённой.
+
+итого: $2.02

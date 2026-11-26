@@ -1,3 +1,3 @@
-Спека готова: docs/SMSEC-420/technical_specification.md. Разбей её на этапы работ, чтобы раздать исполнителям.
+Спека готова: coddoc/SMSEC-420/technical_specification.md. Разбей её на этапы работ, чтобы раздать исполнителям.
 
 Ключ задачи — SMSEC-420.

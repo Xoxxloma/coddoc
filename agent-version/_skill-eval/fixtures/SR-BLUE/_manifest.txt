@@ -1,0 +1,7 @@
+coddoc/SHT-410/technical_specification.md
+coddoc/SHT-411/technical_specification.md
+coddoc/UA-420/technical_specification.md
+cr-prompt.txt
+idk-prompt.txt
+README.md
+yes-prompt.txt

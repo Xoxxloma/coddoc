@@ -24,7 +24,7 @@ Fullstack. Новый сервис `pass-api` хранит заявки на р�
 | `notify-gw` | доставка уведомлений | Платформа | 🔵 подтв. аналитиком |
 
 ### 1.3. Связь с бизнес-требованиями
-`docs/PSS-2210/business_requirements.md` — FR-1, FR-2, FR-3, FR-4.
+`coddoc/PSS-2210/business_requirements.md` — FR-1, FR-2, FR-3, FR-4.
 
 ## 2. Взаимодействия (ядро)
 

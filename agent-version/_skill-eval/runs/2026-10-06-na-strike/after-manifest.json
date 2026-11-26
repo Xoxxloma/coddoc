@@ -1,0 +1,72 @@
+[
+  {
+    "arm": "after",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-02",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "feature",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-03",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-420/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "refine",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-04",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-05",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-06",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "feature",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-07",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-420/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "refine",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-08",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "bug",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-09",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "arm": "after",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\after\\run-10",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  }
+]

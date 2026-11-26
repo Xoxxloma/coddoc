@@ -3,6 +3,7 @@
 // Запуск: node agent-version/_skill-eval/grade-sp.mjs <probe>
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { normalizeSpecHeadings } from './spec-markdown.mjs';
 
 const probe = process.argv[2];
 const runsDir = process.argv[3] || join(process.cwd(), 'agent-version/_skill-eval/runs/2026-07-31-stages');
@@ -48,7 +49,8 @@ const CHECKS = {
 
     // секции шаблона: §1..§8 (§2.5 больше не существует и появиться не должна)
     const wanted = [/##+\s*1\./, /##+\s*2\./, /##+\s*3\./, /##+\s*4\./, /##+\s*5\./, /##+\s*6\./, /##+\s*7\./, /##+\s*8\./];
-    const missing = wanted.filter((re) => !has(re));
+    const headingText = normalizeSpecHeadings(t);
+    const missing = wanted.filter((re) => !re.test(headingText));
 
     // INT-карточки и пометки происхождения у каждой
     const intCards = t.match(/^#+\s*INT-\d+\..*$/gm) || [];

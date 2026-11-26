@@ -1,0 +1,39 @@
+{
+  "probe": "occ-cr-noph",
+  "kind": "positive",
+  "spec": "coddoc/LGS-501/technical_specification.md",
+  "places": [
+    { "id": "gate-checkout", "named": true,
+      "re": "gate-checkout|выезд\\S*\\s+машин|выезд\\S*[^.\\n]{0,20}КПП|КПП[^.\\n]{0,20}выезд",
+      "caseRe": "\\bhanded_over\\b|передан[а-яё]*\\s+перевозчику",
+      "allow": ["номер\\S*\\s+отгрузки|shipmentNo", "номер\\S*\\s+(транспортной\\s+)?накладной|waybillNo"] },
+    { "id": "carrier-returns", "named": true,
+      "re": "carrier-returns|при[её]м\\S*\\s+возврат|возврат\\S*\\s+(груза\\s+)?от\\s+перевозчик",
+      "caseRe": "\\breturned\\b|возвращ[а-яё]*\\s+на\\s+склад",
+      "allow": ["номер\\S*\\s+отгрузки|shipmentNo", "номер\\S*\\s+(транспортной\\s+)?накладной|waybillNo"] },
+    { "id": "order-cancel",
+      "re": "order-cancel|отмен\\S*\\s+заказ" },
+    { "id": "carrier-change",
+      "re": "shipments/\\{?shipmentId\\}?/carrier(?![-\\w])|смен\\S*\\s+перевозчик" },
+    { "id": "wave-close",
+      "re": "waves/\\{?waveId\\}?/close|закрыти\\S*\\s+волн|закрыва\\S*\\s+волн|закрыть\\s+волн",
+      "allow": ["номер\\S*\\s+волны|waveNo", "номер\\S*\\s+отгрузки|shipmentNo"] },
+    { "id": "sweep-unclaimed",
+      "re": "sweepUnclaimed|невостребованн" }
+  ],
+  "valued": { "place": "wave-close", "re": "номер\\S*\\s+волны|waveNo" },
+  "valueTokens": [
+    "номер\\S*\\s+отгрузки|shipmentNo",
+    "номер\\S*\\s+(транспортной\\s+)?накладной|waybillNo",
+    "номер\\S*\\s+волны|waveNo",
+    "номер\\S*\\s+заказа|orderId",
+    "номер\\S*\\s+(рейса|машины)|vehiclePlate"
+  ],
+  "trap": [
+    { "id": "dock-handle", "re": "shipments/\\{?shipmentId\\}?/dock|постановк\\S*[^.\\n]{0,30}ворот" },
+    { "id": "dock-stream", "re": "yard\\.dock\\.loading|сигнал\\S*\\s+ворот" },
+    { "id": "dock-event", "re": "shipment-dock-status|ShipmentDockStatusChanged" }
+  ],
+  "forbidden": [],
+  "stage": null
+}

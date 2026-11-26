@@ -13,6 +13,8 @@ PROMPT="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 OUT="$2"; N="$3"; CONC="${4:-5}"
 [ -f "$PROMPT" ] || { echo "нет промпта: $PROMPT"; exit 1; }
 mkdir -p "$OUT"
+. "$(dirname "${BASH_SOURCE[0]}")/model-id.sh"
+SM_MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 
 run_one() {
   local i="$1" sb="$OUT/run-$1"
@@ -21,7 +23,7 @@ run_one() {
   # Промпт подаётся stdin, а не аргументом: на Windows длина командной строки ограничена ~32 КБ,
   # и промпт SM-BULK (33 КБ) в неё не влез — пять прогонов упали с rc=126 «Argument list too long»,
   # причём в answer.md при этом не было ничего, то есть по размеру отказ виден не был.
-  ( cd "$sb" && timeout 900 claude -p --model "${SM_MODEL:-haiku}" --permission-mode bypassPermissions < "$PROMPT" ) \
+  ( cd "$sb" && timeout 900 claude -p --model "$SM_MODEL" --permission-mode bypassPermissions < "$PROMPT" ) \
       > "$sb/answer.md" 2> "$sb/_stderr.log"
   local rc=$?
   if grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit" "$sb/answer.md" 2>/dev/null; then

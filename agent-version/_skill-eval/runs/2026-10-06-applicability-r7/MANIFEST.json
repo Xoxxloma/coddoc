@@ -1,0 +1,312 @@
+[
+  {
+    "id": "ua-label",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-label\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-timeout",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-timeout\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-damaged",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-damaged\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-feature",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-feature\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-state",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-state\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-access",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-access\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-reliability-q",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-reliability-q\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write",
+    "expected": [
+      "no extra question about untouched failure handling"
+    ]
+  },
+  {
+    "id": "ua-reliability-deferred",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-reliability-deferred\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "write"
+  },
+  {
+    "id": "ua-source-q",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-source-q\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "question"
+  },
+  {
+    "id": "ua-refine",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-refine\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "refine"
+  },
+  {
+    "id": "ua-review-clean",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-clean\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": []
+  },
+  {
+    "id": "ua-review-format",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-format\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": [
+      "11: heading not struck"
+    ]
+  },
+  {
+    "id": "ua-review-reliability",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-reliability\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": [],
+    "evaluation_scope": "Full spec-review orchestration, explicit change_request source beside unrelated legacy business_requirements, valid NA 5.2 and general release 6.1"
+  },
+  {
+    "id": "ua-review-source",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-source\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": [
+      "11: source substitution"
+    ]
+  },
+  {
+    "id": "ua-review-flags",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-flags\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": [
+      "11: atomicity inferred from absent flags"
+    ]
+  },
+  {
+    "id": "ua-review-open",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ua-review-open\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "target": "docs/UA-410/technical_specification.md",
+    "kind": "review",
+    "expected": [
+      "11: open item struck",
+      "6/10: open status"
+    ]
+  },
+  {
+    "id": "ts-live",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-live\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-LIVE"
+  },
+  {
+    "id": "ts-conv",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-conv\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-CONV",
+    "target": "docs/ARS-201/technical_specification.md"
+  },
+  {
+    "id": "ts-conv2",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-conv2\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-CONV2"
+  },
+  {
+    "id": "ts-opt",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-opt\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-CONV"
+  },
+  {
+    "id": "ts-conv-2t",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-conv-2t\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": "turn2.txt",
+    "fixture": "TS-CONV"
+  },
+  {
+    "id": "ts-ctx",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-ctx\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-CTX",
+    "target": "docs/SMSEC-420/technical_specification.md"
+  },
+  {
+    "id": "ts-noctx",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-noctx\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-NOCTX"
+  },
+  {
+    "id": "ts-gaps",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-gaps\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-GAPS"
+  },
+  {
+    "id": "ts-gaps-q",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-gaps-q\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "TS-GAPS"
+  },
+  {
+    "id": "ts-fix",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-fix\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": "turn2.txt",
+    "fixture": "TS-FIX"
+  },
+  {
+    "id": "ts-fix-yes",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\ts-fix-yes\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": "turn2.txt",
+    "fixture": "TS-FIX"
+  },
+  {
+    "id": "bf-spec",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\bf-spec\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "BF-SPEC",
+    "target": "docs/ARS-312/technical_specification.md"
+  },
+  {
+    "id": "bfg-scroll",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\bfg-scroll\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "BF-GATE"
+  },
+  {
+    "id": "bfg-role",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\bfg-role\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\technical-spec-doc\\SKILL.md",
+    "kind": "regression",
+    "second": null,
+    "fixture": "BF-GATE"
+  },
+  {
+    "id": "rv-clean",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-clean\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-CLEAN"
+  },
+  {
+    "id": "rv-conv",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-conv\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-CONV"
+  },
+  {
+    "id": "rv-fe",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-fe\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-AUDIT"
+  },
+  {
+    "id": "rv-tpl-clean",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-tpl-clean\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-AUDIT"
+  },
+  {
+    "id": "rv-tpl-dirty",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-tpl-dirty\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-AUDIT"
+  },
+  {
+    "id": "rv-tpl-count",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-tpl-count\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-AUDIT"
+  },
+  {
+    "id": "rv-bug-spec",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-bug-spec\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-BUG"
+  },
+  {
+    "id": "rv-bug-src",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\rv-bug-src\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-applicability-r7\\_skills\\spec-review\\SKILL.md",
+    "kind": "review-regression",
+    "second": null,
+    "fixture": "RV-BUG"
+  }
+]

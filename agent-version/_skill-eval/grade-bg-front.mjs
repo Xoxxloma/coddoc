@@ -27,7 +27,7 @@ for (const run of readdirSync(root).filter((n) => /^run-\d+$/.test(n)).sort()) {
   const rule = RE_RULE.test(ans)
   const named = /incident-api/.test(ans)
   const cold = RE_COLD.test(ans) && !rule
-  const wrote = existsSync(join(dir, 'docs', 'ARS-316'))
+  const wrote = existsSync(join(dir, 'coddoc', 'ARS-316'))
   const c = [...stream.matchAll(/"total_cost_usd":([0-9.]+)/g)].map((m) => Number(m[1])); if (c.length) cost += c[c.length - 1]
   const ok = opened && rule
   if (ok) green++

@@ -9,7 +9,7 @@
 # ПРАВКА 1 — УБРАНА ПОСЛЕДНЯЯ СТРОКА ПРОМПТА «Твой ответ — то, что ты сказал бы пользователю в чат».
 #
 # Она стоила половины замера. База по четырём пишущим пробам дала 12 прогонов из 40, которые
-# выдали хендофф «спека готова, файл `docs/<KEY>/technical_specification.md`, статус такой-то» и
+# выдали хендофф «спека готова, файл `coddoc/<KEY>/technical_specification.md`, статус такой-то» и
 # НЕ СОЗДАЛИ ФАЙЛА; на `ts-ctx` таких было пять из десяти. Пилот `pilot-wrapper.sh` — та же
 # фикстура, тот же снимок скилла, та же модель, отличие ровно в этой строке — дал спеку на диске
 # в 5 прогонах из 5.
@@ -32,6 +32,11 @@ set -u
 # На macOS нет `timeout` (coreutils не входят в систему): вызов падает с rc=127, песочница остаётся
 # без `answer.md`, и всё плечо выглядит «не измеренным». Та же подмена стоит в раннере SM-REAL.
 command -v timeout > /dev/null || timeout() { local s="$1"; shift; perl -e 'alarm shift; exec @ARGV' "$s" "$@"; }
+
+# Модель — полным именем (`model-id.sh`): пул зовут и в обход раннера.
+. "$(dirname "${BASH_SOURCE[0]}")/model-id.sh"
+SM_MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
+RT_TWIN_MODEL="$(model_id "${RT_TWIN_MODEL:-}" claude-sonnet-5-5)" || exit 2
 
 # ПУТИ В ПРОМПТ — В ФОРМЕ, КОТОРУЮ ЧИТАЕТ `Read` ПРОГОНА. Голый `pwd` в git-bash отдаёт `/tmp/…`,
 # а виндовый `Read` на нём отвечает «File does not exist» — прогон либо выкручивался `find`+`cat`,
@@ -97,6 +102,56 @@ EFFORT="${EFFORT:-}"
 # файл реплики (восьмой аргумент), то есть на пробах маршрута. Остальной набор одноходовой и
 # цикла не видит.
 MAX_TURNS="${RT_MAX_TURNS:-8}"
+# `RT_IDLE_MAX` — сколько ходов подряд без роста трассы терпеть (пусто → 2, как было). `RT_DONE_RE` —
+# регулярка по путям файлов песочницы: нашёлся файл — диалог кончен (пусто → не проверяется). Обе — для
+# многоходовых проб без заглушек (`meet-*`): трассы там нет, каждый ход «пустой», и при пороге 2 диалог
+# гас на втором вопросе скилла; конец задаёт записанный файл, потолок — `RT_MAX_TURNS`.
+IDLE_MAX="${RT_IDLE_MAX:-2}"
+DONE_RE="${RT_DONE_RE:-}"
+# `RT_DONE_GREP` — регулярка по СОДЕРЖИМОМУ файлов `coddoc/` и `notes/` песочницы: нашлась строка — диалог кончен (пусто →
+# не проверяется). Для проб, у которых файл результата создаётся в начале диалога и дописывается по ходу
+# (`rec-*`): по пути конец не опознать.
+DONE_GREP="${RT_DONE_GREP:-}"
+# `RT_DONE_ANSWER` — регулярка по ответам агента `answer-*.md`: нашлась — диалог кончен (пусто → не проверяется). Для проб,
+# у которых результат — сообщение в чате, а не файл (`reh-*`).
+DONE_ANSWER="${RT_DONE_ANSWER:-}"
+is_done() { { [ -n "$DONE_RE" ] && find "$1" -type f 2>/dev/null | grep -qE "$DONE_RE"; } || { [ -n "$DONE_GREP" ] && grep -rqE "$DONE_GREP" "$1/coddoc" "$1/notes" 2>/dev/null; } || { [ -n "$DONE_ANSWER" ] && cat "$1"/answer-*.md 2>/dev/null | grep -qE "$DONE_ANSWER"; }; }
+# `RT_TWIN` — карточка памяти двойника аналитика, `RT_TWIN_PROMPT` — общий промпт двойника (пусто → цикл
+# побайтно прежний). Задана — реплику хода пишет не файл, а двойник: отдельный `claude -p` без инструментов,
+# вне песочницы, получает промпт, карточку и весь диалог и отвечает за аналитика. Для опросов, где ответ
+# зависит от вопроса (`rec-*`): готовая реплика на такой вопрос не отвечает. Диалог и реплики — `<песочница>/_twin/`.
+TWIN="${RT_TWIN:-}"
+TWIN_PROMPT="${RT_TWIN_PROMPT:-}"
+if [ -n "$TWIN" ]; then
+  [ -f "$TWIN" ] && [ -f "$TWIN_PROMPT" ] || { echo "нет карточки или промпта двойника: $TWIN / $TWIN_PROMPT"; exit 1; }
+fi
+twin_reply() {
+  local sb="$1" last="$2" n="$3" td="$1/_twin" wd
+  mkdir -p "$td"
+  [ -s "$td/dialog.md" ] || printf 'Аналитик:\n%s\n\n' "$(cat "$PROMPT")" > "$td/dialog.md"
+  printf 'Агент:\n%s\n\n' "$(cat "$last")" >> "$td/dialog.md"
+  # Промпт собирается ДО перехода во временную папку: путь песочницы относительный, и подстановка внутри
+  # `( cd … )` читала бы диалог уже не оттуда — двойник получал пустой диалог и отвечал «вопросов не было».
+  local tp
+  tp="$(cat "$TWIN_PROMPT")
+
+<карточка>
+$(cat "$TWIN")
+</карточка>
+
+<диалог>
+$(cat "$td/dialog.md")
+</диалог>
+
+Напиши только свой ответ на последнее сообщение агента."
+  wd="$(mktemp -d)"
+  ( cd "$wd" && timeout 300 claude -p "$tp" --model "${RT_TWIN_MODEL:-sonnet}" --tools "" --output-format json < /dev/null ) \
+      > "$td/twin-$n.json" 2>> "$sb/_stderr.log"
+  rm -rf "$wd"
+  node -e 'const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(String(j.result || ""))' \
+      "$td/twin-$n.json" > "$td/reply-$n.txt" 2>> "$sb/_stderr.log" || cp /dev/null "$td/reply-$n.txt"
+  printf 'Аналитик:\n%s\n\n' "$(cat "$td/reply-$n.txt")" >> "$td/dialog.md"
+}
 # `RT_NODE_REPLY` — файл реплики на узел «Что дальше?» (`analyst-workspace` 2.0.0). Пусто → цикл
 # побайтно прежний. Узел опознаётся в ответе прошлого хода по двум подписям, которых нет больше нигде
 # в маршруте. Нейтральное «да, годится» вариант из четырёх не выбирает, поэтому в узле реплика — выбор;
@@ -122,10 +177,22 @@ is_api_failure() {
   local f="$1"
   local size; size=$(wc -c < "$f")
   if [ "$size" -lt 600 ]; then
-    grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit" "$f"
+    grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit|hit your [0-9a-z-]* ?limit" "$f"
   else
-    head -c 200 "$f" | grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit"
+    head -c 200 "$f" | grep -qiE "API Error|Request not allowed|Please run /login|Credit balance|rate limit|session limit|usage limit|hit your [0-9a-z-]* ?limit"
   fi
+}
+
+# ПОТОК ВНЕ ПЕСОЧНИЦЫ, ПОКА ИДУТ ХОДЫ. Стрим лежал в песочнице и был виден модели: в раунде 2026-11-24 три прогона
+# читали свой `stream.jsonl`. Пишется во временный каталог, в папку прогона переезжает после последнего хода —
+# грейдеры и `cost-runs.sh` находят его на прежнем месте.
+STREAM_TMP="$(mktemp -d "${TMPDIR:-/tmp}/skill-eval-streams.XXXXXX")"
+trap 'rmdir "$STREAM_TMP" 2>/dev/null' EXIT
+land_streams() {
+  local sd="$1" sb="$2" f
+  for f in "$sd"/stream*.jsonl; do [ -e "$f" ] && mv "$f" "$sb"/; done
+  rmdir "$sd" 2>/dev/null
+  return 0
 }
 
 # Состав засева на момент старта плеча — эталон для сверки перед каждым прогоном.
@@ -146,7 +213,16 @@ extract_answer() {
     // `find` брал первый, и прогоны выглядели пустой работой при готовых отчётах в потоке.
     const results = parsed.filter((x) => x.type === "result" && typeof x.result === "string")
     const res = results.length ? results[results.length - 1] : null
-    fs.writeFileSync(process.argv[2], res ? res.result : "")
+    // `RT_ANSWER_ALL_TEXT=1` (пробы `reh-*`): ответ хода — все реплики ведущего, как их видит пользователь. Вопрос,
+    // напечатанный до вызова инструмента, в `result` не попадает, и двойник отвечал на «Жду ответа на вопрос 3/6».
+    const texts = []
+    if (process.env.RT_ANSWER_ALL_TEXT === "1") {
+      for (const x of parsed) {
+        if (x.type !== "assistant" || x.parent_tool_use_id || !x.message || !Array.isArray(x.message.content)) continue
+        for (const c of x.message.content) if (c.type === "text" && String(c.text).trim()) texts.push(String(c.text))
+      }
+    }
+    fs.writeFileSync(process.argv[2], texts.length ? texts.join("\n\n") : (res ? res.result : ""))
   ' "$stream" "$out" 2>>"$err" || cp /dev/null "$out"
 }
 
@@ -167,6 +243,7 @@ run_one() {
   mkdir -p "$sb"
   if [ -s "$sb/answer.md" ]; then echo "  run-$i — уже есть, пропуск"; return 0; fi
   local abs_sb; abs_sb="$(cd "$sb" && pwd)"
+  local sd="$STREAM_TMP/run-$i"; mkdir -p "$sd"
 
   if [ -n "$SEED" ]; then
     # СВЕРКА ЗАСЕВА ПЕРЕД КАЖДЫМ ПРОГОНОМ, а не один раз на плечо. Прогон, промахнувшийся мимо
@@ -184,6 +261,9 @@ run_one() {
     fi
     cp -r "$SEED"/. "$abs_sb"/ 2>/dev/null
     ( cd "$abs_sb" && find . -type f -not -name '_seeded.txt' | sed 's|^\./||' | sort ) > "$abs_sb/_seeded.txt"
+    # Отпечатки засева: оценщик сверяет «засев не тронут» с тем, что легло в песочницу, а не с фикстурой на диске —
+    # фикстура могла поменяться между прогоном и перегрейдом. `_seeded.txt` остаётся списком путей: его так читают все.
+    ( cd "$abs_sb" && tr '\n' '\0' < _seeded.txt | xargs -0 -r sha256sum ) > "$abs_sb/_seeded.sha256" 2>/dev/null
   fi
 
   # ЗАГЛУШКИ ПОД-СКИЛЛОВ. Кладутся в `.claude/skills/` песочницы — так они становятся НАСТОЯЩИМИ
@@ -211,12 +291,25 @@ $(cat "$PROMPT")
 >>>
 Отработай по скиллу."
 
+  # Вызов словами (`RT_NO_SKILL_PATH=1`, проба `nb-auto`): ни пути к снимку, ни «по скиллу», ни строки про
+  # под-скиллы — скилл лежит в `.claude/skills/` песочницы, и модель находит его сама по description.
+  if [ "${RT_NO_SKILL_PATH:-0}" = "1" ]; then
+    task="Твоя рабочая директория — ${abs_sb}. Считай её корнем рабочего репозитория. Ничего за её пределами не создавай и не изменяй: путь, ведущий наружу, — ошибка сборки пути, а не повод писать туда.
+
+Интерактивного инструмента вопросов (AskUserQuestion) в этом окружении нет. Если нужно задать вопросы — задавай их обычным текстом.
+
+Сообщение пользователя:
+<<<
+$(cat "$PROMPT")
+>>>"
+  fi
+
   # Строка про под-скиллы добавляется ТОЛЬКО когда заглушки есть. Без неё смоук 2026-08-18 показал,
   # почему она обязательна: инструмент вызова скиллов у прогона в списке был, заглушки в
   # `.claude/skills/` лежали, но промпт говорил лишь «прочитай файл по пути — это скилл», и
   # оркестратор НИ РАЗУ никого не вызвал — написал документ сам. Это отказ стенда, а не дефект
   # маршрута: измеряемое поведение (какой под-скилл вызван) просто не могло проявиться.
-  if [ -n "$STUBS_DIR" ]; then
+  if [ -n "$STUBS_DIR" ] && [ "${RT_NO_SKILL_PATH:-0}" != "1" ]; then
     task="$task
 
 Под-скиллы петли установлены в реестре скиллов этой песочницы. Когда твой скилл велит запустить под-скилл — запускай его инструментом вызова скиллов по имени, а не выполняй его работу сам и не пиши его файлы за него."
@@ -248,12 +341,12 @@ $(cat "$PROMPT")
   ( cd "$sb" && timeout "${RUN_TIMEOUT:-900}" claude -p "$task" --model "${SM_MODEL:-haiku}" --permission-mode bypassPermissions \
         ${EFFORT:+--effort "$EFFORT"} \
         --session-id "$sid" --output-format stream-json --verbose ) \
-      > "$sb/stream.jsonl" 2> "$sb/_stderr.log"
+      > "$sd/stream.jsonl" 2> "$sb/_stderr.log"
   local rc=$?
-  extract_answer "$sb/stream.jsonl" "$sb/answer.md" "$sb/_stderr.log"
+  extract_answer "$sd/stream.jsonl" "$sb/answer.md" "$sb/_stderr.log"
   # Продолжаем по тому id, который вернул САМ CLI: если `--session-id` не был принят, он назначил свой,
   # и продолжение по нашему значению ушло бы в никуда.
-  local rsid; rsid="$(grep -o '"session_id":"[^"]*"' "$sb/stream.jsonl" 2>/dev/null | head -1 | cut -d'"' -f4)"
+  local rsid; rsid="$(grep -o '"session_id":"[^"]*"' "$sd/stream.jsonl" 2>/dev/null | head -1 | cut -d'"' -f4)"
   [ -n "$rsid" ] && sid="$rsid"
 
   # ─── ХОДЫ 2…K: реплика аналитика в ТУ ЖЕ сессию, ПОКА МАРШРУТ ДВИЖЕТСЯ ──────────────────────
@@ -278,13 +371,19 @@ $(cat "$PROMPT")
   if [ -n "$TURN2" ] && [ $rc -eq 0 ] && [ -s "$sb/answer.md" ] && ! is_api_failure "$sb/answer.md"; then
     cp "$sb/answer.md" "$sb/answer-01.md"
     local reply node_used=0 prev done_sent=0
-    while [ "$turn" -lt "$MAX_TURNS" ] && [ "$idle" -lt 2 ] && [ "$done_sent" = "0" ]; do
+    while [ "$turn" -lt "$MAX_TURNS" ] && [ "$idle" -lt "$IDLE_MAX" ] && [ "$done_sent" = "0" ] && ! is_done "$sb"; do
       local before; before="$(trace_len "$sb")"
       prev="$sb/answer-$(printf '%02d' "$turn").md"
       turn=$((turn + 1))
       local tf="$TURN2"
       [ "$turn" -ge 3 ] && [ -n "${TURN_FILES[$((turn - 3))]:-}" ] && tf="${TURN_FILES[$((turn - 3))]}"
       reply="$(cat "$tf")"
+      if [ -n "$TWIN" ]; then
+        twin_reply "$sb" "$prev" "$(printf '%02d' "$turn")"
+        reply="$(cat "$sb/_twin/reply-$(printf '%02d' "$turn").txt")"
+        # Двойник не ответил — это отказ стенда, а не ход аналитика: прогон в счёт не идёт.
+        [ -n "$reply" ] || { apifail=1; break; }
+      fi
       if [ -n "$NODE_REPLY" ] && is_node "$prev"; then
         if [ "$node_used" = "0" ]; then reply="$(cat "$NODE_REPLY")"; node_used=1
         elif [ "$node_used" = "1" ] && [ -n "$NODE_REPLY2" ]; then reply="$(cat "$NODE_REPLY2")"; node_used=2
@@ -294,9 +393,9 @@ $(cat "$PROMPT")
       ( cd "$sb" && timeout "${RUN_TIMEOUT:-900}" claude -p "$reply" --model "${SM_MODEL:-haiku}" --permission-mode bypassPermissions \
             ${EFFORT:+--effort "$EFFORT"} \
             --resume "$sid" --output-format stream-json --verbose ) \
-          > "$sb/stream-$(printf '%02d' "$turn").jsonl" 2>> "$sb/_stderr.log"
+          > "$sd/stream-$(printf '%02d' "$turn").jsonl" 2>> "$sb/_stderr.log"
       rc=$?
-      extract_answer "$sb/stream-$(printf '%02d' "$turn").jsonl" "$sb/answer-$(printf '%02d' "$turn").md" "$sb/_stderr.log"
+      extract_answer "$sd/stream-$(printf '%02d' "$turn").jsonl" "$sb/answer-$(printf '%02d' "$turn").md" "$sb/_stderr.log"
       # Отказ API на любом ходу обрывает цикл: продолжать нечего, и склейка ниже отдаст
       # грейдеру то, что успело накопиться, вместе с маркером отказа.
       # `is_api_failure` принимает ПУТЬ, а не текст. Пустой файл хода — тоже обрыв: продолжать
@@ -306,12 +405,13 @@ $(cat "$PROMPT")
       if [ $rc -ne 0 ]; then apifail=1; break; fi
       local after; after="$(trace_len "$sb")"
       if [ "$after" -gt "$before" ]; then idle=0
-      elif [ -n "$NODE_REPLY2" ] && lead_moved "$sb/stream-$(printf '%02d' "$turn").jsonl"; then idle=0
+      elif [ -n "$NODE_REPLY2" ] && lead_moved "$sd/stream-$(printf '%02d' "$turn").jsonl"; then idle=0
       else idle=$((idle + 1)); fi
     done
     # `answer.md` — склейка ВСЕХ ходов: грейдеры набора читают именно его и ищут в нём анкеры
     # (спрошен ли ключ, показано ли меню). Склейка сохраняет находки каждого хода.
     cat "$sb"/answer-*.md > "$sb/answer.md"
+    land_streams "$sd" "$sb"
     # ОТКАЗ API ПОСРЕДИ ЦИКЛА НЕ ДОЛЖЕН ВЫГЛЯДЕТЬ КАК ОБРЫВ МАРШРУТА. Проверка ниже смотрит на
     # склейку, а склейка длинная — маркер отказа в ней уезжает за первые 200 байт и не находится.
     # Прогон, потерявший API на четвёртом ходу, записался бы в «скилл встал на третьей станции».
@@ -324,6 +424,7 @@ $(cat "$PROMPT")
     echo "  run-$i — ходов: $turn, строк в трассе: $(trace_len "$sb")"
   fi
 
+  land_streams "$sd" "$sb"
   if [ -s "$sb/answer.md" ] && is_api_failure "$sb/answer.md"; then
     mv "$sb/answer.md" "$sb/_api-failure.txt"
     echo "  run-$i — ОТКАЗ API, песочница помечена и в счёт не идёт"

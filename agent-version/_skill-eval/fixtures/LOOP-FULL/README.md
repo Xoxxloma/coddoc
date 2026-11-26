@@ -11,7 +11,7 @@
 sandbox/LOOP-NN/
   specs/                     ← рабочая директория прогона (копия tree/)
     services/                ← сюда service-map пишет слепок
-    docs/                    ← сюда пишутся БТ, спеки, этапы
+    coddoc/                    ← сюда пишутся БТ, спеки, этапы
   auth/ incident-api/ incident-web/   ← копии neighbours/, на одном уровне со specs
 ```
 

@@ -1,0 +1,24 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-24-occ-r3/_skills/technical-spec-doc.SKILL.md
+проба: ts-cr-api   фикстура: TS-CR   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-24-occ-r3/ts-cr-api
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r3-ts-cr-api-54349-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-CR/api-prompt.txt
+прогонов: 1, параллельно: 1
+  run-1 — готов
+ГОТОВО: runs/2026-11-24-occ-r3/ts-cr-api — песочниц с ответом: 1 из 1
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r3-ts-cr-api-54349-skills (журнальная копия осталась в runs/2026-11-24-occ-r3/_skills/)
+runs/2026-11-24-occ-r3/ts-cr-api: $0.49 за 1 прогонов
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-24-occ-r3/_skills/technical-spec-doc.SKILL.md
+проба: ts-cr-api   фикстура: TS-CR   скилл: technical-spec-doc
+effort: умолчание CLI
+плечо: runs/2026-11-24-occ-r3/ts-cr-api
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r3-ts-cr-api-57083-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/agent-version/_skill-eval/fixtures/TS-CR/api-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — уже есть, пропуск
+  run-2 — готов
+  run-3 — готов
+ГОТОВО: runs/2026-11-24-occ-r3/ts-cr-api — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-24-occ-r3-ts-cr-api-57083-skills (журнальная копия осталась в runs/2026-11-24-occ-r3/_skills/)
+runs/2026-11-24-occ-r3/ts-cr-api: $1.65 за 3 прогонов

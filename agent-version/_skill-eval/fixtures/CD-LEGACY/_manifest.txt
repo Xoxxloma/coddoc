@@ -1,0 +1,9 @@
+br-prompt.txt
+ni-prompt.txt
+ni-turn2.txt
+README.md
+seed/coddoc/CBK-208/business_requirements.md
+seed/docs/EMP-1207/business_requirements.md
+seed/docs/EMP-1207/meeting-2026-10-15.points.md
+seed/docs/MED-77/business_requirements.md
+seed/notes/кешбэк-в-кофейнях/notebook-2026-10-14.points.md

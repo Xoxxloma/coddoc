@@ -166,7 +166,8 @@ export function gradeSection10(spec) {
   // строки, и пустая строка после заголовка давала пустое тело — «§1.0 ПУСТА» при «Доработка
   // существующего…» под ней (раунд br-comb 2026-10-02: база2 run-06, после A run-02/03/09).
   const lines = spec.split(/\r?\n/)
-  const at = lines.findIndex((l) => /^#{2,4}\s*1\.0[.\s]/.test(l))
+  // «### §1.0 Тип доработки» — тот же раздел: знак § перед номером не делает его отсутствующим (замер A 2026-10-07).
+  const at = lines.findIndex((l) => /^#{2,4}\s*§?\s*1\.0[.\s]/.test(l))
   if (at < 0) return { has10: false, typeFilled: false, body: '' }
   const rest = lines.slice(at + 1)
   const end = rest.findIndex((l) => /^#{2,4}\s/.test(l))
@@ -220,7 +221,7 @@ function gradeSandbox(sb, mode) {
     return r
   }
 
-  r.pathOk = brds.some((p) => p === 'docs/SMSEC-4180/business_requirements.md')
+  r.pathOk = brds.some((p) => p === 'coddoc/SMSEC-4180/business_requirements.md')
   if (!r.wrote) return { ...r, pass: false, why: 'файл не записан' }
   const s = gradeSection10(readFileSync(join(sb, brds[0]), 'utf8'))
   Object.assign(r, s)

@@ -1,1 +1,1 @@
-Нарисуй подробную схему взаимодействий (с ответами и ошибками) по спецификации docs/PRK-9/technical_specification.md в формате PlantUML.
+Нарисуй подробную схему взаимодействий (с ответами и ошибками) по спецификации coddoc/PRK-9/technical_specification.md в формате PlantUML.

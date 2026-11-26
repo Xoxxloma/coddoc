@@ -1,0 +1,26 @@
+services:
+  - name: catalog-api
+    path: ../catalog-api
+    type: backend
+    notes: |
+      Канонический владелец фонда, броней и выдач.
+      Читательские билеты ведёт `readers`; catalog-api их только проверяет.
+
+  - name: opac-web
+    path: ../opac-web
+    type: frontend
+
+  - name: reader-app
+    path: ../reader-app
+    type: frontend
+
+  - name: staff-web
+    path: ../staff-web
+    type: frontend
+
+  - name: readers
+    path: ../readers-service
+    type: backend
+    notes: |
+      Канонический владелец читательских билетов и штрафов.
+      Брони и выдачи ведёт `catalog-api`; здесь их нет.

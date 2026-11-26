@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "specs-quality/findings/4",
+  "title": "Ответ субагента: один документ — рубрика и признаки сложности",
+  "description": "Ответ на rubric-bt.md или rubric-spec.md с полем complexity по complexity-bt.md или complexity-spec.md. merge проверяет его по $defs/bt или $defs/spec, сверяет порядок критериев с рубрикой и ищет каждую цитату в тексте документа. Форму complexity здесь не проверяет: её пункты разбирает complexity.py терпимо, и сбой в них не роняет оценку по рубрике.",
+  "oneOf": [{"$ref": "#/$defs/bt"}, {"$ref": "#/$defs/spec"}],
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "nullable_text": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/text"}]},
+    "quote": {"type": "string", "minLength": 1, "maxLength": 300},
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["section", "quote"],
+      "properties": {"section": {"type": "string", "minLength": 1, "maxLength": 200}, "quote": {"$ref": "#/$defs/quote"}}
+    },
+    "criterion": {
+      "description": "score — по шкале рубрики 0 / 0.5 / 1 или «н/п».",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "evidence", "searched", "comment", "fix", "score"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "searched": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "comment": {"$ref": "#/$defs/nullable_text"},
+        "fix": {"$ref": "#/$defs/nullable_text"},
+        "score": {"oneOf": [{"type": "number", "minimum": 0, "maximum": 1}, {"const": "н/п"}]}
+      }
+    },
+    "criteria_bt": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/criterion"}},
+    "criteria_spec": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/criterion"}},
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact", "generic", "flag"],
+      "properties": {
+        "fact": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/evidence"}]},
+        "generic": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/quote"}},
+        "flag": {"type": "boolean"}
+      }
+    },
+    "form": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["missing"],
+      "properties": {
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["n", "title"],
+            "properties": {"n": {"type": "integer", "minimum": 1}, "title": {"type": "string", "minLength": 1}}
+          }
+        }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["traces", "code_signs"],
+      "properties": {
+        "traces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["n", "what"],
+            "properties": {"n": {"type": "integer", "minimum": 1, "maximum": 5}, "what": {"$ref": "#/$defs/text"}}
+          }
+        },
+        "code_signs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["n", "quote"],
+            "properties": {"n": {"type": "integer", "minimum": 1, "maximum": 6}, "quote": {"$ref": "#/$defs/quote"}}
+          }
+        }
+      }
+    },
+    "complexity": {"description": "Пункты признаков сложности с цитатами — по complexity-bt.md или complexity-spec.md."},
+    "bt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criteria", "template", "form"],
+      "properties": {"criteria": {"$ref": "#/$defs/criteria_bt"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"},
+                     "complexity": {"$ref": "#/$defs/complexity"}}
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criteria", "template", "form", "origin"],
+      "properties": {"criteria": {"$ref": "#/$defs/criteria_spec"}, "template": {"$ref": "#/$defs/template"}, "form": {"$ref": "#/$defs/form"},
+                     "origin": {"$ref": "#/$defs/origin"}, "complexity": {"$ref": "#/$defs/complexity"}}
+    }
+  }
+}

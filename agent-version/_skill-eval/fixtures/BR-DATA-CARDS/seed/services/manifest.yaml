@@ -1,0 +1,11 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: repairy-api
+    path: ../repairy-api
+    type: backend
+    notes: |
+      Канонический владелец проектов, смет и приёмок.
+      Роли раздаёт он же: UserRole на компанию, ProjectMemberRole на проект.
+  - name: repairy-web
+    path: ../repairy-web
+    type: frontend

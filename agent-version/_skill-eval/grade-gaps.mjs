@@ -72,26 +72,26 @@ function walk(dir, base = dir, acc = []) {
   return acc
 }
 
-/** Спека в папке задачи `docs/<KEY>/` — ключ не зашит, ищется по дереву. */
+/** Спека в папке задачи `coddoc/<KEY>/` — ключ не зашит, ищется по дереву. */
 export function findSpec(work) {
-  const docs = join(work, 'docs')
+  const docs = join(work, 'coddoc')
   if (!existsSync(docs)) return null
   for (const key of readdirSync(docs)) {
     const p = join(docs, key, 'technical_specification.md')
-    if (existsSync(p)) return { path: `docs/${key}/technical_specification.md`, text: readFileSync(p, 'utf8') }
+    if (existsSync(p)) return { path: `coddoc/${key}/technical_specification.md`, text: readFileSync(p, 'utf8') }
   }
   return null
 }
 /** Спека мимо папки задачи — отдельный исход, а не «файла нет» (урок grade-ts.mjs 2026-08-14). */
 export function findStraySpec(work) {
   for (const rel of walk(work)) {
-    if (!rel.endsWith('technical_specification.md') || rel.startsWith('docs/')) continue
+    if (!rel.endsWith('technical_specification.md') || rel.startsWith('coddoc/')) continue
     return { path: rel, text: readFileSync(join(work, rel), 'utf8') }
   }
   return null
 }
 function btOf(work) {
-  const docs = join(work, 'docs')
+  const docs = join(work, 'coddoc')
   if (!existsSync(docs)) return ''
   for (const key of readdirSync(docs)) {
     const p = join(docs, key, 'business_requirements.md')
@@ -610,7 +610,7 @@ export function streamAudit(dir) {
         if (['Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(c.name) && abs && !p.startsWith(sb)) outsideWrites.push(p)
         if (['Read', 'Grep', 'Glob'].includes(c.name) && abs && !p.startsWith(sb) && !/skill-eval-seed\//.test(p)) outsideReads.push(p)
         // Материал стенда (README с ожидаемыми исходами, промпты) — прочитанный, он делает пробу вакуумной.
-        // pilot4 run-2: `find /c/Users/Konstantin/projects -name "*TRP*"` вывел `fixtures/TS-GAPS/docs/TRP-418`.
+        // pilot4 run-2: `find /c/Users/Konstantin/projects -name "*TRP*"` вывел `fixtures/TS-GAPS/coddoc/TRP-418`.
         const cmd = String(inp.command || '')
         if ((c.name === 'Read' && /\/fixtures\/[^/]+\/(readme|[^/]*-prompt|[^/]*-turn2|expected|key)/i.test(p))
           || (c.name === 'Bash' && /fixtures\/[^\s"']*(README|-prompt|-turn2|expected|KEY)/i.test(cmd) && /(?<![A-Za-z])(cat|head|tail|less|more|type|sed|awk|grep)(?![A-Za-z])/.test(cmd))) harness.push(p || cmd.slice(0, 120))
@@ -636,14 +636,14 @@ function unmeasured(dir, work) {
   return null
 }
 
-const RE_CLAIMS_WRITTEN = /(спек[аи]|спецификаци[ияю]|документ)[^.\n]{0,60}(записан|готов|создан|сохранён|сохранен)|(файл|путь)\s*:?\s*`?[^`\n]{0,20}docs\//i
+const RE_CLAIMS_WRITTEN = /(спек[аи]|спецификаци[ияю]|документ)[^.\n]{0,60}(записан|готов|создан|сохранён|сохранен)|(файл|путь)\s*:?\s*`?[^`\n]{0,20}coddoc\//i
 
 // ─── Самопроверка ─────────────────────────────────────────────────────────────────────────────
 
 const GREEN = `# Техническая спецификация: заказ служебной машины
 
 > **Задача:** TRP-418
-> **Источник (БТ):** docs/TRP-418/business_requirements.md
+> **Источник (БТ):** coddoc/TRP-418/business_requirements.md
 > **Редакция:** 1.0 от 2026-10-01
 >
 > **Статус готовности:** Требуются уточнения (1)
@@ -762,10 +762,10 @@ function selftestSpec() {
       writeFileSync(join(d, 'stream.jsonl'), [ev('Read', { file_path: 'C:/Users/x/AppData/Local/Temp/skill-eval-seed/r-skills/technical-spec-doc/SKILL.md' }),
         ev('Read', { file_path: 'C:/Users/x/projects/product-skills/agent-version/_skill-eval/fixtures/TS-GAPS/README.md' })].join('\n'))
       ok('поток: прочитан README фикстуры → не измерено', /материал стенда/.test(unmeasured(d, d) ?? ''))
-      writeFileSync(join(d, 'stream.jsonl'), [ev('Read', { file_path: join(d, 'docs/TRP-418/business_requirements.md') })].join('\n'))
+      writeFileSync(join(d, 'stream.jsonl'), [ev('Read', { file_path: join(d, 'coddoc/TRP-418/business_requirements.md') })].join('\n'))
       ok('поток: снимок не прочитан → не измерено', /не прочитан/.test(unmeasured(d, d) ?? ''))
       writeFileSync(join(d, 'stream.jsonl'), [ev('Read', { file_path: 'C:/x/skill-eval-seed/r-skills/technical-spec-doc/SKILL.md' }),
-        ev('Write', { file_path: 'C:/Users/x/projects/product-skills/agent-version/_skill-eval/fixtures/TS-GAPS/docs/TRP-418/technical_specification.md', content: '' })].join('\n'))
+        ev('Write', { file_path: 'C:/Users/x/projects/product-skills/agent-version/_skill-eval/fixtures/TS-GAPS/coddoc/TRP-418/technical_specification.md', content: '' })].join('\n'))
       ok('поток: запись в фикстуру → не измерено', /вне песочницы/.test(unmeasured(d, d) ?? ''))
     } finally { rmSync(d, { recursive: true, force: true }) }
   }
@@ -793,7 +793,7 @@ function selftestQ() {
 **Справочник офисов.** Для существующих офисов часовой пояс заполняем миграцией по городу?
 
 **Поля.** Адрес — до 300 символов, телефон — формат E.164. Годится?`
-  const RED_Q = `Спека записана: docs/TRP-418/technical_specification.md. Статус: Готово к разработке.`
+  const RED_Q = `Спека записана: coddoc/TRP-418/technical_specification.md. Статус: Готово к разработке.`
   const g = gradeQuestions(GREEN_Q), r = gradeQuestions(RED_Q)
   ok('зелёный: 6 вопросов', g.questions === 6)
   for (const k of ['q1', 'q2', 'q3', 'q4', 'q5', 'q6']) ok(`зелёный: ${k} спрошен`, g.topics[k].asked)
@@ -805,7 +805,7 @@ function selftestQ() {
 }
 
 // ─── Живые строки пилота — как модель пишет на самом деле ────────────────────────────────────
-// Спека: `runs/2026-10-01-gaps-pilot2/ts-gaps/run-2/docs/TRP-418/technical_specification.md` (596 строк),
+// Спека: `runs/2026-10-01-gaps-pilot2/ts-gaps/run-2/coddoc/TRP-418/technical_specification.md` (596 строк),
 // дословные куски. Вердикт по этой спеке вынесен руками ДО правки якорей и сверен с выводом грейдера.
 const LIVE_SPEC_TEXT = `# Техническая спецификация: заказ служебной машины через портал
 
@@ -938,7 +938,7 @@ const LIVE_SPEC_VERDICT = { p1: false, p2: false, p3: true, p4: false, e32: true
 const LIVE_SPEC_TEXT3 = `# Техническая спецификация: заказ служебной машины через портал
 
 > **Задача:** TRP-418
-> **Источник (БТ):** \`docs/TRP-418/business_requirements.md\`
+> **Источник (БТ):** \`coddoc/TRP-418/business_requirements.md\`
 >
 > **Статус готовности:** Требуются уточнения (1)
 >

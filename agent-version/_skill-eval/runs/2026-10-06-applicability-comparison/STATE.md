@@ -1,0 +1,27 @@
+# Сравнение: состояние
+
+- A/bf-spec/run-01: target-pass-with-format-observations
+- B/bf-spec/run-01: target-pass-with-format-observations
+- A/bfg-scroll/run-01: target-pass-with-shared-package
+- B/bfg-scroll/run-01: target-pass-with-shared-package
+- A/bfg-role/run-01: target-pass
+- B/bfg-role/run-01: target-pass
+- A/ts-conv/run-01: target-pass-with-format-observations
+- B/ts-conv/run-01: target-pass-with-confirmed-format-regression
+- A/ts-ctx/run-01: target-pass-with-format-observations
+- B/ts-ctx/run-01: target-pass
+- A/ua-label/run-01: target-failure-observed-on-baseline
+- B/ua-label/run-01: target-pass-with-header-observation
+- A/ua-timeout/run-01: baseline-misses-catalog-heading-with-format-observations
+- B/ua-timeout/run-01: target-pass-with-format-observations
+- A/ua-review-reliability/run-01: target-pass
+- B/ua-review-reliability/run-01: target-pass
+- A/ts-conv/run-02: target-pass-with-format-observations
+- B/ts-conv/run-02: target-pass-with-confirmed-format-regression
+- A/ts-conv/run-03: target-pass-with-format-observations
+- B/ts-conv/run-03: question-on-incomplete-input-format-not-measured
+- C/ts-conv/run-01: target-pass-with-format-observation
+- C/ts-conv/run-02: target-pass
+- C/bf-spec/run-01: target-pass
+- C/ua-timeout/run-01: target-pass-with-format-observations
+- C/ts-ctx/run-01: target-pass-with-format-observation

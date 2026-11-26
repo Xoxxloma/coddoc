@@ -1,0 +1,13 @@
+chain.conf
+expected.md
+README.md
+seed/meeting-2026-10-14.txt
+seed/notes/заявки-на-ремонт-в-общежитии/notebook.md
+stage-1-prompt.txt
+stage-1-turn2.txt
+stage-2-prompt.txt
+stage-2-twin-card.md
+stage-3-prompt.txt
+stage-3-turn2.txt
+stage-4-prompt.txt
+stage-4-twin-card.md

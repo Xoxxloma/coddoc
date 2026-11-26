@@ -1,0 +1,24 @@
+{
+  "file": "after/run-01/answer.md",
+  "diagnosticOnly": true,
+  "structure": true,
+  "missing": [],
+  "order": true,
+  "naSections": 9,
+  "format": false,
+  "defects": [
+    {
+      "type": "heading",
+      "line": 33,
+      "title": "Каталог ошибок (сводно) — последний подраздел §2, после всех INT-карточек"
+    },
+    {
+      "type": "body",
+      "line": 83,
+      "text": "**Унаследовано из БТ (бизнес-пробелы):** не применимо: источник — запрос на правку, открытых бизнес-пробелов в нём нет."
+    }
+  ],
+  "fr": true,
+  "restoredFlag": true,
+  "pass": false
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "arm": "after",
+    "scenario": "change",
+    "work": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike-v4\\after\\run-01",
+    "skill": "C:\\Users\\Konstantin\\projects\\product-skills\\agent-version\\_skill-eval\\runs\\2026-10-06-na-strike-v4\\_skills\\technical-spec-doc\\SKILL.md",
+    "target": "docs/NA-410/technical_specification.md"
+  }
+]

@@ -1,5 +1,5 @@
 det-mmd-prompt.txt
-docs/REP-214/technical_specification.md
+coddoc/REP-214/technical_specification.md
 mmd-prompt.txt
 puml-prompt.txt
 q-turn2.txt

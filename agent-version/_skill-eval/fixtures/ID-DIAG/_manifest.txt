@@ -1,6 +1,6 @@
 ask-prompt.txt
-docs/DSP-330/business_requirements.md
-docs/DSP-330/technical_specification.md
+coddoc/DSP-330/business_requirements.md
+coddoc/DSP-330/technical_specification.md
 mmd-prompt.txt
 puml-prompt.txt
 q-turn2.txt

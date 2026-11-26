@@ -14,7 +14,7 @@ import { join } from 'node:path'
 import { checkStatus } from './check-br-status.mjs'
 import { read, turn, apiFailed } from './br-lib.mjs'
 
-const REL = 'docs/LIB-208/business_requirements.md'
+const REL = 'coddoc/LIB-208/business_requirements.md'
 const GATES = [['ценность', /ценност/i], ['цель', /цел[ьи]|user story|я как/i], ['риски', /риск/i], ['потребители', /потребител|кто\s+польз/i], ['интеграции', /интеграц/i]]
 
 const arg = process.argv[2]

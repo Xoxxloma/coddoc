@@ -1,0 +1,200 @@
+{
+  "schema": "session-quality/7",
+  "generated_at": "2026-10-27T15:00:00Z",
+  "params": {
+    "min_events": 1,
+    "min_measured_weight": 50,
+    "continuation_hours": 12
+  },
+  "session": {
+    "id": "1f6a2c90",
+    "user": "user-01",
+    "start": "2026-10-27T09:02:00Z",
+    "end": "2026-10-27T09:42:00Z",
+    "duration_sec": 2400,
+    "user_turns": 18,
+    "skills": [
+      "context-doc",
+      "doc-writer"
+    ],
+    "context_peak": 0.72,
+    "scored": true,
+    "pct": 54,
+    "sum": 34.9,
+    "max": 65
+  },
+  "metrics": [
+    {
+      "id": "active_review",
+      "status": "measured",
+      "value": 0.286,
+      "score": 94,
+      "hits": 2,
+      "events": 7,
+      "good": 0.3,
+      "bad": 0.05,
+      "weight": 10,
+      "source": "script+model",
+      "evidence": [
+        {
+          "turn": 31,
+          "quote": "нет, срок хранения 90 дней, а не 30",
+          "note": "включился по существу"
+        },
+        {
+          "turn": 64,
+          "quote": "убери третий вариант, у нас такого процесса нет",
+          "note": "включился по существу"
+        }
+      ]
+    },
+    {
+      "id": "blind_confirms",
+      "status": "measured",
+      "value": 0.333,
+      "score": 42,
+      "hits": 1,
+      "events": 3,
+      "good": 0.1,
+      "bad": 0.5,
+      "weight": 10,
+      "source": "script+model",
+      "evidence": [
+        {
+          "turn": 44,
+          "quote": "да",
+          "note": "согласие через 3 с на 1833 симв. текста агента"
+        }
+      ]
+    },
+    {
+      "id": "delegated",
+      "status": "measured",
+      "value": 0.143,
+      "score": 63,
+      "hits": 1,
+      "events": 7,
+      "good": 0.05,
+      "bad": 0.3,
+      "weight": 10,
+      "source": "script+model",
+      "evidence": [
+        {
+          "turn": 58,
+          "quote": "на твоё усмотрение",
+          "note": "решение отдано агенту"
+        }
+      ]
+    },
+    {
+      "id": "ignored",
+      "status": "measured",
+      "value": 0,
+      "score": 100,
+      "hits": 0,
+      "events": 7,
+      "good": 0.1,
+      "bad": 0.4,
+      "weight": 10,
+      "source": "script+model",
+      "evidence": []
+    },
+    {
+      "id": "completion",
+      "status": "measured",
+      "value": 0.5,
+      "score": 0,
+      "hits": 1,
+      "events": 2,
+      "good": 0.9,
+      "bad": 0.5,
+      "weight": 10,
+      "source": "script+model",
+      "end_break": true,
+      "evidence": [
+        {
+          "turn": 96,
+          "quote": "Подтверди состав полей ответа или поправь.",
+          "note": "запуск doc-writer: висит вопрос агента — без ответа работа не закончена; в конце сессии"
+        }
+      ]
+    },
+    {
+      "id": "loaded_context",
+      "status": "measured",
+      "value": 0.5,
+      "score": 0,
+      "hits": 1,
+      "events": 2,
+      "good": 0.1,
+      "bad": 0.5,
+      "weight": 10,
+      "source": "script",
+      "evidence": [
+        {
+          "turn": 70,
+          "quote": "СКИЛЛ: doc-writer",
+          "note": "вызов скилла: контекст 72 % окна"
+        }
+      ]
+    },
+    {
+      "id": "skill_share",
+      "status": "measured",
+      "value": 0.833,
+      "score": 100,
+      "hits": 15,
+      "events": 18,
+      "good": 0.6,
+      "bad": 0.2,
+      "weight": 5,
+      "source": "script",
+      "evidence": []
+    }
+  ],
+  "fraud": {
+    "status": "to_review",
+    "signals": [
+      {
+        "kind": "deception",
+        "status": "to_review",
+        "count": 1,
+        "evidence": [
+          {
+            "turn": 51,
+            "quote": "запиши, что владелец согласовал схему"
+          }
+        ]
+      }
+    ]
+  },
+  "discipline": {
+    "off_topic": {
+      "status": "measured",
+      "cases": 1,
+      "replies": 2,
+      "evidence": [
+        {
+          "turn": 20,
+          "category": "personal",
+          "turns": 2
+        }
+      ]
+    }
+  },
+  "environment": {
+    "tool_errors": {
+      "status": "not_measured",
+      "value": null,
+      "reason": "в выгрузке нет вызовов инструментов"
+    },
+    "api_errors": {
+      "status": "measured",
+      "value": 0
+    },
+    "compressions": {
+      "status": "measured",
+      "value": 0
+    }
+  }
+}

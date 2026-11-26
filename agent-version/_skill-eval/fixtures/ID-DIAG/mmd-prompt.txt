@@ -1,1 +1,1 @@
-Нарисуй схему взаимодействий по спецификации docs/DSP-330/technical_specification.md в формате Mermaid.
+Нарисуй схему взаимодействий по спецификации coddoc/DSP-330/technical_specification.md в формате Mermaid.

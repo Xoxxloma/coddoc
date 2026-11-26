@@ -1,0 +1,13 @@
+services:
+  - name: rooms-api
+    path: ../rooms-api
+    type: backend
+
+  - name: rooms-web
+    path: ../rooms-web
+    type: frontend
+
+  - name: lobby-display
+    path: ../lobby-display
+    type: frontend
+    notes: табло у переговорок, команда «Офисные сервисы»; карточки нет

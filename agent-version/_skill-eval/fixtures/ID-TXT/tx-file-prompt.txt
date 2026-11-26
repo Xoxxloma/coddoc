@@ -1,0 +1,1 @@
+Нарисуй схему по coddoc/VSL-23/integrations-draft.txt в Mermaid.

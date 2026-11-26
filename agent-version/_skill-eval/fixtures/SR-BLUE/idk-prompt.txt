@@ -1,0 +1,1 @@
+Проверь спеку coddoc/SHT-411/technical_specification.md. Достаточно ли её, чтобы писать код?

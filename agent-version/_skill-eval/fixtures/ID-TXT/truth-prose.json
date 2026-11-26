@@ -1,0 +1,19 @@
+{
+  "key": "VSL-23",
+  "source": "coddoc/VSL-23/sync-2026-10-16.points.md",
+  "participants": [
+    ["Касса станции"],
+    ["Сервис бронирования"],
+    ["Сервис лодок"]
+  ],
+  "arrows": [
+    {"from": "Касса станции", "to": "Сервис бронирования", "kind": "req", "id": 3, "token": null},
+    {"from": "Сервис лодок", "to": "Касса станции", "kind": "event", "id": 4, "token": "boat.returned"},
+    {"from": "Сервис бронирования", "to": "Сервис лодок", "kind": "req", "id": 6, "token": "GET /v1/boats/slots"}
+  ],
+  "ordered": false,
+  "asks": {"order": true, "open": [], "dir": [], "same": []},
+  "holes": [],
+  "glued": false,
+  "off": [1, 2, 5, 7]
+}

@@ -1,1 +1,1 @@
-Проверь спеку docs/ARS-312/technical_specification.md. Можно отдавать в разработку?
+Проверь спеку coddoc/ARS-312/technical_specification.md. Можно отдавать в разработку?

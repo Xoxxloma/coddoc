@@ -1,0 +1,8 @@
+проба: id-blue
+модель: sonnet
+effort: умолчание CLI
+реплика аналитика: type-short-turn2.txt
+реплика хода 3: q-turn2.txt
+потолок ходов: 3
+конец диалога по файлу: /coddoc/SHT-410/interaction_diagram\.md$
+прогонов: 2, параллельность: 2

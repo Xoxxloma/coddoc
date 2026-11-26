@@ -1,0 +1,5 @@
+etalon/meeting-2026-10-14-bt.md
+README.md
+seed/coddoc/FIT-412/meeting-2026-10-14.points.md
+w-prompt.txt
+w-turn2.txt

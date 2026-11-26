@@ -1,6 +1,6 @@
 ar-prompt.txt
 ar-turn2.txt
-docs/ARS-77/technical_specification.md
+coddoc/ARS-77/technical_specification.md
 services/manifest.yaml
 services/repairy-api.md
 services/repairy-web.md

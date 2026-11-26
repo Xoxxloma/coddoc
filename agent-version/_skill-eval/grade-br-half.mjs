@@ -18,7 +18,7 @@ import { join } from 'node:path'
 import { checkStatus } from './check-br-status.mjs'
 import { read, turn, apiFailed, writesBt, questionBlocks, openSections, RE_TBD_PROMISE } from './br-lib.mjs'
 
-const REL = 'docs/PASS-417/business_requirements.md'
+const REL = 'coddoc/PASS-417/business_requirements.md'
 const RE_RISK = /риск/i
 // Второе требование — список ожидаемых гостей на посту охраны.
 const RE_FR2 = /спис\S*[^\n]{0,60}гост|гост\S*[^\n]{0,60}спис|ожидаем\S*\s+гост|на\s+пост/i

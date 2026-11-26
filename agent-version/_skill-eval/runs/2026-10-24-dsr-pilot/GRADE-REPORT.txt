@@ -1,0 +1,210 @@
+раунд 2026-10-24-dsr-pilot · перегрейд · 2026-10-24T15:44:01.111Z
+
+## r1-work-add — «Что происходит, когда прораб добавляет новую работу в смету комнаты: что сохраняется и кто об этом узнаёт?»
+run-01: ✓ всё · $0.419 · ходов 14 · разведчиков 1 · сверок 13 · 0 с
+  ответ:
+    Как сейчас: прораб вызывает `POST projects/:pid/rooms/:rid/works`. В одной транзакции создаются работа и запись в историю сметы. Потом, уже вне транзакции, участникам проекта через очередь уходит уведомление `ESTIMATE_CHANGED`.
+    
+    **Вход**
+    - [в коде] Тело проверяется схемой `CreateWorkItemSchema`, затем вызывается `works.create(...)` — repairy/apps/api/src/works/works.controller.ts:78, repairy/apps/api/src/works/works.controller.ts:80
+    - [в коде] Доступ у ролей OWNER и EMPLOYEE, нужна привязка к компании — repairy/apps/api/src/works/works.controller.ts:56-57
+    - [в коде] Комната должна принадлежать проекту и компании пользователя. EMPLOYEE должен быть ещё и участником проекта. Иначе 404 «Комната не найдена» — repairy/apps/api/src/works/works.service.ts:245-256
+    
+    **Что сохраняется**
+    - [в коде] В транзакции создаётся `WorkItem` с данными из запроса и `roomId` — repairy/apps/api/src/works/works.service.ts:52-53
+    - [в коде] По умолчанию у позиции `completedVolume = 0`, `acceptanceState = NONE`, `sortOrder = 0` — repairy/apps/api/prisma/schema.prisma:224-226
+    - [в коде] В той же транзакции пишется `EstimateChangeLog` с типом `WORK_ADDED`, именем работы, дельтой `pricePerUnit × totalVolume` и автором — repairy/apps/api/src/works/works.service.ts:54-61
+    - [в коде] В записи лога хранится `totalAfter`: сумма всех работ проекта плюс сумма закупок — repairy/apps/api/src/estimate-history/estimate-history.service.ts:31-40, repairy/apps/api/src/estimate-history/estimate-history.service.ts:44-63
+    - [в коде] Клиенту возвращается сериализованная работа — repairy/apps/api/src/works/works.service.ts:62, repairy/apps/api/src/works/works.service.ts:67
+    - [в коде] Пакетная ручка `/batch` делает то же в одной транзакции. Лог пишется одной строкой на весь пакет, имя — «<первая> и ещё N». В уведомление идёт имя только первой работы — repairy/apps/api/src/works/works.service.ts:82-102, repairy/apps/api/src/works/works.service.ts:90-93, repairy/apps/api/src/works/works.service.ts:103-105
+    
+    **Кто узнаёт**
+    - [в коде] После транзакции вызывается `notifyProjectParticipants(..., 'ESTIMATE_CHANGED', ...)` без `await`. Ошибка только логируется как `notification dispatch failed`, ответ прорабу от уведомлений не зависит — repairy/apps/api/src/works/works.service.ts:64-66
+    - [в коде] Получатели: участники проекта, все пользователи компании с ролью OWNER и заказчики, принявшие приглашение — repairy/apps/api/src/notifications/notifications.service.ts:37-48, repairy/apps/api/src/notifications/notifications.service.ts:69-71
+    - [в коде] Исключаются сам автор и пользователи с выключенными уведомлениями. Повторы отсекаются по `id` — repairy/apps/api/src/notifications/notifications.service.ts:63-67
+    - [в коде] Каждому получателю в Redis кладутся счётчик и метаданные под ключом `notif:q:<получатель>:<проект>:ESTIMATE_CHANGED`. Сразу ничего не отправляется — repairy/apps/api/src/notifications/notification-queue.service.ts:92-114
+    - [в коде] Склейка для `ESTIMATE_CHANGED` — 180 секунд. Несколько правок подряд уходят одним сообщением с «(+N изм.)», показываются автор и название последней правки — repairy/apps/api/src/notifications/notification-queue.service.ts:25, repairy/apps/api/src/notifications/notification-queue.service.ts:109, repairy/apps/api/src/notifications/notification-queue.service.ts:168-171
+    - [в коде] Задача `flush` запускается каждые 30 секунд — repairy/apps/api/src/notifications/notification-queue.service.ts:117
+    - [в коде] Перед отправкой лишние уведомления отбрасываются: лимит 10 в час на получателя и вид события — repairy/apps/api/src/notifications/notification-queue.service.ts:155-165, repairy/apps/api/src/notifications/notification-queue.service.ts:32
+    - [в коде] Заголовок «Изменена смета «<проект>»», тело «<автор> изменил(а) смету — <название работы>» — repairy/apps/api/src/notifications/notification-queue.service.ts:39, repairy/apps/api/src/notifications/notification-queue.service.ts:50-51
+    - [в коде] Канал выбирается по `notificationChannel` получателя: `WEB_PUSH` идёт через push, `TELEGRAM` через Telegram, по умолчанию письмо на email. Если нет `telegramId` или email, отправки нет и ошибки нет — repairy/apps/api/src/notifications/notification-queue.service.ts:199-212
+    - [вне кода] Токен Telegram-бота берётся из переменной `TELEGRAM_BOT_TOKEN`. Если она не задана, Telegram-уведомления отключены. Значение задаётся при деплое — repairy/apps/api/src/notifications/notification-queue.service.ts:77-80
+    - [не нашёл] Публикации события для других сервисов или внешнего вебхука при добавлении работы в прочитанном коде нет. Единственные оповещения — очередь уведомлений и запись в историю сметы.
+    - [не нашёл] Проверки статуса проекта или комнаты («закрыт», «сдан») перед добавлением нет. Проверяется только принадлежность комнаты — repairy/apps/api/src/works/works.service.ts:245-256
+    
+    Фронтенд (`repairy-web`) разведчик не открывал, поэтому как экран вызывает эту ручку, здесь не описано. Карточка `services/repairy-api.md` с кодом не расходится.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r2-key — «Через какой внешний сервис распознаётся смета из Excel и с каким ключом он работает на проде?»
+run-01: ✓ всё · $0.230 · ходов 6 · разведчиков 1 · сверок 5 · 0 с
+  ответ:
+    Все ссылки подтверждены.
+    
+    Как сейчас: смета из Excel (в виде CSV-текста) распознаётся через внешний сервис DeepSeek. API читает ключ из переменной окружения `DEEPSEEK_KEY`. Какое значение стоит на проде, в коде не видно.
+    
+    - [в коде] Эндпоинт `POST parse-excel` принимает CSV-текст сметы. Он разрешён ролям OWNER и EMPLOYEE — repairy/apps/api/src/projects/projects.controller.ts:90-91
+    - [в коде] `ProjectsService.parseExcel` вызывает `DeepSeekService.parseEstimate` — repairy/apps/api/src/projects/projects.service.ts:158
+    - [в коде] Клиент OpenAI SDK смотрит на `https://api.deepseek.com` — repairy/apps/api/src/ai/deepseek.service.ts:72
+    - [в коде] Модель — `deepseek-chat` — repairy/apps/api/src/ai/deepseek.service.ts:78
+    - [в коде] Ключ берётся из переменной окружения `DEEPSEEK_KEY`. Если её нет, подставляется пустая строка — repairy/apps/api/src/ai/deepseek.service.ts:71
+    - [вне кода] Значение `DEEPSEEK_KEY` на проде живёт в окружении деплоя. Файла деплоя или секретов с этой переменной в репе нет, и значение я не искал — repairy/apps/api/src/ai/deepseek.service.ts:71
+    - [в коде] `.env.example` называет переменную `DEEPSEEK_API_KEY`, а код её не читает. Если на проде выставлено только это имя, ключ окажется пустым — repairy/apps/api/.env.example:42
+    - [не нашёл] Какой именно ключ используется на проде. Известно только имя переменной, которую читает код.
+    
+    Карточка `services/repairy-api.md` с кодом не расходится: она тоже называет DeepSeek API.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r3-reminders — «Напоминает ли система прорабу или заказчику, что срок работы подходит или уже просрочен?»
+run-01: ✓ всё · $0.395 · ходов 15 · разведчиков 1 · сверок 13 · 0 с
+  ответ:
+    Как сейчас: нет, система не напоминает ни прорабу, ни заказчику о сроке, ни до него, ни после просрочки. Срок виден только на экране, когда пользователь сам открыл приложение.
+    
+    - [в коде] Среди типов уведомлений нет ни приближения срока, ни просрочки. Есть `COMMENT_ADDED`, `PROGRESS_UPDATED`, `ESTIMATE_CHANGED`, `PAYMENT_REGISTERED`, `ACCEPTANCE_CREATED`, `ACCEPTANCE_REVIEWED`, `ACCEPTANCE_REVOKED` — repairy/apps/api/src/notifications/notifications.service.ts:5-12
+    - [в коде] Единственная периодическая задача, `@Cron('*/30 * * * * *')` на `flush()`, отправляет накопленные в Redis уведомления тех же типов (ключи `notif:q:*:meta`). Дату срока она не проверяет — repairy/apps/api/src/notifications/notification-queue.service.ts:117; repairy/apps/api/src/notifications/notification-queue.service.ts:123
+    - [в коде] Уведомления уходят как реакция на действия пользователей, например на новый комментарий. При правке `deadlineAt` в работе и в проекте поле лишь приводится к `Date`, рассылку это не запускает — repairy/apps/api/src/comments/comments.service.ts:100; repairy/apps/api/src/works/works.service.ts:123-125; repairy/apps/api/src/projects/projects.service.ts:224-226
+    - [в коде] Статус срока считается на клиенте: `overdue` при дате в прошлом, `urgent` за 3 дня и меньше, `soon` за 7 дней и меньше — repairy/apps/web/src/lib/deadline.ts:16-18
+    - [в коде] Подписи «просрочено на N дн.», «сегодня», «завтра» формирует `formatDeadlineLabel`, а выводит их `DeadlineBadge` — repairy/apps/web/src/lib/deadline.ts:25-31; repairy/apps/web/src/components/common/DeadlineBadge.tsx:12
+    - [в коде] Значок срока стоит на карточке проекта, в шапке проекта, на карточке работы и в виде «по срокам» в помещении — repairy/apps/web/src/components/projects/ProjectCard.tsx:30; repairy/apps/web/src/components/common/ProjectContent.tsx:44; repairy/apps/web/src/components/room/WorkCard.tsx:150; repairy/apps/web/src/components/room/DeadlineView.tsx:172
+    - [не нашёл] Писем, push или сообщений в Telegram о приближении или просрочке срока проекта или вида работ. Нет ни типа события, ни задачи по расписанию, которая сверяла бы `deadlineAt` с текущей датой. Поиск шёл по `deadline`, `Cron`, `Interval`, `Timeout`, `напомин`, `просроч`, `overdue` в `apps/api/src`. `mail.service.ts` совпал только таймаутами SMTP-соединения — repairy/apps/api/src/mail/mail.service.ts:31-32
+    - [из документа] Карточки говорят только о поле `deadlineAt` (необязательный срок сдачи) и о виде «по срокам» в помещении — services/repairy-api.md; services/repairy-web.md. Напоминаний в карточках нет.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r4-acceptance — «Что происходит, когда прораб на вкладке «Активность» нажимает «Отправить на приёмку»: что видно на экране и что делает сервер?»
+run-01: ✓ всё · $0.456 · ходов 13 · разведчиков 1 · сверок 12 · 0 с
+  ответ:
+    Как сейчас: на вкладке «Активность» у сотрудника с правом редактирования есть кнопка «Отправить на приёмку». Она открывает диалог выбора выполненных работ. После отправки сервер создаёт акт (`WorkAcceptance`), переводит выбранные работы в `PENDING` и ставит уведомления в очередь.
+    
+    **Что видно на экране**
+    - [в коде] Вкладка «Активность» рисует `ProjectFeed` — repairy/apps/web/src/pages/ProjectTabPages.tsx:24; repairy/apps/web/src/components/common/ProjectContent.tsx:168
+    - [в коде] Кнопка есть только при `canEdit`. Без него показывается только поле комментария — repairy/apps/web/src/components/common/ProjectFeed.tsx:48-67; repairy/apps/web/src/components/common/ProjectFeed.tsx:77-83
+    - [в коде] Кнопка неактивна, если нет готовых работ, с подсказкой «Нет выполненных работ для отправки». На ней бейдж с числом готовых работ — repairy/apps/web/src/components/common/ProjectFeed.tsx:63-72
+    - [в коде] Клик открывает диалог «Отправить на приёмку». При открытии он запрашивает список подходящих работ — repairy/apps/web/src/components/common/ProjectFeed.tsx:62; repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:80; repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:24
+    - [в коде] Работы сгруппированы по помещениям. Их можно отмечать по одной или целой комнатой («Выбрать все» / «Снять все»). Есть необязательное поле «Записка» — repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:100-158
+    - [в коде] Если работ нет, показывается «Нет работ, готовых к приёмке / Выполните работы на 100% и они появятся здесь» — repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:88-96
+    - [в коде] Кнопка в диалоге неактивна, пока ничего не выбрано и пока идёт запрос. Во время запроса вместо текста спиннер. Иначе текст «Отправить на приёмку (N)» — repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:166-173
+    - [в коде] При успехе диалог закрывается, выбор и записка сбрасываются — repairy/apps/web/src/components/common/CreateAcceptanceDialog.tsx:59-63
+    - [в коде] После успеха обновляются списки актов, подходящих работ и комнат. Новый акт появляется в ленте, бейджи состояния работ меняются — repairy/apps/web/src/hooks/useAcceptances.ts:32-37
+    - [в коде] Акт в ленте показан карточкой со статусом «Ожидает приёмки». Пока он `PENDING`, у сотрудника с `canEdit` есть кнопка «Отозвать» — repairy/apps/web/src/components/common/AcceptanceCard.tsx:10-11; repairy/apps/web/src/components/common/AcceptanceCard.tsx:106-114
+    - [в коде] При ошибке показывается toast. Текст берётся из ответа сервера, запасной вариант «Не удалось создать заявку на приёмку» — repairy/apps/web/src/hooks/useAcceptances.ts:38-39
+    
+    **Что делает сервер** (`POST` создания акта в контроллере acceptances, параметр `:pid`)
+    - [в коде] Доступ только у OWNER и EMPLOYEE, нужна компания. Тело проверяется схемой `CreateAcceptanceSchema` — repairy/apps/api/src/acceptances/acceptances.controller.ts:65-74
+    - [в коде] Заказчику сервис отдаёт Forbidden. Сотрудник должен быть участником проекта, иначе «Проект не найден» — repairy/apps/api/src/acceptances/acceptances.service.ts:117-118; repairy/apps/api/src/acceptances/acceptances.service.ts:324-331
+    - [в коде] Все работы должны существовать, быть из этого проекта, выполнены на 100% и иметь `acceptanceState = NONE`. Иначе 400 с текстом ошибки — repairy/apps/api/src/acceptances/acceptances.service.ts:121-140
+    - [в коде] Дальше одна транзакция. Номер акта = последний номер в проекте + 1. Создаётся `WorkAcceptance` с позициями (`workId`, `roomName`), `note` и `createdById` — repairy/apps/api/src/acceptances/acceptances.service.ts:145-169
+    - [в коде] Коллизия номера (P2002) превращается в 409 «повторите попытку» — repairy/apps/api/src/acceptances/acceptances.service.ts:170-173
+    - [в коде] Работы переводятся из `NONE` в `PENDING` через `updateMany`. Если обновлено меньше работ, чем выбрано, бросается 400 «Некоторые работы уже отправлены на приёмку», и транзакция откатывается — repairy/apps/api/src/acceptances/acceptances.service.ts:179-186
+    - [в коде] После транзакции, без ожидания результата, вызывается `notifyProjectParticipants` с событием `ACCEPTANCE_CREATED` и текстом «Акт №N». Ошибка рассылки только пишется в лог и ответ не ломает — repairy/apps/api/src/acceptances/acceptances.service.ts:191-199
+    - [в коде] Клиенту возвращается созданный акт — repairy/apps/api/src/acceptances/acceptances.service.ts:201
+    - [в коде] Получатели уведомления: участники проекта, владельцы компании и заказчики, принявшие приглашение. Исключаются автор и те, у кого уведомления выключены. Каждый получатель ставится в очередь — repairy/apps/api/src/notifications/notifications.service.ts:37-77
+    - [в коде] Очередь лежит в Redis. Для `ACCEPTANCE_CREATED` задержка (debounce) равна 0 — repairy/apps/api/src/notifications/notification-queue.service.ts:27; repairy/apps/api/src/notifications/notification-queue.service.ts:97-114
+    - [в коде] Cron каждые 30 секунд забирает записи и отправляет их. Лимит 10 сообщений в час на получателя и тип события, лишние отбрасываются. Заголовок: «Работы отправлены на приёмку в «<проект>»» — repairy/apps/api/src/notifications/notification-queue.service.ts:117; repairy/apps/api/src/notifications/notification-queue.service.ts:32; repairy/apps/api/src/notifications/notification-queue.service.ts:155-165; repairy/apps/api/src/notifications/notification-queue.service.ts:41
+    - [в коде] Канал доставки зависит от настройки получателя: web push, Telegram или почта — repairy/apps/api/src/notifications/notification-queue.service.ts:199-212
+    - [вне кода] Токен Telegram-бота берётся из переменной окружения `TELEGRAM_BOT_TOKEN`. Без неё Telegram-уведомления отключены. Значение задаётся при деплое — repairy/apps/api/src/notifications/notification-queue.service.ts:77-79
+    - [не нашёл] Какие роли получают `canEdit` (то есть кнопку). Условие вычисляется в `usePermissions`, разведчик этот файл не открывал.
+    - [не нашёл] Серверной проверки, что `workIds` не пуст, в сервисе нет. Её могла бы делать схема `CreateAcceptanceSchema` в `@repairy/shared`, но разведчик её не открывал. Кнопка в диалоге при пустом выборе всё равно неактивна.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r5-drift — «Если прораб поменял у работы только срок или название, а цена не изменилась, придёт ли участникам уведомление «Изменена смета»?»
+run-01: ✓ всё · $0.260 · ходов 8 · разведчиков 1 · сверок 7 · 0 с
+  ответ:
+    Как сейчас: да, придёт. Изменение работы всегда ставит в очередь уведомление `ESTIMATE_CHANGED` («Изменена смета»), даже если поменялся только срок или название. Проверки, что цена изменилась, перед ним нет.
+    
+    - [в коде] Уведомление `ESTIMATE_CHANGED` отправляется после транзакции без условий — repairy/apps/api/src/works/works.service.ts:143-145
+    - [в коде] Проверка «стоимость изменилась» (`!delta.isZero()`) стоит только перед записью в историю изменений сметы (`WORK_UPDATED`). На уведомление она не влияет — repairy/apps/api/src/works/works.service.ts:132-140
+    - [в коде] `deadlineAt` и остальные поля попадают в обновление работы без фильтра — repairy/apps/api/src/works/works.service.ts:124-128
+    - [в коде] Автору правки и тем, у кого отключены уведомления, оно не придёт — repairy/apps/api/src/notifications/notifications.service.ts:64
+    - [в коде] Заголовок уведомления: «Изменена смета «…»» — repairy/apps/api/src/notifications/notification-queue.service.ts:39
+    - [в коде] Уведомления этого вида склеиваются в окне 180 секунд (`180_000`) — repairy/apps/api/src/notifications/notification-queue.service.ts:25
+    - [из документа] Лимит 10 уведомлений в час на получателя — services/repairy-api.md. Разведчик эту часть в коде не открывал.
+    
+    Карточка `services/repairy-api.md` расходится с кодом: в разделе «сообщение «изменена смета»» (строка 130) уведомление уходит, «если стоимость реально изменилась», а в коде — при любом изменении работы. Обновить: `/service-map repairy-api`.
+    
+    1 ссылку не подтвердил — убрал. Это пункт о том, что получатели — все `OWNER` компании и принявшие заказчики. В показанных строках видны только участники проекта, пользователи компании и заказчики. Фильтров по роли `OWNER` и по принятию там нет.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r6-payment — «Кто может зафиксировать оплату от заказчика по проекту — любой сотрудник компании или только команда проекта?»
+run-01: ✓ всё · $0.274 · ходов 8 · разведчиков 1 · сверок 7 · 0 с
+  ответ:
+    Как сейчас: платёж от заказчика может зафиксировать любой сотрудник компании проекта, кроме роли `CUSTOMER`. Состоять в команде проекта не нужно. Сервис проверяет только роль и принадлежность проекта компании пользователя.
+    - [в коде] `createPayment` отказывает роли `CUSTOMER` и пользователю без компании. Затем он ищет проект по `id` и `companyId` пользователя. Проверки участия в проекте нет, поэтому платёж может внести и `EMPLOYEE`, который в проекте не состоит. — repairy/apps/api/src/comments/comments.service.ts:117-121
+    - [в коде] В `createPayment` нет вызова `verifyAccess`. Он есть в соседних методах: чтение ленты, создание и удаление комментария. — repairy/apps/api/src/comments/comments.service.ts:34, repairy/apps/api/src/comments/comments.service.ts:76, repairy/apps/api/src/comments/comments.service.ts:138
+    - [в коде] Ручка `POST projects/:pid/payments` закрыта только `JwtAuthGuard` на весь контроллер. Декораторов `@Roles` на ней нет. Слова «OWNER/EMPLOYEE» стоят в комментарии, но код их не проверяет. — repairy/apps/api/src/comments/comments.controller.ts:24, repairy/apps/api/src/comments/comments.controller.ts:72-80
+    - [в коде] Платёж записывается с `createdById` текущего пользователя, и уходит уведомление `PAYMENT_REGISTERED`. — repairy/apps/api/src/comments/comments.service.ts:123-131
+    - [из документа] В карточке сказано, что платежи фиксирует только компания, `CUSTOMER` это недоступно, а `404` возвращается, если проекта нет в компании вызывающего. Это совпадает с кодом. — services/repairy-api.md
+    - [из документа] В таблице ролей `EMPLOYEE` «видит и правит только проекты, где состоит участником». Для платежей код этого не делает. — services/repairy-api.md
+    - [не нашёл] Проверки роли участника проекта (`FOREMAN`, `WORKER`) для платежей нет ни в контроллере, ни в сервисе.
+    - [не нашёл] Фронтенд (`repairy-web`) не читали. Скрывает ли он кнопку оплаты для не-участников, неизвестно.
+    
+    Карточка `services/repairy-api.md` расходится с кодом: в карточке сотрудник правит только проекты, где он участник, а в коде платёж вносит любой не-`CUSTOMER` из компании проекта, участник он или нет. Обновить: `/service-map repairy-api`.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r7-statuses — «Какие состояния проходит работа при приёмке заказчиком и что с работой запрещено в каждом состоянии?»
+run-01: ✓ всё · $0.325 · ходов 15 · разведчиков 1 · сверок 14 · 0 с
+  ответ:
+    Как сейчас: у работы (`WorkItem.acceptanceState`) три состояния: `NONE`, `PENDING`, `ACCEPTED`. У акта приёмки (`WorkAcceptance.status`) два: `PENDING` и `REVIEWED`. Запреты ниже разбиты по каждому состоянию.
+    
+    **Работа, `NONE` (не отправлена на приёмку)**
+    - [в коде] Отправить на приёмку можно только работу в `NONE`, иначе 400 «уже отправлена на приёмку» — repairy/apps/api/src/acceptances/acceptances.service.ts:137-139
+    - [в коде] Работа должна быть выполнена на 100%, иначе 400 «не выполнена на 100%» — repairy/apps/api/src/acceptances/acceptances.service.ts:134-136
+    - [в коде] Заказчику (`CUSTOMER`) создавать акт нельзя: сразу `ForbiddenException` — repairy/apps/api/src/acceptances/acceptances.service.ts:117
+    - [в коде] Других запретов на `NONE` нет: проверки удаления и смены объёма смотрят только на `PENDING` и `ACCEPTED` — repairy/apps/api/src/works/works.service.ts:163; repairy/apps/api/src/works/works.service.ts:198
+    
+    **Работа, `PENDING` (ожидает приёмки)**
+    - [в коде] Повторно отправить на приёмку нельзя — repairy/apps/api/src/acceptances/acceptances.service.ts:137-139
+    - [в коде] Удалить работу нельзя: «она участвует в акте приёмки» — repairy/apps/api/src/works/works.service.ts:163-165
+    - [в коде] Удалить комнату с работой в `PENDING` нельзя — repairy/apps/api/src/rooms/rooms.service.ts:76-82
+    - [в коде] В `PENDING` работу переводит создание акта. Если параллельный запрос уже перевёл её в `PENDING`, транзакция откатывается — repairy/apps/api/src/acceptances/acceptances.service.ts:179-186
+    
+    **Работа, `ACCEPTED` (принята заказчиком)**
+    - [в коде] Менять выполненный объём нельзя: «Работа уже принята заказчиком» — repairy/apps/api/src/works/works.service.ts:198-200
+    - [в коде] Повторно отправить на приёмку нельзя: состояние не `NONE`, ответ 400 — repairy/apps/api/src/acceptances/acceptances.service.ts:137-139
+    - [не нашёл] Запрета удалять принятую работу или комнату с принятой работой в коде нет: проверяется только `PENDING` — repairy/apps/api/src/works/works.service.ts:163; repairy/apps/api/src/rooms/rooms.service.ts:77
+    - [не нашёл] В `update` (`PUT .../works/:id`, смета и объёмы) нет проверки по `acceptanceState` — repairy/apps/api/src/works/works.service.ts:120-147
+    
+    **Акт, `PENDING` (на рассмотрении)**
+    - [в коде] Рассмотреть можно только акт в `PENDING`, и по всем работам сразу. Частичное решение даёт 400 — repairy/apps/api/src/acceptances/acceptances.service.ts:235-237
+    - [в коде] Указать в решении работу не из этого акта нельзя — repairy/apps/api/src/acceptances/acceptances.service.ts:228-232
+    - [в коде] По итогам рассмотрения: `ACCEPTED` переводит работу в `ACCEPTED`, `REJECTED` возвращает её в `NONE`, акт становится `REVIEWED` — repairy/apps/api/src/acceptances/acceptances.service.ts:251-265
+    - [в коде] `CUSTOMER` отозвать акт не может (`ForbiddenException`) — repairy/apps/api/src/acceptances/acceptances.service.ts:284
+    - [в коде] Отзыв возвращает все работы акта в `NONE` и удаляет акт — repairy/apps/api/src/acceptances/acceptances.service.ts:298-304
+    
+    **Акт, `REVIEWED` (рассмотрен)**
+    - [в коде] Рассмотреть повторно нельзя: «Заявка уже рассмотрена» — repairy/apps/api/src/acceptances/acceptances.service.ts:220-222
+    - [в коде] Отозвать нельзя: «Нельзя отозвать уже рассмотренный акт» — repairy/apps/api/src/acceptances/acceptances.service.ts:292-294
+    
+    - [из документа] В карточке сказано, что пока работа в `PENDING`, «нельзя менять выполненный объём выше уже поданного» — services/repairy-api.md:114
+    
+    Карточка `services/repairy-api.md` расходится с кодом: для `PENDING` она запрещает увеличивать выполненный объём выше поданного, а в `updateProgress` блокируется только `ACCEPTED`. Для `PENDING` проверяется лишь `completedVolume <= totalVolume` — repairy/apps/api/src/works/works.service.ts:198-206. Обновить: `/service-map repairy-api`.
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+## r8-files — «Какие файлы можно прикладывать к комментариям в проекте, какой максимальный размер и сколько они хранятся?»
+run-01: ✓ всё · $0.373 · ходов 9 · разведчиков 1 · сверок 8 · 0 с
+  ответ:
+    Как сейчас: к комментариям можно прикладывать JPEG, PNG, WebP, HEIC, PDF, MP4 и MOV. Лимит размера 30 МБ для изображений и PDF и 300 МБ для видео. Срока хранения в коде нет: файл лежит, пока не удалят комментарий.
+    
+    - [в коде] Сервер выдаёт ссылку на загрузку только для 7 типов: `image/jpeg`, `image/png`, `image/webp`, `image/heic`, `application/pdf`, `video/mp4`, `video/quicktime`. Остальные получают 400 «Недопустимый тип файла» — repairy/apps/api/src/files/files.service.ts:17-25, repairy/apps/api/src/files/files.service.ts:91-93
+    - [в коде] Поле выбора файла в комментарии предлагает `image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt`. `.doc`, `.docx`, `.xls`, `.xlsx` и `.txt` браузер предложит выбрать, но сервер их отклонит. Сервер сверяет тип по заявленному клиентом `contentType`, содержимое файла не проверяет — repairy/apps/web/src/components/common/FeedInput.tsx:320, repairy/apps/web/src/api/files.api.ts:40-43, repairy/apps/api/src/files/files.service.ts:91
+    - [в коде] Максимальный размер: изображение 30 МБ, видео 300 МБ, остальное (PDF и прочее) 30 МБ — repairy/packages/shared/src/enums.ts:39-43
+    - [в коде] Лимит проверяет только браузер, до загрузки. Тип выбирается по префиксу MIME, при превышении выдаётся «Файл слишком большой. Максимум N МБ» — repairy/apps/web/src/api/files.api.ts:15-19, repairy/apps/web/src/api/files.api.ts:32-36
+    - [в коде] Перед загрузкой изображения сжимаются в webp: до 1 МБ и до 1920 px по большей стороне. Лимит 30 МБ сравнивается с исходным файлом, до сжатия — repairy/apps/web/src/api/files.api.ts:21-29, repairy/apps/web/src/api/files.api.ts:38
+    - [в коде] Вложение комментария в запросе описано только как `url` и `fileType` (PHOTO, VIDEO или DOCUMENT). Размер и тип файла схема не проверяет — repairy/packages/shared/src/schemas.ts:69-72, repairy/packages/shared/src/enums.ts:19-23
+    - [в коде] Файл идёт напрямую в S3 по presigned PUT-ссылке. Ссылка действует 5 минут, это срок на загрузку, а не срок хранения файла — repairy/apps/api/src/files/files.service.ts:15, repairy/apps/api/src/files/files.service.ts:103
+    - [в коде] Файл остаётся, пока не удалят комментарий. При удалении комментария его вложения удаляются из S3. Удалить может автор или OWNER — repairy/apps/api/src/comments/comments.service.ts:141-149
+    - [из документа] Вложения создаются вместе с комментарием и удаляются вместе с ним — services/repairy-api.md
+    - [вне кода] Срок хранения мог бы задаваться правилами жизненного цикла S3-бакета, то есть настройкой хранилища. Код приложения их не создаёт: `setupStorage` настраивает только бакет, политику чтения и CORS — repairy/apps/api/src/files/files.service.ts:54-88
+    - [вне кода] Реальные `S3_ENDPOINT`, `S3_BUCKET` и настройки бакета задаются при деплое — repairy/apps/api/src/files/files.service.ts:35-43
+    - [не нашёл] Автоматического истечения вложений в коде приложения нет: в `apps/api/src` нет ни lifecycle-правил бакета, ни задачи очистки файлов. Единственный `@Cron` там — сброс очереди уведомлений.
+    - [не нашёл] Серверного ограничения размера нет. В `apps/web/nginx.conf` нет `client_max_body_size`, в `files.service.ts` нет `ContentLength`, ссылка подписывается только с `ContentType`. Загрузка идёт сразу в S3, мимо API, поэтому лимит там мог бы стоять только на стороне хранилища.
+    - [не нашёл] Лимита на число вложений в одном комментарии нет: `attachments` в схеме — `z.array` без `.max` — repairy/packages/shared/src/schemas.ts:76
+    
+    Читал: repairy, ветка master — локальная копия, могла отстать от удалённой.
+
+итого: $2.73

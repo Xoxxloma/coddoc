@@ -1,0 +1,11 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: apollo-portal
+    path: ../apollo/apollo-portal
+    type: backend
+  - name: apollo-adminservice
+    path: ../apollo/apollo-adminservice
+    type: backend
+  - name: apollo-configservice
+    path: ../apollo/apollo-configservice
+    type: backend

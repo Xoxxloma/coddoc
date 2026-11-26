@@ -1,0 +1,1 @@
+Проверь спеку coddoc/ARS-321/technical_specification.md. Можно отдавать в разработку?

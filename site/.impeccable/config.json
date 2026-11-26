@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "assets/logo/logo-light.src.html"
+        ],
+        "createdAt": "2026-11-23T15:56:19.626Z",
+        "reason": "user-supplied coDDoc logo source (moved from img/ 2026-11-23): gradient on DD is the brand mark"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "assets/logo/logo-light.src.html"
+        ],
+        "createdAt": "2026-11-23T15:56:19.660Z",
+        "reason": "false positive: DD span uses background-clip:text; logo supplied by the user"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "assets/logo/logo-dark.src.html"
+        ],
+        "createdAt": "2026-11-23T15:56:19.696Z",
+        "reason": "user-supplied coDDoc logo source (moved from img/ 2026-11-23): gradient on DD is the brand mark"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "assets/logo/logo-dark.src.html"
+        ],
+        "createdAt": "2026-11-23T15:56:19.817Z",
+        "reason": "false positive: DD span uses background-clip:text; logo supplied by the user"
+      }
+    ]
+  }
+}

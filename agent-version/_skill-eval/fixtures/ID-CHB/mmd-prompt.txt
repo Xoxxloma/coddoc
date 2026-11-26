@@ -1,1 +1,1 @@
-Нарисуй схему взаимодействий по спецификации docs/ESS-31/technical_specification.md в формате Mermaid.
+Нарисуй схему взаимодействий по спецификации coddoc/ESS-31/technical_specification.md в формате Mermaid.

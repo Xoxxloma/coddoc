@@ -1,5 +1,5 @@
-docs/ARS-102/business_requirements.md
-docs/ARS-102/technical_specification.md
+coddoc/ARS-102/business_requirements.md
+coddoc/ARS-102/technical_specification.md
 front-q-prompt.txt
 README.md
 services/auth.md

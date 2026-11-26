@@ -7,9 +7,9 @@
 ## Вход
 
 ```
-docs/RMS-4021/technical_specification.md   спека, чистая по всем 11 пунктам чек-листа,
+coddoc/RMS-4021/technical_specification.md   спека, чистая по всем 11 пунктам чек-листа,
                                            и с ТРЕМЯ промахами против context/conventions.md
-docs/RMS-4021/business_requirements.md     источник (FR-1, FR-2) — из RV-CLEAN, не тронут
+coddoc/RMS-4021/business_requirements.md     источник (FR-1, FR-2) — из RV-CLEAN, не тронут
 context/conventions.md                     те же правила, что в TS-CTX
 ```
 
@@ -40,3 +40,7 @@ context/conventions.md                     те же правила, что в T
 ## Возврат
 
 `./run-ctx.sh rv-conv <раунд> 10`, грейдер `grade-rv-conv.mjs`.
+
+**Формат спеки 1.7.0 (2026-10-26, шаг 2 п.2б `PLAN-FROM-POCOCK.md`):** в INT-карточки добавлена строка «Вид», метка
+источника «не по коду» → «со слов». Прежняя форма по новому чек-листу краснила бы по пунктам 13–14. Числа до
+и после этой даты несравнимы.

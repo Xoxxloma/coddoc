@@ -1,0 +1,8 @@
+{
+  "model": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "fork_turns": "none",
+  "change": "Remove only the two new notes beside template 6.4, all other skill/reference bytes identical to B",
+  "comparison": "Same frozen original input hashes as A/B; ts-conv twice and bf-spec, ua-timeout, ts-ctx once",
+  "source": "final live SKILL.md"
+}

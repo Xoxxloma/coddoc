@@ -1,1 +1,1 @@
-Проверь спеку docs/OFC-880/technical_specification.md, источник рядом — docs/OFC-880/business_requirements.md. Достаточно ли её, чтобы писать код?
+Проверь спеку coddoc/OFC-880/technical_specification.md, источник рядом — coddoc/OFC-880/business_requirements.md. Достаточно ли её, чтобы писать код?

@@ -1,4 +1,4 @@
-docs/OFC-880/business_requirements.md
-docs/OFC-880/technical_specification.md
+coddoc/OFC-880/business_requirements.md
+coddoc/OFC-880/technical_specification.md
 README.md
 sr-prompt.txt

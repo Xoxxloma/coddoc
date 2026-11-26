@@ -1,0 +1,1 @@
+Нарисуй схему по списку пунктов coddoc/ADP-41/meeting-2026-10-08.points.md в Mermaid.

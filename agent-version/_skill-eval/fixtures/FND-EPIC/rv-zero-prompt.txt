@@ -1,0 +1,1 @@
+Проверь спеку coddoc/PRT-600/_foundation/technical_specification.md. Можно отдавать в разработку?

@@ -1,0 +1,70 @@
+# Строки проб analyst-notebook 1.2.0 для `run-ctx-v2.sh` — вставить в `case "$PROBE"` после блока `nb-*` 1.1.0
+# (после строки `mi-nb-same)`), имена — в список «есть:» ветки `*)`:
+#   nb-pts-in nb-pts-new nb-pts-rec nb-export nb-export-since nb-route
+#
+# Конец диалога:
+# - nb-pts-in, nb-pts-rec — по содержимому notes/: `points.md` (строка `> исходник:` записи) или заголовок записи
+#   «### <№> · встреча …». Засев (ноут и coddoc/) ни того, ни другого не содержит — проверено самопроверкой grade-nb.mjs.
+#   Кириллица — альтернативой `(В|в)`, не скобками `[]`: grep -E в не-UTF-8 локали читает скобки побайтно.
+# - nb-pts-new — появился notes/<папка>/notebook.md (как nb-new).
+# - nb-export, nb-export-since — появился notes/<папка>/notebook-<дата>.points.md; потолок 3 хода: вопросов в выгрузке нет.
+# - nb-route — файла нет, потолок 2 хода (как nb-ask).
+# Реплика — w-turn2.txt фикстуры. Грейдер — grade-nb.mjs --fx PTS-IN|PTS-NEW|PTS-REC|EXPORT|EXPORT-SINCE|ROUTE.
+
+  # analyst-notebook 1.2.0: список пунктов `*.points.md` в ноут (ноут есть / ноута нет / встреча по памяти), выгрузка
+  # `собери пункты [с <даты>]`, расшифровка по ссылке — строка `/meeting-intake <путь>`. Ожидания — fixtures/NB-PTS-*,
+  # NB-EXPORT*, NB-ROUTE/expected.md; грейдер grade-nb.mjs.
+  nb-pts-in)  FIXTURE=NB-PTS-IN;  PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_GREP='points\.md|^### [0-9]+ .{0,4}(В|в)стреча'; MEET_ENV=1 ;;
+  nb-pts-new) FIXTURE=NB-PTS-NEW; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_RE='/notes/[^/]+/notebook\.md$'; MEET_ENV=1 ;;
+  nb-pts-rec) FIXTURE=NB-PTS-REC; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_GREP='points\.md|^### [0-9]+ .{0,4}(В|в)стреча'; MEET_ENV=1 ;;
+  nb-export)  FIXTURE=NB-EXPORT;  PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_RE='/notes/[^/]+/notebook-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9](-2)?\.points\.md$'; MEET_ENV=1 ;;
+  nb-export-since) FIXTURE=NB-EXPORT-SINCE; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_RE='/notes/[^/]+/notebook-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9](-2)?\.points\.md$'; MEET_ENV=1 ;;
+  nb-route)   FIXTURE=NB-ROUTE;   PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=2; IDLE_MAX=2; MEET_ENV=1 ;;
+
+# ── 2026-10-15, вторая партия: ноут по словам из строки вызова (`о чём:` в шапке), вызов словами ──────────────────
+# Имена в «есть:»: nb-desc-one nb-desc-two nb-auto. Конец диалога — «Кисел» в notes/ (имя из чата; засев его не содержит —
+# проверено самопроверкой и grep по засеву). Грейдер — grade-nb.mjs --fx DESC-ONE|DESC-TWO|AUTO.
+# nb-new — без новой строки: изменились только ожидания (анкер `about`, fixtures/NB-NEW/expected.md «Правка 1.2.0»).
+
+  # analyst-notebook 1.2.0, Шаг 1: слова о ноуте — по основам в шапках `тема:`/`ключ:`/`о чём:`; сходится один — без вопроса,
+  # два — вопрос «<тема> — <о чём>». Засев — три ноута (две темы про АС Друг и склад). Ожидания — fixtures/NB-DESC-*/expected.md.
+  nb-desc-one) FIXTURE=NB-DESC-ONE; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_GREP='Кисел'; MEET_ENV=1 ;;
+  nb-desc-two) FIXTURE=NB-DESC-TWO; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_GREP='Кисел'; MEET_ENV=1 ;;
+  # Вызов словами, без слэша: снимок скилла — в .claude/skills/ песочницы, обёртка его не называет. ТОЛЬКО ПОСЛЕ ПРАВКИ РАННЕРА
+  # НИЖЕ: без неё пул пишет «Прочитай целиком файл <снимок> — это скилл», и проба меряет чтение по указке, а не вызов.
+  # nb-auto)   FIXTURE=NB-AUTO; PROMPT_FILE=w-prompt.txt; SKILL=analyst-notebook; SEED_SUB=seed; TURN2_FILE=w-turn2.txt; TURNS_CAP=5; IDLE_MAX=5; DONE_GREP='Кисел'; AUTO_SKILL=1; MEET_ENV=1 ;;
+
+# ── Правка раннера для nb-auto (выключена по умолчанию: без AUTO_SKILL всё побайтно как было) ──────────────────────────
+#
+# 1. run-ctx-v2.sh — объявить рядом с другими переменными пробы (до `case`):
+#      AUTO_SKILL=""
+#    и после блока заглушек (после `fi` блока REAL_SUBS, перед `TURN2=""`):
+#      # Вызов скилла словами (`nb-auto`): снимок с reference/ — набором `.claude/skills/<скилл>/` песочницы, обёртка пула
+#      # не называет ни скилл, ни путь к нему. Набор — в папке раунда: тот же текст, что `_skills/`, и журнал прогона.
+#      if [ -n "$AUTO_SKILL" ]; then
+#        AUTO="$ROUND/_auto-$PROBE"
+#        [ -d "$AUTO/$SKILL" ] || { mkdir -p "$AUTO" && cp -r "$SNAP_ROOT/$SKILL" "$AUTO/"; }
+#        STUBS_DIR="$(cd "$AUTO" && pwd)"
+#        export RT_NO_SKILL_PATH=1
+#        echo "вызов словами: снимок скилла → .claude/skills/$SKILL песочницы, путь в обёртке не называется"
+#      fi
+#    и строку в _settings.txt:   [ -n "$AUTO_SKILL" ] && echo "вызов словами: скилл в .claude/skills/, путь не назван"
+#
+# 2. run-pool-ctx-v2.sh — в run_one, сразу после сборки `local task="…Отработай по скиллу."`:
+#      # Вызов словами (`RT_NO_SKILL_PATH=1`): ни пути к снимку, ни «по скиллу», ни строки про под-скиллы — скилл лежит в
+#      # `.claude/skills/` песочницы, и модель находит его сама по description.
+#      if [ "${RT_NO_SKILL_PATH:-0}" = "1" ]; then
+#        task="Твоя рабочая директория — ${abs_sb}. Считай её корнем рабочего репозитория. Ничего за её пределами не создавай и не изменяй: путь, ведущий наружу, — ошибка сборки пути, а не повод писать туда.
+#
+#      Интерактивного инструмента вопросов (AskUserQuestion) в этом окружении нет. Если нужно задать вопросы — задавай их обычным текстом.
+#
+#      Сообщение пользователя:
+#      <<<
+#      $(cat "$PROMPT")
+#      >>>"
+#      fi
+#    и условие строки про под-скиллы: `if [ -n "$STUBS_DIR" ] && [ "${RT_NO_SKILL_PATH:-0}" != "1" ]; then`.
+#
+# Проверить до прогона (бесплатно): `RT_NO_SKILL_PATH=1` и echo "$task" вместо `claude -p` — в тексте нет `analyst-notebook`,
+# `SKILL.md`, пути к снимку; в песочнице есть `.claude/skills/analyst-notebook/SKILL.md` и `reference/view-check.md`.
+# Грейдер не видит `.claude/` (файлы с точкой не считаются лишними) — правка грейдера не нужна.

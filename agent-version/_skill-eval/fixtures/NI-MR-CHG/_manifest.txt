@@ -1,0 +1,6 @@
+etalon/meeting-2026-10-14-bt.md
+README.md
+seed/coddoc/MED-77/business_requirements.md
+seed/coddoc/MED-77/meeting-2026-10-14.points.md
+w-prompt.txt
+w-turn2.txt

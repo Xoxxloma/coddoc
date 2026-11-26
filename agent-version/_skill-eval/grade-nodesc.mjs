@@ -77,10 +77,10 @@ function gradeSandbox(sb) {
 
 // ─── Самопроверка ──────────────────────────────────────────────────────────────────────────
 
-const ANSWER_NAMED = `Спека записана в docs/ARS-201/technical_specification.md.
+const ANSWER_NAMED = `Спека записана в coddoc/ARS-201/technical_specification.md.
 Замечание по окружению: в \`context/\` лежит \`ui-polling.md\` без поля \`description\` — я его не
 читаю; добавьте шапку, если он нужен в задаче.`
-const ANSWER_SILENT = `Спека записана в docs/ARS-201/technical_specification.md. Статус: Требуются уточнения (1).`
+const ANSWER_SILENT = `Спека записана в coddoc/ARS-201/technical_specification.md. Статус: Требуются уточнения (1).`
 const SPEC_PLAIN = `## 2. Взаимодействия
 ### INT-1 🟢 Счётчик
 \`GET /v1/sessions/count\`, опрос раз в 30 секунд.`

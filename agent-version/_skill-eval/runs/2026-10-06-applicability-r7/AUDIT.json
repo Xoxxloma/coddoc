@@ -1,0 +1,766 @@
+{
+  "unchangedHeadings": true,
+  "snapshotChanged": [],
+  "rows": [
+    {
+      "id": "ua-label",
+      "kind": "write",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_label",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "skill-red",
+        "targetedChangesPassed": true,
+        "evidence": "§5.2 оформлен неприменимым; нового вопроса о сбое или порядке нет. Каталог, UI-трассировка без INT, полный откат неприменимых пунктов и пять чекбоксов сохранены. Но все три подраздела §5 неприменимы, а родительский заголовок §5 не зачёркнут — прямое нарушение общего правила для полностью неприменимого раздела. Вдобавок не выяснено, где ещё используется меняемая надпись, хотя режим требует этот вопрос при отсутствии ответа в источнике. Файл и исходный запрос прочитаны вручную; легенда подтверждения больше не даёт документального исключения."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": true,
+        "missing": [],
+        "order": true,
+        "naSections": 13,
+        "format": false,
+        "defects": [
+          {
+            "type": "heading",
+            "line": 67,
+            "title": "5. Нефункциональные требования"
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "- 🔵 Новых или изменённых сущностей и полей нет; существующие данные не меняются. Миграции, пересчёт и исправление старых записей не нужны. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)"
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "- Меняется только текст кнопки; отправка, права и их проверка, автосохранение, переход после отправки, состояния, загрузка, таймауты, polling и обработка ошибок остаются прежними. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)\n- Контракты и данные не меняются; существующие записи остаются без пересчёта и исправлений. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)\n- При отказе отправки остаются прежнее сообщение «Не удалось отправить», статус черновика и доступность ручной повторной попытки; после успеха остаётся прежний переход. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)"
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из БТ | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|----------|-------------------|------------------------------|\n| FR-1 — назвать кнопку «Отправить на согласование» (🔵 решение аналитика Иванова) | Изменение подписи кнопки в `portal-web`, §4.1–4.2; новых/изменённых взаимодействий нет | Дано открыт список заявок, когда пользователь проверяет кнопку, тогда видна подпись «Отправить на согласование»; когда пользователь нажимает её, заявка отправляется на согласование как прежде. |"
+          }
+        ],
+        "status": "Готово к разработке",
+        "openBlock": ">\n> **"
+      }
+    },
+    {
+      "id": "ua-timeout",
+      "kind": "write",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_timeout",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "skill-red",
+        "roundRedForProbe": 6,
+        "redInRequestedRetest": 3,
+        "targetedChangesPassed": true,
+        "evidence": "Изменённый таймаут описан содержательно в §4.3/§4.3.1/§5.1; каталог сохранён, §7 ссылается на UI без принудительной неприменимости. Нового переспроса по §6.1 нет. Но целиком неприменимые §2 и каталог не зачёркнуты, в §6.4 BE/DDL зачёркнуты только после названия, в §6.5 ~~ захватывает [ ]. Это действующие общие правила, не специальные заплатки. Исходный файл и артефакт прочитаны; третий красный в серии повторов r4/r5/r7. Новые попытки исправить оформление под Luna не начинаются."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": true,
+        "missing": [],
+        "order": true,
+        "naSections": 8,
+        "format": false,
+        "defects": [
+          {
+            "type": "markup-struck",
+            "line": 111,
+            "text": "- ~~[ ] Роли в security-сервисе — не меняются.~~"
+          },
+          {
+            "type": "markup-struck",
+            "line": 112,
+            "text": "- ~~[ ] DDL-миграция в репо владеющего сервиса — миграции нет.~~"
+          },
+          {
+            "type": "markup-struck",
+            "line": 113,
+            "text": "- ~~[ ] Конфиги по окружениям (dev/staging/prod) — предварительная настройка не требуется.~~"
+          },
+          {
+            "type": "markup-struck",
+            "line": 114,
+            "text": "- ~~[ ] Сервисные аккаунты для межсервисных вызовов — новых вызовов нет.~~"
+          },
+          {
+            "type": "markup-struck",
+            "line": 115,
+            "text": "- ~~[ ] Фиче-флаги заведены — задача не использует флаги.~~"
+          },
+          {
+            "type": "heading",
+            "line": 34,
+            "title": "2. Взаимодействия (ядро)"
+          },
+          {
+            "type": "body",
+            "line": 34,
+            "text": "Не применимо: новых или изменённых взаимодействий, включая использование прежнего контракта на границе, нет; затронута UI-логика ожидания отправки в portal-web (§4.3.1). 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)"
+          },
+          {
+            "type": "heading",
+            "line": 37,
+            "title": "Каталог ошибок (сводно) — последний подраздел §2, после всех INT-карточек"
+          },
+          {
+            "type": "body",
+            "line": 37,
+            "text": "Не применимо: ошибки отправки и их обработка не меняются. При таймауте по-прежнему показывается сообщение «Не удалось отправить». 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)"
+          },
+          {
+            "type": "body",
+            "line": 104,
+            "text": "**Откат только BE:** ~~Не применимо: backend не деплоится.~~"
+          },
+          {
+            "type": "body",
+            "line": 104,
+            "text": "**Откат DDL:** ~~Не применимо: изменения данных и DDL-деплоя нет.~~"
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "- 🔵 Сущностей и полей не добавляется и не меняется; существующие записи не пересчитываются и не исправляются.\n- 🔵 Миграции не нужны; данные и поля остаются прежними."
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "- Контракт отправки, backend, данные и поля остаются прежними. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)\n- Права и их проверка, автосохранение, переход после отправки, состав и отображение состояний, ошибки, опрос и обновление остаются прежними. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)\n- Меняется только таймаут первого и последующих вызовов отправки: 3 → 10 секунд. 🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)"
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из документа-источника | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|----------|-------------------|------------------------------|\n| FR-1: ожидать ответ отправки 10 секунд вместо 3 🔵 | Новых/изменённых взаимодействий нет; поведение UI в §4.1 и §4.3.1 | Дано: заявка отправляется через portal-web и ответ приходит на 7-й секунде; когда обработан ответ отправки; тогда отправка завершается успешно. Дано: ответа нет до истечения 10 секунд; когда таймаут истекает; тогда показывается прежняя ошибка «Не удалось отправить», заявка остаётся черновиком и доступна ручная повторная попытка. |"
+          }
+        ],
+        "status": "Готово к разработке",
+        "openBlock": ">\n> **"
+      }
+    },
+    {
+      "id": "ua-damaged",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-feature",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-state",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-access",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-reliability-q",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-reliability-deferred",
+      "kind": "write",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-source-q",
+      "kind": "question",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-refine",
+      "kind": "refine",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": true,
+        "missing": [],
+        "order": true,
+        "naSections": 13,
+        "format": false,
+        "defects": [
+          {
+            "type": "heading",
+            "line": 61,
+            "title": "5. Нефункциональные требования"
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "🔵 Подтверждено аналитиком: новых/изменённых сущностей и полей нет; старые записи целы, миграции и пересчёт не нужны."
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "🔵 Подтверждено аналитиком: отправка, права и их проверка, автосохранение и переход после отправки остаются прежними."
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из БТ | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|---|---|---|\n| FR-1 | ~~Не применимо: новых/изменённых взаимодействий нет~~ | Дано: список заявок; когда открыт — новый текст; нажать — отправлено как прежде |"
+          }
+        ],
+        "status": "Готово к разработке",
+        "openBlock": ""
+      },
+      "reviewCount": null
+    },
+    {
+      "id": "ua-review-clean",
+      "kind": "review",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-review-format",
+      "kind": "review",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-review-reliability",
+      "kind": "review",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_review_reliability",
+        "reviewer": "/root/r7_review_reliability/spec_reviewer_attempt1",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "skill-red",
+        "targetedChangesPassed": true,
+        "graderCorrection": "Ожидание нуля в MANIFEST ошибочно: после превращения §5.2 в неприменимый засев сохранил незачёркнутый родительский §5. Источник не изменён после запуска. Ноль не становится зелёным только из-за ошибки ожидания; ответ вручную сверён с общим правилом и исходным файлом.",
+        "sourceRoutingPassed": true,
+        "evidence": "Полный spec-review действительно вызвал независимого проверяющего. Допустимые §5.2 и общий релиз §6.1 не получили ложных замечаний. Фактически передан change_request.md, соседний БТ не подставлен; четыре пути и модель дочернего агента подтверждены в трассе. Но проверяющий вернул 0, пропустив полностью неприменимый §5 с незачёркнутым заголовком (строка 61); чек-лист прямо требует зачёркивание всего заголовка при неприменимых подразделах. Это ложный отрицательный результат по действующему правилу. Откат обязательности прошёл; общая приёмка не зелёная."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": "0"
+    },
+    {
+      "id": "ua-review-source",
+      "kind": "review",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-review-flags",
+      "kind": "review",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ua-review-open",
+      "kind": "review",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-live",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-conv",
+      "kind": "regression",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_ts_conv",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 2,
+        "verdict": "skill-red",
+        "provenancePassed": true,
+        "conventionsPassed": true,
+        "evidence": "Путь /v1/sessions/count и конкретные поля чужого auth не выписаны; auth остаётся кандидатом к валидации, не подтверждённым источником. Свой новый API 🟢, /v1/, 403, null и отдельный ноль согласованы с conventions; дата не спроектирована, поэтому требование формата даты неприменимо. Но неприменимый §6.3 не зачёркнут, ~~ захватывает чекбоксы неприменимых пунктов §6.5. Это подтверждённые нарушения полного регресса. Заголовки шаблона сохранены. Вопрос о владельце не красный; старый grade-ts ложно считает служебные файлы стенда лишними артефактами. Этот автоматический флаг исключён."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": true,
+        "missing": [],
+        "order": true,
+        "naSections": 1,
+        "format": false,
+        "defects": [
+          {
+            "type": "markup-struck",
+            "line": 198,
+            "text": "- ~~[ ] DDL-миграция в репо владеющего сервиса~~"
+          },
+          {
+            "type": "markup-struck",
+            "line": 202,
+            "text": "- ~~[ ] Фиче-флаги заведены~~"
+          },
+          {
+            "type": "heading",
+            "line": 184,
+            "title": "6.3. Фиче-флаги"
+          },
+          {
+            "type": "body",
+            "line": 184,
+            "text": "Не применимо: отдельный фиче-флаг не нужен; изменение ограничено ролью «Администратор» и может быть отключено откатом фронта."
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "- Новых сущностей, таблиц и полей нет; счётчик вычисляется при запросе и не сохраняется.\n- Исторические данные, список пользователей и миграция не нужны.\n- Существующая сущность и правило определения активного пользователя относятся к неподтверждённому источнику — 🟡 к валидации (открытый вопрос 1).\n- Точный способ чтения текущих данных определяет сервис-владелец после подтверждения источника."
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "- INT-1 — добавочный API; существующие вызовы и потребители не меняются.\n- Откат фронта не требует отката backend API."
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из БТ | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|----------|-------------------|------------------------------|\n| FR-1 — счётчик в шапке и обновление без перезагрузки | INT-1 | Дано: администратор открыл панель; когда API вернуло число и затем изменилось; тогда число в шапке обновляется при следующем опросе без перезагрузки. |\n| FR-5 — прочерк при недоступности источника | INT-1 | Дано: источник недоступен; когда загружается счётчик или приходит очередной ответ; тогда показывается прочерк, а не ноль или старое число. График относится к ARS-202. |\n| FR-6 — нулевая активность | INT-1 | Дано: API вернуло activeUserCount: 0; когда администратор смотрит на шапку; тогда отображается 0. |\n| FR-7 — доступ только администраторам | INT-1 | Дано: пользователь — оператор; когда он открывает панель и пытается вызвать API; тогда счётчик скрыт, API возвращает 403, число не раскрывается. |"
+          }
+        ],
+        "status": "Требуются уточнения (1)",
+        "openBlock": "> 1. 🟡 Подтвердить сервис-владелец источника активности и проверить, что он отдаёт именно требуемое число активных пользователей, различает валидный ноль и недоступность и может быть подключён к новому API."
+      }
+    },
+    {
+      "id": "ts-conv2",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-opt",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-conv-2t",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-ctx",
+      "kind": "regression",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_ts_ctx",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "skill-red",
+        "provenancePassed": true,
+        "conventionsPassed": true,
+        "evidence": "Чужие /integration/v2/events, X-SCB-Token, численный лимит, поля/JSON и конкретные ответы СЦБ не перенесены. Внешний контракт описан словами с 🟡, свой API /v1/incidents/... спроектирован с 🟢, 403 и датами ISO 8601 UTC. Но сокращены обязательные заголовки §4.3/§4.3.1/§6.4/§6.5 и каталога ошибок, нарушена точная форма шаблона. Поэтому общий результат красный, проверка происхождения и конвенций прошла. Автоматическое 'дата без формата' — ошибка регулярки, которая не допускает пробел в ISO 8601; этот флаг не считается красным."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": false,
+        "missing": [
+          "### Каталог ошибок (сводно) — последний подраздел §2, после всех INT-карточек",
+          "### 4.3. Состояния (именованные — обязательно, если есть FE)",
+          "### 4.3.1. Loading и таймауты (обязательно, если есть FE)",
+          "### 6.4. План отката (обязательно, если задача деплоится — иначе «не применимо: причина»)",
+          "### 6.5. Преднастройка до релиза (чек-лист — каждый пункт: заполни или «не применимо: причина»)"
+        ],
+        "order": true,
+        "naSections": 0,
+        "format": false,
+        "defects": [
+          {
+            "type": "body",
+            "line": 38,
+            "text": "**Контракт (ответ):** `items` — попытки по инциденту, последние первыми; `nextCursor` — непрозрачный курсор, присутствует только при наличии следующей страницы; `attemptedAt`, `finishedAt` и `nextAttemptAt` отсутствуют, пока соответствующее время неприменимо; `null` не используется. Даты — ISO 8601 UTC, имена полей — `camelCase`, enum — строчные латинские значения."
+          },
+          {
+            "type": "reason",
+            "line": 38,
+            "text": "**Контракт (ответ):** `items` — попытки по инциденту, последние первыми; `nextCursor` — непрозрачный курсор, присутствует только при наличии следующей страницы; `attemptedAt`, `finishedAt` и `nextAttemptAt` отсутствуют, пока соответствующее время неприменимо; `null` не используется. Даты — ISO 8601 UTC, имена полей — `camelCase`, enum — строчные латинские значения."
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "- 🟢 `IncidentNotification` — `notificationId` (string, идентификатор события закрытия), `incidentId` (string, ссылка на инцидент), `closureSequence` (integer, номер перехода инцидента в «закрыт»), `closedAt` (UTC), `state` (enum: `queued`, `sending`, `retry_scheduled`, `sent`, `failed`, `delivery_unknown`), `createdAt` (UTC), `updatedAt` (UTC), `attemptCount` (integer).\n- 🟢 `IncidentNotificationAttempt` — `attemptId` (string), `notificationId` (string), `attemptNumber` (integer), `state` (enum: `queued`, `sending`, `sent`, `failed`, `delivery_unknown`), `queuedAt`, `attemptedAt`, `finishedAt`, `nextAttemptAt` (UTC; последние три поля по применимости), `outcomeCode` (enum) и `outcomeText` (string).\n- 🟢 Связь `IncidentNotification.incidentId` ведёт к инциденту в сервисе пультовой службы; точный физический тип ключа следует типу, принятому в этом сервисе.\n- 🟢 Индексы: `IncidentNotification(incidentId, createdAt)` для журнала; `IncidentNotificationAttempt(state, nextAttemptAt)` для выбора очереди; уникальность `(incidentId, closureSequence)`, `notificationId` и пары `(notificationId, attemptNumber)`.\n- 🟢 Миграция добавляет сущности уведомления и попыток; существующие поля инцидента не меняются, старые строки не пересчитываются и закрытые до релиза инциденты не отправляются повторно.\n- 🔵 Записи журнала хранятся вместе с инцидентом; отдельный срок хранения не вводится, по ответу аналитика.\n- 🟢 Каждая попытка имеет отдельную запись; при повторе предыдущая запись сохраняет свой исход, следующая получает новый `attemptNumber`.\n- 🟢 Точный DDL и синтаксис миграции финализирует владелец сервиса пультовой службы."
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "- 🟢 Новые таблицы и полевая модель добавляются без изменения существующих полей инцидента.\n- 🟢 Новая версия FE требует новый INT-1; бэкенд выкатывается раньше FE.\n- 🟢 Старый FE не вызывает INT-1; выключение флага останавливает новые внешние отправки, не меняя закрытие инцидентов."
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из БТ | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|----------|-------------------|------------------------------|\n| FR-1. При закрытии отправить уведомление; после закрытия есть запись о попытке | INT-2 | Дано открытый инцидент и включённую интеграцию, когда диспетчер закрывает инцидент, тогда закрытие сохраняется и в журнале появляется первая запись со временем постановки/попытки и исходом. |\n| FR-2. Диспетчер видит состояние, время последней попытки и исход | INT-1 | Дано закрытый инцидент с двумя попытками, когда диспетчер открывает карточку, тогда INT-1 возвращает записи обеих попыток, последние первыми, с временем и исходом. |\n| FR-3. Неуспешная отправка повторяется автоматически без дубля на стороне смежников | INT-2 | Дано подтверждённый интеграционный контракт с дедупликацией стабильного `notificationId`, когда первая попытка получает безопасно повторяемый отказ, тогда создаётся следующая попытка с тем же `notificationId`, а при подтверждении второй попытки СЦБ учитывает одно логическое уведомление. |\n| FR-4. Журнал доступен только диспетчерам; другим ролям отказ | INT-1 | Дано аутентифицированного пользователя без роли диспетчера, когда он запрашивает INT-1, тогда API возвращает `403 forbidden` без записей журнала. |"
+          }
+        ],
+        "status": "Требуются уточнения (1)",
+        "openBlock": "> 1. 🟡 Подтвердить у владельца/интегратора СЦБ актуальный контракт приёма, подтверждение доставки, защиту от дублей при повторе, классификацию ошибок, ограничения по скорости и времени ожидания ответа.\n>"
+      }
+    },
+    {
+      "id": "ts-noctx",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-gaps",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-gaps-q",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-fix",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "ts-fix-yes",
+      "kind": "regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "bf-spec",
+      "kind": "regression",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_bf_spec",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 2,
+        "verdict": "skill-red",
+        "roundRedForProbe": 1,
+        "targetedChangesPassed": true,
+        "evidence": "§5.2 законно неприменим, §6.1 содержит общий релиз без вопроса об очередности; происхождение легенды строгое. Файл записан, данные/границы/FR-1 сохранены, лишних вопросов по §5.2/§6.1 нет. Но §6.3 при отсутствии флагов оставлен обычным текстом вместо предписанной неприменимости с оформлением, а в §6.4 неприменимые BE/DDL пункты зачёркнуты только после названия. Это нарушения действующих общих правил, не основание возвращать удалённые заплатки. Старый grade-bf зелёный по своей ограниченной семантике; полная оценка также проверяет изменённое правило применимости и оформление. Законное уточнение владельца первого хода не красное."
+      },
+      "changedInputs": [],
+      "wrote": true,
+      "diagnostic": {
+        "structure": true,
+        "missing": [],
+        "order": true,
+        "naSections": 11,
+        "format": false,
+        "defects": [
+          {
+            "type": "body",
+            "line": 96,
+            "text": "**Откат только BE:** ~~Не применимо: бэкенд не меняется (🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)).~~"
+          },
+          {
+            "type": "body",
+            "line": 96,
+            "text": "**Откат DDL:** ~~Не применимо: изменения схемы и данных отсутствуют (🔵 подтверждено аналитиком (не по коду; валидировать при интеграции)).~~"
+          }
+        ],
+        "fr": true,
+        "restoredFlag": true,
+        "required": [
+          {
+            "id": "3.2",
+            "present": true,
+            "struck": false,
+            "own": "- 🔵 Подтверждено аналитиком (не по коду; валидировать при интеграции): новых или изменённых сущностей и полей нет; база данных не получает неверных записей; пересчёт существующих записей не нужен.\n- 🔵 Подтверждено аналитиком (не по коду; валидировать при интеграции): миграции и изменения хранения данных не нужны."
+          },
+          {
+            "id": "6.2",
+            "present": true,
+            "struck": false,
+            "own": "🔵 Подтверждено аналитиком (не по коду; валидировать при интеграции):\n- выбор района, масштаб карты и подписи остаются без изменений;\n- карта продолжает запрашивать изохроны тем же вызовом, что и сейчас; контракт не меняется и новых стыков нет;\n- поведение при недоступности изохрон остаётся прежним;\n- геометрия и вид полигона остаются без изменений;\n- исправляется только повторное построение слоя зоны."
+          },
+          {
+            "id": "7",
+            "present": true,
+            "struck": false,
+            "own": "| FR из БТ | Взаимодействие(я) | Тест-кейс (Дано–Когда–Тогда) |\n|----------|-------------------|------------------------------|\n| 🔵 FR-1: «Полигон отрисовывается один раз, без пропадания» (со слов аналитика, документа нет) | UI: слой зоны на `/coverage`, переход в `zoneRendered` (§4.1, §4.3); новых/изменённых INT нет | Дано: аналитик открыл `/coverage`; когда он выбирает любой район и дожидается построения зоны; тогда полигон отрисовывается один раз, не пропадает примерно на полсекунды и не отрисовывается повторно. |"
+          }
+        ],
+        "status": "Готово к разработке",
+        "openBlock": "> Все технические решения приняты, спецификация готова к разработке."
+      }
+    },
+    {
+      "id": "bfg-scroll",
+      "kind": "regression",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_bfg_scroll",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "skill-red",
+        "roundRedForProbe": 1,
+        "rollbackOfMandatory52And61Passed": true,
+        "graderCorrections": [
+          "Исходная спека ARS-102 — неизменный засев, не запись первого хода; добавлена метка _seeded.txt для старого грейдера.",
+          "Совпадение G6 по слову 'ролей' в вопросе преднастроек не считается отдельным вопросом о доступе."
+        ],
+        "evidence": "Нет вопроса о неизменных сбоях или реальной очередности вместо срочности; первый ход без файла, обязательные данные и границы спросил. Но вопрос 5 просит подтвердить фиче-флаг и преднастройки либо назвать иные, хотя гейт 9 режим велит не спрашивать вовсе. Это лишний вопрос гейта 9. Сам по себе вопрос про откат при деплое законен и не является причиной красного. Вход и ответ прочитаны вручную."
+      },
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null
+    },
+    {
+      "id": "bfg-role",
+      "kind": "regression",
+      "completed": true,
+      "result": {
+        "terminal": true,
+        "agent": "/root/r7_bfg_role",
+        "model": "gpt-6-luna",
+        "reasoning_effort": "max",
+        "turns": 1,
+        "verdict": "green",
+        "evidence": "На первом ходе файла нет. Доступ затронут: вопрос о viewer сформулирован гипотезой из карточки, не превращён в факт. Повреждённые данные и границы правки спрошены. Нет вопросов о неизменной надёжности, нагрузке или порядке выката; гейты 8/9 не переоткрыты. Ответ сверён вручную; засев ARS-102 неизменен."
+      },
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null
+    },
+    {
+      "id": "rv-clean",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-conv",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-fe",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-tpl-clean",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-tpl-dirty",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-tpl-count",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-bug-spec",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    },
+    {
+      "id": "rv-bug-src",
+      "kind": "review-regression",
+      "completed": false,
+      "result": null,
+      "changedInputs": [],
+      "wrote": false,
+      "diagnostic": null,
+      "reviewCount": null
+    }
+  ]
+}

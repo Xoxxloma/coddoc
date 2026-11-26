@@ -27,6 +27,8 @@ N="${5:-3}"
 CONC="${6:-3}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$HERE/model-id.sh"
+SM_MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 
 [ -n "$FIXTURE" ] && [ -n "$PROMPT_FILE" ] && [ -n "$ROUND" ] && [ -n "$ARM" ] || {
   echo "usage: ./run-ctl.sh <фикстура> <промпт.txt> <папка-раунда> <плечо> <N> [параллельность]"
@@ -117,7 +119,7 @@ run_one() {
 
 Сообщение пользователя лежит в файле ${PROMPT}. Прочитай его и отработай."
 
-  ( cd "$sb" && timeout 900 claude -p "$task" --model haiku --permission-mode bypassPermissions ) \
+  ( cd "$sb" && timeout 900 claude -p "$task" --model "$SM_MODEL" --permission-mode bypassPermissions ) \
       > "$sb/answer.md" 2> "$sb/_stderr.log"
   local rc=$?
 

@@ -1,0 +1,27 @@
+раунд 2026-11-13-peek-pool · модель claude-sonnet-5 · прогонов на пробу 2 · 2026-11-13T10:47:39.661Z
+
+## p-key — «/peek CRM-41»
+run-01: ✓ всё · $0.095 · ходов 2 · 10 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-key\run-01\me" && python3 .claude/skills/peek/reference/peek.py "CRM-41"
+  ответ: CRM-41 · coddoc/CRM-41 ветка origin/feature/crm-41 · Марина · 2026-11-06 12:00 ещё в: work (старее), main (старее), origin/feature/crm-58 (старее), origin/main (старее) файлы (2): business_requirements.md — Готово к разработке · редакция 2 (2026-11-06) technical_specification.md — без шапки Открыть в браузере: /to-html C:/Users/Konstantin/AppData/Local/Temp/peek-probes/2026-11-13-peek-pool/p-key/r
+run-02: ✓ всё · $0.095 · ходов 2 · 9 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-key\run-02\me" && python3 .claude/skills/peek/reference/peek.py "CRM-41"
+  ответ: **CRM-41** · coddoc/CRM-41 ветка `origin/feature/crm-41` · Марина · 2026-11-06 12:00 ещё в: work (старее), main (старее), origin/feature/crm-58 (старее), origin/main (старее) Файлы (2): - `business_requirements.md` — Готово к разработке · редакция 2 (2026-11-06) - `technical_specification.md` — без шапки Открыть в браузере: /to-html C:/Users/Konstantin/AppData/Local/Temp/peek-probes/2026-11-13-pee
+
+## p-words — «/peek начисление баллов»
+run-01: ✓ всё · $0.093 · ходов 2 · 10 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-words\run-01\me" && python3 .claude/skills/peek/reference/peek.py "начисление баллов" 2>&1 || python .claude/skills/peek/reference/peek.py "начисление баллов" 2>&1
+  ответ: Нашлась 1 строка: - **CRM-58** · origin/feature/crm-58 · Марина · `coddoc/CRM-58/business_requirements.md:12` — Начисление баллов за покупку в партнёрском магазине — через сутки. Документы задачи: `/peek CRM-58`
+run-02: ✓ всё · $0.093 · ходов 2 · 9 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-words\run-02\me" && python3 .claude/skills/peek/reference/peek.py "начисление баллов"
+  ответ: Нашлась 1 строка: **CRM-58** · origin/feature/crm-58 · Марина · `coddoc/CRM-58/business_requirements.md:12` — Начисление баллов за покупку в партнёрском магазине — через сутки. Документы задачи: /peek CRM-58
+
+## p-natural — «Марина писала БТ по задаче CRM-58 у себя в ветке. Покажи, что там у неё сейчас, свою ветку не трогай.»
+run-01: ✓ всё · $0.106 · ходов 4 · 12 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-natural\run-01\me" && python3 .gigacode/skills/peek/reference/peek.py "CRM-58"
+  ответ: По CRM-58: **Ветка:** `origin/feature/crm-58` · **Автор:** Марина · **Дата:** 2026-11-08 12:00 Ещё встречается (в более старых версиях) в: `work`, `main`, `origin/feature/crm-41`, `origin/main` **Файлы (1):** - `business_requirements.md` — статус: **«Требуются уточнения»** (1), редакция 2 от 2026-11-08 Открыть в браузере: `/to-html C:/Users/Konstantin/AppData/Local/Temp/peek-probes/2026-11-13-peek
+run-02: ✓ всё · $0.105 · ходов 4 · 12 с
+  команда: cd "C:\Users\KONSTA~1\AppData\Local\Temp\peek-probes\2026-11-13-peek-pool\p-natural\run-02\me" && python .claude/skills/peek/reference/peek.py "CRM-58"
+  ответ: **CRM-58 · coddoc/CRM-58** - Ветка: `origin/feature/crm-58` · автор: Марина · дата: 2026-11-08 12:00 - Ещё встречается (но старее): `work`, `main`, `origin/feature/crm-41`, `origin/main` - Файл: `business_requirements.md` — статус **«Требуются уточнения»** (редакция 2 от 2026-11-08) Открыть в браузере: `/to-html C:/Users/Konstantin/AppData/Local/Temp/peek-probes/2026-11-13-peek-pool/p-natural/run-
+
+итого: $0.59

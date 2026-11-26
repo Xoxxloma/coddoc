@@ -16,12 +16,12 @@ set -u
 ROUND="${1:?папка раунда}"; SKILL="${SKILL_SRC:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../service-map" && pwd)/SKILL.md}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "$ROUND"
-echo "=== sm-gate (sonnet) ==="; SM_MODEL=sonnet bash "$HERE/run-sm-gate.sh" "$SKILL" "$ROUND" 3 | tail -1
-echo "=== sm-guard (sonnet) ==="; SM_MODEL=sonnet bash "$HERE/run-sm-guard.sh" "$SKILL" "$ROUND" 3 | tail -1
-echo "=== sm-guard (haiku) ==="; SM_MODEL=haiku SM_OUT=sm-guard-haiku bash "$HERE/run-sm-guard.sh" "$SKILL" "$ROUND" 3 | tail -1
-echo "=== sm-lead (sonnet) ==="; SM_MODEL=sonnet bash "$HERE/run-sm-lead.sh" "$SKILL" "$ROUND" 3 | tail -1
-echo "=== sm-ent (sonnet) ==="; SM_MODEL=sonnet bash "$HERE/run-sm-ent.sh" "$SKILL" "$ROUND" 3 | tail -1
-echo "=== sm-ent (haiku) ==="; SM_MODEL=haiku SM_OUT=sm-ent-haiku bash "$HERE/run-sm-ent.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-gate (sonnet) ==="; SM_MODEL=claude-sonnet-5 bash "$HERE/run-sm-gate.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-guard (sonnet) ==="; SM_MODEL=claude-sonnet-5 bash "$HERE/run-sm-guard.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-guard (haiku) ==="; SM_MODEL=claude-haiku-5-5 SM_OUT=sm-guard-haiku bash "$HERE/run-sm-guard.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-lead (sonnet) ==="; SM_MODEL=claude-sonnet-5 bash "$HERE/run-sm-lead.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-ent (sonnet) ==="; SM_MODEL=claude-sonnet-5 bash "$HERE/run-sm-ent.sh" "$SKILL" "$ROUND" 3 | tail -1
+echo "=== sm-ent (haiku) ==="; SM_MODEL=claude-haiku-5-5 SM_OUT=sm-ent-haiku bash "$HERE/run-sm-ent.sh" "$SKILL" "$ROUND" 3 | tail -1
 echo; echo "##### ГРЕЙД"
 node "$HERE/grade-sm-gate.mjs" "$ROUND/sm-gate" | tail -3
 node "$HERE/grade-sm-guard-iso.mjs" "$ROUND/sm-guard" | tail -1

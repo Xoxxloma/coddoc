@@ -6,7 +6,8 @@
 set -u
 SKILL="${1:?путь к SKILL.md}"; ROUND="${2:?папка раунда}"; N="${3:-3}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; FIX="${SM_FIX:-$HERE/fixtures/SM-GATE}"; OUT="$ROUND/${SM_OUT:-sm-gate}"
-MODEL="${SM_MODEL:-sonnet}"
+. "$HERE/model-id.sh"
+MODEL="$(model_id "${SM_MODEL:-}" claude-sonnet-5)" || exit 2
 ln() { grep -n -m1 -- "$1" "$SKILL" | cut -d: -f1; }
 B1=$(ln '^Ты — читающий субагент скилла'); B2=$(ln '^Ни чисел, ни пересказа')
 O1=$(ln '^## Опись → файл'); O2=$(ln '^## Прежняя карточка')

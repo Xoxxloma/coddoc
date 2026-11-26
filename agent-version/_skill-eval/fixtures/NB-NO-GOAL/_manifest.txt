@@ -1,0 +1,8 @@
+etalon/stage-1/notes/аренда-беседок/notebook.md
+etalon/stage-1/notes/.keep
+expected.md
+README.md
+seed/notes/.keep
+state.json
+w-prompt.txt
+w-turn2.txt
