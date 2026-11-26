@@ -1,0 +1,5 @@
+цепочка: real-apollo   фикстура: REAL-APOLLO   стадий: 2
+модель: claude-sonnet-5
+стадия 1: business-requirements-doc — stage-1-prompt.txt; реплика —; двойник stage-1-twin-card.md (twin-objector.md); потолок 14
+стадия 2: technical-spec-doc — stage-2-prompt.txt; реплика —; двойник stage-2-twin-card.md (twin-objector.md); потолок 14
+прогонов: 1, параллельность: 1

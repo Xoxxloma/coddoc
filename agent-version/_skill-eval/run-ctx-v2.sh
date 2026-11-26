@@ -98,6 +98,14 @@ case "$PROBE" in
   # ts-gaps-src (5.133) — TS-GAPS + поля справочника офисов в ответах аналитика: изменённая сущность с источником.
   # Ход 2 и 3 (5.133) — общая реплика «как предлагаешь, пиши спеку»: проба ушла в законные вопросы, а мерится §3.2 спеки.
   ts-gaps-src) FIXTURE=TS-GAPS-SRC; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  # `ts-gaps-fields` / `ts-gaps-shared` — заготовка отклонённой модели «правил данных» (26.11, грейдер `grade-dm.mjs`).
+  # `ts-gaps-sh*` — правка ядра 2.6.0 (показ 🟢 сводкой на «годится» до записи): реплика без давления «пиши спеку»
+  # (`go-turn2.txt`), потолок 4 хода — сводок 12–15. Грейдер `grade-shown.mjs`.
+  ts-gaps-sh)        FIXTURE=TS-GAPS; PROMPT_FILE=spec-prompt.txt;   SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-sh-fields) FIXTURE=TS-GAPS; PROMPT_FILE=fields-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-sh-shared) FIXTURE=TS-GAPS; PROMPT_FILE=shared-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-fields) FIXTURE=TS-GAPS; PROMPT_FILE=fields-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-shared) FIXTURE=TS-GAPS; PROMPT_FILE=shared-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   ts-gaps-2t)  FIXTURE=TS-GAPS;     PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   # Полные задачи обычного режима (2026-10-12): все 10 тех-гейтов содержательны, БТ по текущему шаблону,
   # условия по статусу только словами процесса. TS-VAC — отпуск, всё наше, окружения нет; TS-ACC — доступ
@@ -319,6 +327,10 @@ case "$PROBE" in
   # о схеме событий новой внешней системы и о нагрузке — ни слова. Верно — реестр со строкой «Открытым в файл
   # уйдёт» и вопрос про схему, файла нет. Грейдер `grade-ts-open.mjs`. Состав — fixtures/TS-OPEN/README.md.
   ts-open)   FIXTURE=TS-OPEN;   PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
+  # `ts-open-hd` / `ts-acc-hd` — чужой стык одним вопросом всеми сторонами (спека 2.5.2): ход 2 — значение на часть сторон,
+  # остальное «не знаю, к валидации»; конец по статусу спеки. Грейдер `grade-hd.mjs`.
+  ts-open-hd) FIXTURE=TS-OPEN;  PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=hd-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_GREP='Статус готовности:\*\* *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  ts-acc-hd)  FIXTURE=TS-ACC;   PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=hd-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_GREP='Статус готовности:\*\* *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
   ts-nodesc) FIXTURE=TS-NODESC; PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   ts-noctx)  FIXTURE=TS-NOCTX;  PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   br-ctx)    FIXTURE=BR-CTX;    PROMPT_FILE=t1-prompt.txt;    SKILL=business-requirements-doc ;;
@@ -605,6 +617,11 @@ case "$PROBE" in
   # Два засева: путь в репорте (рукопись) → 🔵 «по документу сверху»; репорт без путей + карточка и «да» → 🔵 «по карточке».
   bfx-doc)  FIXTURE=BFX-SPEC; PROMPT_FILE=doc-prompt.txt;  SKILL=technical-spec-doc; SEED_SUB=seed-doc ;;
   bfx-card) FIXTURE=BFX-SPEC; PROMPT_FILE=card-prompt.txt; SKILL=technical-spec-doc; SEED_SUB=seed-card ;;
+  # `*-ok` — те же режимы вторым ходом «годится» (спека 2.6.0: 🟢 закрыт только ответом на показ, однократная проба
+  # кончается вопросом). Вход тот же, критерии и грейдеры прежние: bfx-spec --case=doc, cr-spec --case=api, fnd-epic --case=zero.
+  bfx-doc-ok)   FIXTURE=BFX-SPEC; PROMPT_FILE=doc-prompt.txt;  SKILL=technical-spec-doc; SEED_SUB=seed-doc;  TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  ts-cr-api-ok) FIXTURE=TS-CR;    PROMPT_FILE=api-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fnd-zero-ok)  FIXTURE=FND-EPIC; PROMPT_FILE=zero-prompt.txt; SKILL=technical-spec-doc; SEED_SUB=seed-zero; TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
   # приёмка и разрез такой спеки (BFX-DOWN, MTR-512 — рукопись до первого зелёного bfx-doc). grade-bfx-rv.mjs, grade-bfx-sb.mjs
   rv-bfx-clean)  FIXTURE=BFX-DOWN; PROMPT_FILE=rv512-prompt.txt; SKILL=spec-review ;;
   rv-bfx-nomark) FIXTURE=BFX-DOWN; PROMPT_FILE=rv514-prompt.txt; SKILL=spec-review ;;

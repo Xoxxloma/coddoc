@@ -1,0 +1,7 @@
+проба: bfx-doc-ok
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: ok-turn2.txt
+потолок ходов: 3
+конец диалога по файлу: /coddoc/.*/technical_specification.md$
+прогонов: 1, параллельность: 1
