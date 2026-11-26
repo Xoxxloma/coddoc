@@ -1,0 +1,6 @@
+фикстура: SM-APOLLO, сервис: apollo-portal
+модель: claude-sonnet-5; прогонов: 1; параллельность: 1; таймаут: 7200 c
+папка скилла: /c/Users/KONSTA~1/AppData/Local/Temp/claude/c2d3865cf791cdae/a56337ba-d312-4402-9680-0c36140efcb4/scratchpad/states/p012/service-map-2.0
+снимок: _skills/service-map (1023 строк SKILL.md, 17 файлов reference/); подмена: K=как в тексте w=как в тексте
+копия для прогона: C:/Users/Konstantin/AppData/Local/Temp/sm-mono-skills/2026-11-25-w012b-apollo/service-map
+claude: /c/Users/Konstantin/AppData/Roaming/npm/claude
