@@ -1,0 +1,9 @@
+проба: rt-e2e
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: e2e-turn2.txt
+реплика на узел: node-check-turn2.txt
+реплика на второй узел: node-fix13-turn2.txt
+живые под-скиллы: rehearse technical-spec-doc
+потолок ходов: 10
+прогонов: 2, параллельность: 2

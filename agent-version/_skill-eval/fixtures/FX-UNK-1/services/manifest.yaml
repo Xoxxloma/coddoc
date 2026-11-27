@@ -1,0 +1,6 @@
+services:
+  - name: museum-site
+    path: ../museum-site
+    type: fullstack
+    notes: |
+      Сайт музея: афиша экскурсий, обратная связь, админ-раздел редакторов. Ведёт команда «Сайт музея».

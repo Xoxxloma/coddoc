@@ -1,0 +1,14 @@
+live-prompt.txt
+README.md
+seed/prebaked/bug_report.md
+seed/prebaked/technical_specification.md
+seed/services/auth.md
+seed/services/geo.md
+seed/services/incident-web.md
+seed/services/manifest.yaml
+stubs/bug-report-doc/SKILL.md
+stubs/business-requirements-doc/SKILL.md
+stubs/rehearse/SKILL.md
+stubs/spec-review/SKILL.md
+stubs/stage-breakdown-doc/SKILL.md
+stubs/technical-spec-doc/SKILL.md

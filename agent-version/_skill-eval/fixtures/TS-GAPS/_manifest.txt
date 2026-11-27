@@ -1,5 +1,8 @@
 coddoc/TRP-418/business_requirements.md
+fields-prompt.txt
+go-turn2.txt
 q-prompt.txt
 README.md
+shared-prompt.txt
 spec-prompt.txt
 yes-turn2.txt

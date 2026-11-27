@@ -1,6 +1,7 @@
 card-prompt.txt
 doc-prompt.txt
 expected.md
+ok-turn2.txt
 README.md
 seed-card/coddoc/MTR-480/business_requirements.md
 seed-card/coddoc/MTR-513/bug_report.md

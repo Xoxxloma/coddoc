@@ -1,0 +1,6 @@
+services:
+  - name: edu-portal
+    path: ../edu-portal
+    type: fullstack
+    notes: |
+      Учебный портал. Ведёт команда «Корпоративное обучение».

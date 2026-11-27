@@ -112,10 +112,13 @@ DONE_RE="${RT_DONE_RE:-}"
 # не проверяется). Для проб, у которых файл результата создаётся в начале диалога и дописывается по ходу
 # (`rec-*`): по пути конец не опознать.
 DONE_GREP="${RT_DONE_GREP:-}"
+# `RT_DONE_INCLUDE` — имя файла, которым ограничен `RT_DONE_GREP` (пусто → все файлы, как было). Нужен концу по статусу
+# спеки: та же строка «Статус готовности» есть в шапке БТ рядом, и без фильтра диалог кончался на БТ.
+DONE_INCLUDE="${RT_DONE_INCLUDE:-}"
 # `RT_DONE_ANSWER` — регулярка по ответам агента `answer-*.md`: нашлась — диалог кончен (пусто → не проверяется). Для проб,
 # у которых результат — сообщение в чате, а не файл (`reh-*`).
 DONE_ANSWER="${RT_DONE_ANSWER:-}"
-is_done() { { [ -n "$DONE_RE" ] && find "$1" -type f 2>/dev/null | grep -qE "$DONE_RE"; } || { [ -n "$DONE_GREP" ] && grep -rqE "$DONE_GREP" "$1/coddoc" "$1/notes" 2>/dev/null; } || { [ -n "$DONE_ANSWER" ] && cat "$1"/answer-*.md 2>/dev/null | grep -qE "$DONE_ANSWER"; }; }
+is_done() { { [ -n "$DONE_RE" ] && find "$1" -type f 2>/dev/null | grep -qE "$DONE_RE"; } || { [ -n "$DONE_GREP" ] && grep -rqE ${DONE_INCLUDE:+--include="$DONE_INCLUDE"} "$DONE_GREP" "$1/coddoc" "$1/notes" 2>/dev/null; } || { [ -n "$DONE_ANSWER" ] && cat "$1"/answer-*.md 2>/dev/null | grep -qE "$DONE_ANSWER"; }; }
 # `RT_TWIN` — карточка памяти двойника аналитика, `RT_TWIN_PROMPT` — общий промпт двойника (пусто → цикл
 # побайтно прежний). Задана — реплику хода пишет не файл, а двойник: отдельный `claude -p` без инструментов,
 # вне песочницы, получает промпт, карточку и весь диалог и отвечает за аналитика. Для опросов, где ответ

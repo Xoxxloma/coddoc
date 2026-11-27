@@ -1,2 +1,7 @@
+cut-idk-turn2.txt
+cut-nocrit-prompt.txt
+cut-one-turn2.txt
 cut-prompt.txt
+cut-thin-prompt.txt
+cut-yes-turn2.txt
 README.md
