@@ -1,0 +1,10 @@
+coddoc/EXP-311/business_requirements.md
+open-prompt.txt
+stubs/bug-report-doc/SKILL.md
+stubs/business-requirements-doc/SKILL.md
+stubs/change-request-doc/SKILL.md
+stubs/rehearse/SKILL.md
+stubs/spec-review/SKILL.md
+stubs/stage-breakdown-doc/SKILL.md
+stubs/technical-spec-doc/SKILL.md
+stubs/technical-spec-doc/spec-r1.md

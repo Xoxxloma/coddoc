@@ -1,0 +1,12 @@
+services:
+  - name: claims-desk
+    path: ../claims-desk
+    type: fullstack
+    notes: |
+      Сервис рекламаций. Ведёт команда «Сервис качества».
+
+  - name: order-history
+    path: ../order-history
+    type: backend
+    notes: |
+      Сервис «История заказов». Ведёт команда «Заказы и отгрузки», не мы.

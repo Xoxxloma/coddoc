@@ -114,7 +114,7 @@ run_chain() {
     local out="$base/stage-$k" sb="$base/stage-$k/run-1"
     local skill prompt turn2 twin twinp cap idle done_re done_grep done_var
     eval "skill=\$S${k}_SKILL prompt=\$S${k}_PROMPT turn2=\${S${k}_TURN2:-} twin=\${S${k}_TWIN:-} twinp=\${S${k}_TWIN_PROMPT:-twin-analyst.md}"
-    eval "cap=\${S${k}_CAP:-8} idle=\${S${k}_IDLE:-\$cap} done_re=\${S${k}_DONE_RE:-} done_grep=\${S${k}_DONE_GREP:-} done_var=\${S${k}_DONE_VAR:-}"
+    eval "cap=\${S${k}_CAP:-8} idle=\${S${k}_IDLE:-\$cap} done_re=\${S${k}_DONE_RE:-} done_grep=\${S${k}_DONE_GREP:-} done_include=\${S${k}_DONE_INCLUDE:-} done_var=\${S${k}_DONE_VAR:-}"
     if [ -s "$sb/answer.md" ]; then prev="$sb"; continue; fi
 
     # Засев стадии — песочница прошлой стадии без файлов стенда (ответы, потоки, `_*`, заглушки).
@@ -148,10 +148,11 @@ run_chain() {
       [ "$var" = "$done_var" ] && done_path="$found"
     done
 
-    unset RT_TWIN RT_TWIN_PROMPT RT_DONE_RE RT_DONE_GREP
+    unset RT_TWIN RT_TWIN_PROMPT RT_DONE_RE RT_DONE_GREP RT_DONE_INCLUDE
     export RT_MAX_TURNS="$cap" RT_IDLE_MAX="$idle"
     [ -n "$done_re" ] && export RT_DONE_RE="$done_re"
     [ -n "$done_grep" ] && export RT_DONE_GREP="$done_grep"
+    [ -n "$done_include" ] && export RT_DONE_INCLUDE="$done_include"
     [ -n "$done_path" ] && export RT_DONE_GREP="$(esc_re "$done_path")"
     local t2=""
     if [ -n "$twin" ]; then

@@ -73,6 +73,7 @@ SKILL_DIR=""
 # Конец диалога по содержимому `coddoc/` (пусто → как было) и карточка двойника аналитика в фикстуре (пусто → реплики
 # из файлов, как было). Пробам `meeting-recall`: протокол создаётся на первом ходу, а ответ зависит от вопроса.
 DONE_GREP=""
+DONE_INCLUDE=""
 TWIN_CARD=""
 # Промпт двойника (пусто → `twin-analyst.md`, как было). Пробам, где двойник не вспоминает встречу, а отвечает на
 # вопросы скилла по карточке и возражает там, где карточка велит: `twin-objector.md`.
@@ -97,6 +98,14 @@ case "$PROBE" in
   # ts-gaps-src (5.133) — TS-GAPS + поля справочника офисов в ответах аналитика: изменённая сущность с источником.
   # Ход 2 и 3 (5.133) — общая реплика «как предлагаешь, пиши спеку»: проба ушла в законные вопросы, а мерится §3.2 спеки.
   ts-gaps-src) FIXTURE=TS-GAPS-SRC; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  # `ts-gaps-fields` / `ts-gaps-shared` — заготовка отклонённой модели «правил данных» (26.11, грейдер `grade-dm.mjs`).
+  # `ts-gaps-sh*` — правка ядра 2.6.0 (показ 🟢 сводкой на «годится» до записи): реплика без давления «пиши спеку»
+  # (`go-turn2.txt`), потолок 4 хода — сводок 12–15. Грейдер `grade-shown.mjs`.
+  ts-gaps-sh)        FIXTURE=TS-GAPS; PROMPT_FILE=spec-prompt.txt;   SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-sh-fields) FIXTURE=TS-GAPS; PROMPT_FILE=fields-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-sh-shared) FIXTURE=TS-GAPS; PROMPT_FILE=shared-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=go-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-fields) FIXTURE=TS-GAPS; PROMPT_FILE=fields-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  ts-gaps-shared) FIXTURE=TS-GAPS; PROMPT_FILE=shared-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   ts-gaps-2t)  FIXTURE=TS-GAPS;     PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   # Полные задачи обычного режима (2026-10-12): все 10 тех-гейтов содержательны, БТ по текущему шаблону,
   # условия по статусу только словами процесса. TS-VAC — отпуск, всё наше, окружения нет; TS-ACC — доступ
@@ -173,6 +182,9 @@ case "$PROBE" in
   ts-blue-idk) FIXTURE=TS-BLUE; PROMPT_FILE=idk-prompt.txt; SKILL=technical-spec-doc ;;
   ts-acc)    FIXTURE=TS-ACC;    PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   ts-acc-q)  FIXTURE=TS-ACC;    PROMPT_FILE=q-prompt.txt;     SKILL=technical-spec-doc ;;
+  # `ts-acc-2t` — то же, двумя ходами (спека 2.6.0): ход 1 кончается вопросом по открытым пунктам при заглушке статуса,
+  # ход 2 — аналитик закрывает таймаут значением, остальное к валидации. Конец — проставленный статус. Грейдер `grade-open-step.mjs`.
+  ts-acc-2t) FIXTURE=TS-ACC;    PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=fix-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_GREP='Статус готовности:\*\* *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
   # interaction-diagram: схема по готовой спеке DSP-330; формат назван (mmd/puml) или нет (ask).
   # Состав и ловушки — `fixtures/ID-DIAG/README.md`.
   id-mmd)    FIXTURE=ID-DIAG;   PROMPT_FILE=mmd-prompt.txt;   SKILL=interaction-diagram ;;
@@ -311,6 +323,25 @@ case "$PROBE" in
   occ-one)    FIXTURE=OCC-ONE;    PROMPT_FILE=w-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   occ-bt-evt) FIXTURE=OCC-BT-EVT; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
   occ-new)    FIXTURE=OCC-NEW;    PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification\.md$' ;;
+  # `ts-open` — открытые пункты без вопроса (спека 2.5.1, 2026-11-25): один ход «ПРОДОЛЖЕНИЕ», ответы на все гейты,
+  # о схеме событий новой внешней системы и о нагрузке — ни слова. Верно — реестр со строкой «Открытым в файл
+  # уйдёт» и вопрос про схему, файла нет. Грейдер `grade-ts-open.mjs`. Состав — fixtures/TS-OPEN/README.md.
+  # Чужой стык (пробы написаны тремя независимыми авторами, текста правки скилла они не видели). Три случая:
+  # `fx-has-*` — контракт чужой системы есть (в карточке сервиса / у аналитика): спрашиваем, в спеке только названное;
+  # `fx-unk-*` — упомянут, но неизвестен (исходящий вызов / входящие события, которых ещё нет): спрашиваем, открытый пункт;
+  # `fx-none-*` — чужих стыков нет (без окружения / соседи лежат рядом): о чужом не спрашиваем.
+  # Грейдеры — `grade-fx-has.mjs`, `grade-fx-unk.mjs`, `grade-fx-none.mjs`. Состав — README фикстур FX-*.
+  fx-has-1) FIXTURE=FX-HAS-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=fx-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-has-2) FIXTURE=FX-HAS-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=fx-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-unk-1) FIXTURE=FX-UNK-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=unk-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_GREP='Статус готовности:** *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  fx-unk-2) FIXTURE=FX-UNK-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=unk-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_GREP='Статус готовности:** *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  fx-none-1) FIXTURE=FX-NONE-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-none-2) FIXTURE=FX-NONE-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  ts-open)   FIXTURE=TS-OPEN;   PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
+  # `ts-open-hd` / `ts-acc-hd` — чужой стык одним вопросом всеми сторонами (спека 2.5.2): ход 2 — значение на часть сторон,
+  # остальное «не знаю, к валидации»; конец по статусу спеки. Грейдер `grade-hd.mjs`.
+  ts-open-hd) FIXTURE=TS-OPEN;  PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=hd-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_GREP='Статус готовности:\*\* *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  ts-acc-hd)  FIXTURE=TS-ACC;   PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=hd-turn2.txt; TURNS_CAP=3; IDLE_MAX=3; DONE_GREP='Статус готовности:\*\* *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
   ts-nodesc) FIXTURE=TS-NODESC; PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   ts-noctx)  FIXTURE=TS-NOCTX;  PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   br-ctx)    FIXTURE=BR-CTX;    PROMPT_FILE=t1-prompt.txt;    SKILL=business-requirements-doc ;;
@@ -491,6 +522,19 @@ case "$PROBE" in
   # Замена терминов 5.35 (2026-10-06): БТ с несколькими частями → таблица §4.5 и вопрос в ответе, без «слайс»/
   # «деливербл». Одноходовая, «ПРОДОЛЖЕНИЕ». Грейдер — `grade-terms.mjs --case=cut`.
   br-cut)     FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc ;;
+  # Гейт 18 (`business-requirements-doc` 1.10.0): частей ≥2 → вопрос о составе ДО записи. Ход 1 — вопрос, файла нет;
+  # ход 2 — реплика аналитика: «Режем на эти части» (`-2t`), «Одной задачей» (`-one`), «Позже решим» (`-idk`).
+  # Конец диалога — записанный БТ: на версии без гейта файл появляется ходом 1, и второй ход не идёт.
+  # Грейд — `grade-cut18.mjs`.
+  # `br-cut-nocrit` — тот же бриф без критериев приёмки: гейт 11 открыт, поставок несколько. Один ход. Верно: вопрос о
+  # критериях, файла нет, строка 18 реестра — ❓ без вопроса о частях и без «✅ одна поставка».
+  br-cut-nocrit) FIXTURE=BR-CUT; PROMPT_FILE=cut-nocrit-prompt.txt; SKILL=business-requirements-doc ;;
+  # `br-cut-thin` — тонкий бриф с тремя видимыми поставками, гейты не закрыты. Один ход. Верно: вопросы по гейтам, файла
+  # нет, строка 18 реестра — ❓ без вопроса о частях и без «✅ одна поставка».
+  br-cut-thin) FIXTURE=BR-CUT; PROMPT_FILE=cut-thin-prompt.txt; SKILL=business-requirements-doc ;;
+  br-cut-2t)  FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-yes-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
+  br-cut-one) FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-one-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
+  br-cut-idk) FIXTURE=BR-CUT; PROMPT_FILE=cut-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=cut-idk-turn2.txt; TURNS_CAP=2; DONE_RE='/coddoc/[^/]+/business_requirements.md$' ;;
   # То же, что br-nocrit, но стоп после хода 2: прод — это ход 2, ход 3 сам подсказывает исправление (2026-10-03).
   br-nocrit2) FIXTURE=BR-NOCRIT; PROMPT_FILE=brief-prompt.txt; SKILL=business-requirements-doc; TURN2_FILE=nocrit-turn2.txt; TURNS_CAP=2 ;;
   # Та же тема на других входах (2026-10-03), стоп после хода 2. `br-ncl` — отпуска: критерии по номерам у (1) и
@@ -597,6 +641,11 @@ case "$PROBE" in
   # Два засева: путь в репорте (рукопись) → 🔵 «по документу сверху»; репорт без путей + карточка и «да» → 🔵 «по карточке».
   bfx-doc)  FIXTURE=BFX-SPEC; PROMPT_FILE=doc-prompt.txt;  SKILL=technical-spec-doc; SEED_SUB=seed-doc ;;
   bfx-card) FIXTURE=BFX-SPEC; PROMPT_FILE=card-prompt.txt; SKILL=technical-spec-doc; SEED_SUB=seed-card ;;
+  # `*-ok` — те же режимы вторым ходом «годится» (спека 2.6.0: 🟢 закрыт только ответом на показ, однократная проба
+  # кончается вопросом). Вход тот же, критерии и грейдеры прежние: bfx-spec --case=doc, cr-spec --case=api, fnd-epic --case=zero.
+  bfx-doc-ok)   FIXTURE=BFX-SPEC; PROMPT_FILE=doc-prompt.txt;  SKILL=technical-spec-doc; SEED_SUB=seed-doc;  TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  ts-cr-api-ok) FIXTURE=TS-CR;    PROMPT_FILE=api-prompt.txt;  SKILL=technical-spec-doc; TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fnd-zero-ok)  FIXTURE=FND-EPIC; PROMPT_FILE=zero-prompt.txt; SKILL=technical-spec-doc; SEED_SUB=seed-zero; TURN2_FILE=ok-turn2.txt; TURNS_CAP=3; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
   # приёмка и разрез такой спеки (BFX-DOWN, MTR-512 — рукопись до первого зелёного bfx-doc). grade-bfx-rv.mjs, grade-bfx-sb.mjs
   rv-bfx-clean)  FIXTURE=BFX-DOWN; PROMPT_FILE=rv512-prompt.txt; SKILL=spec-review ;;
   rv-bfx-nomark) FIXTURE=BFX-DOWN; PROMPT_FILE=rv514-prompt.txt; SKILL=spec-review ;;
@@ -690,10 +739,21 @@ case "$PROBE" in
   # Конец — запись спеки, потолок 4 хода. Грейд — `grade-rt-count.mjs` (кейс по имени плеча). Состав — fixtures/RT-COUNT/expected.md.
   rt-count-bt)  FIXTURE=RT-COUNT; PROMPT_FILE=bt-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=count-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/[^/]+/technical_specification\.md$' ;;
   rt-count-cr)  FIXTURE=RT-COUNT; PROMPT_FILE=cr-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=count-turn2.txt; TURNS_CAP=4; DONE_RE='/coddoc/[^/]+/technical_specification\.md$' ;;
+  # `rt-oq*` — вопрос ведущего по открытым пунктам записанной спеки до приёмки (analyst-workspace 2.3.0). «ПРОДОЛЖЕНИЕ»
+  # после «писать тех-спеку»; заглушка спеки кладёт три открытых пункта (RT-OPENQ) или ни одного (RT-OPENQ0). Грейдер
+  # `grade-rt-oq.mjs`. Состав — fixtures/RT-OPENQ/README.md.
+  rt-oq)        FIXTURE=RT-OPENQ;  PROMPT_FILE=open-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs ;;
+  rt-oq-val)    FIXTURE=RT-OPENQ;  PROMPT_FILE=open-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=val-turn2.txt; TURNS_CAP=2 ;;
+  rt-oq-one)    FIXTURE=RT-OPENQ;  PROMPT_FILE=open-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=one-turn2.txt; TURNS_CAP=2 ;;
+  rt-oq-tick)   FIXTURE=RT-OPENQ;  PROMPT_FILE=open-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; TURN2_FILE=tick-turn2.txt; TURNS_CAP=2 ;;
+  rt-oq0)       FIXTURE=RT-OPENQ0; PROMPT_FILE=open-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs ;;
   # `rt-2b-fix` — ответ «Поправить» на гейте 2Б (5.137): один ход «ПРОДОЛЖЕНИЕ», верно — под-скилл БТ с находкой, ведущий
   # сам БТ не правит, новая приёмка, снова вопрос гейта. Грейд — `grade-rt-fix.mjs`. Состав — fixtures/RT-FIX/README.md.
   rt-2b-fix)    FIXTURE=RT-FIX; PROMPT_FILE=fix-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs ;;
   rt-gate)     FIXTURE=RT-GATE; PROMPT_FILE=gate-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs TURN2_FILE=gate-turn2.txt NODE_FILE=node-split-turn2.txt ;;
+  # `rt-cut-live` — ведущий + живой `business-requirements-doc`, вход с несколькими поставками, один ход: верно — ход
+  # кончается вопросом о частях (гейт 18), файла БТ нет, приёмка и гейт 2Б не начаты. Грейд — `grade-cut18.mjs`.
+  rt-cut-live) FIXTURE=RT-CUTLIVE; PROMPT_FILE=live-prompt.txt; SKILL=analyst-workspace; STUBS_SUB=stubs; SEED_SUB=seed; REAL_SUBS=business-requirements-doc ;;
 
   # ── приёмка баг-репорта ───────────────────────────────────────────────────────────────────
   # Главное плечо здесь ЧИСТОЕ, а не грязное: у проверяющего инструмента худший отказ — покраснеть
@@ -846,6 +906,7 @@ SKILL_DIR="${SKILL_DIR:-$HERE/../$SKILL}"
 [ -n "$DONE_RE" ] && export RT_DONE_RE="$DONE_RE"
 [ -n "$IDLE_MAX" ] && export RT_IDLE_MAX="$IDLE_MAX"
 [ -n "$DONE_GREP" ] && export RT_DONE_GREP="$DONE_GREP"
+[ -n "$DONE_INCLUDE" ] && export RT_DONE_INCLUDE="$DONE_INCLUDE"
 [ -n "$DONE_ANSWER" ] && export RT_DONE_ANSWER="$DONE_ANSWER"
 [ -n "$ANSWER_ALL" ] && export RT_ANSWER_ALL_TEXT=1
 if [ -n "$TWIN_CARD" ]; then

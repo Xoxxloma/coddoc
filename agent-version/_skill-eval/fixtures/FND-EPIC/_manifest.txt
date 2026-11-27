@@ -1,5 +1,7 @@
 go-turn2.txt
+kid602-prompt.txt
 kid-prompt.txt
+ok-turn2.txt
 README.md
 rv-dirty-prompt.txt
 rv-kid-prompt.txt
@@ -22,4 +24,3 @@ seed-zero/coddoc/PRT-600/decomposition.md
 seed-zero/coddoc/PRT-600/PRT-601/business_requirements.md
 seed-zero/coddoc/PRT-600/PRT-602/business_requirements.md
 zero-prompt.txt
-kid602-prompt.txt

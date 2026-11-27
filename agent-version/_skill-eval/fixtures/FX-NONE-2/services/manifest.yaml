@@ -1,0 +1,31 @@
+services:
+  - name: expo-planner
+    path: ../expo-planner
+    type: backend
+    notes: |
+      План выставок: состав, залы, сроки монтажа. Ведёт команда «Выставочные проекты».
+
+  - name: funds-registry
+    path: ../funds-registry
+    type: backend
+    notes: |
+      Ведёт команда «Учёт фондов».
+      Релизы — по средам, в санитарный день музея.
+
+  - name: funds-web
+    path: ../funds-web
+    type: frontend
+    notes: |
+      Рабочее место хранителя. Ведёт команда «Учёт фондов».
+
+  - name: restoration-lab
+    path: ../restoration-lab
+    type: backend
+    notes: |
+      Задания на реставрацию и реставрационные протоколы. Ведёт команда «Реставрация».
+
+  - name: site-collection
+    path: ../site-collection
+    type: backend
+    notes: |
+      Онлайн-коллекция на сайте музея. Ведёт команда «Сайт».
