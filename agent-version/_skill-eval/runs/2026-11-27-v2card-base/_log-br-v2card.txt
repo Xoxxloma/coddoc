@@ -1,0 +1,13 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-27-v2card-base/_skills/business-requirements-doc.SKILL.md
+проба: br-v2card   фикстура: BR-V2CARD   скилл: business-requirements-doc
+effort: умолчание CLI
+плечо: runs/2026-11-27-v2card-base/br-v2card
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2card-base-br-v2card-50807-skills/business-requirements-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/.claude/worktrees/sm2-next/agent-version/_skill-eval/fixtures/BR-V2CARD/t1-prompt.txt
+прогонов: 3, параллельно: 3
+  run-2 — готов
+  run-1 — готов
+  run-3 — готов
+ГОТОВО: runs/2026-11-27-v2card-base/br-v2card — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2card-base-br-v2card-50807-skills (журнальная копия осталась в runs/2026-11-27-v2card-base/_skills/)
+runs/2026-11-27-v2card-base/br-v2card: $1.50 за 3 прогонов

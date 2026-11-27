@@ -11,7 +11,7 @@ for _st in (sys.stdout, sys.stderr):
     _st.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
 EV = os.path.normpath(os.path.join(HERE, "..", ".."))
-SKILL = os.environ.get("SM_SKILL") or os.path.normpath(os.path.join(EV, "..", "service-map-2.0"))
+SKILL = os.environ.get("SM_SKILL") or os.path.normpath(os.path.join(EV, "..", "service-map"))
 TOP = os.path.join(EV, "selftest", "port", "launch")            # gitignored
 BOX = os.path.join(TOP, "спек репо")                             # cwd команд — корень репозитория со спеками
 SK = os.path.join(TOP, "скилл копия", "reference")

@@ -41,7 +41,7 @@ NRS-TAIL и SM-MONO-DGS собираются генераторами занов
 
 ```bash
 # пул: 5 прогонов Haiku на каждую из четырёх фикстур
-bash run-sm-scout.sh ../service-map-2.0/SKILL.md runs/<дата>-<раунд> 5
+bash run-sm-scout.sh ../service-map/SKILL.md runs/<дата>-<раунд> 5
 SM_SCOUT_ONLY="SM-MONO-DGS" bash run-sm-scout.sh <SKILL.md> runs/<раунд> 5   # одна фикстура
 SM_SCOUT_DRY=1 bash run-sm-scout.sh <SKILL.md> runs/<раунд>                  # без модели: бриф, песочница, промпты
 

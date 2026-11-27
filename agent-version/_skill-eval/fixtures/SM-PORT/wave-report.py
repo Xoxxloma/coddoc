@@ -9,7 +9,7 @@ import glob, json, os, re, sys
 for _st in (sys.stdout, sys.stderr):
     _st.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "..", "..", "service-map-2.0", "reference")))
+sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "..", "..", "service-map", "reference")))
 sys.dont_write_bytecode = True
 import keys as K  # noqa: E402
 

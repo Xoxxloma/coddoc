@@ -1,6 +1,0 @@
-README.md
-services/auth.md
-services/incident-web.md
-services/manifest.yaml
-services/user-profile.md
-step5-prompt.txt

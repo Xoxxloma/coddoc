@@ -13,7 +13,7 @@
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 F="$(cd "$HERE/.." && pwd)"
-REF="${1:-$HERE/../../../service-map-2.0/reference}"; REF="$(cd "$REF" && pwd)"
+REF="${1:-$HERE/../../../service-map/reference}"; REF="$(cd "$REF" && pwd)"
 winp() { cygpath -m "$1" 2>/dev/null || printf '%s' "$1"; }
 PY="${SM_PY:-python}"; command -v "$PY" > /dev/null 2>&1 || PY=python3
 COUNT="$(winp "$REF/count.py")"; PLAN="$(winp "$REF/plan.py")"

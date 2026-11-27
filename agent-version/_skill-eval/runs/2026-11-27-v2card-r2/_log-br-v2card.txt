@@ -1,0 +1,13 @@
+снимок скилла: runs/2026-11-27-v2card-r2/_skills/business-requirements-doc.SKILL.md
+проба: br-v2card   фикстура: BR-V2CARD   скилл: business-requirements-doc
+effort: умолчание CLI
+плечо: runs/2026-11-27-v2card-r2/br-v2card
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2card-r2-br-v2card-53761-skills/business-requirements-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/.claude/worktrees/sm2-next/agent-version/_skill-eval/fixtures/BR-V2CARD/t1-prompt.txt
+прогонов: 3, параллельно: 3
+  run-1 — готов
+  run-3 — готов
+  run-2 — готов
+ГОТОВО: runs/2026-11-27-v2card-r2/br-v2card — песочниц с ответом: 3 из 3
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2card-r2-br-v2card-53761-skills (журнальная копия осталась в runs/2026-11-27-v2card-r2/_skills/)
+runs/2026-11-27-v2card-r2/br-v2card: $1.63 за 3 прогонов

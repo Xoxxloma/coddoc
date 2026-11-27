@@ -7,7 +7,7 @@
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 F="$(cd "$HERE/.." && pwd)"
-REF="$(cd "$F/../../service-map-2.0/reference" && pwd)"
+REF="$(cd "$F/../../service-map/reference" && pwd)"
 MODE="${1:-both}"
 REC="${2:-$F/../selftest/port/rec2}"; mkdir -p "$REC"; REC="$(cd "$REC" && pwd)"
 # TMPDIR в форме /c/…: путь /tmp/… Python на Windows не откроет, а /c/… — и bash, и keys.fpath. Не под ворктри:

@@ -3,9 +3,9 @@
 # ОДНОГО читающего субагента `service-map` против числа ключей куска. Ведущего нет: `claude -p` получает
 # бриф Шага 3.3, вырезанный из снимка SKILL.md раунда, с подстановкой по правилам 3.2 — и больше ничего.
 #
-#   SM_K_DRY=1 ./run-sm-k.sh ../service-map-2.0/SKILL.md runs/<раунд> api-32    — без модели: песочница,
+#   SM_K_DRY=1 ./run-sm-k.sh ../service-map/SKILL.md runs/<раунд> api-32    — без модели: песочница,
 #                                                       промпт, проверки; печатает промпт и пути
-#   ./run-sm-k.sh ../service-map-2.0/SKILL.md runs/<раунд> api-32 2              — два прогона куска
+#   ./run-sm-k.sh ../service-map/SKILL.md runs/<раунд> api-32 2              — два прогона куска
 #
 # Куски — fixtures/SM-K/pieces.json (api-32, api-58, api-117, nrs-exchange). Подстановка:
 #   <пути>     пути куска, абсолютные, Windows-формы, через запятую;

@@ -12,7 +12,7 @@
 # же; набор файлов слепка в services/ — один и тот же по форме.
 #   bash run.sh [папка reference скилла] — печатает ОК или что разошлось. KEEP=1 — не удалять временную папку.
 HERE="$(cd "$(dirname "$0")" && pwd)"
-REF="$(cd "${1:-$HERE/../../../service-map-2.0/reference}" && pwd)"
+REF="$(cd "${1:-$HERE/../../../service-map/reference}" && pwd)"
 PY="${SM_PY:-python}"
 OUT="$(mktemp -d)"; if [ -n "${KEEP:-}" ]; then echo "временная папка: $OUT"; else trap 'rm -rf "$OUT"' EXIT; fi
 bad=0

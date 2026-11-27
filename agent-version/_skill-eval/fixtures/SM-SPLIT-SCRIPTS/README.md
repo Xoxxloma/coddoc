@@ -4,7 +4,7 @@
 тела скриптов и SKILL.md при написании не читались. Моделей не запускает.
 
 ```bash
-bash test-split-scripts.sh <папка со скриптами>        # например ../../../service-map-2.0/reference
+bash test-split-scripts.sh <папка со скриптами>        # например ../../../service-map/reference
 bash test-split-scripts.sh selftest                    # эталон стенда: всё ok, ОШИБКА 0
 SM_REF_BUG=nodedup bash test-split-scripts.sh selftest # порча эталона: проверки обязаны покраснеть
 SM_SPLIT_KEEP=1 …                                      # не удалять временную папку с выводами

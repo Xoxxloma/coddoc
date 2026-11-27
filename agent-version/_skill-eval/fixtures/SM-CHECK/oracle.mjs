@@ -1,4 +1,4 @@
-// Независимый оракул для service-map-2.0/reference/check.py.
+// Независимый оракул для service-map/reference/check.py.
 // Написан по контракту (бриф задачи + service-map/SKILL.md «Гард на утоньшение» + card.template.md),
 // БЕЗ чтения check.py. Считает те же числа, что скрипт печатает.
 //
@@ -721,7 +721,7 @@ export function candidates(text, names) {
 
 // A20. Порядок и состав секций `##` — колонка типа (`type:` шапки черновика) таблицы порядка card.template.md: нет
 // секции (кроме «Заметок команды» — без notes её нет), лишняя, дважды, не по порядку. Типа в шапке нет — сверки нет.
-const TEMPLATE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'service-map-2.0', 'reference', 'card.template.md');
+const TEMPLATE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'service-map', 'reference', 'card.template.md');
 function sectionItems(text) {
   const lines = splitLines(text);
   let type = '';

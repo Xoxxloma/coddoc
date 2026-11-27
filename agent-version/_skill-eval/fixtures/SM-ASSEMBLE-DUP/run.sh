@@ -12,7 +12,7 @@
 # git на Windows отдаёт эталон с CRLF.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 . "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
-ASM="${1:-$HERE/../../../service-map-2.0/reference}/assemble.py"
+ASM="${1:-$HERE/../../../service-map/reference}/assemble.py"
 OUT="$(mktemp -d)"; trap 'rm -rf "$OUT"' EXIT
 sm_run "$ASM" "$HERE/parts" 2 2026-10-19 "$OUT/card.md" "$OUT/opis.md" > "$OUT/log" || { cat "$OUT/log"; exit 1; }
 tr -d '\r' < "$OUT/log" > "$OUT/log.lf"

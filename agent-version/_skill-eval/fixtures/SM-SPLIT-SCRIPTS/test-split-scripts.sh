@@ -2,7 +2,7 @@
 # Независимые тесты скриптов нарезки service-map-2.0 (задача Б): plan.py, assemble.py, promote.py.
 # Моделей не запускает, пишет только во временную папку.
 #   bash test-split-scripts.sh <папка со скриптами>
-# Например: bash test-split-scripts.sh ../../../service-map-2.0/reference
+# Например: bash test-split-scripts.sh ../../../service-map/reference
 # SM_SPLIT_KEEP=1 — не удалять временную папку (путь печатается). Нужны bash и node.
 # Фазы: 0) оракул plan.py (plan-oracle.mjs) против expect.json — проверка самого стенда; 1) plan.py на
 # синтетике cases/plan/*; 2) plan.py на настоящих деревьях (NRS-TAIL, SM-MONO-DGS, repairy-api) против

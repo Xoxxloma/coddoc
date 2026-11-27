@@ -3,12 +3,12 @@
 # edges.py ПРАВИТ карточки на месте — поэтому каждый случай гоняется на копии во временной папке,
 # фикстуры и настоящий слепок не трогаются.
 #   bash test-edges.py [путь к edges.py]
-# По умолчанию — agent-version/service-map-2.0/reference/edges.py. Нужны bash и node.
+# По умолчанию — agent-version/service-map/reference/edges.py. Нужны bash и node.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVAL="$(cd "$HERE/../.." && pwd)"
 . "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
-EDGES="${1:-$EVAL/../service-map-2.0/reference/edges.py}"
+EDGES="${1:-$EVAL/../service-map/reference/edges.py}"
 [ -f "$EDGES" ] || { echo "нет edges.py: $EDGES" >&2; exit 2; }
 command -v node >/dev/null 2>&1 || { echo "нужен node" >&2; exit 2; }
 

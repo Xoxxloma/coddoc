@@ -5,7 +5,7 @@
 # имя с `..` — отказ, код 2; повторный вызов — «removed 0», код 0; нет папки services — код 2.
 #   bash run.sh [папка reference]   — печатает ОК или что разошлось
 HERE="$(cd "$(dirname "$0")" && pwd)"
-REF="${1:-$HERE/../../../service-map-2.0/reference}"
+REF="${1:-$HERE/../../../service-map/reference}"
 OUT="$(mktemp -d)"; trap 'rm -rf "$OUT"' EXIT
 bad=0
 say() { echo "$*"; bad=1; }

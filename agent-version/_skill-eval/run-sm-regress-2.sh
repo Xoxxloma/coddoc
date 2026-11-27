@@ -11,7 +11,7 @@
 #   sm-lead         SM-FIELD/LEAD, 3 случая × 3, sonnet     — обрыв субагента, второй обрыв, текст добора
 #   sm-ent-2        SM-ENT-2, 4 случая × 3, sonnet и haiku  — сущности: сверка сверху по строке разведчика
 #   sm-mark         SM-MARK, 6 случаев × 3, sonnet и haiku  — маркерный гейт по разведчику, детектор узкого маркера
-# Скилл — SKILL_SRC, по умолчанию agent-version/service-map-2.0/SKILL.md.
+# Скилл — SKILL_SRC, по умолчанию agent-version/service-map/SKILL.md.
 # Пороги (зелёный) — из строки «Зелёный: …» run-sm-regress.sh (круг 2.2.x): гейт ≥ 60/63, t и u 3/3; гард sonnet
 # 30/30; гард haiku ≥ 28/30; lead 9/9; ent sonnet 12/12, haiku ≥ 10/12 — те же для SM-ENT-2; SM-MARK — 3/3 на
 # каждый случай на обеих моделях (критерий А-2 PLAN-AUTOSPLIT). Плечо с пустыми или недостающими ответами —
@@ -19,7 +19,7 @@
 set -u
 ROUND="${1:?папка раунда}"; MODE="${2:-}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL="${SKILL_SRC:-$HERE/../service-map-2.0/SKILL.md}"
+SKILL="${SKILL_SRC:-$HERE/../service-map/SKILL.md}"
 if [ "$MODE" != "--grade-only" ]; then
   [ -f "$SKILL" ] || { echo "нет $SKILL" >&2; exit 1; }
   mkdir -p "$ROUND"

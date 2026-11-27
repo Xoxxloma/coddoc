@@ -1,4 +1,0 @@
-services:
-  - name: shipping
-    path: ../shipping-api
-    type: backend

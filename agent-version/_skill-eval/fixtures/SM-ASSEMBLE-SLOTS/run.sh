@@ -10,7 +10,7 @@
 # Запуск из любого места: bash run.sh [папка reference скилла] — печатает ОК или что разошлось.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 . "$HERE/../sm-run.sh"   # скрипты скилла — через python (sm-run.sh)
-REF="${1:-$HERE/../../../service-map-2.0/reference}"
+REF="${1:-$HERE/../../../service-map/reference}"
 OUT="$(mktemp -d)"; if [ -n "${KEEP:-}" ]; then echo "временная папка: $OUT"; else trap 'rm -rf "$OUT"' EXIT; fi
 bad=0
 in_file() { grep -q -F -- "$1" "$2" || { echo "нет строки ($(basename "$2")): $1"; bad=1; }; }
