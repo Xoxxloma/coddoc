@@ -1,9 +1,0 @@
-движок: ripgrep 14.1.1 (rev 9ecafc1964) — встроенный в Claude Code (C:\Users\Konstantin\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe, argv0=rg)
-песочница: C:\Users\Konstantin\projects\product-skills-autosplit\agent-version\_skill-eval\runs\2026-10-15-topic-scout-fix\sandbox-scout
-
-NRS-TAIL       контракт 139/139 · сущности 88/88 · задачи 9/9 · топики 18/18
-SM-MONO-DGS    контракт 120/120 · сущности 60/60 · задачи 10/10 · топики 12/12
-repairy-api    контракт 96/96 · сущности 20/20 · задачи 1/1 · топики 0/0
-resonance-api  контракт 30/30 · сущности 6/6 · задачи 1/1 · топики 0/0
-
-эталон = правда по всем классам

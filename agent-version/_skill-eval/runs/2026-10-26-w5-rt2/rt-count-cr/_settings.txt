@@ -1,7 +1,0 @@
-проба: rt-count-cr
-модель: sonnet
-effort: умолчание CLI
-реплика аналитика: count-turn2.txt
-потолок ходов: 4
-конец диалога по файлу: /coddoc/[^/]+/technical_specification\.md$
-прогонов: 4, параллельность: 4

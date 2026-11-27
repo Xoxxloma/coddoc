@@ -1,6 +1,0 @@
-плечо: rescan
-модель: sonnet
-прогонов: 1, параллельность: 1
-текст скилла: /c/Users/Konstantin/projects/product-skills/agent-version/service-map-2.0
-источники: /c/Users/Konstantin/projects/{repairy,resonance}
-снимок скилла: _skills/service-map.SKILL.md (1059 строк)
