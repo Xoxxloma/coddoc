@@ -1,4 +1,4 @@
-// parse.js — карточки services/*.md (форма v1, `service-map/reference/card.template.md`) и manifest.yaml → граф.
+// parse.js — карточки services/*.md (форма — `service-map/reference/card.template.md`) и manifest.yaml → граф.
 //
 // Работает и в браузере (window.ServicesGraphParse), и под node (module.exports) — так его проверяет самотест.
 // Вход: [[путь от папки слепка, текст], …] — карточки `<имя>.md`, `manifest.yaml`, история `_history/<имя>.md`.
