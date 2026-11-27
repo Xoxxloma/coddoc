@@ -26,14 +26,18 @@
 set -u
 
 DEST="${1:?куда: путь к песочнице}"
-ARM="${2:?плечо: first | scan | rescan | keyed}"
+ARM="${2:?плечо: first | scan | rescan | keyed | front}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_ROOT="${SM_REAL_SRC:-/c/Users/Konstantin/projects}"
 
 REPAIRY="$SRC_ROOT/repairy"
 RESONANCE="$SRC_ROOT/resonance"
-for d in "$REPAIRY/apps/api" "$REPAIRY/apps/web" "$RESONANCE/backend" "$RESONANCE/frontend"; do
+WEBAPPSHOP="$SRC_ROOT/webAppShop"
+# Источники — только те, что плечо копирует.
+if [ "$ARM" = front ]; then NEED=("$RESONANCE/backend" "$RESONANCE/frontend" "$WEBAPPSHOP")
+else NEED=("$REPAIRY/apps/api" "$REPAIRY/apps/web" "$RESONANCE/backend" "$RESONANCE/frontend"); fi
+for d in "${NEED[@]}"; do
   [ -d "$d" ] || { echo "нет источника: $d"; exit 1; }
 done
 
@@ -53,6 +57,28 @@ copy() {  # copy <откуда> <куда>
 
 rm -rf "$DEST"
 mkdir -p "$DEST/AI-SDD"
+
+# Плечо `front` (KEY-FRONT.md): типы, которых другие плечи не дают, — два фронта, fullstack, бэкенд с
+# клиентской спекой соседа (синтетика в front/) и мелкий бэкенд. Свой манифест, все пять — целями скана.
+if [ "$ARM" = front ]; then
+  copy "$RESONANCE/backend"       "$DEST/resonance-api"
+  copy "$RESONANCE/frontend"      "$DEST/resonance-web"
+  copy "$WEBAPPSHOP"              "$DEST/webapp-shop"
+  rm -rf "$DEST/webapp-shop/build"   # собранный бандл — не код сервиса
+  copy "$HERE/front/skydesk"      "$DEST/skydesk"
+  copy "$HERE/front/dome-control" "$DEST/dome-control"
+  for s in resonance-api resonance-web webapp-shop skydesk dome-control; do
+    mkdir -p "$DEST/$s/.git"
+    echo "ref: refs/heads/main" > "$DEST/$s/.git/HEAD"
+  done
+  mkdir -p "$DEST/AI-SDD/services"
+  cp "$HERE/manifest-front.yaml" "$DEST/AI-SDD/services/manifest.yaml"
+  echo "песочница собрана: $DEST   плечо: $ARM"
+  for s in resonance-api resonance-web webapp-shop skydesk dome-control; do
+    printf '  %-14s %4s файлов\n' "$s" "$(find "$DEST/$s" -type f -not -path '*/.git/*' | wc -l)"
+  done
+  exit 0
+fi
 
 copy "$REPAIRY/apps/api"    "$DEST/repairy-api"
 copy "$REPAIRY/apps/web"    "$DEST/repairy-web"
@@ -119,6 +145,12 @@ if [ "$ARM" = rescan ] || [ "$ARM" = keyed ]; then
     cp "$PREV/$c.md" "$DEST/../_prev/$c.md"
     perl -pi -e "s/^scanned: .*/scanned: ${SM_RESCAN_DATE:-2026-06-01}/" "$DEST/AI-SDD/services/$c.md" "$DEST/../_prev/$c.md"
   done
+fi
+
+# Лишние карточки слепка (SM_EXTRA_CARDS — папка с *.md): сторож Шага 5 — карточки, с прогоном не
+# связанные; их файлы обязаны остаться байт в байт.
+if [ -n "${SM_EXTRA_CARDS:-}" ] && [ "$ARM" != first ]; then
+  cp "$SM_EXTRA_CARDS"/*.md "$DEST/AI-SDD/services/" || { echo "нет лишних карточек: $SM_EXTRA_CARDS"; exit 1; }
 fi
 
 echo "песочница собрана: $DEST   плечо: $ARM"

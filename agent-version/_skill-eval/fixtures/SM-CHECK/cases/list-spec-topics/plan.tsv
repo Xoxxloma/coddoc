@@ -1,0 +1,13 @@
+итог	контракт	2
+часть	01	контракт	2
+путь	src/nights	папки	01
+файл	src/nights/nights.controller.ts	контракт	2	01
+остаток	02	папка	src/reports
+операция	GET	/nights	listNights	api/openapi.yaml	01
+операция	PUT	/nights/{nightId}	updateNight	api/openapi.yaml	01
+операция	POST	/nights/{nightId}/close	closeNight	api/openapi.yaml	01
+операция	GET	/reports/{id}	getReport	api/openapi.yaml	-
+операция	DELETE	/reports/{id}/	dropReport	api/openapi.yaml	-
+топик	nights.opened	src/main/resources/application.yml
+топик	nights.closed	src/main/resources/application.yml
+топик	reports.ready	src/main/resources/application.yml

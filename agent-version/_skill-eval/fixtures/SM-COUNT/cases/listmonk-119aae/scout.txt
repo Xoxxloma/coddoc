@@ -1,0 +1,7 @@
+контракт :: \b(g|srv)\.(GET|POST|PUT|PATCH|DELETE)\( :: *.go :: ключ
+сущности :: ^CREATE TABLE\b :: *.sql :: ключ
+задачи :: \bc\.Schedule\( :: *.go :: ключ
+клиенты :: &http\.Client\{ :: *.go :: ориентир
+контроль :: контракт :: {ROOT}/cmd/handlers.go :: 182
+контроль :: сущности :: {ROOT}/schema.sql :: 16
+контроль :: задачи :: {ROOT}/cmd/init.go :: 2

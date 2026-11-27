@@ -1,0 +1,10 @@
+services:
+  - name: api
+    path: ../api
+    type: backend
+  - name: web
+    path: ../web
+    type: frontend
+  - name: resonance
+    path: ../resonance
+    type: backend

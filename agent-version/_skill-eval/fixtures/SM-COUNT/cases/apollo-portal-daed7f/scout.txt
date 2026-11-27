@@ -1,0 +1,8 @@
+контракт :: ^\s+@(Get|Post|Put|Patch|Delete)Mapping\b :: *.java :: ключ
+контракт :: ^\s+@RequestMapping\b :: *.java :: ключ
+контракт :: ^\s+@Override\b :: *.java :: в файлах с implements\s+[\w, ]*\w+Api\b :: ключ
+сущности :: ^@Entity\b :: *.java :: ключ
+клиенты :: ^\s*public static class \w+ extends API\b :: *.java :: ключ
+контроль :: контракт :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/controller/NamespaceController.java :: 16
+контроль :: сущности :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/entity/po/Role.java :: 1
+контроль :: клиенты :: {ROOT}/src/main/java/com/ctrip/framework/apollo/portal/api/AdminServiceAPI.java :: 13

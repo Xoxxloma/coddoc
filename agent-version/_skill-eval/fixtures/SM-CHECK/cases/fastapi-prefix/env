@@ -1,0 +1,2 @@
+CHECK_PLAN=plan.tsv
+CHECK_PREFIX=/api/v1

@@ -1,0 +1,17 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: harvest-ledger
+    path: ../harvest-ledger
+    type: backend
+  - name: pest-watch
+    path: ../pest-watch
+    type: backend
+  - name: land-registry
+    path: ../land-registry
+    type: backend
+  - name: weather-grid
+    path: ../weather-grid
+    type: backend
+  - name: audit-hub
+    path: ../audit-hub
+    type: backend

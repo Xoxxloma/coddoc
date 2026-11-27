@@ -1,0 +1,12 @@
+итог	контракт	14
+итог	сущности	3
+часть	06	контракт	9
+часть	06	сущности	2
+часть	07	контракт	5
+часть	07	сущности	1
+файл	/w/adj/src/main/java/adj/v2/tasks/controller/TaskController.java	контракт	4	06
+файл	/w/adj/src/main/java/adj/v2/tasks/graphql/TaskDataFetcher.java	контракт	5	06
+файл	/w/adj/src/main/java/adj/v2/tasks/storage/StepZopEntity.java	сущности	1	06
+файл	/w/adj/src/main/java/adj/v2/tasks/storage/TaskEntity.java	сущности	1	06
+файл	/w/adj/src/main/java/adj/v2/users/UserController.java	контракт	5	07
+файл	/w/adj/src/main/java/adj/v2/users/UserEntity.java	сущности	1	07

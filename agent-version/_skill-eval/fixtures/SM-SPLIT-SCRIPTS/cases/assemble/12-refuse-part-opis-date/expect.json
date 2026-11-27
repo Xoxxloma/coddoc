@@ -1,0 +1,15 @@
+{
+ "о чём": "part-03.opis.md с чужой датой 2026-10-03 → ОТКАЗ",
+ "base": "_min",
+ "mutate": [
+  {
+   "op": "date",
+   "file": "part-03.opis.md",
+   "date": "2026-10-03"
+  }
+ ],
+ "S": 3,
+ "date": "2026-10-04",
+ "want": "refuse",
+ "sentinel": true
+}

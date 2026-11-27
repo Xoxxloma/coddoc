@@ -1,0 +1,18 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+#
+# ЗАСЕВ ПЛЕЧА `scan`. Сервисов на диске четыре, здесь их ТРИ — `resonance-web` пропущен
+# намеренно: он настоящий новый сосед, и Шаг 2.1 обязан его назвать. Его `.git` — файл
+# (worktree-форма), поэтому найти его можно только вторым глобом.
+services:
+  - name: repairy-api
+    path: ../repairy-api
+    type: backend
+    notes: |
+      Канонический владелец проектов, смет и приёмок.
+      Роли раздаёт он же: UserRole на компанию, ProjectMemberRole на проект.
+  - name: repairy-web
+    path: ../repairy-web
+    type: frontend
+  - name: resonance-api
+    path: ../resonance-api
+    type: backend

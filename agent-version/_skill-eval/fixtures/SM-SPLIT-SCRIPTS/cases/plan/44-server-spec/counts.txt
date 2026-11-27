@@ -1,0 +1,2 @@
+## контракт :: ^\s+operationId: :: *.yaml :: /server/openapi.yaml :: ключ
+{R1}/src/main/resources/openapi.yaml:30

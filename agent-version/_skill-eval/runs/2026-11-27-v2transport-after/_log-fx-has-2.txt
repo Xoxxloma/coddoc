@@ -1,0 +1,15 @@
+снимок скилла уже есть — прогон читает ЕГО: runs/2026-11-27-v2transport-after/_skills/technical-spec-doc.SKILL.md
+проба: fx-has-2   фикстура: FX-HAS-2   скилл: technical-spec-doc
+реплика аналитика: fx-turn2.txt   ходов до 2 подряд без движения, потолок 4
+effort: умолчание CLI
+плечо: runs/2026-11-27-v2transport-after/fx-has-2
+скилл: C:/Users/Konstantin/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2transport-after-fx-has-2-53185-skills/technical-spec-doc/SKILL.md
+промпт: C:/Users/Konstantin/projects/product-skills/.claude/worktrees/sm2-next/agent-version/_skill-eval/fixtures/FX-HAS-2/spec-prompt.txt
+прогонов: 2, параллельно: 2
+  run-1 — ходов: 2, строк в трассе: 0
+  run-1 — готов
+  run-2 — ходов: 2, строк в трассе: 0
+  run-2 — готов
+ГОТОВО: runs/2026-11-27-v2transport-after/fx-has-2 — песочниц с ответом: 2 из 2
+снимок из /tmp снесён: C:/Users/KONSTA~1/AppData/Local/Temp/skill-eval-seed/2026-11-27-v2transport-after-fx-has-2-53185-skills (журнальная копия осталась в runs/2026-11-27-v2transport-after/_skills/)
+runs/2026-11-27-v2transport-after/fx-has-2: $2.17 за 2 прогонов

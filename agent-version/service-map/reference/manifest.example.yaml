@@ -1,5 +1,6 @@
 # services/manifest.yaml — единственный файл слепка, который ведёт ЧЕЛОВЕК.
-# service-map СОЗДАЁТ его в режиме Create и дальше только читает.
+# service-map создаёт его при первом сборе; дальше только дописывает в конец строку про новую
+# соседнюю репу — с подтверждения человека.
 # archive-spec его не трогает вообще.
 #
 # Зачем он нужен: рядом со спек-репой может лежать сорок папок, а этой репе интересны
@@ -16,20 +17,20 @@
 # Отдельного поля с корнем нет — каждый путь несёт свой `../` и читается сам по себе.
 
 services:
-  - name: auth                  # короткое имя; оно же имя файла карточки services/auth.md
-    path: ../auth-service       # папка сервиса относительно корня спек-репы
+  - name: telescope-api         # короткое имя; оно же имя файла карточки services/telescope-api.md
+    path: ../telescope-api      # папка сервиса относительно корня спек-репы
     type: backend               # backend | frontend | fullstack | lib
 
-  - name: billing
-    path: ../billing
+  - name: dome-control
+    path: ../dome-control
     type: backend
 
-  - name: web
-    path: ../web-portal
+  - name: observer-web
+    path: ../observer-portal
     type: frontend
 
-  - name: shared-ui
-    path: ../shared-ui
+  - name: sky-ui
+    path: ../sky-ui
     type: lib
 
 # ----------------------------------------------------------------------------
@@ -39,8 +40,8 @@ services:
 # запятой нет — получается один путь, то есть ровно прежнее поведение.
 # ----------------------------------------------------------------------------
 #
-#   - name: rentalcore-catalog      # одна строка = одна карточка = один субагент
-#     path: ../rentalcore/src/modules/templates, ../rentalcore/src/modules/categories
+#   - name: skydesk-catalog         # одна строка = одна карточка = один субагент
+#     path: ../skydesk/src/modules/telescopes, ../skydesk/src/modules/filters
 #     type: backend
 #
 # Несколько папок — это ОДИН сервис, разложенный по пакетам, а не несколько сервисов.
@@ -65,9 +66,9 @@ services:
 #
 # Так это выглядит ПОСЛЕ того, как человек дописал notes — для понимания, не для копирования:
 #
-#   - name: auth
-#     path: ../auth-service
+#   - name: telescope-api
+#     path: ../telescope-api
 #     type: backend
 #     notes: |
-#       Канонический владелец сессий.
-#       Легаси-эндпоинт /v1/session не использовать, оставлен для старого мобильного клиента.
+#       Канонический владелец расписания ночей.
+#       Легаси-эндпоинт /api/v1/slots не использовать, оставлен для старого настольного клиента.

@@ -1,0 +1,155 @@
+{
+  "_о_файле": "Правда пробы sm-scout (критерий А-1, PLAN-AUTOSPLIT.md §5): число ключей каждого класса в дереве сервиса. Класса нет — 0. В песочницу не едет. Поле reference — маркеры, которыми правда воспроизводится тем же движком, что инструмент Grep (проверка: node grade-sm-scout.mjs --truth-check). Поле без_ключа_законно — у класса нет пометки в коде, и ответ разведчика без строки «ключ» по нему законен по плану (§2 «ориентир», §8 «ключи без пометки»); строгий вердикт его не прощает, мягкий — прощает. Числа SM-REAL сняты 2026-10-04 с коммитов repairy 29d486e0 и resonance b93dcee0 — репы уехали вперёд, пересчитать по reference.",
+  "окно": [
+    0.8,
+    1.5
+  ],
+  "fixtures": {
+    "NRS-TAIL": {
+      "tree": "cargonet",
+      "type": "backend",
+      "classes": {
+        "контракт": {
+          "n": 139,
+          "как": "@(Get|Post|Put|Delete)Mapping на методах, src/main/java (expected.md NRS-TAIL); класс-уровневый @RequestMapping на 14 контроллерах — не ключ"
+        },
+        "сущности": {
+          "n": 88,
+          "как": "@Entity; @Table на тех же 88 классах"
+        },
+        "задачи": {
+          "n": 9,
+          "как": "@Scheduled"
+        },
+        "топики": {
+          "n": 18,
+          "как": "элементы списка cargonet.exchange.topics в src/main/resources/application.yaml; в коде имён нет, обработчиков 6",
+          "без_ключа_законно": "имён топиков в коде нет — только строки конфига"
+        }
+      },
+      "reference": [
+        "контракт :: @(Get|Post|Put|Patch|Delete)Mapping\\( :: *.java :: ключ",
+        "сущности :: @Entity\\b :: *.java :: ключ",
+        "задачи :: @Scheduled\\( :: *.java :: ключ",
+        "топики :: ^\\s+- [a-z]+(\\.[a-z]+)+\\s*$ :: application.yaml :: ключ"
+      ]
+    },
+    "SM-MONO-DGS": {
+      "tree": "casedesk",
+      "type": "backend",
+      "classes": {
+        "контракт": {
+          "n": 120,
+          "как": "REST 16 (@*Mapping на методах) + @DgsQuery 42 + @DgsMutation 36 + @DgsSubscription 2 + @DgsData(parentType = \"Query\") 14 + @DgsData(parentType = \"Mutation\") 10; 72 @DgsData на не-корневых типах — резолверы полей, не ключ (expected.md SM-MONO-DGS)"
+        },
+        "сущности": {
+          "n": 60,
+          "как": "@Entity; @Table на тех же 60 классах"
+        },
+        "задачи": {
+          "n": 10,
+          "как": "@Scheduled"
+        },
+        "топики": {
+          "n": 12,
+          "как": "8 элементов списков casedesk.kafka.consumers.*.topics + 4 ключа casedesk.kafka.producers.*.topic в application.yaml; классов *EventProcessor 5 (+ абстрактный BaseEventProcessor), *KafkaProducer 4",
+          "без_ключа_законно": "имён топиков в коде нет — только строки конфига"
+        }
+      },
+      "reference": [
+        "контракт :: @(Get|Post|Put|Patch|Delete)Mapping\\( :: *.java :: ключ",
+        "контракт :: @Dgs(Query|Mutation|Subscription)\\b :: *.java :: ключ",
+        "контракт :: @DgsData\\(parentType\\s*=\\s*\"(Query|Mutation|Subscription)\" :: *.java :: ключ",
+        "сущности :: @Entity\\b :: *.java :: ключ",
+        "задачи :: @Scheduled\\( :: *.java :: ключ",
+        "топики :: kontrol\\.[a-z]+\\.[a-z]+\\.v1 :: application.yaml :: ключ"
+      ]
+    },
+    "SM-MONO-DGS-MIX": {
+      "tree": "casedesk",
+      "type": "backend",
+      "classes": {
+        "контракт": {
+          "n": 120,
+          "как": "как SM-MONO-DGS (те же 120), но первая операция @DgsQuery/@DgsMutation в каждом классе — со скобками (`field = \"…\"`), остальные без: маркер `@DgsQuery\\(` ловит только скобочные"
+        },
+        "сущности": {
+          "n": 60,
+          "как": "@Entity; @Table на тех же 60 классах"
+        },
+        "задачи": {
+          "n": 10,
+          "как": "@Scheduled"
+        },
+        "топики": {
+          "n": 12,
+          "как": "8 элементов списков casedesk.kafka.consumers.*.topics + 4 ключа casedesk.kafka.producers.*.topic в application.yaml; классов *EventProcessor 5 (+ абстрактный BaseEventProcessor), *KafkaProducer 4",
+          "без_ключа_законно": "имён топиков в коде нет — только строки конфига"
+        }
+      },
+      "reference": [
+        "контракт :: @(Get|Post|Put|Patch|Delete)Mapping\\( :: *.java :: ключ",
+        "контракт :: @Dgs(Query|Mutation|Subscription)\\b :: *.java :: ключ",
+        "контракт :: @DgsData\\(parentType\\s*=\\s*\"(Query|Mutation|Subscription)\" :: *.java :: ключ",
+        "сущности :: @Entity\\b :: *.java :: ключ",
+        "задачи :: @Scheduled\\( :: *.java :: ключ",
+        "топики :: kontrol\\.[a-z]+\\.[a-z]+\\.v1 :: application.yaml :: ключ"
+      ]
+    },
+    "repairy-api": {
+      "tree": "repairy-api",
+      "type": "backend",
+      "classes": {
+        "контракт": {
+          "n": 96,
+          "как": "NestJS: @Get/@Post/@Put/@Patch/@Delete на методах контроллеров, src (KEY.md SM-REAL §1, перепроверено 2026-10-04: 26 GET, 44 POST, 16 DELETE, 7 PUT, 3 PATCH); @Controller на 17 классах и 2 параметра @Query — не ключ"
+        },
+        "сущности": {
+          "n": 20,
+          "как": "^model в prisma/schema.prisma"
+        },
+        "задачи": {
+          "n": 1,
+          "как": "@Cron('*/30 * * * * *') — flush в notifications/notification-queue.service.ts"
+        },
+        "топики": {
+          "n": 0,
+          "как": "брокера в репе нет (KEY.md SM-REAL §1)"
+        }
+      },
+      "reference": [
+        "контракт :: @(Get|Post|Put|Patch|Delete)\\( :: *.ts :: ключ",
+        "сущности :: ^model\\s+\\w+ :: *.prisma :: ключ",
+        "задачи :: @(Cron|Interval|Timeout)\\( :: *.ts :: ключ"
+      ]
+    },
+    "resonance-api": {
+      "tree": "resonance-api",
+      "type": "backend",
+      "classes": {
+        "контракт": {
+          "n": 30,
+          "как": "router.get/post/delete(...) в routes/*.js: analyze 2, auth 4, health 2, phraseTest 5, reports 8, stats 1, teamInsights 2, teams 6 (KEY.md SM-REAL §1, перепроверено 2026-10-04). Не ключ: router.use(...) — промежуточные обработчики; app.get('*') в server.js — раздача SPA, не API (регэксп с ним даёт 31, в окне); наивный \\.(get|post|put|patch|delete)\\( ловит req.get/map.get — 71"
+        },
+        "сущности": {
+          "n": 6,
+          "как": "ORM нет, хранение — JSON-файлы. Сущность = коллекция записей, которую сервис пишет на диск: users, sessions, teams, reports, misidentified-statements, participant-feedback — по одной константе *_FILE в config/index.js. Не сущность: data/stats.json (persistentStats.js) — счётчики-агрегат; analysisJobs (storage/jobs.js) — Map в памяти, на диск не пишется. Окно [4,8; 9] держит и 6, и 7 со stats, и 8 с jobs",
+          "без_ключа_законно": "маркера хранения (ORM-аннотации, схемы) в коде нет — по правилу старого SKILL.md «класс без маркера хранения — не сущность» класс может остаться без ключа"
+        },
+        "задачи": {
+          "n": 1,
+          "как": "setInterval(pruneReports, 60 * 60 * 1000) в server.js — единственный таймер в коде"
+        },
+        "топики": {
+          "n": 0,
+          "как": "брокера нет"
+        }
+      },
+      "reference": [
+        "контракт :: router\\.(get|post|put|patch|delete)\\( :: *.js :: ключ",
+        "сущности :: ^\\s+[A-Z_]+_FILE: :: *.js :: ключ",
+        "задачи :: setInterval\\( :: *.js :: ключ"
+      ]
+    }
+  }
+}

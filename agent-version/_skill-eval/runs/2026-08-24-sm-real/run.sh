@@ -11,6 +11,8 @@
 #          Мерит перечитывание: гард на утоньшение, правило прежней формулировки, дифф против _prev/.
 #   keyed  как rescan, плюс подсказка «Задето» (SM_KEYED_HINT — файл, SM_KEYED_ARGS — имена сервисов;
 #          SM_REAL_PATCH — патч кода поверх засева). Мерит быстрое обновление по задетому.
+#   front  свой манифест (fixtures/SM-REAL/manifest-front.yaml), пять целей скана: два фронта, fullstack, бэкенд с
+#          клиентской спекой соседа, мелкий бэкенд. Мерит типы, которых другие плечи не дают (KEY-FRONT.md).
 #
 # Чем этот раунд отличается от всех прошлых: дерево не синтетическое. Самая большая фикстура
 # стенда — 33 файла на всю пробу и до 48 ключей; здесь `repairy-api` один даёт 125 файлов и
@@ -38,7 +40,7 @@ ROUND="${ROUND_DIR:-$HERE}"
 SKILL_SRC="${SKILL_SRC:-$SKILLROOT/service-map}"
 mkdir -p "$ROUND"
 
-ARM="${1:?плечо: scan | first | rescan | keyed}"
+ARM="${1:?плечо: scan | first | rescan | keyed | front}"
 N="${2:-1}"
 CONC="${3:-1}"
 # Модель ведущего и субагентов. По умолчанию haiku — так сняты все раунды до 2026-09-14; прод
@@ -46,8 +48,9 @@ CONC="${3:-1}"
 MODEL="${SM_MODEL:-haiku}"
 
 case "$ARM" in
-  scan)  PROMPT="$HERE/stand/prompt-scan.md" ;;
+  scan)  PROMPT="${SM_REAL_PROMPT:-$HERE/stand/prompt-scan.md}" ;;
   rescan) PROMPT="$HERE/stand/prompt-scan.md" ;;   # тот же скан поверх прежних карточек (seed.sh)
+  front)  PROMPT="$HERE/stand/prompt-front.md" ;;  # пять целей: фронты, fullstack, клиентская спека (seed.sh, KEY-FRONT.md)
   # SM_PROMPT — другая обёртка поверх того же засева; подсказка нужна, только если в ней есть HINTBLOCK.
   keyed)  PROMPT="${SM_PROMPT:-$HERE/stand/prompt-keyed.md}"
           if grep -q HINTBLOCK "$PROMPT" 2>/dev/null; then
@@ -106,9 +109,7 @@ run_one() {
   # от «так и было»: запрет в промпте изоляцией не является, а правило 2 скилла («ты только
   # читаешь чужие репозитории») ни одной синтетической фикстурой не проверялось — писать в них
   # было незачем.
-  local repos="repairy-api repairy-web resonance-api resonance-web"
-  [ -d "$sb/w/hello-api" ] && repos="$repos hello-api"
-  ( cd "$sb/w" && find $repos -type f \
+  ( cd "$sb/w" && find . -type f -not -path './AI-SDD/*' \
       -not -path '*/.git/*' -not -name .git | sort ) > "$sb/_seeded.txt"
 
   local wd="$sb/w/AI-SDD"
@@ -154,7 +155,7 @@ run_one() {
   fi
 
   # ─── Караул чужих реп ──────────────────────────────────────────────────────────────────
-  ( cd "$sb/w" && find $repos -type f \
+  ( cd "$sb/w" && find . -type f -not -path './AI-SDD/*' \
       -not -path '*/.git/*' -not -name .git | sort ) > "$sb/_after.txt"
   if ! diff -q "$sb/_seeded.txt" "$sb/_after.txt" > /dev/null; then
     echo "  !!! $ARM-$i — ПРОГОН ТРОГАЛ ПАПКИ СЕРВИСОВ (правило 2 скилла):"

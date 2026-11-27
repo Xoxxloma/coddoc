@@ -1,0 +1,9 @@
+контракт :: \bg\.(GET|POST|PUT|PATCH|DELETE)\( :: *.go :: ключ
+контракт :: ^\s+operationId: :: *.yaml :: {ROOT}/docs/swagger/collections.yaml :: ключ
+сущности :: ^CREATE TABLE\b :: *.sql :: ключ
+задачи :: \bc\.Schedule\( :: *.go :: ключ
+клиенты :: http\.Client\{ :: *.go :: ключ
+контроль :: контракт :: {ROOT}/cmd/handlers.go :: 182
+контроль :: сущности :: {ROOT}/schema.sql :: 16
+контроль :: задачи :: {ROOT}/cmd/init.go :: 2
+контроль :: клиенты :: {ROOT}/internal/captcha/captcha.go :: 1

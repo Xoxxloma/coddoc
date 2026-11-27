@@ -1,0 +1,15 @@
+{
+ "о чём": "head.md с чужой датой → ОТКАЗ",
+ "base": "_min",
+ "mutate": [
+  {
+   "op": "date",
+   "file": "head.md",
+   "date": "2026-10-03"
+  }
+ ],
+ "S": 3,
+ "date": "2026-10-04",
+ "want": "refuse",
+ "sentinel": true
+}

@@ -1,0 +1,11 @@
+# Слепок. Выведенные из слепка сервисы закомментированы:
+#  - name: ghost
+services:
+  - name:   api
+    path: ../api   # backend
+    type: backend
+  - name: web
+    path: ../web
+    type: frontend
+    notes: |
+      Фронт ходит в api.

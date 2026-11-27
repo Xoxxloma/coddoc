@@ -1,0 +1,5 @@
+services:
+  - name: api
+    type: backend
+  - name: web
+    type: frontend

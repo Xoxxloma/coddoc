@@ -1,0 +1,6 @@
+фикстура: SM-GAPS-NODE, сервис: parcel-hub
+модель: sonnet; прогонов: 1; параллельность: 1; таймаут: 7200 c
+папка скилла: /c/Users/Konstantin/projects/product-skills/agent-version/service-map
+снимок: _skills/service-map (1026 строк SKILL.md, 17 файлов reference/); подмена: K=как в тексте w=как в тексте
+копия для прогона: C:/Users/Konstantin/AppData/Local/Temp/sm-mono-skills/2026-11-27-desc-node/service-map
+claude: /c/Users/Konstantin/AppData/Roaming/npm/claude

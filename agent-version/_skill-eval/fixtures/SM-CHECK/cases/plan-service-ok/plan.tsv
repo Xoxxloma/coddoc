@@ -1,0 +1,5 @@
+итог	контракт	3
+итог	сущности	1
+файл	/w/svc/src/api/OrderController.java	контракт	2	-
+файл	/w/svc/src/api/PayController.java	контракт	1	-
+файл	/w/svc/src/domain/Order.java	сущности	1	-

@@ -1,0 +1,5 @@
+## контракт :: ключ
+{R1}/src/B/F.java:3
+{R1}/src/a/F.java:4
+{R1}/src/a-b/F.java:6
+{R1}/src/a_b/F.java:4

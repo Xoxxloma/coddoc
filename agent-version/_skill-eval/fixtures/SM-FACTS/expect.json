@@ -1,0 +1,639 @@
+{
+  "keys": [
+    "POST /api/v2/shipments",
+    "GET /api/v2/shipments",
+    "GET /api/v2/shipments/:id",
+    "PATCH /api/v2/shipments/:id/address",
+    "POST /api/v2/shipments/:id/assign",
+    "POST /api/v2/shipments/:id/dispatch",
+    "POST /api/v2/shipments/:id/deliver",
+    "POST /api/v2/shipments/:id/cancel",
+    "POST /api/v2/shipments/:id/retry",
+    "GET /api/v2/shipments/:id/history",
+    "POST /api/v2/shipments/:id/attachments",
+    "GET /api/v2/shipments/:id/label",
+    "GET /api/v2/tariffs",
+    "POST /api/v2/shipments/bulk",
+    "GET /api/v2/carriers",
+    "POST /api/v2/carriers",
+    "PATCH /api/v2/carriers/:id/state",
+    "DELETE /api/v2/carriers/:id",
+    "GET /health",
+    "GET /ready",
+    "query shipment",
+    "query shipmentHistory",
+    "mutation holdShipment",
+    "mutation releaseShipment",
+    "Shipment",
+    "Carrier",
+    "retryFailedShipments",
+    "rotateLabels",
+    "потребляет carrier.disabled",
+    "публикует route.assigned",
+    "публикует shipment.delivered"
+  ],
+  "facts": [
+    {
+      "key": "POST /api/v2/shipments",
+      "kind": "idempotency",
+      "source": "domain/shipments.mjs",
+      "claim": "Повтор токена возвращает ранее созданное отправление",
+      "all": [
+        "повтор|существующ|ранее|прежн",
+        "токен|idempotency",
+        "возвращ|отправлен"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments",
+      "kind": "error",
+      "source": "http/errors.mjs",
+      "claim": "Неположительный вес даёт 400",
+      "all": [
+        "вес|weight",
+        "400",
+        "неполож|нул|отриц|<=|≤"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments",
+      "kind": "state",
+      "source": "domain/shipments.mjs",
+      "claim": "Создаётся в NEW",
+      "all": [
+        "new",
+        "созда|начальн|статус|состоян"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments",
+      "kind": "filter",
+      "source": "domain/shipments.mjs",
+      "claim": "Отменённые отправления исключены",
+      "all": [
+        "cancelled|отмен",
+        "исключ|не (попада|включа|возвращ|показ)|без отмен"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments",
+      "kind": "limit",
+      "source": "domain/shipments.mjs",
+      "claim": "Лимит по умолчанию 20, диапазон 1–100",
+      "all": [
+        "20",
+        "100",
+        "1",
+        "лимит|limit|размер|страниц"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments",
+      "kind": "sort",
+      "source": "domain/shipments.mjs",
+      "claim": "Новые первыми, createdAt DESC",
+      "all": [
+        "createdat|создан",
+        "desc|убыв|новые|сначала нов"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id",
+      "kind": "projection",
+      "source": "http/views.mjs",
+      "critical": true,
+      "claim": "В ответ не попадают internalNotes и token",
+      "all": [
+        "internalnotes",
+        "token|токен",
+        "без|не (возвращ|переда|включ|показ)|исключ|скры|убира|удаля|не попада"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id",
+      "kind": "nullable",
+      "source": "http/views.mjs",
+      "claim": "Ложное значение deliveredAt заменяется на null при формировании ответа; статус отправления не проверяется",
+      "all": [
+        "deliveredat|дат.*достав",
+        "null|не заполн|отсутств"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id",
+      "kind": "error",
+      "source": "storage/store.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Отсутствующее отправление даёт 404",
+      "all": [
+        "404",
+        "не найден|отсутств|not_found"
+      ]
+    },
+    {
+      "key": "PATCH /api/v2/shipments/:id/address",
+      "kind": "transition",
+      "source": "policy/transitions.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Изменение адреса только в NEW, иначе 409",
+      "all": [
+        "new",
+        "409",
+        "только|иначе|допуст|запрещ|конфликт"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/assign",
+      "kind": "transition",
+      "source": "domain/shipments.mjs",
+      "claim": "NEW переходит в ASSIGNED",
+      "all": [
+        "new",
+        "assigned"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/assign",
+      "kind": "error",
+      "source": "policy/transitions.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Отключённый или архивный перевозчик даёт 403",
+      "all": [
+        "403",
+        "отключ|неактив|enabled",
+        "архив|archived"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/assign",
+      "kind": "event",
+      "source": "messaging/send.mjs",
+      "critical": true,
+      "claim": "После назначения публикуется route.assigned с ключом carrierId",
+      "all": [
+        "route\\.assigned",
+        "carrierid|ключ.*перевоз"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/dispatch",
+      "kind": "transition",
+      "source": "domain/shipments.mjs",
+      "claim": "ASSIGNED переходит в IN_TRANSIT, заполняется startedAt",
+      "all": [
+        "assigned",
+        "in_transit",
+        "startedat|врем.*начал|дат.*начал"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/deliver",
+      "kind": "transition",
+      "source": "domain/shipments.mjs",
+      "claim": "IN_TRANSIT переходит в DELIVERED",
+      "all": [
+        "in_transit",
+        "delivered"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/deliver",
+      "kind": "event-condition",
+      "source": "domain/shipments.mjs + messaging/send.mjs",
+      "critical": true,
+      "claim": "shipment.delivered публикуется только при notify === true",
+      "all": [
+        "shipment\\.delivered",
+        "notify",
+        "true",
+        "только|при|если"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/cancel",
+      "kind": "transition",
+      "source": "policy/transitions.mjs + domain/shipments.mjs",
+      "claim": "Отмена допустима в NEW и ASSIGNED",
+      "all": [
+        "new",
+        "assigned",
+        "cancelled|отмен"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/cancel",
+      "kind": "conditional",
+      "source": "domain/shipments.mjs",
+      "claim": "При ASSIGNED освобождается перевозчик; carrierId становится null",
+      "all": [
+        "assigned",
+        "освобожд|busy",
+        "carrierid|null"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/retry",
+      "kind": "error",
+      "source": "policy/transitions.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Попытки >=3 дают 429",
+      "all": [
+        "429",
+        "3",
+        "попыт|attempt|повтор"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/retry",
+      "kind": "transition",
+      "source": "domain/shipments.mjs + policy/transitions.mjs",
+      "claim": "Только FAILED переводится в NEW с увеличением attempts",
+      "all": [
+        "failed",
+        "new",
+        "attempt|попыт|счетчик",
+        "увелич|\\+1|\\+ 1"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id/history",
+      "kind": "sort",
+      "source": "domain/shipments.mjs",
+      "claim": "История от старых к новым",
+      "all": [
+        "createdat|создан|хронолог|история",
+        "asc|возраст|старых|старые"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id/history",
+      "kind": "projection",
+      "source": "http/views.mjs",
+      "critical": true,
+      "claim": "actorEmail исключён из истории",
+      "all": [
+        "actoremail",
+        "без|не (возвращ|включ|показ)|исключ|скры|удаля"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/attachments",
+      "kind": "upload",
+      "source": "http/upload.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Файл больше 5 MiB даёт 413",
+      "all": [
+        "413",
+        "5",
+        "mib|мб|миб|mb|1024"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/attachments",
+      "kind": "upload",
+      "source": "http/upload.mjs + http/errors.mjs",
+      "claim": "Только PNG/PDF, иной MIME даёт 415",
+      "all": [
+        "png",
+        "pdf",
+        "415"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id/label",
+      "kind": "nullable",
+      "source": "domain/shipments.mjs",
+      "claim": "Если labelId отсутствует, ответ null",
+      "all": [
+        "null",
+        "labelid|этикет|ярлык",
+        "нет|отсутств|не задан"
+      ]
+    },
+    {
+      "key": "GET /api/v2/shipments/:id/label",
+      "kind": "ttl",
+      "source": "domain/shipments.mjs",
+      "claim": "Подписанная ссылка действительна 15 минут",
+      "all": [
+        "15.*мин|900",
+        "ссыл|url|подпис"
+      ]
+    },
+    {
+      "key": "GET /api/v2/tariffs",
+      "kind": "filter",
+      "source": "storage/store.mjs",
+      "critical": true,
+      "claim": "validFrom <= date, validUntil null либо >= date",
+      "all": [
+        "validfrom|начал.*действ",
+        "validuntil|конец.*действ|окончан",
+        "null|бессроч|без срок",
+        "дат|date"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/bulk",
+      "kind": "limit",
+      "source": "domain/shipments.mjs + http/errors.mjs",
+      "claim": "Не больше 25 элементов, иначе 400",
+      "all": [
+        "25",
+        "400"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/bulk",
+      "kind": "uniqueness",
+      "source": "domain/shipments.mjs + http/errors.mjs",
+      "claim": "Повтор externalId внутри пачки даёт 400",
+      "all": [
+        "externalid",
+        "400",
+        "повтор|дубл|уникал"
+      ]
+    },
+    {
+      "key": "POST /api/v2/shipments/bulk",
+      "kind": "transaction",
+      "source": "domain/shipments.mjs",
+      "claim": "Вся пачка создаётся в одной транзакции",
+      "all": [
+        "транзак|transaction",
+        "одн|вся|все|общ"
+      ]
+    },
+    {
+      "key": "GET /api/v2/carriers",
+      "kind": "filter",
+      "source": "domain/carriers.mjs",
+      "claim": "Только включённые неархивные перевозчики",
+      "all": [
+        "enabled|включ|актив",
+        "archived|архив",
+        "false|неархив|не архив|без архив"
+      ]
+    },
+    {
+      "key": "POST /api/v2/carriers",
+      "kind": "default",
+      "source": "domain/carriers.mjs",
+      "claim": "Новый перевозчик выключен",
+      "all": [
+        "enabled|включ|отключ|выключ",
+        "false|выключ|отключ"
+      ]
+    },
+    {
+      "key": "POST /api/v2/carriers",
+      "kind": "uniqueness",
+      "source": "storage/schema.prisma + storage/store.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "Повтор taxId даёт 409",
+      "all": [
+        "taxid|инн",
+        "409",
+        "повтор|дубл|уникал"
+      ]
+    },
+    {
+      "key": "PATCH /api/v2/carriers/:id/state",
+      "kind": "role",
+      "source": "domain/carriers.mjs + http/errors.mjs",
+      "claim": "Нужна роль SUPPORT, иначе 403",
+      "all": [
+        "support",
+        "403"
+      ]
+    },
+    {
+      "key": "DELETE /api/v2/carriers/:id",
+      "kind": "conditional",
+      "source": "storage/store.mjs + http/errors.mjs",
+      "critical": true,
+      "claim": "При ASSIGNED/IN_TRANSIT удаление даёт 409",
+      "all": [
+        "assigned",
+        "in_transit",
+        "409"
+      ]
+    },
+    {
+      "key": "DELETE /api/v2/carriers/:id",
+      "kind": "archive",
+      "source": "domain/carriers.mjs",
+      "claim": "Вместо удаления archived=true, enabled=false",
+      "all": [
+        "archived|архив",
+        "enabled|отключ|выключ",
+        "true|архивир",
+        "false|отключ|выключ"
+      ]
+    },
+    {
+      "key": "GET /ready",
+      "kind": "conditional",
+      "source": "server.mjs",
+      "claim": "Истинный результат завершившегося ping БД даёт 204, ложный — 503; поведение при отклонении Promise не установлено",
+      "all": [
+        "204",
+        "503",
+        "бд|баз|ping"
+      ]
+    },
+    {
+      "key": "query shipment",
+      "kind": "nullable",
+      "source": "graphql/schema.graphql",
+      "claim": "Объявленный ответ Shipment nullable",
+      "all": [
+        "nullable|null|может отсутств|необязат",
+        "shipment|отправлен"
+      ]
+    },
+    {
+      "key": "query shipmentHistory",
+      "kind": "projection",
+      "source": "domain/shipments.mjs + http/views.mjs",
+      "claim": "В историю не попадает actorEmail",
+      "all": [
+        "actoremail",
+        "без|не (возвращ|включ|показ)|исключ|скры|удаля|не попада"
+      ]
+    },
+    {
+      "key": "mutation holdShipment",
+      "kind": "transition",
+      "source": "domain/shipments.mjs",
+      "claim": "Приостановка только NEW/ASSIGNED",
+      "all": [
+        "new",
+        "assigned",
+        "только|допуст|409"
+      ]
+    },
+    {
+      "key": "mutation holdShipment",
+      "kind": "error",
+      "source": "domain/shipments.mjs",
+      "claim": "Пустая причина после trim вызывает доменную ошибку HOLD_REASON; HTTP-статус GraphQL не установлен",
+      "all": [
+        "hold_reason|доменн.*ошиб|отказ|ошиб",
+        "причин|reason",
+        "пуст|trim|пробел"
+      ]
+    },
+    {
+      "key": "mutation releaseShipment",
+      "kind": "conditional",
+      "source": "domain/shipments.mjs",
+      "claim": "Неприостановленное отправление вызывает доменную ошибку NOT_HELD; HTTP-статус GraphQL не установлен",
+      "all": [
+        "not_held|доменн.*ошиб|отказ|ошиб",
+        "не.*приост|не.*удерж|held.*false|not_held"
+      ]
+    },
+    {
+      "key": "mutation releaseShipment",
+      "kind": "nullable",
+      "source": "domain/shipments.mjs",
+      "claim": "При снятии held=false и holdReason=null",
+      "all": [
+        "held|приост|удерж",
+        "false|сним|снят",
+        "holdreason|причин",
+        "null|очищ"
+      ]
+    },
+    {
+      "key": "Shipment",
+      "kind": "default",
+      "source": "storage/schema.prisma",
+      "claim": "attempts по умолчанию 0",
+      "all": [
+        "attempts|попыт",
+        "0",
+        "умолчан|default|начальн"
+      ]
+    },
+    {
+      "key": "Carrier",
+      "kind": "uniqueness",
+      "source": "storage/schema.prisma",
+      "claim": "taxId уникален",
+      "all": [
+        "taxid|инн",
+        "уникал|unique"
+      ]
+    },
+    {
+      "key": "retryFailedShipments",
+      "kind": "schedule",
+      "source": "config.mjs",
+      "critical": true,
+      "claim": "Запуск каждые 10 минут",
+      "all": [
+        "10",
+        "мин|\\*/10"
+      ]
+    },
+    {
+      "key": "retryFailedShipments",
+      "kind": "filter",
+      "source": "storage/store.mjs",
+      "claim": "Берёт FAILED с attempts <3",
+      "all": [
+        "failed",
+        "attempt|попыт",
+        "3",
+        "<|меньше|менее|до трех|до 3"
+      ]
+    },
+    {
+      "key": "rotateLabels",
+      "kind": "schedule",
+      "source": "config.mjs",
+      "critical": true,
+      "claim": "Ежедневно в 03:00 UTC",
+      "all": [
+        "03:00|3:00|0 3 \\* \\* \\*",
+        "utc"
+      ]
+    },
+    {
+      "key": "rotateLabels",
+      "kind": "filter",
+      "source": "storage/store.mjs",
+      "claim": "Удаляет просроченные этикетки",
+      "all": [
+        "просроч|истек|expiresat",
+        "удаля|очища|delete"
+      ]
+    },
+    {
+      "key": "потребляет carrier.disabled",
+      "kind": "commit",
+      "source": "messaging/listen.mjs",
+      "critical": true,
+      "claim": "Смещение коммитится после записи enabled=false",
+      "all": [
+        "после",
+        "запис|обнов|отключ",
+        "commit|коммит|смещ"
+      ]
+    },
+    {
+      "key": "потребляет carrier.disabled",
+      "kind": "group",
+      "source": "config.mjs",
+      "critical": true,
+      "claim": "Группа dispatch-carriers",
+      "all": [
+        "dispatch-carriers"
+      ]
+    },
+    {
+      "key": "публикует route.assigned",
+      "kind": "event-key",
+      "source": "messaging/send.mjs",
+      "claim": "Ключ события carrierId",
+      "all": [
+        "ключ|key",
+        "carrierid|перевоз"
+      ]
+    },
+    {
+      "key": "публикует shipment.delivered",
+      "kind": "event-key",
+      "source": "messaging/send.mjs",
+      "claim": "Ключ события shipmentId",
+      "all": [
+        "ключ|key",
+        "shipmentid|отправлен"
+      ]
+    }
+  ],
+  "forbidden": [
+    {
+      "key": "POST /api/v2/shipments/:id/deliver",
+      "pattern": "событие.*всегда|всегда.*shipment\\.delivered",
+      "claim": "Безусловная отправка события"
+    },
+    {
+      "key": "POST /api/v2/shipments/:id/retry",
+      "pattern": "(?:максимум|предел|не более)\\s*(?:5|10)\\s*попыт",
+      "claim": "Выдуманный предел повторов"
+    },
+    {
+      "key": "GET /api/v2/shipments/:id/label",
+      "pattern": "(?:60|30)\\s*минут",
+      "claim": "Неверный TTL ссылки"
+    },
+    {
+      "key": "POST /api/v2/shipments/bulk",
+      "pattern": "(?:максимум|до|не более)\\s*(?:50|100)\\s*(?:элемент|отправлен|запис)",
+      "claim": "Неверный предел пачки"
+    }
+  ]
+}

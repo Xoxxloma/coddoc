@@ -1,0 +1,6 @@
+## контракт :: ключ
+{R1}/api/A.java:  @GetMapping("/x")
+{R1}/api/A.java:  @PostMapping("/y")
+{R1}/api/B.java:7
+## сущности :: ключ
+{R1}/db/E.java:6

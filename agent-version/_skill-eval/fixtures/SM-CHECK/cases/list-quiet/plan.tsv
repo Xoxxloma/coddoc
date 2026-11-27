@@ -1,0 +1,6 @@
+итог	контракт	1
+файл	src/OrderController.java	контракт	1	-
+операция	GET	/orders/{id}	getOrder	openapi.yaml	-
+топик	orders.created	application.yml
+топик	orders.paid	application.yml
+топик	orders.cancelled	application.yml

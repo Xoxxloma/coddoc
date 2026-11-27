@@ -1,0 +1,4 @@
+type Shipment { id: ID!, status: String!, deliveredAt: String, held: Boolean! }
+type HistoryEntry { shipmentId: ID!, createdAt: String!, action: String! }
+type Query { shipment(id: ID!): Shipment, shipmentHistory(id: ID!): [HistoryEntry!]! }
+type Mutation { holdShipment(id: ID!, reason: String!): Shipment!, releaseShipment(id: ID!): Shipment! }

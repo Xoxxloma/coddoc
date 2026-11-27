@@ -1,0 +1,4 @@
+## контракт :: ключ
+{R1}/src/api/A.java:6
+{R1}/src/api/v2/B.java:6
+{R1}/src/core/C.java:5

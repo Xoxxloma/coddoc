@@ -1,0 +1,5 @@
+Alpha — domain/Alpha.kt (@Entity)
+Bravo — domain/Bravo.kt (@Entity)
+Charlie — domain/Charlie.kt (@Entity)
+Delta — domain/Delta.kt (@Entity)
+Echo — domain/Echo.kt (@Entity)

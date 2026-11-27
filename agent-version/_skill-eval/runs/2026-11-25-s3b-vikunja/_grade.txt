@@ -1,0 +1,46 @@
+
+SM-VIKUNJA: 2026-11-25-s3b-vikunja — скилл 4.5.0, модель claude-sonnet-5, прогонов 2
+  mono-01 (стоимость 7.131810600000003):
+    строк «Экранов»: 47
+    экраны из роутера (из 45): 42
+    строк «Экранов» не из роутера (точка встраивания или выдумка — смотреть глазами): 5 — например: `/:pathMatch(.*)*` | `/projects/{projectId}/settings/delete` (filter.settings.delete) | `/projects/{projectId}/settings/delete` (project.settings.delete) | `/projects/{projectId}/settings/edit` (filter.settings.edit)
+    строк «Потребляемых API»: 118
+    вызовы из эталона (из 111, эталон приблизительный): 101
+    вызовы не из эталона (смотреть глазами): 17 — например: GET /auth/openid/{provider}/callback | GET /migration/{service}/auth | GET /migration/{service}/status | GET /tasks/{taskId}/attachments/{id}
+    API vikunja в «Зависит от»: да
+    V1 вход: токен в заголовке: да
+    V2 продление токена: да
+    V3 вход по ссылке-шаре: да
+    V4 OpenID: да
+    V5 три уровня прав: да
+    V6 адрес API в конфигурации: да
+    V7 опрос уведомлений раз в 10 с: нет
+    V8 импорт: Todoist / Trello / Microsoft: нет
+    V9 Sentry: нет
+    V10 флаги сервера из /info: да
+    V11 Unsplash: да
+    V12 TOTP / 2FA: да
+    «Что умеет»: строк: 78
+    «Что умеет»: склеенных: 1
+  mono-02 (стоимость 8.663160799999998):
+    строк «Экранов»: 49
+    экраны из роутера (из 45): 43
+    строк «Экранов» не из роутера (точка встраивания или выдумка — смотреть глазами): 6 — например: `/:pathMatch(.*)*` | `/lists:pathMatch(.*)*` | `/projects/:projectId/settings/delete` (`filter.settings.delete`) | `/projects/:projectId/settings/delete` (`project.settings.delete`)
+    строк «Потребляемых API»: 111
+    вызовы из эталона (из 111, эталон приблизительный): 96
+    вызовы не из эталона (смотреть глазами): 15 — например: GET /migration/{key}/auth | GET /migration/{key}/status | GET /tasks/{taskId}/attachments/{id} | GET info
+    API vikunja в «Зависит от»: да
+    V1 вход: токен в заголовке: да
+    V2 продление токена: да
+    V3 вход по ссылке-шаре: да
+    V4 OpenID: да
+    V5 три уровня прав: да
+    V6 адрес API в конфигурации: да
+    V7 опрос уведомлений раз в 10 с: нет
+    V8 импорт: Todoist / Trello / Microsoft: нет
+    V9 Sentry: да
+    V10 флаги сервера из /info: да
+    V11 Unsplash: да
+    V12 TOTP / 2FA: да
+    «Что умеет»: строк: 101
+    «Что умеет»: склеенных: 0

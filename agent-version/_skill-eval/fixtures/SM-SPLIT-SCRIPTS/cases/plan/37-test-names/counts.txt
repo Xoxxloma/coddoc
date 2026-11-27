@@ -1,0 +1,9 @@
+## контракт :: ключ
+{R1}/tests/a/T1.java:2
+{R1}/src/pkg/__tests__/x.ts:3
+{R1}/src/pkg/a.test.ts:1
+{R1}/src/pkg/b_test.go:1
+{R1}/src/main/java/ru/bank/test/TestController.java:4
+{R1}/src/api/openapi.spec.yaml:3
+{R1}/src/pkg/contest.java:2
+{R1}/src/pkg/latest.ts:2

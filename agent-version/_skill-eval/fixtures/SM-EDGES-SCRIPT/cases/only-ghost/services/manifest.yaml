@@ -1,0 +1,13 @@
+services:
+  - name: web
+    path: ../web
+    type: backend
+  - name: auth
+    path: ../auth
+    type: backend
+  - name: billing
+    path: ../billing
+    type: backend
+  - name: geo
+    path: ../geo
+    type: backend

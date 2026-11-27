@@ -1,0 +1,4 @@
+путь	src/reservations	папки	01
+путь	src/outbox	папки	02
+файл	src/reservations/ReservationController.java	контракт	1	01
+файл	src/outbox/OutboxJob.java	задачи	1	02

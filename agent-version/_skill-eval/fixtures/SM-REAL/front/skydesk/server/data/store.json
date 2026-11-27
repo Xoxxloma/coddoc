@@ -1,0 +1,12 @@
+{
+  "nights": [
+    { "id": "n-2026-11-03", "date": "2026-11-03", "status": "open", "moonPhase": 0.12 },
+    { "id": "n-2026-11-04", "date": "2026-11-04", "status": "closed", "moonPhase": 0.2 }
+  ],
+  "reservations": [
+    { "id": "r-1", "nightId": "n-2026-11-03", "observerId": "o-7", "status": "confirmed" }
+  ],
+  "observers": [
+    { "id": "o-7", "name": "Вега", "email": "vega@example.org" }
+  ]
+}

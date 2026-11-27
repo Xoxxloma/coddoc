@@ -1,0 +1,6 @@
+фикстура: SM-GAPS-FRONT, сервис: yard-map-ui
+модель: sonnet; прогонов: 1; параллельность: 1; таймаут: 9000 c
+папка скилла: /c/Users/Konstantin/projects/product-skills/.claude/worktrees/sm2-next/agent-version/service-map-2.0
+снимок: _skills/service-map (1076 строк SKILL.md, 17 файлов reference/); подмена: K=как в тексте w=как в тексте
+копия для прогона: C:/Users/Konstantin/AppData/Local/Temp/claude/c--Users-Konstantin-projects-product-skills/4639781c-76e9-4eed-beba-53a6bebc379d/scratchpad/snap45-c1-front/2026-10-25-v45-c1-front/service-map
+claude: /c/Users/Konstantin/AppData/Roaming/npm/claude

@@ -1,0 +1,9 @@
+services:
+  - name: api
+    type: backend
+  - name: web
+    type: frontend
+  - name: web-admin
+    type: frontend
+  - name: admin
+    type: frontend

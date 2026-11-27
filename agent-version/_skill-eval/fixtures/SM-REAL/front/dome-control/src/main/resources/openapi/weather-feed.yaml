@@ -1,0 +1,45 @@
+openapi: 3.0.1
+info:
+  title: weather-feed
+  description: Прогноз облачности и предупреждения для обсерватории (спека соседа, по ней собирается клиент)
+  version: 2.1.0
+paths:
+  /forecast:
+    get:
+      operationId: getForecast
+      parameters:
+        - name: night
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: прогноз на ночь
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Forecast' }
+  /cloud-alerts:
+    get:
+      operationId: getCloudAlerts
+      responses:
+        '200':
+          description: действующие предупреждения
+  /stations:
+    get:
+      operationId: getStations
+      responses:
+        '200':
+          description: метеостанции
+  /alerts/subscriptions:
+    post:
+      operationId: subscribeAlerts
+      responses:
+        '201':
+          description: подписка оформлена
+components:
+  schemas:
+    Forecast:
+      type: object
+      properties:
+        night: { type: string, format: date }
+        cloudCover: { type: number }

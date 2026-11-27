@@ -1,0 +1,5 @@
+## контракт :: ключ
+{R1}/m/f1/X.java:4
+{R1}/m/f2/X.java:6
+{R1}/m/f3/X.java:5
+{R1}/m/f4/X.java:5

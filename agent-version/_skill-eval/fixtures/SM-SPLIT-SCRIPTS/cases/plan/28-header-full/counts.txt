@@ -1,0 +1,11 @@
+## контракт :: @(Get|Post|Put)Mapping\(\s*"/x" :: *.java :: ключ
+{R1}/api/A.java:4
+{R1}/api/B.java:3
+## сущности :: @Entity\b|@Table\( :: *.java :: ключ (без маски)
+{R1}/db/E.java:5
+## задачи :: @Scheduled\(cron\s*= :: *.java :: ключ (переэкранирован)
+{R1}/jobs/J.java:2
+## топики :: class \w+(Handler|Processor)\b :: *.java :: ориентир (без маски)
+{R1}/mq/M.java:6
+## топики :: class (\w+)Listener\(\) :: *.java :: ориентир
+{R1}/mq/N.java:2

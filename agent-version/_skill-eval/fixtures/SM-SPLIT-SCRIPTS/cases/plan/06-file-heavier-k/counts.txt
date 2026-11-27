@@ -1,0 +1,5 @@
+## контракт :: ключ
+{R1}/svc/huge/A.java:2
+{R1}/svc/huge/Mega.java:15
+{R1}/svc/huge/Z.java:3
+{R1}/svc/other/O.java:5

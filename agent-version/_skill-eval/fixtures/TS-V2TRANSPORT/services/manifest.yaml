@@ -1,0 +1,5 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: parcel-hub
+    path: ../parcel-hub
+    type: backend

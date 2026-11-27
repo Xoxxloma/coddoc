@@ -1,0 +1,50 @@
+{
+  "nav-ok.md": {
+    "case": "navigator-18-dto-0-markers",
+    "pass": true
+  },
+  "nav-no-rewrite.md": {
+    "case": "navigator-18-dto-0-markers",
+    "pass": false
+  },
+  "nav-no-remove.md": {
+    "case": "navigator-18-dto-0-markers",
+    "pass": false
+  },
+  "nav-passed-detector.md": {
+    "case": "navigator-18-dto-0-markers",
+    "pass": false
+  },
+  "nav-stay.md": {
+    "case": "navigator-18-dto-0-markers",
+    "pass": true
+  },
+  "stat-ok.md": {
+    "case": "statistic-19-own-19-markers",
+    "pass": true
+  },
+  "stat-false-dobor.md": {
+    "case": "statistic-19-own-19-markers",
+    "pass": false
+  },
+  "mongo-ok.md": {
+    "case": "mongo-4-document-4-markers",
+    "pass": true
+  },
+  "mongo-false-dobor.md": {
+    "case": "mongo-4-document-4-markers",
+    "pass": false
+  },
+  "after-ok.md": {
+    "case": "navigator-after-dobor",
+    "pass": true
+  },
+  "after-false-dobor.md": {
+    "case": "navigator-after-dobor",
+    "pass": false
+  },
+  "no-verdict.md": {
+    "case": "statistic-19-own-19-markers",
+    "pass": false
+  }
+}

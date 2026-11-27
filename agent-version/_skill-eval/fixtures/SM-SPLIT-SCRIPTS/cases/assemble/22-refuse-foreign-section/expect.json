@@ -1,0 +1,16 @@
+{
+ "base": "_min",
+ "S": 3,
+ "date": "2026-10-04",
+ "о чём": "часть назвала секцию не по шаблону («Events») — ОТКАЗ с номером части",
+ "mutate": [
+  {
+   "op": "append",
+   "file": "part-03.md",
+   "text": "\n## Events\n\n### publishes `orders.v1`\n- on payment\n"
+  }
+ ],
+ "want": "refuse",
+ "sentinel": true,
+ "mentions": "часть\\s*03"
+}

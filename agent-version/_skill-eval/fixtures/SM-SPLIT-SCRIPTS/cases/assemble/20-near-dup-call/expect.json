@@ -1,0 +1,34 @@
+{
+ "base": "_min",
+ "S": 3,
+ "date": "2026-10-04",
+ "о чём": "одна операция у двух частей: «query task» и «query task(id: ID!)» — один блок под ключом без скобок, факты обеих; перегрузки «format(a)» и «format(a, b)» без голого ключа остаются двумя блоками",
+ "mutate": [
+  {
+   "op": "append",
+   "file": "part-01.md",
+   "text": "\n### `query task`\n- только свои задачи\n\n### `format(a)`\n- округляет\n"
+  },
+  {
+   "op": "append",
+   "file": "part-02.md",
+   "text": "\n### `query task(id: ID!)`\n- любые задачи отдела\n\n### `format(a, b)`\n- добавляет знак валюты\n"
+  }
+ ],
+ "want": "ok",
+ "sections": {
+  "Публичный контракт": {
+   "headings": [
+    "### `GET /m01`",
+    "### `GET /m02`",
+    "### `GET /m03`",
+    "### `format(a)`",
+    "### `format(a, b)`",
+    "### `query task`"
+   ]
+  }
+ },
+ "dups": [
+  "Публичный контракт: query task"
+ ]
+}

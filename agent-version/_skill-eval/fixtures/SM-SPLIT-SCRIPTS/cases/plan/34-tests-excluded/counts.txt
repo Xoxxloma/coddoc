@@ -1,0 +1,10 @@
+## контракт :: ключ
+{R1}/src/main/A.java:4
+{R1}/src/main/b/B.java:5
+{R1}/src/test/ATest.java:3
+## сущности :: ключ
+{R1}/src/main/c/E.java:3
+{R1}/src/main/c/e.spec.ts:2
+## топики :: ориентир
+{R1}/src/test/resources/app.yaml:4
+{R1}/src/main/resources/app.yaml:2

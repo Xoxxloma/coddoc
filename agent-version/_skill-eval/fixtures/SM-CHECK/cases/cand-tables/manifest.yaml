@@ -1,0 +1,5 @@
+services:
+  - name: auth
+    path: ../auth
+  - name: billing
+    path: ../billing

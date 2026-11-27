@@ -1,0 +1,10 @@
+services:
+  - name: auth
+    path: ../auth
+    type: backend
+  - name: web
+    path: ../web
+    type: frontend
+  - name: billing
+    path: ../billing
+    type: backend

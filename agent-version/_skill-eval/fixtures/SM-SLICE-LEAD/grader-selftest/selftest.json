@@ -1,0 +1,134 @@
+{
+ "a-ok.md": {
+  "case": "a-under-k",
+  "pass": true
+ },
+ "a-blind.md": {
+  "case": "a-under-k",
+  "pass": true
+ },
+ "a-slice.md": {
+  "case": "a-under-k",
+  "pass": false
+ },
+ "b-ok.md": {
+  "case": "b-over-k",
+  "pass": true
+ },
+ "b-one.md": {
+  "case": "b-over-k",
+  "pass": false
+ },
+ "b-soft-no-plan.md": {
+  "case": "b-over-k",
+  "pass": true
+ },
+ "c-ok.md": {
+  "case": "c-no-shell",
+  "pass": true
+ },
+ "c-no-report.md": {
+  "case": "c-no-shell",
+  "pass": false
+ },
+ "c-report-no-reason.md": {
+  "case": "c-no-shell",
+  "pass": false
+ },
+ "c-slice.md": {
+  "case": "c-no-shell",
+  "pass": false
+ },
+ "d-ok.md": {
+  "case": "d-plan-mismatch",
+  "pass": true
+ },
+ "d-blind.md": {
+  "case": "d-plan-mismatch",
+  "pass": true
+ },
+ "d-slice.md": {
+  "case": "d-plan-mismatch",
+  "pass": false
+ },
+ "d-no-report.md": {
+  "case": "d-plan-mismatch",
+  "pass": false
+ },
+ "d-runs-parts.md": {
+  "case": "d-plan-mismatch",
+  "pass": false
+ },
+ "e-ok.md": {
+  "case": "e-part-failed-twice",
+  "pass": true
+ },
+ "e-blind.md": {
+  "case": "e-part-failed-twice",
+  "pass": true
+ },
+ "e-promote.md": {
+  "case": "e-part-failed-twice",
+  "pass": false
+ },
+ "e-no-number.md": {
+  "case": "e-part-failed-twice",
+  "pass": false
+ },
+ "e-third-run.md": {
+  "case": "e-part-failed-twice",
+  "pass": false
+ },
+ "e-assemble.md": {
+  "case": "e-part-failed-twice",
+  "pass": false
+ },
+ "f-ok.md": {
+  "case": "f-dobor-part",
+  "pass": true
+ },
+ "f-bold-short.md": {
+  "case": "f-dobor-part",
+  "pass": true
+ },
+ "f-reader.md": {
+  "case": "f-dobor-part",
+  "pass": false
+ },
+ "f-remainder.md": {
+  "case": "f-dobor-part",
+  "pass": false
+ },
+ "f-wrong-part.md": {
+  "case": "f-dobor-part",
+  "pass": false
+ },
+ "g-ok.md": {
+  "case": "g-reassemble",
+  "pass": true
+ },
+ "g-blind.md": {
+  "case": "g-reassemble",
+  "pass": true
+ },
+ "g-no-card.md": {
+  "case": "g-reassemble",
+  "pass": false
+ },
+ "g-promote.md": {
+  "case": "g-reassemble",
+  "pass": false
+ },
+ "g-budget-report.md": {
+  "case": "g-reassemble",
+  "pass": false
+ },
+ "x-no-verdict.md": {
+  "case": "a-under-k",
+  "pass": false
+ },
+ "x-out-of-list.md": {
+  "case": "a-under-k",
+  "pass": false
+ }
+}

@@ -1,0 +1,10 @@
+## контракт :: @GetMapping\b :: *.java :: ключ
+{R1}/src/a/F1.java:3
+{R1}/src/a/F2.java:40
+{R1}/src/b/G.java:10
+## сущности :: @Entity\b :: *.java :: ключ
+{R1}/src/a/F3.java:5
+## контроль :: контракт :: {R1}/src/a/F1.java :: 29
+## контроль :: сущности :: {R1}/src/a/F3.java :: 5
+## контроль :: топики :: {R1}/src/x.java
+## контроль :: контракт HTTP :: {R1}/src/b/G.java :: 10

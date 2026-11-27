@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+// make-sm-ent-2.mjs — собирает фикстуру SM-ENT-2: проба «сущности — сверка сверху» под разведчика
+// (service-map-2.0, план PLAN-AUTOSPLIT §3 А4, А6). Четыре случая SM-ENT с тем же замыслом; вместо
+// «стек Spring (маркеры из таблицы 3.1 применимы)» и счёта по маркеру таблицы — строка разведчика по
+// классу «сущности» и счёт грепа по ней. Старые SM-ENT, make-sm-ent.mjs и run-sm-ent.sh не тронуты.
+//
+//   node make-sm-ent-2.mjs            → fixtures/SM-ENT-2/case-*.md + expect.json + README.md
+//
+// Ожидания выведены из правил плана заново: верхняя граница = счёт по строке `сущности` разведчика
+// (одна пометка на объявление — оговорки «у класса с @Entity и @Table маркеров два» больше нет);
+// блоков в «Владеет данными» больше — добор с «убери» и перезаписью `сущности:`; маркер дал ноль, а
+// блоки есть — добор на все блоки. Грейдер — grade-sm-ent-2.mjs (формат ответа тот же, что у SM-ENT).
+import { writeFileSync, mkdirSync } from 'node:fs'
+import { join } from 'node:path'
+
+const dir = join(import.meta.dirname, 'fixtures', 'SM-ENT-2')
+mkdirSync(dir, { recursive: true })
+
+const NAV = ['NavigatorRequestFilter', 'CommonLabels', 'IncidentCategoryStatistic', 'IncidentDamageStatistic', 'IncidentsAndDetentions', 'UorIncident', 'LostSearch', 'UorSecurity', 'UorDetention', 'UorSocialEngineering', 'UorIncidentKind', 'UorFemidaApplication', 'UorFemidaDamage', 'UorFemidaReimbursedDamage', 'UorAntiterrorAndCheck', 'Antiterror', 'Check', 'PerformanceRating']
+const NAV_EP = ['GET /api/v1/navigator/informing/incident/statistic/categories', 'GET /api/v1/navigator/informing/incident/statistic/damage', 'GET /api/v1/navigator/uor/security', 'GET /api/v1/navigator/uor/detentions', 'GET /api/v1/navigator/uor/femida/damage', 'GET /api/v1/navigator/perfomance-rating']
+const NAV_RET = ['IncidentCategoryStatistic', 'IncidentDamageStatistic', 'UorSecurity', 'UorDetention', 'UorFemidaDamage', 'PerformanceRating']
+const STAT = ['ArmataCard', 'ArmataCardImportHistory', 'OperationRisk', 'Setting', 'ArmataCardArea', 'ArmataCardProduct', 'ArmataCardUser', 'ArmataCardCategory', 'ArmataCardDamage', 'ArmataCardComment', 'ArmataCardCriminalCase', 'ArmataCardVulnerability', 'ArmataCardChannel', 'ArmataCardMethod', 'ArmataCardGroup', 'ArmataCardSchema', 'ArmataCardSample', 'ArmataCardCameraAnalysis', 'ArmataCardDenyReason']
+const MONGO = ['Order', 'Customer', 'Invoice', 'Payment']
+
+const opis = (names, marker, dirName) => names.map(n => `${n} — ${dirName}/${n}.java${marker ? ` (${marker})` : ''}`)
+const text = (svc, scoutRe, count, opisLines, blocks) => [
+  `Сервис \`${svc}\`, тип \`backend\`. Данные грепов:`,
+  '',
+  '## Строка разведчика по классу «сущности» (Шаг 3.0) и счёт твоего грепа по ней (Шаг 3.1)',
+  `\`сущности :: ${scoutRe} :: *.java :: ключ\` — совпадений ${count}`,
+  '(строки разведчика по другим классам опущены)',
+  '',
+  '## Строки сущностей в описи (класс «сущности»; служебные и прочие классы опущены)',
+  opisLines.length ? opisLines.join('\n') : '(строк сущностей нет; ⟹ сущностей 0)',
+  '',
+  `## Заголовки \`###\` в «Владеет данными» черновика (${blocks.length})`,
+  blocks.length ? blocks.map(b => `### \`${b}\``).join('\n') : '—',
+  '',
+  '## Из вывода `check.sh` по черновику, раздел «Кандидаты проверок» (Шаг 4; остальные строки опущены)',
+  '«Публичный контракт», блоков без строки «сущности:» (служебные не считаются): 0',
+].join('\n')
+
+const cases = [
+  ['navigator-18-dto-0-markers',
+    text('summary-ms-navigator', '@Entity\\b', 0, opis(NAV, '', 'dto'), NAV),
+    'ДОБОР', 'маркер разведчика дал 0, а блоков 18 (DTO без маркера) — добор на все блоки: убрать, поля в блоки ручек, сущности: переписать',
+    'navigator-18-dto-0-markers', 'без изменений: замысел и исход те же, маркер — из строки разведчика `@Entity\\b` вместо `@Entity\\b\\|^model \\|@Table\\(`. Дополнительно ловит путаницу с детектором узкого маркера: «в описи 18 при 0 маркеров» — не повод снять верхнюю сверку'],
+  ['statistic-19-own-19-markers',
+    text('summary-ms-statistic', '@Entity\\b', 19, opis(STAT, '@Entity', 'entity'), STAT),
+    'ПРОЙДЕН', '19 блоков при 19 маркерах — «не больше» выполнено на границе',
+    'statistic-19-own-38-markers', 'маркеров 38 → 19: разведчик даёт одну пометку на объявление (`@Entity` без `@Table`), оговорка «маркеров два, граница не строгая» снята (А4). Раньше случай ловил «19 при 38 — своё, с запасом»; теперь — равенство на границе «не больше»: 19 = 19 проходит, ложный добор за «ровно столько же» — провал'],
+  ['mongo-4-document-4-markers',
+    text('orders-ms', '@Document\\b', 4, opis(MONGO, '@Document', 'document'), MONGO),
+    'ПРОЙДЕН', 'маркер хранения Mongo назван разведчиком, 4 блока при 4 совпадениях — сверка есть и сходится',
+    'mongo-4-schema-0-markers', 'было «маркеров 0, опись называет маркер вне таблицы — исключение двумя грепами». Таблицы больше нет: разведчик называет `@Document\\b` сам, счёт 4, сверка обычная. Ловит теперь: верхняя граница берётся из строки разведчика, а не из памяти «Spring — значит `@Entity`» (ложный добор «`@Document` не маркер» или «`@Entity` 0 — добор на все блоки»). Исключение «маркер вне …» этим набором больше не проверяется'],
+  ['navigator-after-dobor',
+    text('summary-ms-navigator', '@Entity\\b', 0, [], []),
+    'ПРОЙДЕН', 'после добора: блоков 0, сущности: переписаны — ни сверка сверху, ни «Сущности у ручек» добора не требуют',
+    'navigator-after-dobor', 'без изменений: маркер — из строки разведчика, 0; блоков 0'],
+]
+
+const expect = {}
+const rows = []
+for (const [name, body, want, why, old, diff] of cases) {
+  writeFileSync(join(dir, `case-${name}.md`), body + '\n')
+  expect[name] = { want, why }
+  rows.push(`| ${name} | ${old} | ${want} | ${diff} |`)
+}
+writeFileSync(join(dir, 'expect.json'), JSON.stringify(expect, null, 2) + '\n')
+writeFileSync(join(dir, 'README.md'), `# SM-ENT-2 — «сущности — сверка сверху» под разведчика (service-map-2.0)
+
+Собирается \`node make-sm-ent-2.mjs\`. Четыре случая \`SM-ENT\` с тем же замыслом, переписанные под Шаг 3.0
+(PLAN-AUTOSPLIT §3, А4 и А6): вместо «стек Spring (маркеры из таблицы 3.1 применимы)» и счёта по маркеру
+таблицы — строка разведчика \`сущности :: <регэксп> :: *.java :: ключ\` и счёт грепа по ней. Старые
+\`SM-ENT\`, \`make-sm-ent.mjs\`, \`run-sm-ent.sh\`, \`grade-sm-ent.mjs\` не тронуты — на них регресс старого скилла.
+
+Раннер \`run-sm-ent-2.sh <SKILL.md> <раунд> [N]\` — те же якоря, что у \`run-sm-ent.sh\` (маркерный гейт со
+сверкой сверху и «Сущности у ручек»), ответ — последней строкой \`СУЩНОСТИ: ПРОЙДЕН\` либо \`СУЩНОСТИ: ДОБОР\`.
+Грейдер \`grade-sm-ent-2.mjs\` — логика \`grade-sm-ent.mjs\` (у ДОБОР в тексте «убери» и перезапись
+\`сущности:\`), ожидания из этой папки; \`grade-sm-ent.mjs\` переиспользовать нельзя — он читает
+\`fixtures/SM-ENT/expect.json\` по имени случая, а имена двух случаев сменились вместе с числами.
+\`--selftest\` гоняет \`grader-selftest/\`.
+
+| Случай | Был в SM-ENT | Ожидание | Что изменилось и почему |
+|---|---|---|---|
+${rows.join('\n')}
+
+Вердикты всех четырёх совпали со старым \`expect.json\` (ДОБОР, ПРОЙДЕН, ПРОЙДЕН, ПРОЙДЕН); у двух сменились
+числа и имя (statistic, mongo), а с ними — что случай ловит. Порог — как у SM-ENT в постоянном круге.
+
+## Что изменилось и почему (2026-10-04) — данные случаев = то, что ведущий видит
+
+Было: раздел «Блоки «Публичного контракта» черновика (выдержка, 6 из 13)» — в случаях с блоками показано два
+(statistic, mongo) или шесть (navigator), и модель читала «6 из 13» как «7 не проверены»
+(mongo: одна из трёх ответила «добор на все»). Ведущий же на Шаге 4 черновик не читает (Read по \`.work/\` запрещён):
+о ручках без \`сущности:\` он знает ровно одну строку вывода \`check.sh\`, раздела «Кандидаты проверок».
+Стало: во всех четырёх случаях выдержка заменена этой строкой, дословно из \`check.sh\`:
+\`«Публичный контракт», блоков без строки «сущности:» (служебные не считаются): 0\`.
+Число 0 — из замысла: в прежних выдержках у каждого показанного блока строка \`сущности:\` стояла, а случаи
+проверяют сверку сверху по «Владеет данными», не «Сущности у ручек» — та должна молчать. Списка номеров строк нет:
+при счёте 0 скрипт его не печатает. Остальные разделы (счёт грепа по строке разведчика, строки описи, заголовки
+«Владеет данными») — то, что ведущий получает грепом по описи и черновику, не менялись. Ожидания не менялись.
+`)
+console.log('SM-ENT-2:', cases.length, 'случаев →', dir)

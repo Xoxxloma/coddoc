@@ -1,0 +1,8 @@
+## контракт :: ключ
+{R1}/src/a/A.java:3
+{R1}/src/b/B.java:2
+
+## сущности :: ключ
+{R1}/src/a/E.java:4
+
+Found 9 total occurrences across 3 files.

@@ -1,0 +1,14 @@
+import express from 'express';
+import { shipmentRoutes } from './http/shipments.mjs';
+import { carrierRoutes } from './http/carriers.mjs';
+import { graphqlMiddleware } from './graphql/resolvers.mjs';
+import { errors } from './http/errors.mjs';
+import { store } from './storage/store.mjs';
+const app = express();
+app.use('/api/v2', shipmentRoutes);
+app.use('/api/v2', carrierRoutes);
+app.use('/graphql', graphqlMiddleware);
+app.get('/health', (_, res) => res.status(204).end());
+app.get('/ready', async (_, res) => res.status(await store.ping() ? 204 : 503).end());
+app.use(errors);
+export default app;

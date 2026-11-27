@@ -1,0 +1,5 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: seed-vault
+    path: ../seed-vault
+    type: backend

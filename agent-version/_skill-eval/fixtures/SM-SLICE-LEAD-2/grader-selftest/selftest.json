@@ -1,0 +1,90 @@
+{
+ "h-ok.md": {
+  "case": "h-plan-refused",
+  "pass": true
+ },
+ "h-fix-self.md": {
+  "case": "h-plan-refused",
+  "pass": false
+ },
+ "h-one-reader.md": {
+  "case": "h-plan-refused",
+  "pass": false
+ },
+ "i-ok.md": {
+  "case": "i-plan-refused-twice",
+  "pass": true
+ },
+ "i-third.md": {
+  "case": "i-plan-refused-twice",
+  "pass": false
+ },
+ "i-no-report.md": {
+  "case": "i-plan-refused-twice",
+  "pass": false
+ },
+ "j-ok.md": {
+  "case": "j-glue-failed-budget",
+  "pass": true
+ },
+ "j-ask.md": {
+  "case": "j-glue-failed-budget",
+  "pass": false
+ },
+ "j-nocard.md": {
+  "case": "j-glue-failed-budget",
+  "pass": false
+ },
+ "j-third.md": {
+  "case": "j-glue-failed-budget",
+  "pass": false
+ },
+ "k-ok.md": {
+  "case": "k-glue-failed-dobor-left",
+  "pass": true
+ },
+ "k-pending.md": {
+  "case": "k-glue-failed-dobor-left",
+  "pass": false
+ },
+ "l-ok.md": {
+  "case": "l-rest-coverage",
+  "pass": true
+ },
+ "l-head.md": {
+  "case": "l-rest-coverage",
+  "pass": false
+ },
+ "m-ok.md": {
+  "case": "m-missed-by-part",
+  "pass": true
+ },
+ "m-rest.md": {
+  "case": "m-missed-by-part",
+  "pass": false
+ },
+ "n-ok.md": {
+  "case": "n-rest-empty",
+  "pass": true
+ },
+ "n-five.md": {
+  "case": "n-rest-empty",
+  "pass": false
+ },
+ "n-rest.md": {
+  "case": "n-rest-empty",
+  "pass": false
+ },
+ "i-real-grep-after-return.md": {
+  "case": "i-plan-refused-twice",
+  "pass": true
+ },
+ "n-real-four-not-five.md": {
+  "case": "n-rest-empty",
+  "pass": true
+ },
+ "n-real-without-rest.md": {
+  "case": "n-rest-empty",
+  "pass": true
+ }
+}

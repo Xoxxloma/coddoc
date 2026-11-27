@@ -1,4 +1,0 @@
-{
-  "name": "ledger-ui",
-  "scripts": { "dev": "vite", "build": "vite build" }
-}

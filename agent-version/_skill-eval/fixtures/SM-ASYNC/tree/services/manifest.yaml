@@ -1,7 +1,0 @@
-services:
-  - name: metering-api
-    path: ../metering-api
-    type: backend
-  - name: billing-worker
-    path: ../billing-worker
-    type: backend

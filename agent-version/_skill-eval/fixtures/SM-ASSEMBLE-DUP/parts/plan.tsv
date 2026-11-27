@@ -1,0 +1,12 @@
+итог	контракт	2
+итог	сущности	4
+часть	01	контракт	2
+часть	02	сущности	4
+путь	src/domes	папки	01
+путь	src/spec/openapi.yaml	файлы	01
+путь	src/weather	папки	01
+путь	src/nights	папки	02
+путь	src/reservations	папки	02
+путь	src/shifts	папки	02
+файл	src/spec/openapi.yaml	контракт	2	01
+файл	src/reservations/reservation.entity.ts	сущности	1	02

@@ -1,0 +1,110 @@
+{
+  "a-ok.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": true
+  },
+  "a-bold-verdict.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": true
+  },
+  "a-no-number.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": false
+  },
+  "a-line-not-sum.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": false
+  },
+  "a-passed.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": false
+  },
+  "a-no-block.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": false
+  },
+  "b-ok.md": {
+    "case": "ferry-contract-153-over-14",
+    "pass": true
+  },
+  "b-ok-block-report.md": {
+    "case": "ferry-contract-153-over-14",
+    "pass": true
+  },
+  "b-no-report.md": {
+    "case": "ferry-contract-153-over-14",
+    "pass": false
+  },
+  "b-detector-only-in-analysis.md": {
+    "case": "ferry-contract-153-over-14",
+    "pass": false
+  },
+  "b-dobor.md": {
+    "case": "ferry-contract-153-over-14",
+    "pass": false
+  },
+  "c-ok.md": {
+    "case": "library-all-close",
+    "pass": true
+  },
+  "c-benign-report.md": {
+    "case": "library-all-close",
+    "pass": true
+  },
+  "c-false-detector.md": {
+    "case": "library-all-close",
+    "pass": false
+  },
+  "c-false-dobor.md": {
+    "case": "library-all-close",
+    "pass": false
+  },
+  "d-ok.md": {
+    "case": "vetclinic-topics-orientir-3-of-20",
+    "pass": true
+  },
+  "d-ok-topics-report.md": {
+    "case": "vetclinic-topics-orientir-3-of-20",
+    "pass": true
+  },
+  "d-dobor-topics.md": {
+    "case": "vetclinic-topics-orientir-3-of-20",
+    "pass": false
+  },
+  "e-ok.md": {
+    "case": "bakery-scout-refused",
+    "pass": true
+  },
+  "e-no-report.md": {
+    "case": "bakery-scout-refused",
+    "pass": false
+  },
+  "e-dobor.md": {
+    "case": "bakery-scout-refused",
+    "pass": false
+  },
+  "f-ok.md": {
+    "case": "skipass-entities-11-of-30-contract-64-over-9",
+    "pass": true
+  },
+  "f-no-detector.md": {
+    "case": "skipass-entities-11-of-30-contract-64-over-9",
+    "pass": false
+  },
+  "f-dobor-both.md": {
+    "case": "skipass-entities-11-of-30-contract-64-over-9",
+    "pass": false
+  },
+  "f-no-number.md": {
+    "case": "skipass-entities-11-of-30-contract-64-over-9",
+    "pass": false
+  },
+  "f-passed.md": {
+    "case": "skipass-entities-11-of-30-contract-64-over-9",
+    "pass": false
+  },
+  "x-no-verdict.md": {
+    "case": "greenhouse-contract-18-of-45",
+    "pass": false
+  }
+}

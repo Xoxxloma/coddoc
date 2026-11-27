@@ -1,0 +1,4 @@
+дерево: vikunja-frontend
+итог: экраны 50, клиенты 1
+прогон: 2026-10-25-v45-real3-vikunja/mono-01#0
+прогон: 2026-10-25-v45-real3-vikunja/mono-02#0

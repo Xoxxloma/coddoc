@@ -1,0 +1,9 @@
+контракт :: ^\s+operationId: :: *.yaml :: {ROOT}/src/main/resources/openapi/harvest-ledger.yaml :: ключ
+сущности :: @Entity\b :: *.java :: ключ
+контроль :: сущности :: {ROOT}/src/main/java/org/agro/ledger/domain/Plot.java :: 1
+задачи :: @Scheduled\b :: *.java :: ключ
+контроль :: задачи :: {ROOT}/src/main/java/org/agro/ledger/jobs/WindowsExpiryJob.java :: 1
+топики :: kafka\.send\( :: *.java :: ориентир
+клиенты :: @FeignClient\b :: *.java :: ключ
+клиенты :: \.baseUrl\( :: *.java :: ключ
+контроль :: клиенты :: {ROOT}/src/main/java/org/agro/ledger/client/AuditHubClient.java :: 1

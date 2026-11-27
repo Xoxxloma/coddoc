@@ -1,0 +1,5 @@
+## контракт :: ключ
+{R1}/mod/A/a1/F.java:3
+{R1}/mod/A/a2/F.java:3
+{R1}/mod/A/Root.java:2
+{R1}/mod/B/F.java:2

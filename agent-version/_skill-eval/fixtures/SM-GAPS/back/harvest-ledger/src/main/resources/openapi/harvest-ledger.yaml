@@ -1,0 +1,579 @@
+openapi: 3.0.3
+info:
+  title: harvest-ledger
+  description: Журнал полевых замеров агрономов — заполнение, подтверждение, окна правки, справочники, шаблоны, участки, сводка.
+  version: 2.1.0
+servers:
+  - url: /api/v1/ledger
+paths:
+  /entries:
+    get:
+      tags: [entries]
+      operationId: listOwnEntries
+      summary: Свои замеры за интервал дат
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: замеры по дням, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/EntryDay' } } } } }
+    post:
+      tags: [entries]
+      operationId: saveEntries
+      summary: Сохранить замеры за дни одной недели
+      requestBody: { required: true, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/EntrySave' } } } } }
+      responses:
+        '204': { description: сохранено }
+        '409': { description: дни из разных недель }
+        '423': { description: неделя закрыта, окна правки нет }
+  /entries/submit:
+    post:
+      tags: [entries]
+      operationId: submitWeek
+      summary: Отправить неделю на подтверждение главному агроному
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '204': { description: отправлено }
+  /entries/week-status:
+    get:
+      tags: [entries]
+      operationId: getWeekStatus
+      summary: Состояние своей недели — сколько дней в каждом статусе
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: счётчики, content: { application/json: { schema: { $ref: '#/components/schemas/WeekStatus' } } } }
+  /entries/day/{date}:
+    delete:
+      tags: [entries]
+      operationId: deleteDraftDay
+      summary: Удалить свой черновик за день
+      parameters:
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        '204': { description: удалено }
+        '409': { description: день не в черновике }
+  /entries/{agronomist}:
+    get:
+      tags: [entries]
+      operationId: listAgronomistEntries
+      summary: Замеры агронома за интервал дат
+      parameters:
+        - { name: agronomist, in: path, required: true, schema: { type: string } }
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: замеры по дням, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/EntryDay' } } } } }
+    post:
+      tags: [entries]
+      operationId: saveEntriesFor
+      summary: Сохранить замеры за агронома
+      parameters:
+        - { name: agronomist, in: path, required: true, schema: { type: string } }
+      requestBody: { required: true, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/EntrySave' } } } } }
+      responses:
+        '204': { description: сохранено }
+  /entries/{agronomist}/decision:
+    post:
+      tags: [entries]
+      operationId: decideEntries
+      summary: Подтвердить неделю агронома или вернуть её с комментарием
+      parameters:
+        - { name: agronomist, in: path, required: true, schema: { type: string } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Decision' } } } }
+      responses:
+        '204': { description: решение записано }
+        '422': { description: возврат без комментария }
+  /windows:
+    get:
+      tags: [windows]
+      operationId: listOwnWindows
+      summary: Свои запросы на открытие недель
+      responses:
+        '200': { description: запросы, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Window' } } } } }
+    post:
+      tags: [windows]
+      operationId: requestWindow
+      summary: Запросить открытие закрытой недели для правки
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WindowRequest' } } } }
+      responses:
+        '201': { description: запрос создан }
+        '409': { description: запрос на эту неделю уже есть }
+  /windows/pending:
+    get:
+      tags: [windows]
+      operationId: listPendingWindows
+      summary: Запросы на открытие недель, ждущие решения
+      responses:
+        '200': { description: запросы, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Window' } } } } }
+  /windows/{id}:
+    delete:
+      tags: [windows]
+      operationId: cancelWindow
+      summary: Отозвать свой запрос на открытие недели
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: отозван }
+        '409': { description: по запросу уже есть решение }
+  /windows/{id}/decision:
+    post:
+      tags: [windows]
+      operationId: decideWindow
+      summary: Решение по запросу на открытие недели
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Decision' } } } }
+      responses:
+        '204': { description: решение записано }
+  /summary:
+    get:
+      tags: [summary]
+      operationId: getSummary
+      summary: Сводка замеров по регионам или хозяйствам за месяц
+      parameters:
+        - { name: level, in: query, required: true, schema: { type: string, enum: [region, farm] } }
+        - { name: ids, in: query, required: false, schema: { type: array, items: { type: integer, format: int64 } } }
+        - { name: month, in: query, required: true, schema: { type: string, example: '2026-09' } }
+      responses:
+        '200': { description: строки сводки, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SummaryRow' } } } } }
+  /summary/export:
+    get:
+      tags: [summary]
+      operationId: exportSummaryXlsx
+      summary: Выгрузить сводку таблицей Excel
+      parameters:
+        - { name: level, in: query, required: true, schema: { type: string, enum: [region, farm] } }
+        - { name: month, in: query, required: true, schema: { type: string } }
+      responses:
+        '200': { description: файл xlsx }
+  /summary/by-crop:
+    get:
+      tags: [summary]
+      operationId: getSummaryByCrop
+      summary: Сводка за месяц по культурам и группам культур
+      parameters:
+        - { name: month, in: query, required: true, schema: { type: string } }
+      responses:
+        '200': { description: строки по культурам, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CropTotal' } } } } }
+  /summary/regions:
+    get:
+      tags: [summary]
+      operationId: listRegions
+      summary: Регионы для выбора в сводке
+      responses:
+        '200': { description: регионы, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Unit' } } } } }
+  /summary/farms:
+    get:
+      tags: [summary]
+      operationId: listFarms
+      summary: Хозяйства региона для выбора в сводке
+      parameters:
+        - { name: regionId, in: query, required: false, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: хозяйства, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Unit' } } } } }
+  /export/pdf:
+    get:
+      tags: [summary]
+      operationId: exportSummaryPdf
+      summary: Выгрузить сводку в PDF
+      parameters:
+        - { name: month, in: query, required: true, schema: { type: string } }
+      responses:
+        '200': { description: файл PDF }
+  /crops:
+    get:
+      tags: [catalog]
+      operationId: listCrops
+      summary: Справочник культур
+      responses:
+        '200': { description: культуры, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Crop' } } } } }
+    post:
+      tags: [catalog]
+      operationId: createCrop
+      summary: Добавить культуру в справочник
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Crop' } } } }
+      responses:
+        '201': { description: создано }
+        '409': { description: код культуры уже занят }
+  /crops/{id}:
+    put:
+      tags: [catalog]
+      operationId: renameCrop
+      summary: Переименовать культуру или сменить её группу
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Crop' } } } }
+      responses:
+        '204': { description: изменено }
+    delete:
+      tags: [catalog]
+      operationId: deleteCrop
+      summary: Удалить культуру из справочника
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: удалено }
+  /crops/{id}/usage:
+    get:
+      tags: [catalog]
+      operationId: getCropUsage
+      summary: Сколько замеров и шаблонов ссылаются на культуру
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: счётчики, content: { application/json: { schema: { $ref: '#/components/schemas/CropUsage' } } } }
+  /crop-groups:
+    get:
+      tags: [cropGroups]
+      operationId: listCropGroups
+      summary: Группы культур
+      responses:
+        '200': { description: группы, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CropGroup' } } } } }
+    post:
+      tags: [cropGroups]
+      operationId: createCropGroup
+      summary: Создать группу культур
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CropGroup' } } } }
+      responses:
+        '201': { description: создано }
+  /crop-groups/{id}:
+    put:
+      tags: [cropGroups]
+      operationId: updateCropGroup
+      summary: Переименовать группу и задать порядок в отчётах
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CropGroup' } } } }
+      responses:
+        '204': { description: изменено }
+    delete:
+      tags: [cropGroups]
+      operationId: deleteCropGroup
+      summary: Удалить группу культур
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: удалено }
+        '409': { description: в группе есть культуры }
+  /templates:
+    get:
+      tags: [templates]
+      operationId: listTemplates
+      summary: Шаблоны замеров
+      responses:
+        '200': { description: шаблоны, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Template' } } } } }
+    post:
+      tags: [templates]
+      operationId: createTemplate
+      summary: Создать шаблон замеров и назначить его агрономам
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Template' } } } }
+      responses:
+        '201': { description: создано }
+        '409': { description: у агронома уже есть шаблон }
+  /templates/check:
+    get:
+      tags: [templates]
+      operationId: checkAssignments
+      summary: У кого из агрономов уже есть шаблон
+      parameters:
+        - { name: agronomists, in: query, required: true, schema: { type: array, items: { type: string } } }
+      responses:
+        '200': { description: номера с шаблоном, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+  /templates/{id}:
+    get:
+      tags: [templates]
+      operationId: getTemplate
+      summary: Шаблон с культурами и агрономами
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: шаблон, content: { application/json: { schema: { $ref: '#/components/schemas/Template' } } } }
+    put:
+      tags: [templates]
+      operationId: updateTemplate
+      summary: Переименовать шаблон и сменить набор культур
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Template' } } } }
+      responses:
+        '204': { description: изменено }
+    delete:
+      tags: [templates]
+      operationId: deleteTemplate
+      summary: Удалить шаблон замеров
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: удалено }
+  /templates/{id}/assignments:
+    post:
+      tags: [templates]
+      operationId: assignTemplate
+      summary: Назначить шаблон ещё агрономам
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+      responses:
+        '204': { description: назначено }
+        '409': { description: у агронома уже есть шаблон }
+  /templates/{id}/assignments/{agronomist}:
+    delete:
+      tags: [templates]
+      operationId: unassignTemplate
+      summary: Снять шаблон с агронома
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+        - { name: agronomist, in: path, required: true, schema: { type: string } }
+      responses:
+        '204': { description: снято }
+  /plots:
+    get:
+      tags: [plots]
+      operationId: listOwnPlots
+      summary: Свои участки
+      responses:
+        '200': { description: участки, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Plot' } } } } }
+    post:
+      tags: [plots]
+      operationId: createPlot
+      summary: Завести участок
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Plot' } } } }
+      responses:
+        '201': { description: создано }
+  /plots/{id}:
+    put:
+      tags: [plots]
+      operationId: updatePlot
+      summary: Изменить участок
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Plot' } } } }
+      responses:
+        '204': { description: изменено }
+    delete:
+      tags: [plots]
+      operationId: archivePlot
+      summary: Убрать участок в архив
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: в архиве }
+  /supervisors:
+    get:
+      tags: [handover]
+      operationId: listSupervisors
+      summary: Главные агрономы
+      responses:
+        '200': { description: номера и ФИО, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Person' } } } } }
+  /handover:
+    post:
+      tags: [handover]
+      operationId: requestHandover
+      summary: Запросить передачу своих шаблонов другому главному агроному
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/HandoverRequest' } } } }
+      responses:
+        '201': { description: запрос создан }
+  /handover/{id}:
+    get:
+      tags: [handover]
+      operationId: getHandover
+      summary: Запрос на передачу шаблонов
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: запрос, content: { application/json: { schema: { $ref: '#/components/schemas/HandoverRequest' } } } }
+  /handover/{id}/decision:
+    post:
+      tags: [handover]
+      operationId: decideHandover
+      summary: Решение по передаче шаблонов
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Decision' } } } }
+      responses:
+        '204': { description: решение записано }
+  /me:
+    get:
+      tags: [profile]
+      operationId: getMe
+      summary: Кто я — номер, ФИО, роли
+      responses:
+        '200': { description: профиль, content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }
+  /me/scope:
+    get:
+      tags: [profile]
+      operationId: getScope
+      summary: Регионы, по которым мне доступна сводка
+      responses:
+        '200': { description: регионы, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Unit' } } } } }
+  /imports/weather:
+    post:
+      tags: [imports]
+      operationId: uploadWeather
+      summary: Загрузить файл с показаниями метеопостов хозяйств
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, properties: { file: { type: string, format: binary } } } } } }
+      responses:
+        '202': { description: принят }
+        '400': { description: файл не по формату }
+  /imports/last:
+    get:
+      tags: [imports]
+      operationId: getLastImport
+      summary: Сведения о последней успешной загрузке показаний
+      responses:
+        '200': { description: загрузка, content: { application/json: { schema: { $ref: '#/components/schemas/ImportInfo' } } } }
+  /reports/digest:
+    get:
+      tags: [reports]
+      operationId: getWeeklyDigest
+      summary: Недельная сводка для главного агронома
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: сводка, content: { application/json: { schema: { $ref: '#/components/schemas/Digest' } } } }
+  /reports/digest/send:
+    post:
+      tags: [reports]
+      operationId: sendDigest
+      summary: Разослать недельную сводку главным агрономам
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '202': { description: рассылка запущена }
+components:
+  schemas:
+    EntryDay:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        plotId: { type: integer, format: int64 }
+        status: { type: string }
+        editable: { type: boolean }
+        values: { type: array, items: { $ref: '#/components/schemas/EntryValue' } }
+    EntryValue:
+      type: object
+      properties:
+        cropId: { type: integer, format: int64 }
+        value: { type: number }
+    EntrySave:
+      type: object
+      required: [date, values]
+      properties:
+        date: { type: string, format: date }
+        plotId: { type: integer, format: int64 }
+        values: { type: array, items: { $ref: '#/components/schemas/EntryValue' } }
+    WeekStatus:
+      type: object
+      properties:
+        draft: { type: integer }
+        pending: { type: integer }
+        approved: { type: integer }
+        returned: { type: integer }
+        windowOpen: { type: boolean }
+    Decision:
+      type: object
+      required: [approve]
+      properties:
+        approve: { type: boolean }
+        comment: { type: string }
+    WindowRequest:
+      type: object
+      required: [weekStart]
+      properties:
+        weekStart: { type: string, format: date }
+        reason: { type: string }
+    Window:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        agronomist: { type: string }
+        weekStart: { type: string, format: date }
+        reason: { type: string }
+        status: { type: string }
+    SummaryRow:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        cropTotals: { type: object, additionalProperties: { type: number } }
+        pestCasesClosed: { type: integer }
+    CropTotal:
+      type: object
+      properties:
+        cropCode: { type: string }
+        groupName: { type: string }
+        total: { type: number }
+    Unit:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+    Crop:
+      type: object
+      required: [code, name]
+      properties:
+        id: { type: integer, format: int64 }
+        code: { type: string }
+        name: { type: string }
+        groupId: { type: integer, format: int64 }
+    CropUsage:
+      type: object
+      properties:
+        values: { type: integer }
+        templates: { type: integer }
+    CropGroup:
+      type: object
+      required: [name]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        sortOrder: { type: integer }
+    Template:
+      type: object
+      required: [name, cropIds, agronomists]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        cropIds: { type: array, items: { type: integer, format: int64 } }
+        agronomists: { type: array, items: { type: string } }
+    Plot:
+      type: object
+      required: [name, farmId]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        farmId: { type: integer, format: int64 }
+        areaHa: { type: number }
+    Person:
+      type: object
+      properties:
+        number: { type: string }
+        fullName: { type: string }
+    HandoverRequest:
+      type: object
+      required: [toHead]
+      properties:
+        id: { type: integer, format: int64 }
+        fromHead: { type: string }
+        toHead: { type: string }
+        status: { type: string }
+    Me:
+      type: object
+      properties:
+        number: { type: string }
+        fullName: { type: string }
+        roles: { type: array, items: { type: string } }
+    ImportInfo:
+      type: object
+      properties:
+        fileName: { type: string }
+        rows: { type: integer }
+        loadedAt: { type: string, format: date-time }
+    Digest:
+      type: object
+      properties:
+        weekStart: { type: string, format: date }
+        submitted: { type: integer }
+        overdue: { type: integer }
+        precipitationMm: { type: number }

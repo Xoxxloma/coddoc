@@ -1,0 +1,7 @@
+## контракт :: ключ
+{R1}/app/orders/OrderController.java:4
+{R1}/app/users/UserController.java:3
+## топики :: ориентир
+{R1}/app/events/OrderEventProcessor.java:6
+{R1}/app/events/UserEventProcessor.java:2
+{R1}/app/orders/OrderListener.java:1

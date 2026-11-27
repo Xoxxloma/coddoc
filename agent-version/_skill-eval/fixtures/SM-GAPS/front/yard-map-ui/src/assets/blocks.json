@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "block": "A" }, "geometry": { "type": "Polygon", "coordinates": [[[30.214, 59.877], [30.216, 59.877], [30.216, 59.878], [30.214, 59.878], [30.214, 59.877]]] } },
+    { "type": "Feature", "properties": { "block": "B" }, "geometry": { "type": "Polygon", "coordinates": [[[30.217, 59.877], [30.219, 59.877], [30.219, 59.878], [30.217, 59.878], [30.217, 59.877]]] } }
+  ]
+}

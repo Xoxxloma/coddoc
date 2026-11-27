@@ -1,0 +1,14 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: yard-map-ui
+    path: ../yard-map-ui
+    type: frontend
+  - name: yard-api
+    path: ../yard-api
+    type: backend
+  - name: portal-shell
+    path: ../portal-shell
+    type: frontend
+  - name: cargo-tracker
+    path: ../cargo-tracker
+    type: frontend

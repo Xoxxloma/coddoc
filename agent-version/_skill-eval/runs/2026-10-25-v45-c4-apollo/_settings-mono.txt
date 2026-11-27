@@ -1,0 +1,6 @@
+фикстура: SM-APOLLO, сервис: apollo-portal
+модель: sonnet; прогонов: 2; параллельность: 2; таймаут: 9000 c
+папка скилла: /c/Users/Konstantin/projects/product-skills/.claude/worktrees/sm2-next/agent-version/service-map-2.0
+снимок: _skills/service-map (1076 строк SKILL.md, 17 файлов reference/); подмена: K=как в тексте w=как в тексте
+копия для прогона: C:/Users/Konstantin/AppData/Local/Temp/claude/c--Users-Konstantin-projects-product-skills/4639781c-76e9-4eed-beba-53a6bebc379d/scratchpad/snap45-c4-apo/2026-10-25-v45-c4-apollo/service-map
+claude: /c/Users/Konstantin/AppData/Roaming/npm/claude

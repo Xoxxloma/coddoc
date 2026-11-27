@@ -1,0 +1,9 @@
+## контракт :: ключ
+{R1}/src/big/x/X1.java:6
+{R1}/src/big/y/Y1.java:4
+{R1}/src/big/One.java:3
+{R1}/src/big/Three.java:5
+{R1}/src/small/S.java:4
+## сущности :: ключ
+{R1}/src/big/y/Y2.java:3
+{R1}/src/big/Two.java:4

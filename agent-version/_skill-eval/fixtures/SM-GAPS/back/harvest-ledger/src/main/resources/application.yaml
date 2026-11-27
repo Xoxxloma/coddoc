@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1/ledger
+
+spring:
+  application:
+    name: harvest-ledger
+  datasource:
+    url: ${LEDGER_DB_URL:jdbc:postgresql://localhost:5432/agro}
+    username: ${LEDGER_DB_USER:ledger}
+    password: ${LEDGER_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.default_schema: ledger
+  flyway:
+    schemas: ledger
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    producer:
+      acks: all
+  mail:
+    host: ${SMTP_HOST:smtp.local}
+    port: 25
+
+ledger:
+  audit:
+    topic: ledger.audit.v1
+  drafts:
+    retention-days: 90
+  windows:
+    open-hours: 72
+  imports:
+    failed-retention-days: 30
+  handover:
+    expire-days: 14
+
+integration:
+  staff-profile:
+    url: ${STAFF_PROFILE_URL:http://staff-profile.agro.local}
+  audit-hub:
+    url: ${AUDIT_HUB_URL:http://audit-hub.agro.local}

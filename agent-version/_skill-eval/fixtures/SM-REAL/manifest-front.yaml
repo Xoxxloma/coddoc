@@ -1,0 +1,20 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+#
+# ЗАСЕВ ПЛЕЧА `front`: типы, которых v2 на стенде не видел, — фронт, fullstack, бэкенд с
+# клиентской спекой соседа, мелкий бэкенд на пороге нарезки. Ключ ответов — KEY-FRONT.md.
+services:
+  - name: resonance-web
+    path: ../resonance-web
+    type: frontend
+  - name: webapp-shop
+    path: ../webapp-shop
+    type: frontend
+  - name: skydesk
+    path: ../skydesk
+    type: fullstack
+  - name: dome-control
+    path: ../dome-control
+    type: backend
+  - name: resonance-api
+    path: ../resonance-api
+    type: backend

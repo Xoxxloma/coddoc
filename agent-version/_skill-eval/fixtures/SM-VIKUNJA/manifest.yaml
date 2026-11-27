@@ -1,0 +1,5 @@
+# Слепок соседних сервисов. Этот файл ведёт человек.
+services:
+  - name: vikunja-frontend
+    path: ../vikunja-frontend
+    type: frontend

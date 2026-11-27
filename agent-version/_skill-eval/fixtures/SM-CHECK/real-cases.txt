@@ -1,0 +1,12 @@
+# имя | опись | черновик | прежняя (пусто — без гарда); пути от agent-version/_skill-eval
+# опись и черновики — r5 scan-1 .work; прежние — карточки соседних прогонов r8 и итоговая карточка r5
+real-api|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.md|
+real-api-vs-r8s1|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.md|runs/2026-09-22-r8-scan/sandbox/scan-1/w/AI-SDD/services/repairy-api.md
+real-api-vs-r8s2|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.md|runs/2026-09-22-r8-scan/sandbox/scan-2/w/AI-SDD/services/repairy-api.md
+real-api-vs-r8s3|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.md|runs/2026-09-22-r8-scan/sandbox/scan-3/w/AI-SDD/services/repairy-api.md
+real-api-vs-r5card|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-api.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/repairy-api.md
+real-web|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.md|
+real-web-vs-r8s1|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.md|runs/2026-09-22-r8-scan/sandbox/scan-1/w/AI-SDD/services/repairy-web.md
+real-web-vs-r8s2|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.md|runs/2026-09-22-r8-scan/sandbox/scan-2/w/AI-SDD/services/repairy-web.md
+real-web-vs-r8s3|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.md|runs/2026-09-22-r8-scan/sandbox/scan-3/w/AI-SDD/services/repairy-web.md
+real-web-vs-r5card|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.opis.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/.work/repairy-web.md|runs/2026-09-22-r5-scan/sandbox/scan-1/w/AI-SDD/services/repairy-web.md

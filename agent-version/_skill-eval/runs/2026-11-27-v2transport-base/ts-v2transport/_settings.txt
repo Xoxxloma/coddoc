@@ -1,0 +1,8 @@
+проба: ts-v2transport
+модель: claude-sonnet-5
+effort: умолчание CLI
+реплика аналитика: fx-turn2.txt
+потолок ходов: 4
+конец диалога по файлу: /coddoc/.*/technical_specification\.md$
+пустых ходов подряд: 4
+прогонов: 3, параллельность: 3

@@ -1,0 +1,7 @@
+## задачи :: ключ
+{R1}/flat/F1.java:2
+{R1}/flat/F2.java:2
+{R1}/flat/F3.java:3
+{R1}/flat/F4.java:1
+{R1}/flat/F5.java:4
+{R1}/flat/F6.java:2

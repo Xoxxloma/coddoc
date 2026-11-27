@@ -1,0 +1,16 @@
+http:
+  port: 8080
+db:
+  url: postgres://db:5432/parcels
+kafka:
+  clientId: parcel-hub
+  brokers:
+    - kafka-1:9092
+    - kafka-2:9092
+  group: parcel-hub
+  topics:
+    parcelScanned: parcels.scanned
+    routeAssigned: routes.assigned
+    courierStatus: couriers.status
+    parcelDelivered: parcels.delivered
+    parcelLost: parcels.lost

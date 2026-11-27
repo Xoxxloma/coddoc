@@ -1,0 +1,14 @@
+{
+ "о чём": "нет part-02.md → ОТКАЗ, код 3, выходы не тронуты",
+ "base": "_min",
+ "mutate": [
+  {
+   "op": "delete",
+   "file": "part-02.md"
+  }
+ ],
+ "S": 3,
+ "date": "2026-10-04",
+ "want": "refuse",
+ "sentinel": true
+}

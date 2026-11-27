@@ -1,0 +1,6 @@
+kafka:
+  brokers:
+    - localhost:9092
+  topics:
+    parcelScanned: it.parcels.scanned
+    routeAssigned: it.routes.assigned

@@ -1,0 +1,3 @@
+дерево: SM-GAPS/front/yard-map-ui
+итог: экраны 8, клиенты 1
+прогон: 2026-11-24-port-front/mono-01#0

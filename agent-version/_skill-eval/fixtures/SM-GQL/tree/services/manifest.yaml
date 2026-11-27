@@ -1,7 +1,0 @@
-services:
-  - name: vetcare-api
-    path: ../vetcare-api
-    type: backend
-  - name: vetcare-web
-    path: ../vetcare-web
-    type: frontend

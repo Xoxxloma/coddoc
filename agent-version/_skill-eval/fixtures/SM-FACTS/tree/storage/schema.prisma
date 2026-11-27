@@ -1,0 +1,18 @@
+model Shipment {
+  id String @id
+  status String
+  token String? @unique
+  attempts Int @default(0)
+  carrierId String?
+  held Boolean @default(false)
+  holdReason String?
+  deliveredAt DateTime?
+  internalNotes String?
+}
+model Carrier {
+  id String @id
+  taxId String @unique(map: "carrier_tax_id_unique")
+  enabled Boolean @default(false)
+  archived Boolean @default(false)
+  busy Boolean @default(false)
+}

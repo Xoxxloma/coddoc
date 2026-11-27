@@ -1,4 +1,0 @@
-{
-  "name": "warehouse-web",
-  "scripts": { "dev": "vite" }
-}

@@ -1,0 +1,14 @@
+## контракт :: @GetMapping\b :: *.java :: ключ
+{R1}/src/a/F1.java:3
+{R1}/src/a/F2.java:40
+{R1}/src/a/Dup.java:1
+{R1}/src/b/Dup.java:1
+{R1}/src/b/G.java:10
+## сущности :: @Entity\b :: *.java :: ключ
+{R1}/src/a/F3.java:5
+## контроль :: контракт :: `{R1}/src/a/F1.java` :: 3
+## контроль :: контракт :: svc/src/a/F2.java :: 40
+## контроль :: сущности :: F3.java :: 5
+## контроль :: задачи :: nothere/Z.java :: 2
+## контроль :: контракт :: Dup.java :: 4
+## контроль :: контракт :: {R1}/src/b/G.java :: 30

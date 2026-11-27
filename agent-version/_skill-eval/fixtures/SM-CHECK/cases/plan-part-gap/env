@@ -1,0 +1,3 @@
+CHECK_PLAN=plan.tsv
+CHECK_PARTS=parts
+CHECK_PREFIX=/api/task-manager/

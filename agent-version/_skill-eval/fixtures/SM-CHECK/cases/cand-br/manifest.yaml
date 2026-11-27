@@ -1,0 +1,10 @@
+services:
+  - name: billing
+    path: ../billing
+    type: backend
+  - name: partner-registry
+    path: ../partner-registry
+    type: backend
+  - name: warehouse
+    path: ../warehouse
+    type: backend

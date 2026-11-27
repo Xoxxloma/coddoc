@@ -1,0 +1,6 @@
+## контракт :: ключ
+{R1}/src/a/A.java:4
+{R1}/src/a/B.java:3
+{R1}/src/b/C.java:5
+## сущности :: ключ
+{R1}/src/c/D.java:2

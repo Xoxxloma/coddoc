@@ -1,0 +1,75 @@
+{
+ "о чём": "остаток списком: папки целиком вне частей и «файлы прямо в папке» у разрезанных; скрытые папки и node_modules не идут нигде, target/build/dist — только в корне сервиса: пакет src/pkg/build остаётся",
+ "K": 6,
+ "w": 1,
+ "roots": {
+  "R1": "svc"
+ },
+ "form": "posix",
+ "tree_extra": [
+  "README.md",
+  "pom.xml",
+  "src/Main.java",
+  "src/api/Helper.java",
+  "src/config/Sec.java",
+  "src/config/deep/X.java",
+  "docs/a.md",
+  ".github/ci.yml",
+  "build/Gen.java",
+  "node_modules/x/i.js",
+  "src/core/Util.java",
+  "dist/bundle.js",
+  "target/classes/A.class",
+  "__pycache__/x.pyc",
+  "src/pkg/build/Builder.java",
+  "src/core/node_modules/y/i.js"
+ ],
+ "itog": {
+  "ключ": {
+   "контракт": 17
+  },
+  "ориентир": {}
+ },
+ "mode": "план",
+ "W": 17,
+ "parts": [
+  {
+   "kind": "папки",
+   "paths": [
+    "src/api/v2"
+   ],
+   "w": 6,
+   "cls": {
+    "контракт": 6
+   }
+  },
+  {
+   "kind": "файлы",
+   "paths": [
+    "src/api/A.java"
+   ],
+   "w": 6,
+   "cls": {
+    "контракт": 6
+   }
+  },
+  {
+   "kind": "папки",
+   "paths": [
+    "src/core"
+   ],
+   "w": 5,
+   "cls": {
+    "контракт": 5
+   }
+  }
+ ],
+ "rest": [
+  "папка docs",
+  "папка src/config",
+  "папка src/pkg",
+  "файлы прямо в .",
+  "файлы прямо в src",
+  "файлы прямо в src/api"
+ ]
+}

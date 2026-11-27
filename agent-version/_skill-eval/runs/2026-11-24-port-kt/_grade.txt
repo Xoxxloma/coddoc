@@ -1,0 +1,3 @@
+SM-GAPS: SM-GAPS-KT, сервис seed-vault, модель claude-sonnet-5, прогонов 1
+
+mono-01: карточки нет (прогон не записал)

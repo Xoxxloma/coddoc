@@ -1,0 +1,3 @@
+## контракт :: ключ
+{X}/other/Q.java:5
+{X}/svc-old/C.java:1

@@ -1,0 +1,73 @@
+{
+  "_что": "Куски замера K-1/K-2 (PLAN-AUTOSPLIT §5): сколько ключей берёт один читающий субагент service-map. Раннер run-sm-k.sh, грейдер grade-sm-k.mjs. Ключ = эндпоинт + сущность + задача (+ топик у NRS-TAIL). Пути — от корня репозитория куска. Правда записана здесь и ПЕРЕСЧИТЫВАЕТСЯ раннером на каждом засеве по правилам count (+ extra куска) — в _piece.json песочницы; разошлось — раннер предупреждает, грейдер берёт пересчёт.",
+  "_сущности_prisma": "Все 20 model repairy-api лежат в одном prisma/schema.prisma. Сущность — ключ того куска, в чьих путях лежит её model. Так велит бриф («ключи выписывай только из путей сервиса; за фактом можно выйти в корень… но ключи оттуда не берёшь») и так их отнесёт план §4.2: prisma/ — одна папка с 20 ключами, попадает ровно в одну часть. Куски из src/<модуль> сущностей по правде не имеют, схему читают за фактом. Назовёт ли их читающий всё же ключами («сущность — маркер хранения в ЭТОМ репозитории») — видно у грейдера: столбец «в описи», в скобках строки сущностей.",
+  "fixtures": {
+    "repairy": {
+      "seed": "SM-REAL",
+      "repo": "repairy-api",
+      "type": "backend",
+      "names": "repairy-api, repairy-web, resonance-api",
+      "count": [
+        { "class": "эндпоинты", "regex": "@(Get|Post|Patch|Put|Delete)\\(", "include": "*.ts" },
+        { "class": "задачи", "regex": "@(Cron|Interval|Timeout)\\(", "include": "*.ts" },
+        { "class": "сущности", "regex": "^model ", "include": "*.prisma" }
+      ]
+    },
+    "nrs-tail": {
+      "seed": "NRS-TAIL",
+      "repo": "cargonet",
+      "type": "backend",
+      "names": "cargonet",
+      "count": [
+        { "class": "эндпоинты", "regex": "@(Get|Post|Put|Patch|Delete)Mapping", "include": "*.java" },
+        { "class": "сущности", "regex": "@Entity([^A-Za-z]|$)", "include": "*.java" },
+        { "class": "задачи", "regex": "@Scheduled", "include": "*.java" }
+      ]
+    }
+  },
+  "pieces": {
+    "api-32": {
+      "fixture": "repairy",
+      "kind": "K-1",
+      "paths": ["src/projects", "src/rooms", "src/works"],
+      "truth": { "эндпоинты": 32, "задачи": 0, "сущности": 0 },
+      "keys": 32,
+      "files": 13,
+      "method": "grep -rhoE '@(Get|Post|Patch|Put|Delete)\\(' --include=*.ts по путям: projects 19 (projects.controller 18 + public.controller 1), rooms 7, works 6; @Cron|@Interval|@Timeout — 0; ^model в *.prisma по путям — 0 (схема вне путей)",
+      "why": "один домен: проект → комнаты → работы; вложен в api-58"
+    },
+    "api-58": {
+      "fixture": "repairy",
+      "kind": "K-1",
+      "paths": ["src/company", "src/documents", "src/estimate-history", "src/files", "src/health", "src/notifications", "src/projects", "src/purchases", "src/push", "src/rooms", "src/shopping", "src/works"],
+      "truth": { "эндпоинты": 57, "задачи": 1, "сущности": 0 },
+      "keys": 58,
+      "files": 41,
+      "method": "тот же греп: company 9, documents 3, estimate-history 1, files 1, health 1, projects 19, purchases 4, push 2, rooms 7, shopping 4, works 6 = 57; задача — @Cron('*/30 * * * * *') flush в notifications/notification-queue.service.ts = 1; сущностей 0 (схема вне путей)",
+      "why": "вторая часть плана §4.2 при K=60: папки с пометками по пути подряд — prisma 20 + acceptances 6 + app-config 1 + auth 22 + catalog 4 + comments 6 = 59 | company … works = 58; вложен в api-117"
+    },
+    "api-117": {
+      "fixture": "repairy",
+      "kind": "K-1",
+      "paths": ["."],
+      "truth": { "эндпоинты": 96, "задачи": 1, "сущности": 20 },
+      "keys": 117,
+      "files": 125,
+      "method": "весь репозиторий, путь = корень (строка про корень из брифа убрана — как у сервиса одной строкой): эндпоинты 96 по 17 контроллерам, задача 1, ^model в prisma/schema.prisma 20 (сходится с SM-REAL/KEY.md §1)",
+      "why": "сегодняшний один читающий; база сканов 22.09 r5/r7/r8 — пик читающего repairy-api 237–304k"
+    },
+    "nrs-exchange": {
+      "fixture": "nrs-tail",
+      "kind": "K-2",
+      "paths": ["src/main/java/ru/cargonet/v2/exchange", "src/main/java/ru/cargonet/v2/seal"],
+      "extra": [
+        { "class": "топики", "regex": "^      - ", "file": "src/main/resources/application.yaml" }
+      ],
+      "truth": { "эндпоинты": 1, "сущности": 1, "задачи": 0, "топики": 18 },
+      "keys": 20,
+      "files": 567,
+      "method": "NRS-TAIL/expected.md: exchange — 560 файлов, эндпоинтов/сущностей/@Scheduled/@Query 0, поверхность — 18 топиков, имена только в src/main/resources/application.yaml (вне путей куска), обработчиков 6 (exchange/handler); seal — 7 файлов, 1 эндпоинт + 1 сущность. Топики отнесены куску: их обработчики в exchange, имена — за фактом в корне",
+      "why": "K-2: вес папки без пометок — 560 файлов при 20 ключах; пик против числа файлов, без оценки"
+    }
+  }
+}

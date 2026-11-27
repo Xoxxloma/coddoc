@@ -1,0 +1,23 @@
+{
+  "cases": {
+    "nrs-green": { "fixture": "NRS-TAIL", "about": "полная карточка, пик 120k, скрипты у субагентов → Б-5 и Б-6 да", "want": { "measured": true, "card": true, "b5": true, "b6": true, "keys/contract/found": 139, "keys/entities/found": 88, "keys/jobs/found": 9, "keys/topics/found": 18, "keys/contract/extras/length": 0, "keys/entities/extras/length": 0, "st/lead/agents": 2, "st/lead/peak": 120000, "st/scripts/plan.sh/sub": 1, "st/scripts/assemble.sh/sub": 1, "st/scripts/promote.sh/sub": 1, "st/scripts/check.sh/lead": 1, "st/lead/readWork": 0, "st/subs/0/peak": 180000, "st/subs/0/desc": "часть 01", "cost": 1.25 } },
+    "nrs-no-card": { "fixture": "NRS-TAIL", "about": "карточки нет → Б-5 нет", "want": { "measured": true, "card": false, "b5": false, "b6": true } },
+    "nrs-contract-90": { "fixture": "NRS-TAIL", "about": "контракт 125/139 (90 %) → Б-5 нет", "want": { "measured": true, "card": true, "keys/contract/found": 125, "b5": false, "b6": true } },
+    "nrs-topics-17": { "fixture": "NRS-TAIL", "about": "топики 17/18 → Б-5 нет", "want": { "keys/topics/found": 17, "b5": false, "b6": true } },
+    "nrs-lead-read-work": { "fixture": "NRS-TAIL", "about": "ведущий Read по .work/ → Б-6 нет", "want": { "st/lead/readWork": 1, "b5": true, "b6": false } },
+    "nrs-sub-read-work": { "fixture": "NRS-TAIL", "about": "Read по .work/ у субагента — не штраф", "want": { "st/lead/readWork": 0, "st/sub/readWork": 1, "b5": true, "b6": true } },
+    "nrs-peak-151k": { "fixture": "NRS-TAIL", "about": "пик ведущего 151 000 → Б-6 нет", "want": { "st/lead/peak": 151000, "b5": true, "b6": false } },
+    "nrs-dup-header": { "fixture": "NRS-TAIL", "about": "повтор заголовка контракта и сущности — счёт повторов, доля не растёт", "want": { "keys/contract/dups/length": 1, "keys/entities/dups/length": 1, "keys/contract/found": 139, "keys/contract/extras/length": 0, "b5": true } },
+    "nrs-api-failure": { "fixture": "NRS-TAIL", "about": "отказ API → не измерено", "want": { "measured": false } },
+    "nrs-bg-abandoned": { "fixture": "NRS-TAIL", "about": "брошено в фоне без повтора → не измерено", "want": { "measured": false, "why": "брошено в фоне" } },
+    "dgs-green": { "fixture": "SM-MONO-DGS", "about": "DGS: query/Mutation./(subscription), REST {id}/:id → Б-5 да", "want": { "measured": true, "b5": true, "b6": true, "keys/contract/found": 120, "keys/topics/found": 12, "keys/topics/dirMismatch/length": 0, "keys/entities/found": 60, "keys/jobs/found": 10 } },
+    "dgs-extras": { "fixture": "SM-MONO-DGS", "about": "резолверы полей, POST /graphql, JPQL в контракте → лишние 5, доля 100 %", "want": { "keys/contract/found": 120, "keys/contract/extras/length": 5, "b5": true } },
+    "dgs-topic-direction": { "fixture": "SM-MONO-DGS", "about": "два топика с чужим направлением — доля по имени 12/12, расхождение печатается", "want": { "keys/topics/found": 12, "keys/topics/dirMismatch/length": 2, "b5": true } }
+  },
+  "rounds": [
+    ["три зелёных", ["nrs-green", "nrs-sub-read-work", "nrs-dup-header"], "ЗЕЛЁНЫЙ", "ЗЕЛЁНЫЙ"],
+    ["один без карточки", ["nrs-green", "nrs-no-card", "nrs-green"], "КРАСНЫЙ", "ЗЕЛЁНЫЙ"],
+    ["отказ API не в знаменателе", ["nrs-green", "nrs-api-failure", "nrs-green"], "НЕ ХВАТАЕТ", "НЕ ХВАТАЕТ"],
+    ["пик и чтение .work/", ["nrs-green", "nrs-peak-151k", "nrs-lead-read-work"], "ЗЕЛЁНЫЙ", "КРАСНЫЙ"]
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "mapScriptUrl": "https://maps.vendor.example/js/2.1/loader.js",
+  "mapTilesStyle": "terminal-light",
+  "cargoTrackerUrl": "https://tracker.port.example/containers/"
+}

@@ -1,0 +1,14 @@
+{
+ "о чём": "серверная спека с operationId — файл с пометками ключ; полная строка разведчика с областью перед ключ разбирается; соседняя клиентская спека не попала в счёт; файл тяжелее K — отдельная часть",
+ "K": 20,
+ "w": 0.5,
+ "roots": {"R1": "svc"},
+ "form": "posix",
+ "no_outside": true,
+ "itog": {"ключ": {"контракт": 30}, "ориентир": {}},
+ "mode": "план",
+ "W": 30,
+ "parts": [{"kind": "файлы", "paths": ["src/main/resources/openapi.yaml"], "w": 30, "cls": {"контракт": 30}}],
+ "tree_extra": ["src/main/resources/neighbour.yaml", "src/main/java/web/DeskController.java", "pom.xml"],
+ "rest": ["папка src/main/java", "файлы прямо в .", "файлы прямо в src/main/resources"]
+}

@@ -1,0 +1,6 @@
+итог	контракт	2
+итог	сущности	1
+итог	задачи	1
+файл	/w/dome-control/internal/http/router.go	контракт	2	-
+файл	/w/dome-control/internal/dome/dome.go	сущности	1	-
+файл	/w/dome-control/internal/jobs/close_on_rain.go	задачи	1	-
