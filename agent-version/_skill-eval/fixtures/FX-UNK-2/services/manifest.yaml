@@ -1,0 +1,6 @@
+services:
+  - name: agro-journal
+    path: ../agro-journal
+    type: fullstack
+    notes: |
+      Журнал агронома тепличного комбината: теплицы и записи обходов. Ведёт команда «Журнал агронома».

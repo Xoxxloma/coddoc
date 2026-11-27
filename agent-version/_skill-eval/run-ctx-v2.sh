@@ -326,6 +326,17 @@ case "$PROBE" in
   # `ts-open` — открытые пункты без вопроса (спека 2.5.1, 2026-11-25): один ход «ПРОДОЛЖЕНИЕ», ответы на все гейты,
   # о схеме событий новой внешней системы и о нагрузке — ни слова. Верно — реестр со строкой «Открытым в файл
   # уйдёт» и вопрос про схему, файла нет. Грейдер `grade-ts-open.mjs`. Состав — fixtures/TS-OPEN/README.md.
+  # Чужой стык (пробы написаны тремя независимыми авторами, текста правки скилла они не видели). Три случая:
+  # `fx-has-*` — контракт чужой системы есть (в карточке сервиса / у аналитика): спрашиваем, в спеке только названное;
+  # `fx-unk-*` — упомянут, но неизвестен (исходящий вызов / входящие события, которых ещё нет): спрашиваем, открытый пункт;
+  # `fx-none-*` — чужих стыков нет (без окружения / соседи лежат рядом): о чужом не спрашиваем.
+  # Грейдеры — `grade-fx-has.mjs`, `grade-fx-unk.mjs`, `grade-fx-none.mjs`. Состав — README фикстур FX-*.
+  fx-has-1) FIXTURE=FX-HAS-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=fx-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-has-2) FIXTURE=FX-HAS-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=fx-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-unk-1) FIXTURE=FX-UNK-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=unk-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_GREP='Статус готовности:** *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  fx-unk-2) FIXTURE=FX-UNK-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=unk-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_GREP='Статус готовности:** *(Готово|Требуются)'; DONE_INCLUDE=technical_specification.md ;;
+  fx-none-1) FIXTURE=FX-NONE-1; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
+  fx-none-2) FIXTURE=FX-NONE-2; PROMPT_FILE=spec-prompt.txt; SKILL=technical-spec-doc; TURN2_FILE=yes-turn2.txt; TURNS_CAP=4; IDLE_MAX=4; DONE_RE='/coddoc/.*/technical_specification.md$' ;;
   ts-open)   FIXTURE=TS-OPEN;   PROMPT_FILE=spec-prompt.txt;  SKILL=technical-spec-doc ;;
   # `ts-open-hd` / `ts-acc-hd` — чужой стык одним вопросом всеми сторонами (спека 2.5.2): ход 2 — значение на часть сторон,
   # остальное «не знаю, к валидации»; конец по статусу спеки. Грейдер `grade-hd.mjs`.
